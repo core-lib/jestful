@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.qfox</groupId>
+	<artifactId>jestful</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+	<name>Jestful</name>
+	<description>A Powerful And Easy To Use RESTful Framework For Java</description>
+	<modules>
+		<module>jestful-core</module>
+		<module>jestful-client</module>
+		<module>jestful-commons</module>
+		<module>jestful-server</module>
+	</modules>
+
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://www.jitpack.io</url>
+		</repository>
+	</repositories>
+
+</project>
