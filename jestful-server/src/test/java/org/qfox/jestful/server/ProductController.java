@@ -17,7 +17,7 @@ import org.qfox.jestful.core.annotation.Jestful;
  *
  * @since 1.0.0
  */
-@Jestful("/products")
+@Jestful("/fashion/products")
 public class ProductController extends DomainController<Product> {
 
 }

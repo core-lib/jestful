@@ -7,6 +7,7 @@ import java.util.Map;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.exception.JestfulRuntimeException;
 import org.qfox.jestful.server.exception.AlreadyValuedException;
+import org.qfox.jestful.server.exception.IllegalConfigException;
 import org.qfox.jestful.server.tree.Hierarchical;
 import org.qfox.jestful.server.tree.Node;
 import org.qfox.jestful.server.tree.PathExpression;
@@ -29,12 +30,14 @@ import org.qfox.jestful.server.tree.PathExpression;
 public class Operation implements Hierarchical<PathExpression, Mapping> {
 	private final Resource resource;
 	private final Method operator;
+	private final Method configurer;
 	private final Map<String, Mapping> mappings = new CaseInsensitiveMap<String, Mapping>();
 
-	public Operation(Resource resource, Method operator, Method configurer) {
+	public Operation(Resource resource, Method operator, Method configurer) throws IllegalConfigException {
 		super();
 		this.resource = resource;
 		this.operator = operator;
+		this.configurer = configurer;
 		for (Annotation annotation : configurer.getAnnotations()) {
 			org.qfox.jestful.core.annotation.Method method = annotation.annotationType().getAnnotation(org.qfox.jestful.core.annotation.Method.class);
 			if (method == null) {
@@ -68,6 +71,10 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 
 	public Method getOperator() {
 		return operator;
+	}
+
+	public Method getConfigurer() {
+		return configurer;
 	}
 
 	public Map<String, Mapping> getMappings() {

@@ -19,7 +19,7 @@ public interface Expression<T extends Expression<T>> extends Comparable<T> {
 
 	boolean match(String value);
 
-	String pattern();
+	boolean isEmpty();
 
 	int hashCode();
 

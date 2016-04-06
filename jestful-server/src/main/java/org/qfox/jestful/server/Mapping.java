@@ -1,14 +1,20 @@
 package org.qfox.jestful.server;
 
-import java.util.ArrayList;
+import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.annotation.Method;
+import org.qfox.jestful.core.annotation.Path;
 import org.qfox.jestful.server.exception.AlreadyValuedException;
+import org.qfox.jestful.server.exception.DuplicateArgumentException;
+import org.qfox.jestful.server.exception.DuplicateVariableException;
+import org.qfox.jestful.server.exception.IllegalConfigException;
+import org.qfox.jestful.server.exception.UndefinedVariableException;
 import org.qfox.jestful.server.tree.Hierarchical;
 import org.qfox.jestful.server.tree.Node;
 import org.qfox.jestful.server.tree.PathExpression;
@@ -28,30 +34,63 @@ import org.qfox.jestful.server.tree.PathExpression;
  *
  * @since 1.0.0
  */
-public class Mapping implements Hierarchical<PathExpression, Mapping> {
+public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping> {
 	private static final Pattern PATTERN = Pattern.compile("\\{(?<name>[^{}]+?)(:(?<rule>[^{}]+?))?\\}");
 
 	private final Operation operation;
 	private final Method method;
 	private final String definition;
 	private final String expression;
-	private final List<Variable> variables = new ArrayList<Variable>();
+	private final Set<Variable> variables = new TreeSet<Variable>();
 
-	public Mapping(Operation operation, Method method, String definition) {
+	public Mapping(Operation operation, Method method, String definition) throws IllegalConfigException {
 		super();
 		this.operation = operation;
 		this.method = method;
 		this.definition = definition;
 		String expression = definition;
 		Matcher matcher = PATTERN.matcher(definition);
-		int index = 0;
 		while (matcher.find()) {
 			String name = matcher.group("name");
 			String rule = matcher.group("rule");
-			rule = rule != null ? rule : "[^/]+";
-			Variable variable = new Variable(name, index++, matcher.group(), rule);
-			this.variables.add(variable);
-			expression = expression.replace(matcher.group(), rule);
+			rule = rule != null ? rule : ".*?";
+			// 找到对应的方法参数
+			Path path = null;
+			int index = 0;
+			for (int i = 0; i < operation.getConfigurer().getParameterAnnotations().length; i++) {
+				for (Annotation annotation : operation.getConfigurer().getParameterAnnotations()[i]) {
+					if (annotation instanceof Path && ((Path) annotation).value().equals(name)) {
+						if (path != null) {
+							throw new DuplicateArgumentException(operation.getResource().getController(), operation.getConfigurer(), Arrays.asList(index, i));
+						} else {
+							index = i;
+							path = (Path) annotation;
+						}
+					}
+				}
+			}
+
+			if (path == null) {
+				if (name.matches("\\d+")) {
+					index = Integer.valueOf(name) - 1;
+					if (index < 0 || index >= operation.getConfigurer().getParameterAnnotations().length) {
+						throw new UndefinedVariableException(operation.getResource().getController(), operation.getConfigurer(), index);
+					}
+				} else {
+					throw new UndefinedVariableException(operation.getResource().getController(), operation.getConfigurer(), name);
+				}
+			}
+
+			Variable variable = new Variable(name, index, matcher.group(), rule);
+			if (variables.add(variable)) {
+				expression = expression.replace(matcher.group(), rule);
+			} else {
+				for (Variable v : variables) {
+					if (v.equals(variable)) {
+						throw new DuplicateVariableException(operation.getResource().getController(), operation.getConfigurer(), variable, v);
+					}
+				}
+			}
 		}
 		this.expression = expression;
 	}
@@ -81,6 +120,10 @@ public class Mapping implements Hierarchical<PathExpression, Mapping> {
 			result.setValue(this);
 		}
 		return result;
+	}
+
+	public int compareTo(Mapping o) {
+		return expression.compareTo(o.expression) != 0 ? expression.compareTo(o.expression) : method.name().compareTo(o.method.name());
 	}
 
 	public Operation getOperation() {

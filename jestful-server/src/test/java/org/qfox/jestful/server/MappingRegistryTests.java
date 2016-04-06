@@ -18,12 +18,22 @@ import org.junit.Test;
  * @since 1.0.0
  */
 public class MappingRegistryTests {
+	private MappingRegistry registry = null;
 
 	@Test
-	public void test() throws Exception {
-		MappingRegistry registry = new TreeMappingRegistry("/");
+	public void testRegister() throws Exception {
+		registry = new TreeMappingRegistry();
+		registry.register(new MainController());
 		registry.register(new BrandController());
+		registry.register(new ProductController());
 		System.out.println(registry);
+	}
+
+	@Test
+	public void testLookup() throws Exception {
+		testRegister();
+		Mapping mapping = registry.lookup("GET", "/page-12/size-10");
+		System.out.println(mapping);
 	}
 
 }

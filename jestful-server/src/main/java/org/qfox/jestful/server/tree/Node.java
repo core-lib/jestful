@@ -22,7 +22,7 @@ import org.qfox.jestful.server.exception.AlreadyValuedException;
  *
  * @since 1.0.0
  */
-public class Node<K extends Expression<K>, V extends Object> implements Comparable<Node<K, V>> {
+public class Node<K extends Expression<K>, V extends Comparable<V>> implements Comparable<Node<K, V>> {
 	protected final K key;
 	protected final String separator;
 	protected final Set<Node<K, V>> branches = new TreeSet<Node<K, V>>();
@@ -47,34 +47,52 @@ public class Node<K extends Expression<K>, V extends Object> implements Comparab
 	 *            路径
 	 * @return 所有匹配的节点
 	 */
-	public Set<Node<K, V>> match(String uri) {
-		String[] hierarchies = uri.split(separator);
-		Iterator<String> iterator = Arrays.asList(hierarchies).iterator();
-		String path = iterator.next();
+	public Set<V> match(String uri) {
+		Set<V> result = new TreeSet<V>();
+
+		String[] paths = uri.split(separator + "+");
+		Iterator<String> iterator = Arrays.asList(paths).iterator();
+
+		String path = "";
 		while (path.isEmpty() && iterator.hasNext()) {
 			path = iterator.next();
 		}
-		Set<Node<K, V>> nodes = new TreeSet<Node<K, V>>();
-		if (key.match(path) == false) {
-			return nodes;
-		}
-		if (iterator.hasNext()) {
-			if (this.isLeaf()) {
-				return nodes;
-			}
-			StringBuilder builder = new StringBuilder();
-			while (iterator.hasNext()) {
-				builder.append(separator);
-				builder.append(iterator.next());
-			}
-			for (Node<K, V> branch : branches) {
-				Set<Node<K, V>> subnodes = branch.match(builder.toString());
-				nodes.addAll(subnodes);
+
+		if (path.isEmpty()) {
+			if (key.isEmpty()) {
+				if (this.isLeaf()) {
+					result.add(value);
+				} else {
+					for (Node<K, V> branch : branches) {
+						result.addAll(branch.match(uri));
+					}
+				}
 			}
 		} else {
-			nodes.add(this);
+			if (key.isEmpty()) {
+				for (Node<K, V> branch : branches) {
+					result.addAll(branch.match(uri));
+				}
+			} else if (key.match(path)) {
+				if (iterator.hasNext()) {
+					StringBuilder builder = new StringBuilder();
+					while (iterator.hasNext()) {
+						builder.append(separator).append(iterator.next());
+					}
+					for (Node<K, V> branch : branches) {
+						result.addAll(branch.match(builder.toString()));
+					}
+				} else if (this.isLeaf()) {
+					result.add(value);
+				} else {
+					for (Node<K, V> branch : branches) {
+						result.addAll(branch.match(separator));
+					}
+				}
+			}
 		}
-		return nodes;
+
+		return result;
 	}
 
 	/**
@@ -84,11 +102,11 @@ public class Node<K extends Expression<K>, V extends Object> implements Comparab
 	 *            子节点
 	 */
 	public void merge(Node<K, V> node) throws AlreadyValuedException {
-		if (this.value != null && node.value != null) {
+		if (this.isLeaf() && node.isLeaf()) {
 			throw new AlreadyValuedException(node, this);
 		}
 
-		if (node.value != null) {
+		if (node.isLeaf() == false) {
 			this.value = node.value;
 		}
 
@@ -108,10 +126,6 @@ public class Node<K extends Expression<K>, V extends Object> implements Comparab
 
 	public boolean isLeaf() {
 		return branches.isEmpty();
-	}
-
-	public boolean isValued() {
-		return value != null;
 	}
 
 	public K getKey() {

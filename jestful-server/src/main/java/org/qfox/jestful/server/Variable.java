@@ -15,7 +15,7 @@ package org.qfox.jestful.server;
  *
  * @since 1.0.0
  */
-public class Variable {
+public class Variable implements Comparable<Variable> {
 	private final String name;
 	private final int index;
 	private final String definition;
@@ -27,6 +27,10 @@ public class Variable {
 		this.index = index;
 		this.definition = definition;
 		this.expression = expression;
+	}
+
+	public int compareTo(Variable o) {
+		return index > o.index ? 1 : index < o.index ? -1 : 0;
 	}
 
 	public String getName() {
@@ -43,6 +47,33 @@ public class Variable {
 
 	public String getExpression() {
 		return expression;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + index;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Variable other = (Variable) obj;
+		if (index != other.index)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return definition;
 	}
 
 }

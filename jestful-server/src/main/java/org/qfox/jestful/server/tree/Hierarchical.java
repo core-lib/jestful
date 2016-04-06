@@ -17,7 +17,7 @@ import org.qfox.jestful.server.exception.AlreadyValuedException;
  *
  * @since 1.0.0
  */
-public interface Hierarchical<K extends Expression<K>, V> {
+public interface Hierarchical<K extends Expression<K>, V extends Comparable<V>> {
 
 	/**
 	 * 转换成对应的树节点

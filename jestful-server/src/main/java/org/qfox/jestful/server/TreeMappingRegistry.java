@@ -1,5 +1,7 @@
 package org.qfox.jestful.server;
 
+import java.util.Set;
+
 import org.qfox.jestful.server.exception.AlreadyValuedException;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
 import org.qfox.jestful.server.exception.DuplicateMappingException;
@@ -26,26 +28,36 @@ import org.qfox.jestful.server.tree.PathExpression;
 public class TreeMappingRegistry implements MappingRegistry {
 	private final Node<PathExpression, Mapping> tree;
 
+	public TreeMappingRegistry() {
+		this("/");
+	}
+
 	public TreeMappingRegistry(String ctxpath) {
 		ctxpath = ctxpath == null || ctxpath.trim().isEmpty() || ctxpath.trim().equals("/") ? "" : ctxpath.trim();
 		this.tree = new Node<PathExpression, Mapping>(new PathExpression(ctxpath));
 	}
 
 	public Mapping lookup(String method, String uri) throws NotFoundStatusException, BadMethodStatusException {
-		return null;
+		Set<Mapping> mappings = tree.match(uri);
+		for (Mapping mapping : mappings) {
+			if (mapping.getMethod().name().equalsIgnoreCase(method)) {
+				return mapping;
+			}
+		}
+		if (mappings.isEmpty()) {
+			throw new NotFoundStatusException(uri);
+		} else {
+			throw new BadMethodStatusException(method, uri, mappings);
+		}
 	}
 
 	public Resource register(Object controller) throws IllegalConfigException {
 		try {
 			Resource resource = new Resource(controller);
 			Node<PathExpression, Mapping> node = resource.toNode();
-			if (node.getKey().pattern().isEmpty()) {
-				tree.merge(node);
-			} else {
-				Node<PathExpression, Mapping> parent = new Node<PathExpression, Mapping>(new PathExpression(""));
-				parent.getBranches().add(node);
-				tree.merge(parent);
-			}
+			Node<PathExpression, Mapping> parent = new Node<PathExpression, Mapping>(new PathExpression());
+			parent.getBranches().add(node);
+			tree.merge(parent);
 			return resource;
 		} catch (AlreadyValuedException e) {
 			Node<?, ?> current = e.getCurrent();

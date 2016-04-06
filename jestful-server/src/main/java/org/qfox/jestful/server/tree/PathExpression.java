@@ -1,41 +1,49 @@
 package org.qfox.jestful.server.tree;
 
 public class PathExpression implements Expression<PathExpression> {
-	private final String pattern;
-	private final String command;
+	private final String path;
+	private final String method;
 
 	public PathExpression() {
 		this(null, null);
 	}
 
-	public PathExpression(String pattern) {
-		this(pattern, null);
+	public PathExpression(String path) {
+		this(path, null);
 	}
 
-	public PathExpression(String pattern, String command) {
+	public PathExpression(String path, String method) {
 		super();
-		this.pattern = pattern != null ? pattern : "";
-		this.command = command != null ? command : "";
+		this.path = path != null ? path : "";
+		this.method = method != null ? method : "";
 	}
 
 	public boolean match(String value) {
-		return value.equals(pattern) || value.matches(pattern);
+		return value.equals(path) || value.matches(path);
+	}
+
+	public boolean isEmpty() {
+		return path.isEmpty();
 	}
 
 	public int compareTo(PathExpression o) {
-		return pattern.compareTo(o.pattern) != 0 ? pattern.compareTo(o.pattern) : command.compareTo(o.command);
+		return path.compareTo(o.path) != 0 ? path.compareTo(o.path) : method.compareTo(o.method);
 	}
 
-	public String pattern() {
-		return pattern;
+	public String getPath() {
+		return path;
+	}
+
+	public String getMethod() {
+		return method;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((command == null) ? 0 : command.hashCode());
-		result = prime * result + ((pattern == null) ? 0 : pattern.hashCode());
+		result = prime * result + ((method == null) ? 0 : method.hashCode());
+		result = prime * result + ((path == null) ? 0 : path.hashCode());
 		return result;
 	}
 
@@ -48,22 +56,22 @@ public class PathExpression implements Expression<PathExpression> {
 		if (getClass() != obj.getClass())
 			return false;
 		PathExpression other = (PathExpression) obj;
-		if (command == null) {
-			if (other.command != null)
+		if (method == null) {
+			if (other.method != null)
 				return false;
-		} else if (!command.equals(other.command))
+		} else if (!method.equals(other.method))
 			return false;
-		if (pattern == null) {
-			if (other.pattern != null)
+		if (path == null) {
+			if (other.path != null)
 				return false;
-		} else if (!pattern.equals(other.pattern))
+		} else if (!path.equals(other.path))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return pattern;
+		return path;
 	}
 
 }

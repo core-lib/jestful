@@ -1,8 +1,5 @@
 package org.qfox.jestful.server;
 
-import java.util.List;
-
-import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
 
 /**
@@ -20,13 +17,7 @@ import org.qfox.jestful.core.annotation.Jestful;
  *
  * @since 1.0.0
  */
-@Jestful("/fashion/brands")
+@Jestful("/brands")
 public class BrandController extends DomainController<Brand> {
-
-	@GET("/index")
-	public List<Brand> index(int page, int size) {
-		// TODO Auto-generated method stub
-		return super.index(page, size);
-	}
 
 }
