@@ -29,9 +29,15 @@ public class Action {
 	private final List<Actor> actors;
 	private int index = 0;
 
-	private Class<?> interfase;
+	private Object controller;
 	private Method method;
-	private Object[] arguments;
+	private Parameter[] parameters;
+
+	private String command;
+	private String URI;
+	private String query;
+	private String protocol;
+	private String version;
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
@@ -74,20 +80,12 @@ public class Action {
 		actors.addAll(index, intruders);
 	}
 
-	public int getIndex() {
-		return index;
+	public Object getController() {
+		return controller;
 	}
 
-	public void setIndex(int index) {
-		this.index = index;
-	}
-
-	public Class<?> getInterfase() {
-		return interfase;
-	}
-
-	public void setInterfase(Class<?> interfase) {
-		this.interfase = interfase;
+	public void setController(Object controller) {
+		this.controller = controller;
 	}
 
 	public Method getMethod() {
@@ -98,12 +96,52 @@ public class Action {
 		this.method = method;
 	}
 
-	public Object[] getArguments() {
-		return arguments;
+	public Parameter[] getParameters() {
+		return parameters;
 	}
 
-	public void setArguments(Object[] arguments) {
-		this.arguments = arguments;
+	public void setParameters(Parameter[] parameters) {
+		this.parameters = parameters;
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
+	}
+
+	public String getURI() {
+		return URI;
+	}
+
+	public void setURI(String URI) {
+		this.URI = URI;
+	}
+
+	public String getQuery() {
+		return query;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
+	}
+
+	public String getProtocol() {
+		return protocol;
+	}
+
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
 	}
 
 	public Map<Object, Object> getExtra() {

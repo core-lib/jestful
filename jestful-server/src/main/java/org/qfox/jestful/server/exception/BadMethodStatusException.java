@@ -1,6 +1,6 @@
 package org.qfox.jestful.server.exception;
 
-import java.util.Set;
+import java.util.Collection;
 
 import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.server.Mapping;
@@ -25,9 +25,9 @@ public class BadMethodStatusException extends StatusException {
 
 	private final String method;
 	private final String uri;
-	private final Set<Mapping> mappings;
+	private final Collection<Mapping> mappings;
 
-	public BadMethodStatusException(String method, String uri, Set<Mapping> mappings) {
+	public BadMethodStatusException(String method, String uri, Collection<Mapping> mappings) {
 		super(405, "Method Not Allowed");
 		this.uri = uri;
 		this.method = method;
@@ -42,7 +42,7 @@ public class BadMethodStatusException extends StatusException {
 		return uri;
 	}
 
-	public Set<Mapping> getMappings() {
+	public Collection<Mapping> getMappings() {
 		return mappings;
 	}
 

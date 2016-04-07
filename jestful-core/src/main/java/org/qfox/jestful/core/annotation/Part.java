@@ -6,6 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.qfox.jestful.core.Source;
+
 /**
  * <p>
  * Description: Specify the parameter value is a binary input stream, normally, this annotation use to make a file
@@ -25,6 +27,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
+@Argument(Source.BODY)
 public @interface Part {
 
 	/**

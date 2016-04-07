@@ -1,6 +1,8 @@
 package org.qfox.jestful.server;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.qfox.jestful.server.exception.AlreadyValuedException;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
@@ -37,17 +39,21 @@ public class TreeMappingRegistry implements MappingRegistry {
 		this.tree = new Node<PathExpression, Mapping>(new PathExpression(ctxpath));
 	}
 
-	public Mapping lookup(String method, String uri) throws NotFoundStatusException, BadMethodStatusException {
-		Set<Mapping> mappings = tree.match(uri);
+	public Collection<Mapping> lookup(String URI) throws NotFoundStatusException {
+		return tree.match(URI);
+	}
+
+	public Mapping lookup(String command, String URI) throws NotFoundStatusException, BadMethodStatusException {
+		Collection<Mapping> mappings = lookup(URI);
 		for (Mapping mapping : mappings) {
-			if (mapping.getCommand().name().equalsIgnoreCase(method)) {
+			if (mapping.getCommand().name().equalsIgnoreCase(command)) {
 				return mapping;
 			}
 		}
 		if (mappings.isEmpty()) {
-			throw new NotFoundStatusException(uri);
+			throw new NotFoundStatusException(URI);
 		} else {
-			throw new BadMethodStatusException(method, uri, mappings);
+			throw new BadMethodStatusException(command, URI, mappings);
 		}
 	}
 
@@ -64,6 +70,19 @@ public class TreeMappingRegistry implements MappingRegistry {
 			Node<?, ?> existed = e.getExisted();
 			throw new DuplicateMappingException(e, (Mapping) current.getValue(), (Mapping) existed.getValue());
 		}
+	}
+
+	public Collection<Resource> register(Object... controllers) throws IllegalConfigException {
+		return register(Arrays.asList(controllers));
+	}
+
+	public Collection<Resource> register(Collection<Object> controllers) throws IllegalConfigException {
+		Collection<Resource> resources = new ArrayList<Resource>();
+		for (Object controller : controllers) {
+			Resource resource = register(controller);
+			resources.add(resource);
+		}
+		return resources;
 	}
 
 	public Node<PathExpression, Mapping> getTree() {

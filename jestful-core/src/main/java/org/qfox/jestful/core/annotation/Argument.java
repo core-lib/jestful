@@ -10,9 +10,7 @@ import org.qfox.jestful.core.Source;
 
 /**
  * <p>
- * Description: Specify the parameter value come from http headers by using {@link Header#value()} as the header name,
- * such as Content-Type/Transfer-Encoding or something else<br/>
- * There is an important fact you should know is the header to match is case ignored
+ * Description: Mark the parameter where to place
  * </p>
  * 
  * <p>
@@ -21,21 +19,15 @@ import org.qfox.jestful.core.Source;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年1月15日 下午8:41:45
+ * @date 2016年4月7日 下午4:45:11
  *
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
-@Argument(Source.HEADER)
-public @interface Header {
+@Target({ ElementType.ANNOTATION_TYPE })
+public @interface Argument {
 
-	/**
-	 * header name
-	 * 
-	 * @return
-	 */
-	String value();
+	Source value();
 
 }

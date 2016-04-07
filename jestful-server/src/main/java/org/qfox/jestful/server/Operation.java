@@ -30,6 +30,7 @@ import org.qfox.jestful.server.tree.PathExpression;
  */
 public class Operation implements Hierarchical<PathExpression, Mapping> {
 	private final Resource resource;
+	private final Object controller;
 	private final Method method;
 	private final Method configuration;
 	private final Map<String, Mapping> mappings = new CaseInsensitiveMap<String, Mapping>();
@@ -37,6 +38,7 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 	public Operation(Resource resource, Method method, Method configuration) throws IllegalConfigException {
 		super();
 		this.resource = resource;
+		this.controller = resource.getController();
 		this.method = method;
 		this.configuration = configuration;
 		for (Annotation annotation : configuration.getAnnotations()) {
@@ -68,6 +70,10 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 
 	public Resource getResource() {
 		return resource;
+	}
+
+	public Object getController() {
+		return controller;
 	}
 
 	public Method getMethod() {

@@ -1,5 +1,7 @@
 package org.qfox.jestful.server;
 
+import java.util.Collection;
+
 import org.qfox.jestful.server.exception.BadMethodStatusException;
 import org.qfox.jestful.server.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
@@ -22,11 +24,9 @@ import org.qfox.jestful.server.exception.NotFoundStatusException;
 public interface MappingRegistry {
 
 	/**
-	 * 搜索支持指定请求方法并且匹配指定URI的资源
+	 * 搜索支持指定匹配指定URI的所有资源
 	 * 
-	 * @param method
-	 *            请求方法
-	 * @param uri
+	 * @param URI
 	 *            请求路径
 	 * @return 匹配的资源
 	 * @throws NotFoundStatusException
@@ -34,7 +34,22 @@ public interface MappingRegistry {
 	 * @throws BadMethodStatusException
 	 *             请求方法不支持
 	 */
-	Mapping lookup(String method, String uri) throws NotFoundStatusException, BadMethodStatusException;
+	Collection<Mapping> lookup(String URI) throws NotFoundStatusException;
+
+	/**
+	 * 搜索支持指定请求方法并且匹配指定URI的资源
+	 * 
+	 * @param command
+	 *            请求方法
+	 * @param URI
+	 *            请求路径
+	 * @return 匹配的资源
+	 * @throws NotFoundStatusException
+	 *             请求路径不存在
+	 * @throws BadMethodStatusException
+	 *             请求方法不支持
+	 */
+	Mapping lookup(String command, String URI) throws NotFoundStatusException, BadMethodStatusException;
 
 	/**
 	 * 注册资源控制器
@@ -45,5 +60,25 @@ public interface MappingRegistry {
 	 * @throws IllegalConfigException
 	 */
 	Resource register(Object controller) throws IllegalConfigException;
+
+	/**
+	 * 批量注册资源控制器
+	 * 
+	 * @param controllers
+	 *            资源控制器数组
+	 * @return
+	 * @throws IllegalConfigException
+	 */
+	Collection<Resource> register(Object... controllers) throws IllegalConfigException;
+
+	/**
+	 * 批量注册资源控制器
+	 * 
+	 * @param controllers
+	 *            资源控制器数组
+	 * @return
+	 * @throws IllegalConfigException
+	 */
+	Collection<Resource> register(Collection<Object> controllers) throws IllegalConfigException;
 
 }

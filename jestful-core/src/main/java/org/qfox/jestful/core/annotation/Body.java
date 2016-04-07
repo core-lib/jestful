@@ -6,6 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.qfox.jestful.core.Source;
+
 /**
  * <p>
  * Description: Specify the parameter value come from HTTP body. Typically, framework recommend a parameter use
@@ -25,6 +27,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
+@Argument(Source.BODY)
 public @interface Body {
 
 	/**

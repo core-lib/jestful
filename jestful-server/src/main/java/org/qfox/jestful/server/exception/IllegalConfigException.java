@@ -2,7 +2,7 @@ package org.qfox.jestful.server.exception;
 
 import java.lang.reflect.Method;
 
-import org.qfox.jestful.core.exception.JestfulException;
+import org.qfox.jestful.core.exception.JestfulRuntimeException;
 
 /**
  * <p>
@@ -19,7 +19,7 @@ import org.qfox.jestful.core.exception.JestfulException;
  *
  * @since 1.0.0
  */
-public class IllegalConfigException extends JestfulException {
+public class IllegalConfigException extends JestfulRuntimeException {
 	private static final long serialVersionUID = -2371085188482186731L;
 
 	private final Object controller;

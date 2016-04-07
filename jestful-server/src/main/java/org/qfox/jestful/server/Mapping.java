@@ -1,20 +1,27 @@
 package org.qfox.jestful.server;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Source;
+import org.qfox.jestful.core.annotation.Argument;
 import org.qfox.jestful.core.annotation.Command;
-import org.qfox.jestful.core.annotation.Path;
+import org.qfox.jestful.core.exception.JestfulRuntimeException;
 import org.qfox.jestful.server.exception.AlreadyValuedException;
-import org.qfox.jestful.server.exception.DuplicateArgumentException;
-import org.qfox.jestful.server.exception.DuplicateVariableException;
+import org.qfox.jestful.server.exception.DuplicateParameterException;
 import org.qfox.jestful.server.exception.IllegalConfigException;
-import org.qfox.jestful.server.exception.UndefinedVariableException;
+import org.qfox.jestful.server.exception.NonuniqueSourceException;
+import org.qfox.jestful.server.exception.UndefinedParameterException;
 import org.qfox.jestful.server.tree.Hierarchical;
 import org.qfox.jestful.server.tree.Node;
 import org.qfox.jestful.server.tree.PathExpression;
@@ -38,61 +45,105 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 	private static final Pattern PATTERN = Pattern.compile("\\{(?<name>[^{}]+?)(:(?<rule>[^{}]+?))?\\}");
 
 	private final Operation operation;
+	private final Object controller;
+	private final Method method;
+	private final Method configuration;
+	private final List<Parameter> parameters;
 	private final Command command;
 	private final String definition;
 	private final String expression;
-	private final Set<Variable> variables = new TreeSet<Variable>();
 
 	public Mapping(Operation operation, Command command, String definition) throws IllegalConfigException {
 		super();
 		this.operation = operation;
+		this.controller = operation.getController();
+		this.method = operation.getMethod();
+		this.configuration = operation.getMethod();
+		this.parameters = extract(method);
 		this.command = command;
 		this.definition = definition;
-		String expression = definition;
-		Matcher matcher = PATTERN.matcher(definition);
+		this.expression = bind(definition);
+	}
+
+	/**
+	 * 将路径上的变量和参数绑定
+	 * 
+	 * @param path
+	 * @return
+	 */
+	private String bind(String path) {
+		Map<String, Parameter> map = new LinkedHashMap<String, Parameter>();
+		for (Parameter parameter : parameters) {
+			if (parameter.getSource() != Source.PATH && parameter.getSource() != null) {
+				continue;
+			}
+			map.put(parameter.getName(), parameter);
+		}
+		Matcher matcher = PATTERN.matcher(path);
 		while (matcher.find()) {
 			String name = matcher.group("name");
 			String rule = matcher.group("rule");
 			rule = rule != null ? rule : ".*?";
-			// 找到对应的方法参数
-			Path path = null;
-			int index = 0;
-			for (int i = 0; i < operation.getConfiguration().getParameterAnnotations().length; i++) {
-				for (Annotation annotation : operation.getConfiguration().getParameterAnnotations()[i]) {
-					if (annotation instanceof Path && ((Path) annotation).value().equals(name)) {
-						if (path != null) {
-							throw new DuplicateArgumentException(operation.getResource().getController(), operation.getConfiguration(), Arrays.asList(index, i));
-						} else {
-							index = i;
-							path = (Path) annotation;
-						}
-					}
-				}
-			}
-
-			if (path == null) {
-				if (name.matches("\\d+")) {
-					index = Integer.valueOf(name) - 1;
-					if (index < 0 || index >= operation.getConfiguration().getParameterAnnotations().length) {
-						throw new UndefinedVariableException(operation.getResource().getController(), operation.getConfiguration(), index);
-					}
-				} else {
-					throw new UndefinedVariableException(operation.getResource().getController(), operation.getConfiguration(), name);
-				}
-			}
-
-			Variable variable = new Variable(name, index, matcher.group(), rule);
-			if (variables.add(variable)) {
-				expression = expression.replace(matcher.group(), rule);
+			if (map.containsKey(name)) {
+				path = path.replace(matcher.group(), "(?<" + name + ">" + rule + ")");
 			} else {
-				for (Variable v : variables) {
-					if (v.equals(variable)) {
-						throw new DuplicateVariableException(operation.getResource().getController(), operation.getConfiguration(), variable, v);
-					}
-				}
+				throw new UndefinedParameterException(controller, method, name, path);
 			}
 		}
-		this.expression = expression;
+		return path;
+	}
+
+	/**
+	 * 提取指定下标的方法参数
+	 * 
+	 * @param method
+	 *            方法
+	 * @param index
+	 *            参数下标
+	 * @return 参数的封装
+	 */
+	private Parameter extract(Method method, int index) throws IllegalConfigException {
+		Type type = method.getGenericParameterTypes()[index];
+		String name = null;
+		Source source = null;
+		Annotation[] annotations = method.getParameterAnnotations()[index];
+		for (Annotation annotation : annotations) {
+			Argument argument = annotation.annotationType().getAnnotation(Argument.class);
+			if (argument == null) {
+				continue;
+			}
+			if (name != null || source != null) {
+				throw new NonuniqueSourceException(controller, method, index, Arrays.asList(source, argument.value()));
+			}
+			try {
+				name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
+				source = argument.value();
+			} catch (Exception e) {
+				throw new JestfulRuntimeException(e);
+			}
+		}
+		Parameter parameter = new Parameter(method, type, index, name == null || name.isEmpty() ? String.valueOf(index) : name, source);
+		return parameter;
+	}
+
+	/**
+	 * 提取方法的所有参数
+	 * 
+	 * @param method
+	 *            方法
+	 * @return 方法的所有参数的封装
+	 */
+	private List<Parameter> extract(Method method) throws IllegalConfigException {
+		List<Parameter> parameters = new ArrayList<Parameter>();
+		for (int index = 0; index < method.getGenericParameterTypes().length; index++) {
+			Parameter parameter = extract(method, index);
+			if (parameters.contains(parameter)) {
+				throw new DuplicateParameterException(controller, method, index);
+			} else {
+				parameters.add(parameter);
+			}
+		}
+		return parameters;
 	}
 
 	public Node<PathExpression, Mapping> toNode() throws AlreadyValuedException {
@@ -128,6 +179,22 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 
 	public Operation getOperation() {
 		return operation;
+	}
+
+	public Object getController() {
+		return controller;
+	}
+
+	public Method getMethod() {
+		return method;
+	}
+
+	public Method getConfiguration() {
+		return configuration;
+	}
+
+	public List<Parameter> getParameters() {
+		return parameters;
 	}
 
 	public Command getCommand() {

@@ -43,14 +43,14 @@ public class Node<K extends Expression<K>, V extends Comparable<V>> implements C
 	/**
 	 * 返回匹配指定路径的所有节点
 	 * 
-	 * @param uri
+	 * @param URI
 	 *            路径
 	 * @return 所有匹配的节点
 	 */
-	public Set<V> match(String uri) {
+	public Set<V> match(String URI) {
 		Set<V> result = new TreeSet<V>();
 
-		String[] paths = uri.split(separator + "+");
+		String[] paths = URI.split(separator + "+");
 		Iterator<String> iterator = Arrays.asList(paths).iterator();
 
 		String path = "";
@@ -64,14 +64,14 @@ public class Node<K extends Expression<K>, V extends Comparable<V>> implements C
 					result.add(value);
 				} else {
 					for (Node<K, V> branch : branches) {
-						result.addAll(branch.match(uri));
+						result.addAll(branch.match(URI));
 					}
 				}
 			}
 		} else {
 			if (key.isEmpty()) {
 				for (Node<K, V> branch : branches) {
-					result.addAll(branch.match(uri));
+					result.addAll(branch.match(URI));
 				}
 			} else if (key.match(path)) {
 				if (iterator.hasNext()) {

@@ -6,6 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.qfox.jestful.core.Source;
+
 /**
  * <p>
  * Description: Specify the parameter value come from a path variable by using {@link Path#value()} as it's name
@@ -24,6 +26,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
+@Argument(Source.PATH)
 public @interface Path {
 
 	/**

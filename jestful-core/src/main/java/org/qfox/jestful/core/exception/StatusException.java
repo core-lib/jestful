@@ -18,17 +18,17 @@ package org.qfox.jestful.core.exception;
 public class StatusException extends JestfulException {
 	private static final long serialVersionUID = 6260672121780209011L;
 
-	protected final int code;
+	protected final int status;
 	protected final String message;
 
-	public StatusException(int code, String message) {
+	public StatusException(int status, String message) {
 		super();
-		this.code = code;
+		this.status = status;
 		this.message = message;
 	}
 
-	public int getCode() {
-		return code;
+	public int getStatus() {
+		return status;
 	}
 
 	public String getMessage() {
