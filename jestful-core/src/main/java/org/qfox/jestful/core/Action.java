@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
 
@@ -32,6 +33,7 @@ public class Action {
 	private Object controller;
 	private Method method;
 	private Parameter[] parameters;
+	private Pattern pattern;
 
 	private String command;
 	private String URI;
@@ -102,6 +104,14 @@ public class Action {
 
 	public void setParameters(Parameter[] parameters) {
 		this.parameters = parameters;
+	}
+
+	public Pattern getPattern() {
+		return pattern;
+	}
+
+	public void setPattern(Pattern pattern) {
+		this.pattern = pattern;
 	}
 
 	public String getCommand() {

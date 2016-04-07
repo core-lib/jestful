@@ -21,6 +21,7 @@ import org.qfox.jestful.server.exception.AlreadyValuedException;
 import org.qfox.jestful.server.exception.DuplicateParameterException;
 import org.qfox.jestful.server.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.NonuniqueSourceException;
+import org.qfox.jestful.server.exception.UnassailableParameterException;
 import org.qfox.jestful.server.exception.UndefinedParameterException;
 import org.qfox.jestful.server.tree.Hierarchical;
 import org.qfox.jestful.server.tree.Node;
@@ -74,25 +75,28 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 	private String bind(String path) {
 		Map<String, Parameter> map = new LinkedHashMap<String, Parameter>();
 		for (Parameter parameter : parameters) {
-			if (parameter.getSource() != Source.PATH && parameter.getSource() != null) {
+			if (parameter.getSource() != Source.PATH) {
 				continue;
 			}
 			map.put(parameter.getName(), parameter);
 		}
-		Matcher matcher = Pattern.compile("\\{(?<name>[^{}]+?)(:(?<rule>[^{}]+?))?\\}").matcher(path);
+		Matcher matcher = Pattern.compile("\\{([^{}]+?)(:([^{}]+?))?\\}").matcher(path);
 		while (matcher.find()) {
-			String name = matcher.group("name");
-			String rule = matcher.group("rule");
+			String name = matcher.group(1);
+			String rule = matcher.group(3);
 			rule = rule != null ? rule : ".*?";
 			if (map.containsKey(name)) {
-				Parameter parameter = map.get(name);
-				int index = parameter.getIndex();
-				path = path.replace(matcher.group(), "(?<index" + index + ">" + rule + ")");
+				map.remove(name);
+				path = path.replace(matcher.group(), "(" + rule + ")");
 			} else {
 				throw new UndefinedParameterException(controller, method, name, path);
 			}
 		}
-		return path;
+		if (map.isEmpty()) {
+			return path;
+		} else {
+			throw new UnassailableParameterException(controller, method, map.values());
+		}
 	}
 
 	/**

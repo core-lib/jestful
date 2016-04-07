@@ -34,6 +34,6 @@ public @interface Path {
 	 * 
 	 * @return
 	 */
-	String value();
+	String value() default "";
 
 }
