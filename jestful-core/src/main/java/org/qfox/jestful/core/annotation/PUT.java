@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
-@Method(name = "PUT", output = true, input = true)
+@Command(name = "PUT", output = true, input = true)
 public @interface PUT {
 
 	/**

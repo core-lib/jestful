@@ -8,7 +8,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.qfox.jestful.core.annotation.Method;
+import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.annotation.Path;
 import org.qfox.jestful.server.exception.AlreadyValuedException;
 import org.qfox.jestful.server.exception.DuplicateArgumentException;
@@ -38,15 +38,15 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 	private static final Pattern PATTERN = Pattern.compile("\\{(?<name>[^{}]+?)(:(?<rule>[^{}]+?))?\\}");
 
 	private final Operation operation;
-	private final Method method;
+	private final Command command;
 	private final String definition;
 	private final String expression;
 	private final Set<Variable> variables = new TreeSet<Variable>();
 
-	public Mapping(Operation operation, Method method, String definition) throws IllegalConfigException {
+	public Mapping(Operation operation, Command command, String definition) throws IllegalConfigException {
 		super();
 		this.operation = operation;
-		this.method = method;
+		this.command = command;
 		this.definition = definition;
 		String expression = definition;
 		Matcher matcher = PATTERN.matcher(definition);
@@ -57,11 +57,11 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 			// 找到对应的方法参数
 			Path path = null;
 			int index = 0;
-			for (int i = 0; i < operation.getConfigurer().getParameterAnnotations().length; i++) {
-				for (Annotation annotation : operation.getConfigurer().getParameterAnnotations()[i]) {
+			for (int i = 0; i < operation.getConfiguration().getParameterAnnotations().length; i++) {
+				for (Annotation annotation : operation.getConfiguration().getParameterAnnotations()[i]) {
 					if (annotation instanceof Path && ((Path) annotation).value().equals(name)) {
 						if (path != null) {
-							throw new DuplicateArgumentException(operation.getResource().getController(), operation.getConfigurer(), Arrays.asList(index, i));
+							throw new DuplicateArgumentException(operation.getResource().getController(), operation.getConfiguration(), Arrays.asList(index, i));
 						} else {
 							index = i;
 							path = (Path) annotation;
@@ -73,11 +73,11 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 			if (path == null) {
 				if (name.matches("\\d+")) {
 					index = Integer.valueOf(name) - 1;
-					if (index < 0 || index >= operation.getConfigurer().getParameterAnnotations().length) {
-						throw new UndefinedVariableException(operation.getResource().getController(), operation.getConfigurer(), index);
+					if (index < 0 || index >= operation.getConfiguration().getParameterAnnotations().length) {
+						throw new UndefinedVariableException(operation.getResource().getController(), operation.getConfiguration(), index);
 					}
 				} else {
-					throw new UndefinedVariableException(operation.getResource().getController(), operation.getConfigurer(), name);
+					throw new UndefinedVariableException(operation.getResource().getController(), operation.getConfiguration(), name);
 				}
 			}
 
@@ -87,7 +87,7 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 			} else {
 				for (Variable v : variables) {
 					if (v.equals(variable)) {
-						throw new DuplicateVariableException(operation.getResource().getController(), operation.getConfigurer(), variable, v);
+						throw new DuplicateVariableException(operation.getResource().getController(), operation.getConfiguration(), variable, v);
 					}
 				}
 			}
@@ -105,7 +105,7 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 			if (hierarchy.isEmpty()) {
 				continue;
 			}
-			Node<PathExpression, Mapping> branch = new Node<PathExpression, Mapping>(new PathExpression(hierarchy, iterator.hasNext() ? null : method.name()));
+			Node<PathExpression, Mapping> branch = new Node<PathExpression, Mapping>(new PathExpression(hierarchy, iterator.hasNext() ? null : command.name()));
 			branch.setValue(iterator.hasNext() ? null : this);
 			if (result == null) {
 				result = branch;
@@ -116,22 +116,22 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 			}
 		}
 		if (result == null) {
-			result = new Node<PathExpression, Mapping>(new PathExpression(null, method.name()));
+			result = new Node<PathExpression, Mapping>(new PathExpression(null, command.name()));
 			result.setValue(this);
 		}
 		return result;
 	}
 
 	public int compareTo(Mapping o) {
-		return expression.compareTo(o.expression) != 0 ? expression.compareTo(o.expression) : method.name().compareTo(o.method.name());
+		return expression.compareTo(o.expression) != 0 ? expression.compareTo(o.expression) : command.name().compareTo(o.command.name());
 	}
 
 	public Operation getOperation() {
 		return operation;
 	}
 
-	public Method getMethod() {
-		return method;
+	public Command getCommand() {
+		return command;
 	}
 
 	public String getDefinition() {
@@ -144,11 +144,11 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 
 	@Override
 	public String toString() {
-		return method.name() + " : " + operation.toString();
+		return command.name() + " : " + operation.toString();
 	}
 
 	public String toLogString() {
-		return method.name() + " : " + definition + " " + operation.toString();
+		return command.name() + " : " + definition + " " + operation.toString();
 	}
 
 }

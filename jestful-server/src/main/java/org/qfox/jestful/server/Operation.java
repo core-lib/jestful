@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
+import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.exception.JestfulRuntimeException;
 import org.qfox.jestful.server.exception.AlreadyValuedException;
 import org.qfox.jestful.server.exception.IllegalConfigException;
@@ -29,18 +30,18 @@ import org.qfox.jestful.server.tree.PathExpression;
  */
 public class Operation implements Hierarchical<PathExpression, Mapping> {
 	private final Resource resource;
-	private final Method operator;
-	private final Method configurer;
+	private final Method method;
+	private final Method configuration;
 	private final Map<String, Mapping> mappings = new CaseInsensitiveMap<String, Mapping>();
 
-	public Operation(Resource resource, Method operator, Method configurer) throws IllegalConfigException {
+	public Operation(Resource resource, Method method, Method configuration) throws IllegalConfigException {
 		super();
 		this.resource = resource;
-		this.operator = operator;
-		this.configurer = configurer;
-		for (Annotation annotation : configurer.getAnnotations()) {
-			org.qfox.jestful.core.annotation.Method method = annotation.annotationType().getAnnotation(org.qfox.jestful.core.annotation.Method.class);
-			if (method == null) {
+		this.method = method;
+		this.configuration = configuration;
+		for (Annotation annotation : configuration.getAnnotations()) {
+			Command command = annotation.annotationType().getAnnotation(Command.class);
+			if (command == null) {
 				continue;
 			}
 			String definition = null;
@@ -49,8 +50,8 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 			} catch (Exception e) {
 				throw new JestfulRuntimeException(e);
 			}
-			Mapping mapping = new Mapping(this, method, definition);
-			this.mappings.put(method.name(), mapping);
+			Mapping mapping = new Mapping(this, command, definition);
+			this.mappings.put(command.name(), mapping);
 		}
 	}
 
@@ -69,12 +70,12 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 		return resource;
 	}
 
-	public Method getOperator() {
-		return operator;
+	public Method getMethod() {
+		return method;
 	}
 
-	public Method getConfigurer() {
-		return configurer;
+	public Method getConfiguration() {
+		return configuration;
 	}
 
 	public Map<String, Mapping> getMappings() {
@@ -85,7 +86,7 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((operator == null) ? 0 : operator.hashCode());
+		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		return result;
 	}
 
@@ -98,17 +99,17 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 		if (getClass() != obj.getClass())
 			return false;
 		Operation other = (Operation) obj;
-		if (operator == null) {
-			if (other.operator != null)
+		if (method == null) {
+			if (other.method != null)
 				return false;
-		} else if (!operator.equals(other.operator))
+		} else if (!method.equals(other.method))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return operator.toGenericString();
+		return method.toGenericString();
 	}
 
 }

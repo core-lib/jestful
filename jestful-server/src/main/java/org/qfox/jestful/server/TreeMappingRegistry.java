@@ -40,7 +40,7 @@ public class TreeMappingRegistry implements MappingRegistry {
 	public Mapping lookup(String method, String uri) throws NotFoundStatusException, BadMethodStatusException {
 		Set<Mapping> mappings = tree.match(uri);
 		for (Mapping mapping : mappings) {
-			if (mapping.getMethod().name().equalsIgnoreCase(method)) {
+			if (mapping.getCommand().name().equalsIgnoreCase(method)) {
 				return mapping;
 			}
 		}

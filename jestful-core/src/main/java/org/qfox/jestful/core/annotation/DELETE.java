@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
-@Method(name = "DELETE", output = false, input = true)
+@Command(name = "DELETE", output = false, input = true)
 public @interface DELETE {
 
 	/**

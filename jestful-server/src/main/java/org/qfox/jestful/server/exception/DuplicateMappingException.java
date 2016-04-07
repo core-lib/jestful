@@ -28,7 +28,7 @@ public class DuplicateMappingException extends IllegalConfigException {
 	}
 
 	public DuplicateMappingException(Throwable cause, Mapping current, Mapping existed) {
-		super("duplicate mapping " + current.toLogString() + " with " + existed.toLogString(), current.getOperation().getResource().getController(), current.getOperation().getOperator());
+		super("duplicate mapping " + current.toLogString() + " with " + existed.toLogString(), current.getOperation().getResource().getController(), current.getOperation().getMethod());
 		this.current = current;
 		this.existed = existed;
 	}

@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.server.exception.AlreadyValuedException;
 import org.qfox.jestful.server.exception.IllegalConfigException;
@@ -49,13 +50,13 @@ public class Resource implements Hierarchical<PathExpression, Mapping> {
 			if (method.isSynthetic()) {
 				continue;
 			}
-			Method operator = null;
-			if ((operator = getRestfulMethodFromClasses(method, controller.getClass())) != null) {
-				this.operations.add(new Operation(this, method, operator));
+			Method configuration = null;
+			if ((configuration = getRestfulMethodFromClasses(method, controller.getClass())) != null) {
+				this.operations.add(new Operation(this, method, configuration));
 				continue;
 			}
-			if ((operator = getRestfulMethodFromInterfaces(method, controller.getClass())) != null) {
-				this.operations.add(new Operation(this, method, operator));
+			if ((configuration = getRestfulMethodFromInterfaces(method, controller.getClass())) != null) {
+				this.operations.add(new Operation(this, method, configuration));
 				continue;
 			}
 		}
@@ -77,7 +78,7 @@ public class Resource implements Hierarchical<PathExpression, Mapping> {
 					}
 					// 在父类中找到了对应的被重写的方法, 判断是否有restful的注解
 					for (Annotation annotation : m.getAnnotations()) {
-						if (annotation.annotationType().isAnnotationPresent(org.qfox.jestful.core.annotation.Method.class)) {
+						if (annotation.annotationType().isAnnotationPresent(Command.class)) {
 							return m;
 						}
 					}
@@ -106,7 +107,7 @@ public class Resource implements Hierarchical<PathExpression, Mapping> {
 						}
 						// 在接口中找到了对应的被实现的方法, 判断是否有restful的注解
 						for (Annotation annotation : m.getAnnotations()) {
-							if (annotation.annotationType().isAnnotationPresent(org.qfox.jestful.core.annotation.Method.class)) {
+							if (annotation.annotationType().isAnnotationPresent(Command.class)) {
 								return m;
 							}
 						}
