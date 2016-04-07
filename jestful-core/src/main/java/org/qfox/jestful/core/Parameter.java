@@ -27,8 +27,8 @@ public class Parameter {
 	private final int index;
 	private final String name;
 	private final Source source;
-	private Object value;
 	private final Map<Class<? extends Annotation>, Annotation> annotations = new LinkedHashMap<Class<? extends Annotation>, Annotation>();
+	private Object value;
 
 	public Parameter(Method method, Type type, int index, String name, Source source) {
 		super();

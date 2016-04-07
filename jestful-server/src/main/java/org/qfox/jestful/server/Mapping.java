@@ -42,8 +42,6 @@ import org.qfox.jestful.server.tree.PathExpression;
  * @since 1.0.0
  */
 public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping> {
-	private static final Pattern PATTERN = Pattern.compile("\\{(?<name>[^{}]+?)(:(?<rule>[^{}]+?))?\\}");
-
 	private final Operation operation;
 	private final Object controller;
 	private final Method method;
@@ -52,6 +50,7 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 	private final Command command;
 	private final String definition;
 	private final String expression;
+	private final Pattern pattern;
 
 	public Mapping(Operation operation, Command command, String definition) throws IllegalConfigException {
 		super();
@@ -63,6 +62,7 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 		this.command = command;
 		this.definition = definition;
 		this.expression = bind(definition);
+		this.pattern = Pattern.compile(expression);
 	}
 
 	/**
@@ -79,13 +79,15 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 			}
 			map.put(parameter.getName(), parameter);
 		}
-		Matcher matcher = PATTERN.matcher(path);
+		Matcher matcher = Pattern.compile("\\{(?<name>[^{}]+?)(:(?<rule>[^{}]+?))?\\}").matcher(path);
 		while (matcher.find()) {
 			String name = matcher.group("name");
 			String rule = matcher.group("rule");
 			rule = rule != null ? rule : ".*?";
 			if (map.containsKey(name)) {
-				path = path.replace(matcher.group(), "(?<" + name + ">" + rule + ")");
+				Parameter parameter = map.get(name);
+				int index = parameter.getIndex();
+				path = path.replace(matcher.group(), "(?<index" + index + ">" + rule + ")");
 			} else {
 				throw new UndefinedParameterException(controller, method, name, path);
 			}
@@ -207,6 +209,10 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 
 	public String getExpression() {
 		return expression;
+	}
+
+	public Pattern getPattern() {
+		return pattern;
 	}
 
 	@Override

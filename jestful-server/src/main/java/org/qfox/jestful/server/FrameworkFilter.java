@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
@@ -68,8 +69,9 @@ public class FrameworkFilter implements Filter, Actor {
 			Mapping mapping = mappingRegistry.lookup(command, URI);
 
 			Action action = new Action(Arrays.asList(actor, this));
-			action.setController(mapping.getOperation().getResource().getController());
-			action.setMethod(mapping.getOperation().getMethod());
+			action.setController(mapping.getController());
+			action.setMethod(mapping.getMethod());
+			action.setParameters(mapping.getParameters().toArray(new Parameter[0]));
 
 			action.setCommand(command);
 			action.setURI(URI);
