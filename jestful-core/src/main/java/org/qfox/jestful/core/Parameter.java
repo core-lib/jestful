@@ -29,6 +29,8 @@ public class Parameter {
 	private final Source source;
 	private final Map<Class<? extends Annotation>, Annotation> annotations = new LinkedHashMap<Class<? extends Annotation>, Annotation>();
 	private Object value;
+	private int group;
+	private String regex;
 
 	public Parameter(Method method, Type type, int index, String name, Source source) {
 		super();
@@ -52,6 +54,22 @@ public class Parameter {
 
 	public void setValue(Object value) {
 		this.value = value;
+	}
+
+	public int getGroup() {
+		return group;
+	}
+
+	public void setGroup(int group) {
+		this.group = group;
+	}
+
+	public String getRegex() {
+		return regex;
+	}
+
+	public void setRegex(String regex) {
+		this.regex = regex;
 	}
 
 	public Method getMethod() {

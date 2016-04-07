@@ -6,6 +6,14 @@
 	<bean id="jestful" class="org.qfox.jestful.core.Group">
 		<property name="members">
 			<list>
+				<ref bean="path-argument-resolver" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="path-argument-resolver" class="org.qfox.jestful.server.path.PathArgumentResolver">
+		<property name="members">
+			<list>
 			</list>
 		</property>
 	</bean>

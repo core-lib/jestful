@@ -81,13 +81,16 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 			map.put(parameter.getName(), parameter);
 		}
 		Matcher matcher = Pattern.compile("\\{([^{}]+?)(:([^{}]+?))?\\}").matcher(path);
+		int group = 0;
 		while (matcher.find()) {
 			String name = matcher.group(1);
-			String rule = matcher.group(3);
-			rule = rule != null ? rule : ".*?";
+			String regex = matcher.group(3);
+			regex = regex != null ? regex : ".*?";
 			if (map.containsKey(name)) {
-				map.remove(name);
-				path = path.replace(matcher.group(), "(" + rule + ")");
+				Parameter parameter = map.remove(name);
+				parameter.setGroup(++group);
+				parameter.setRegex(regex);
+				path = path.replace(matcher.group(), "(" + regex + ")");
 			} else {
 				throw new UndefinedParameterException(controller, method, name, path);
 			}

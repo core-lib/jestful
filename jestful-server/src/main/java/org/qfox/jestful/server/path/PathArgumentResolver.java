@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Group;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Source;
 
 /**
  * <p>
@@ -30,8 +31,15 @@ public class PathArgumentResolver extends Group {
 		Parameter[] parameters = action.getParameters();
 		Pattern pattern = action.getPattern();
 		Matcher matcher = pattern.matcher(URI);
+		matcher.find();
 		for (int i = 0; i < parameters.length; i++) {
-			
+			Parameter parameter = parameters[i];
+			if (parameter.getSource() != Source.PATH) {
+				continue;
+			}
+			int group = parameter.getGroup();
+			String value = matcher.group(group);
+			parameter.setValue(value);
 		}
 		return super.react(action);
 	}
