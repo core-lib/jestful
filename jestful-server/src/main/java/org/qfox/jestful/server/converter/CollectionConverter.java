@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.qfox.jestful.server.exception.ConverterException;
+import org.qfox.jestful.server.exception.UnconvertableParameterException;
 
 public class CollectionConverter implements Converter {
 	private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
@@ -36,7 +36,7 @@ public class CollectionConverter implements Converter {
 		return Collection.class.isAssignableFrom(clazz);
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		String[] values = map.get(name) != null ? map.get(name) : new String[0];
 		Class<?> _class = clazz;
 		while (implementations.containsKey(_class)) {
@@ -46,7 +46,7 @@ public class CollectionConverter implements Converter {
 			Object collection = _class.getConstructor(Collection.class).newInstance(Arrays.asList(values));
 			return clazz.cast(collection);
 		} catch (Exception e) {
-			throw new ConverterException(e, name, clazz, map, provider);
+			throw new UnconvertableParameterException(e, name, clazz, map, provider);
 		}
 	}
 
@@ -54,7 +54,7 @@ public class CollectionConverter implements Converter {
 		return type.getRawType() instanceof Class<?> && supports((Class<?>) type.getRawType());
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		Class<?> _class = (Class<?>) type.getRawType();
 		while (implementations.containsKey(_class)) {
 			_class = implementations.get(_class);
@@ -87,7 +87,7 @@ public class CollectionConverter implements Converter {
 		try {
 			return _class.getConstructor(Collection.class).newInstance(collection);
 		} catch (Exception e) {
-			throw new ConverterException(e, name, type, map, provider);
+			throw new UnconvertableParameterException(e, name, type, map, provider);
 		}
 	}
 }

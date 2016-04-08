@@ -8,7 +8,7 @@ import java.util.NavigableMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.qfox.jestful.server.exception.ConverterException;
+import org.qfox.jestful.server.exception.UnconvertableParameterException;
 
 public class MapConverter implements Converter {
 	private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
@@ -23,7 +23,7 @@ public class MapConverter implements Converter {
 		return Map.class.isAssignableFrom(clazz);
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
 		for (String key : map.keySet()) {
 			if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
@@ -41,7 +41,7 @@ public class MapConverter implements Converter {
 			Object result = _class.getConstructor(Map.class).newInstance(_map);
 			return clazz.cast(result);
 		} catch (Exception e) {
-			throw new ConverterException(e, name, clazz, map, provider);
+			throw new UnconvertableParameterException(e, name, clazz, map, provider);
 		}
 	}
 
@@ -49,7 +49,7 @@ public class MapConverter implements Converter {
 		return type.getRawType() instanceof Class<?> && supports((Class<?>) type.getRawType());
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		Map<Object, Object> _map = new LinkedHashMap<Object, Object>();
 		for (String key : map.keySet()) {
 			if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
@@ -74,7 +74,7 @@ public class MapConverter implements Converter {
 		try {
 			return _class.getConstructor(Map.class).newInstance(_map);
 		} catch (Exception e) {
-			throw new ConverterException(e, name, type, map, provider);
+			throw new UnconvertableParameterException(e, name, type, map, provider);
 		}
 	}
 

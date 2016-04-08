@@ -3,7 +3,7 @@ package org.qfox.jestful.server.converter;
 import java.lang.reflect.ParameterizedType;
 import java.util.Map;
 
-import org.qfox.jestful.server.exception.ConverterException;
+import org.qfox.jestful.server.exception.UnconvertableParameterException;
 
 public class EnumConverter implements Converter {
 
@@ -11,7 +11,7 @@ public class EnumConverter implements Converter {
 		return clazz.isEnum();
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		String[] values = map.get(name);
 		String value = values != null && values.length > 0 ? values[0] : null;
 		if (value == null) {
@@ -21,7 +21,7 @@ public class EnumConverter implements Converter {
 			Object result = clazz.getMethod("valueOf", String.class).invoke(null, value);
 			return clazz.cast(result);
 		} catch (Exception e) {
-			throw new ConverterException(e, name, clazz, map, provider);
+			throw new UnconvertableParameterException(e, name, clazz, map, provider);
 		}
 	}
 
@@ -29,7 +29,7 @@ public class EnumConverter implements Converter {
 		return false;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		throw new UnsupportedOperationException("converter of " + this.getClass() + " do not supported parameterized type");
 	}
 

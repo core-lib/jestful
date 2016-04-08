@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.qfox.jestful.server.exception.ConverterException;
+import org.qfox.jestful.server.exception.UnconvertableParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +20,12 @@ public class BeanConverter implements Converter {
 		return true;
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		T bean = null;
 		try {
 			bean = clazz.newInstance();
 		} catch (Exception e) {
-			throw new ConverterException(e, name, clazz, map, provider);
+			throw new UnconvertableParameterException(e, name, clazz, map, provider);
 		}
 		for (String key : map.keySet()) {
 			if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
@@ -50,13 +50,13 @@ public class BeanConverter implements Converter {
 		return type.getRawType() instanceof Class<?>;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		Class<?> clazz = (Class<?>) type.getRawType();
 		Object bean = null;
 		try {
 			bean = clazz.newInstance();
 		} catch (Exception e) {
-			throw new ConverterException(e, name, type, map, provider);
+			throw new UnconvertableParameterException(e, name, type, map, provider);
 		}
 		List<?> variables = Arrays.asList(clazz.getTypeParameters());
 		for (String key : map.keySet()) {

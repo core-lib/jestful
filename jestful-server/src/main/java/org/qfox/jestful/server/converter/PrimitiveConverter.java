@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.qfox.jestful.server.exception.ConverterException;
+import org.qfox.jestful.server.exception.UnconvertableParameterException;
 
 public class PrimitiveConverter implements Converter {
 	private final List<Class<?>> primaries = new ArrayList<Class<?>>();
@@ -26,7 +26,7 @@ public class PrimitiveConverter implements Converter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		String[] values = map.get(name);
 		String value = values != null && values.length > 0 ? values[0] : "0";
 		Object result = null;
@@ -56,7 +56,7 @@ public class PrimitiveConverter implements Converter {
 			result = Double.valueOf(value);
 			break;
 		default:
-			throw new ConverterException("can not converter class " + clazz + " with " + this.getClass(), name, clazz, map, provider);
+			throw new UnconvertableParameterException("can not converter class " + clazz + " with " + this.getClass(), name, clazz, map, provider);
 		}
 		return (T) result;
 	}
@@ -65,7 +65,7 @@ public class PrimitiveConverter implements Converter {
 		return false;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		throw new UnsupportedOperationException("converter of " + this.getClass() + " do not supported parameterized type");
 	}
 

@@ -1,7 +1,11 @@
 package org.qfox.jestful.server.resolver;
 
+import java.util.Map;
+
+import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Serializer;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -22,6 +26,7 @@ import org.springframework.context.ApplicationContextAware;
  * @since 1.0.0
  */
 public class BodyArgumentResolver implements Actor, ApplicationContextAware {
+	private final Map<String, Serializer> map = new CaseInsensitiveMap<String, Serializer>();
 
 	public Object react(Action action) throws Exception {
 		return action.execute();
@@ -30,5 +35,5 @@ public class BodyArgumentResolver implements Actor, ApplicationContextAware {
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
 	}
-	
+
 }

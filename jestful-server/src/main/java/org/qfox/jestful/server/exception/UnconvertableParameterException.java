@@ -3,9 +3,10 @@ package org.qfox.jestful.server.exception;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.qfox.jestful.core.exception.JestfulRuntimeException;
 import org.qfox.jestful.server.converter.ConversionProvider;
 
-public class ConverterException extends Exception {
+public class UnconvertableParameterException extends JestfulRuntimeException {
 	private static final long serialVersionUID = 5467589843078783058L;
 
 	private final String name;
@@ -13,19 +14,19 @@ public class ConverterException extends Exception {
 	private final Map<String, String[]> map;
 	private final ConversionProvider provider;
 
-	public ConverterException(String name, Type type, Map<String, String[]> map, ConversionProvider provider) {
+	public UnconvertableParameterException(String name, Type type, Map<String, String[]> map, ConversionProvider provider) {
 		this(null, null, name, type, map, provider);
 	}
 
-	public ConverterException(String message, String name, Type type, Map<String, String[]> map, ConversionProvider provider) {
+	public UnconvertableParameterException(String message, String name, Type type, Map<String, String[]> map, ConversionProvider provider) {
 		this(message, null, name, type, map, provider);
 	}
 
-	public ConverterException(Throwable cause, String name, Type type, Map<String, String[]> map, ConversionProvider provider) {
+	public UnconvertableParameterException(Throwable cause, String name, Type type, Map<String, String[]> map, ConversionProvider provider) {
 		this(null, cause, name, type, map, provider);
 	}
 
-	public ConverterException(String message, Throwable cause, String name, Type type, Map<String, String[]> map, ConversionProvider provider) {
+	public UnconvertableParameterException(String message, Throwable cause, String name, Type type, Map<String, String[]> map, ConversionProvider provider) {
 		super(message, cause);
 		this.name = name;
 		this.type = type;

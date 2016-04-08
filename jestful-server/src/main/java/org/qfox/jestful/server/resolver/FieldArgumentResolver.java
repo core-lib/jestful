@@ -15,7 +15,7 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Source;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
-import org.qfox.jestful.server.exception.ConverterException;
+import org.qfox.jestful.server.exception.UnconvertableParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -72,17 +72,17 @@ public class FieldArgumentResolver implements Actor, ApplicationContextAware, Co
 		return action.execute();
 	}
 
-	public Object convert(String name, Type type, Map<String, String[]> map) throws ConverterException {
+	public Object convert(String name, Type type, Map<String, String[]> map) throws UnconvertableParameterException {
 		if (type instanceof Class<?>) {
 			return convert(name, (Class<?>) type, map);
 		}
 		if (type instanceof ParameterizedType) {
 			return convert(name, (ParameterizedType) type, map);
 		}
-		throw new ConverterException("unsupported type " + type, name, type, map, this);
+		throw new UnconvertableParameterException("unsupported type " + type, name, type, map, this);
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map) throws ConverterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map) throws UnconvertableParameterException {
 		for (Converter converter : converters) {
 			if (converter.supports(clazz)) {
 				try {
@@ -93,10 +93,10 @@ public class FieldArgumentResolver implements Actor, ApplicationContextAware, Co
 				}
 			}
 		}
-		throw new ConverterException("unsupported clazz " + clazz, name, clazz, map, this);
+		throw new UnconvertableParameterException("unsupported clazz " + clazz, name, clazz, map, this);
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map) throws ConverterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map) throws UnconvertableParameterException {
 		for (Converter converter : converters) {
 			if (converter.supports(type)) {
 				try {
@@ -107,7 +107,7 @@ public class FieldArgumentResolver implements Actor, ApplicationContextAware, Co
 				}
 			}
 		}
-		throw new ConverterException("unsupported parameterized type " + type, name, type, map, this);
+		throw new UnconvertableParameterException("unsupported parameterized type " + type, name, type, map, this);
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

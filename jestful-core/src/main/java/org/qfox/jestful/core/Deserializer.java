@@ -1,7 +1,7 @@
 package org.qfox.jestful.core;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 
 /**
  * <p>
@@ -14,14 +14,14 @@ import java.io.OutputStream;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月8日 下午5:08:58
+ * @date 2016年4月8日 下午5:21:07
  *
  * @since 1.0.0
  */
-public interface Serializer {
+public interface Deserializer {
 
 	String getContentType();
 
-	void serialize(Parameter[] parameters, OutputStream out) throws IOException;
+	void deserialize(Action action, InputStream in) throws IOException;
 
 }

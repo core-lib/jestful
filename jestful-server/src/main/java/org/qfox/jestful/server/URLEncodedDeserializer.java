@@ -1,16 +1,20 @@
-package org.qfox.jestful.server.resolver;
+package org.qfox.jestful.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Message;
+import org.qfox.jestful.core.Deserializer;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Source;
 import org.qfox.jestful.server.converter.ConversionProvider;
@@ -33,31 +37,45 @@ import org.springframework.context.ApplicationContextAware;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月8日 下午12:08:44
+ * @date 2016年4月8日 下午5:23:18
  *
  * @since 1.0.0
  */
-public class HeaderArgumentResolver implements Actor, ApplicationContextAware, ConversionProvider {
+public class URLEncodedDeserializer implements Deserializer, ApplicationContextAware, ConversionProvider {
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	public final Set<Converter> converters = new LinkedHashSet<Converter>();
 
-	public Object react(Action action) throws Exception {
+	public String getContentType() {
+		return "application/x-www-url-encoded";
+	}
+
+	public void deserialize(Action action, InputStream in) throws IOException {
 		Map<String, String[]> map = new HashMap<String, String[]>();
-		Message request = action.getRequest();
-		String charset = action.getCharset();
-		String[] names = request.getHeaders();
-		for (String name : names) {
-			String[] values = request.getHeaders(name);
-			for (int i = 0; i < values.length; i++) {
-				String value = values[i];
-				values[i] = URLDecoder.decode(value, charset);
+		
+		InputStreamReader isr = new InputStreamReader(in);
+		BufferedReader br = new BufferedReader(isr);
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			String charset = action.getCharset();
+			String[] pairs = line.split("&+");
+			for (String pair : pairs) {
+				String[] keyvalue = pair.split("=+");
+				String key = URLDecoder.decode(keyvalue[0], charset);
+				String value = keyvalue.length > 1 ? URLDecoder.decode(keyvalue[1], charset) : "";
+				if (map.containsKey(key) == false) {
+					map.put(key, new String[0]);
+				}
+				String[] values = map.get(key);
+				values = Arrays.copyOf(values, values.length + 1);
+				values[values.length - 1] = value;
+				map.put(key, values);
 			}
-			map.put(name, values);
 		}
+		
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			if (parameter.getSource() != Source.HEADER) {
+			if (parameter.getSource() != Source.FIELD) {
 				continue;
 			}
 			String name = parameter.getName();
@@ -65,7 +83,6 @@ public class HeaderArgumentResolver implements Actor, ApplicationContextAware, C
 			Object value = convert(name, type, map);
 			parameter.setValue(value);
 		}
-		return action.execute();
 	}
 
 	public Object convert(String name, Type type, Map<String, String[]> map) throws UnconvertableParameterException {
@@ -112,5 +129,4 @@ public class HeaderArgumentResolver implements Actor, ApplicationContextAware, C
 			converters.add((Converter) bean);
 		}
 	}
-
 }

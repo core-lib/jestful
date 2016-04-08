@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import org.qfox.jestful.server.exception.ConverterException;
+import org.qfox.jestful.server.exception.UnconvertableParameterException;
 
 public class DateConverter implements Converter {
 	private final Map<Pattern, DateFormat> formats = new HashMap<Pattern, DateFormat>();
@@ -32,7 +32,7 @@ public class DateConverter implements Converter {
 		return Date.class == clazz;
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		String[] values = map.get(name);
 		String value = values != null && values.length > 0 ? values[0] : null;
 		if (value == null) {
@@ -46,18 +46,18 @@ public class DateConverter implements Converter {
 				try {
 					return clazz.cast(entry.getValue().parse(value));
 				} catch (ParseException e) {
-					throw new ConverterException(e, name, clazz, map, provider);
+					throw new UnconvertableParameterException(e, name, clazz, map, provider);
 				}
 			}
 		}
-		throw new ConverterException("unsupported date format of " + value + " please use one of " + formats.keySet(), name, clazz, map, provider);
+		throw new UnconvertableParameterException("unsupported date format of " + value + " please use one of " + formats.keySet(), name, clazz, map, provider);
 	}
 
 	public boolean supports(ParameterizedType type) {
 		return false;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConverterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
 		throw new UnsupportedOperationException("converter of " + this.getClass() + " do not supported parameterized type");
 	}
 
