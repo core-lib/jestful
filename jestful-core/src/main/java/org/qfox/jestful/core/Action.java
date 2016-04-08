@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
+import org.springframework.beans.factory.BeanFactory;
 
 /**
  * <p>
@@ -29,6 +30,8 @@ import org.qfox.jestful.core.exception.DuplicateExecuteException;
 public class Action {
 	private final List<Actor> actors;
 	private int index = 0;
+
+	private BeanFactory beanFactory;
 
 	private Object controller;
 	private Method method;
@@ -80,6 +83,14 @@ public class Action {
 	 */
 	public void intrude(List<Actor> intruders) {
 		actors.addAll(index, intruders);
+	}
+
+	public BeanFactory getBeanFactory() {
+		return beanFactory;
+	}
+
+	public void setBeanFactory(BeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
 	}
 
 	public Object getController() {
