@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
 import org.qfox.jestful.server.exception.ConverterException;
 
 public class DateConverter implements Converter {
-	private  final Map<Pattern, DateFormat> formats = new HashMap<Pattern, DateFormat>();
+	private final Map<Pattern, DateFormat> formats = new HashMap<Pattern, DateFormat>();
 
-	 {
+	{
 		formats.put(Pattern.compile("\\d{1,2}\\/\\d{1,2}\\/\\d{4,}"), new SimpleDateFormat("MM/dd/yyyy"));
 		formats.put(Pattern.compile("\\d{4,}\\-\\d{1,2}\\-\\d{1,2}"), new SimpleDateFormat("yyyy-MM-dd"));
 		formats.put(Pattern.compile("\\d{4,}\\/\\d{1,2}\\/\\d{1,2}"), new SimpleDateFormat("yyyy/MM/dd"));
