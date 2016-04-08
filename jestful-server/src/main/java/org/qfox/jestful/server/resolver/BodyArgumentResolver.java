@@ -30,4 +30,5 @@ public class BodyArgumentResolver implements Actor, ApplicationContextAware {
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
 	}
+	
 }
