@@ -69,7 +69,6 @@ public class FieldArgumentResolver implements Actor, ApplicationContextAware, Co
 			Object value = convert(name, type, map);
 			parameter.setValue(value);
 		}
-
 		return action.execute();
 	}
 

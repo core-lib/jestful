@@ -45,6 +45,9 @@ public class Action {
 	private String protocol;
 	private String version;
 
+	private Message request;
+	private Message response;
+
 	private String charset = Charset.defaultCharset().name();
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
@@ -166,6 +169,22 @@ public class Action {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public Message getRequest() {
+		return request;
+	}
+
+	public void setRequest(Message request) {
+		this.request = request;
+	}
+
+	public Message getResponse() {
+		return response;
+	}
+
+	public void setResponse(Message response) {
+		this.response = response;
 	}
 
 	public String getCharset() {

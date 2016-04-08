@@ -84,6 +84,9 @@ public class FrameworkFilter implements Filter, Actor {
 			action.setProtocol(protocol);
 			action.setVersion(version);
 
+			action.setRequest(new DefaultServletRequest(httpServletRequest));
+			action.setResponse(new DefaultServletResponse(httpServletResponse));
+
 			action.execute();
 		} catch (NotFoundStatusException e) {
 			chain.doFilter(request, response);

@@ -16,6 +16,8 @@
 			<list>
 				<bean class="org.qfox.jestful.server.resolver.PathArgumentResolver" />
 				<bean class="org.qfox.jestful.server.resolver.FieldArgumentResolver" />
+				<bean class="org.qfox.jestful.server.resolver.HeaderArgumentResolver" />
+				<bean class="org.qfox.jestful.server.resolver.BodyArgumentResolver" />
 			</list>
 		</property>
 	</bean>
