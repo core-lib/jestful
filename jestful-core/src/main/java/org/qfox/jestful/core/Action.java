@@ -1,6 +1,7 @@
 package org.qfox.jestful.core;
 
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,7 +11,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
  * <p>
@@ -31,7 +32,7 @@ public class Action {
 	private final List<Actor> actors;
 	private int index = 0;
 
-	private BeanFactory beanFactory;
+	private ListableBeanFactory beanFactory;
 
 	private Object controller;
 	private Method method;
@@ -43,6 +44,8 @@ public class Action {
 	private String query;
 	private String protocol;
 	private String version;
+
+	private String charset = Charset.defaultCharset().name();
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
@@ -85,11 +88,11 @@ public class Action {
 		actors.addAll(index, intruders);
 	}
 
-	public BeanFactory getBeanFactory() {
+	public ListableBeanFactory getBeanFactory() {
 		return beanFactory;
 	}
 
-	public void setBeanFactory(BeanFactory beanFactory) {
+	public void setBeanFactory(ListableBeanFactory beanFactory) {
 		this.beanFactory = beanFactory;
 	}
 
@@ -163,6 +166,14 @@ public class Action {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getCharset() {
+		return charset;
+	}
+
+	public void setCharset(String charset) {
+		this.charset = charset;
 	}
 
 	public Map<Object, Object> getExtra() {

@@ -17,6 +17,6 @@ package org.qfox.jestful.core;
  */
 public enum Source {
 
-	PATH, QUERY, HEADER, BODY;
+	PATH, FIELD, HEADER, BODY;
 
 }

@@ -1,6 +1,7 @@
 package org.qfox.jestful.server;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -69,9 +70,9 @@ public class FrameworkFilter implements Filter, Actor {
 			Mapping mapping = mappingRegistry.lookup(command, URI);
 
 			Action action = new Action(Arrays.asList(actor, this));
-			
+
 			action.setBeanFactory(applicationContext);
-			
+
 			action.setController(mapping.getController());
 			action.setMethod(mapping.getMethod());
 			action.setParameters(mapping.getParameters().toArray(new Parameter[0]));
@@ -94,7 +95,14 @@ public class FrameworkFilter implements Filter, Actor {
 	}
 
 	public Object react(Action action) throws Exception {
-		return null;
+		Object controller = action.getController();
+		Method method = action.getMethod();
+		Parameter[] parameters = action.getParameters();
+		Object[] arguments = new Object[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			arguments[i] = parameters[i].getValue();
+		}
+		return method.invoke(controller, arguments);
 	}
 
 	public void destroy() {
