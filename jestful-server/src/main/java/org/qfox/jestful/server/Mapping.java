@@ -9,9 +9,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Source;
 import org.qfox.jestful.core.annotation.Argument;
@@ -49,21 +52,37 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 	private final Method configuration;
 	private final List<Parameter> parameters;
 	private final Command command;
+	private final Set<MediaType> consumes;
+	private final Set<MediaType> produces;
 	private final String definition;
 	private final String expression;
 	private final Pattern pattern;
 
-	public Mapping(Operation operation, Command command, String definition) throws IllegalConfigException {
+	public Mapping(Operation operation, Annotation annotation) throws IllegalConfigException {
 		super();
-		this.operation = operation;
-		this.controller = operation.getController();
-		this.method = operation.getMethod();
-		this.configuration = operation.getMethod();
-		this.parameters = extract(method);
-		this.command = command;
-		this.definition = definition;
-		this.expression = bind(definition);
-		this.pattern = Pattern.compile(expression);
+		try {
+			this.operation = operation;
+			this.controller = operation.getController();
+			this.method = operation.getMethod();
+			this.configuration = operation.getMethod();
+			this.parameters = extract(method);
+			this.command = annotation.annotationType().getAnnotation(Command.class);
+			this.consumes = new TreeSet<MediaType>();
+			String[] consumes = command.input() ? (String[]) annotation.annotationType().getMethod("consumes").invoke(annotation) : new String[0];
+			for (String consume : consumes) {
+				this.consumes.add(MediaType.valueOf(consume));
+			}
+			this.produces = new TreeSet<MediaType>();
+			String[] produces = command.output() ? (String[]) annotation.annotationType().getMethod("produces").invoke(annotation) : new String[0];
+			for (String produce : produces) {
+				this.produces.add(MediaType.valueOf(produce));
+			}
+			this.definition = (String) annotation.annotationType().getMethod("value").invoke(annotation);
+			this.expression = bind(definition);
+			this.pattern = Pattern.compile(expression);
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	/**
@@ -208,6 +227,14 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 
 	public Command getCommand() {
 		return command;
+	}
+
+	public Set<MediaType> getConsumes() {
+		return consumes;
+	}
+
+	public Set<MediaType> getProduces() {
+		return produces;
 	}
 
 	public String getDefinition() {

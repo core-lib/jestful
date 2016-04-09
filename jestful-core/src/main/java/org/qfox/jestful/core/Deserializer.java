@@ -22,6 +22,6 @@ public interface Deserializer {
 
 	String getContentType();
 
-	void deserialize(Action action, InputStream in) throws IOException;
+	void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException;
 
 }

@@ -71,8 +71,6 @@ public class FrameworkFilter implements Filter, Actor {
 
 			Action action = new Action(Arrays.asList(actor, this));
 
-			action.setBeanFactory(applicationContext);
-
 			action.setController(mapping.getController());
 			action.setMethod(mapping.getMethod());
 			action.setParameters(mapping.getParameters().toArray(new Parameter[0]));
@@ -86,6 +84,9 @@ public class FrameworkFilter implements Filter, Actor {
 
 			action.setRequest(new DefaultServletRequest(httpServletRequest));
 			action.setResponse(new DefaultServletResponse(httpServletResponse));
+
+			action.setConsumes(mapping.getConsumes());
+			action.setProduces(mapping.getProduces());
 
 			action.execute();
 		} catch (NotFoundStatusException e) {

@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.annotation.Command;
-import org.qfox.jestful.core.exception.JestfulRuntimeException;
 import org.qfox.jestful.server.exception.AlreadyValuedException;
 import org.qfox.jestful.server.exception.IllegalConfigException;
 import org.qfox.jestful.server.tree.Hierarchical;
@@ -46,13 +45,7 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 			if (command == null) {
 				continue;
 			}
-			String definition = null;
-			try {
-				definition = annotation.annotationType().getMethod("value").invoke(annotation).toString();
-			} catch (Exception e) {
-				throw new JestfulRuntimeException(e);
-			}
-			Mapping mapping = new Mapping(this, command, definition);
+			Mapping mapping = new Mapping(this, annotation);
 			this.mappings.put(command.name(), mapping);
 		}
 	}

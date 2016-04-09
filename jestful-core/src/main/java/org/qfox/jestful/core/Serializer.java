@@ -22,6 +22,6 @@ public interface Serializer {
 
 	String getContentType();
 
-	void serialize(Parameter[] parameters, OutputStream out) throws IOException;
+	void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException;
 
 }

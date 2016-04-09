@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Deserializer;
+import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Source;
 import org.qfox.jestful.server.converter.ConversionProvider;
@@ -49,14 +50,14 @@ public class URLEncodedDeserializer implements Deserializer, ApplicationContextA
 		return "application/x-www-url-encoded";
 	}
 
-	public void deserialize(Action action, InputStream in) throws IOException {
+	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
 		Map<String, String[]> map = new HashMap<String, String[]>();
-		
+
 		InputStreamReader isr = new InputStreamReader(in);
 		BufferedReader br = new BufferedReader(isr);
 		String line = null;
 		while ((line = br.readLine()) != null) {
-			String charset = action.getCharset();
+			String charset = mediaType.getCharset();
 			String[] pairs = line.split("&+");
 			for (String pair : pairs) {
 				String[] keyvalue = pair.split("=+");
@@ -71,7 +72,7 @@ public class URLEncodedDeserializer implements Deserializer, ApplicationContextA
 				map.put(key, values);
 			}
 		}
-		
+
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];

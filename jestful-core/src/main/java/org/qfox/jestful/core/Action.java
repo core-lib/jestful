@@ -8,10 +8,10 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
-import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
  * <p>
@@ -32,8 +32,6 @@ public class Action {
 	private final List<Actor> actors;
 	private int index = 0;
 
-	private ListableBeanFactory beanFactory;
-
 	private Object controller;
 	private Method method;
 	private Parameter[] parameters;
@@ -47,6 +45,9 @@ public class Action {
 
 	private Message request;
 	private Message response;
+
+	private Set<MediaType> consumes;
+	private Set<MediaType> produces;
 
 	private String charset = Charset.defaultCharset().name();
 
@@ -89,14 +90,6 @@ public class Action {
 	 */
 	public void intrude(List<Actor> intruders) {
 		actors.addAll(index, intruders);
-	}
-
-	public ListableBeanFactory getBeanFactory() {
-		return beanFactory;
-	}
-
-	public void setBeanFactory(ListableBeanFactory beanFactory) {
-		this.beanFactory = beanFactory;
 	}
 
 	public Object getController() {
@@ -185,6 +178,22 @@ public class Action {
 
 	public void setResponse(Message response) {
 		this.response = response;
+	}
+
+	public Set<MediaType> getConsumes() {
+		return consumes;
+	}
+
+	public void setConsumes(Set<MediaType> consumes) {
+		this.consumes = consumes;
+	}
+
+	public Set<MediaType> getProduces() {
+		return produces;
+	}
+
+	public void setProduces(Set<MediaType> produces) {
+		this.produces = produces;
 	}
 
 	public String getCharset() {
