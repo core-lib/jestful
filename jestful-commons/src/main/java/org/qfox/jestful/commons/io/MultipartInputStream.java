@@ -2,8 +2,9 @@ package org.qfox.jestful.commons.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.Enumeration;
+
+import org.qfox.jestful.commons.Multipart;
 
 /**
  * <p>
@@ -20,7 +21,7 @@ import java.util.NoSuchElementException;
  *
  * @since 1.0.0
  */
-public class MultipartInputStream extends InputStream implements Iterator<Multipart> {
+public class MultipartInputStream extends InputStream implements Enumeration<Multipart> {
 	private final InputStream inputStream;
 	private final char[] boundary;
 	private boolean end;
@@ -38,17 +39,12 @@ public class MultipartInputStream extends InputStream implements Iterator<Multip
 		this(inputStream, boundary.toCharArray());
 	}
 
-	public boolean hasNext() {
+	public boolean hasMoreElements() {
 		return false;
 	}
 
-	public Multipart next() {
-		if (hasNext()) {
-
-			return null;
-		} else {
-			throw new NoSuchElementException();
-		}
+	public Multipart nextElement() {
+		return null;
 	}
 
 	@Override

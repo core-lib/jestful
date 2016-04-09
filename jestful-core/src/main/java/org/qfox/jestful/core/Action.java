@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
 

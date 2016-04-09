@@ -3,8 +3,8 @@ package org.qfox.jestful.json;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.ResponseSerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

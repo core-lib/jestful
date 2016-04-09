@@ -14,7 +14,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.qfox.jestful.core.MediaType;
+import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Source;
 import org.qfox.jestful.core.annotation.Argument;

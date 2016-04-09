@@ -13,9 +13,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Source;
 import org.qfox.jestful.server.converter.ConversionProvider;

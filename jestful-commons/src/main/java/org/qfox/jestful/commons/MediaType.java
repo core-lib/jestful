@@ -1,5 +1,7 @@
-package org.qfox.jestful.core;
+package org.qfox.jestful.commons;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
@@ -8,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
-import org.qfox.jestful.core.exception.MediaTypeFormatException;
 
 /**
  * <p>
@@ -43,29 +44,41 @@ public class MediaType implements Comparable<MediaType> {
 		this.weight = parameters.containsKey("q") ? Float.valueOf(parameters.get("q")) : 1.0f;
 	}
 
+	public static MediaType valueOf(String mediaType) {
+		try {
+			return valueOf(mediaType, Charset.defaultCharset().name());
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	/**
 	 * convert Content-Type from {@link String} to {@link MediaType}
 	 * 
-	 * @param contentType
+	 * @param mediaType
 	 *            http Content-Type such as application/json;charset=UTF-8;q=0.9
 	 * @return
+	 * @throws UnsupportedEncodingException
+	 *             unsupported charset
 	 * @throws MediaTypeFormatException
 	 *             wrong format of Content-Type
 	 */
-	public static MediaType valueOf(String contentType) throws MediaTypeFormatException {
-		if (contentType == null) {
+	public static MediaType valueOf(String mediaType, String charset) throws UnsupportedEncodingException {
+		if (mediaType == null) {
 			throw new NullPointerException();
 		}
-		contentType = contentType.replace(" ", "");
-		if (contentType.matches("[^;/]+/[^;/]+(;[^;=]+=[^;=]+)*") == false) {
-			throw new MediaTypeFormatException(contentType);
+		mediaType = mediaType.replace(" ", "");
+		if (mediaType.matches("[^;/]+/[^;/]+(;[^;=]+=[^;=]+)*") == false) {
+			throw new IllegalArgumentException(mediaType);
 		}
-		String name = contentType.split(";")[0];
+		String name = mediaType.split(";")[0];
 		Map<String, String> parameters = new CaseInsensitiveMap<String, String>();
 		Pattern pattern = Pattern.compile(";([^;=]+)=([^;=]+)");
-		Matcher matcher = pattern.matcher(contentType);
+		Matcher matcher = pattern.matcher(mediaType);
 		while (matcher.find()) {
-			parameters.put(matcher.group(1), matcher.group(2));
+			String key = URLDecoder.decode(matcher.group(1), charset);
+			String value = URLDecoder.decode(matcher.group(2), charset);
+			parameters.put(key, value);
 		}
 		return new MediaType(name, parameters);
 	}

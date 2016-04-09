@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Message;
 import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;

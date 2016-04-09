@@ -3,6 +3,8 @@ package org.qfox.jestful.core;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.qfox.jestful.commons.MediaType;
+
 /**
  * <p>
  * Description:

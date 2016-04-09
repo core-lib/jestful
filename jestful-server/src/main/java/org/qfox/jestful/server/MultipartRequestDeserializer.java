@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.RequestDeserializer;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Message;
 import org.qfox.jestful.core.ResponseSerializer;
 import org.qfox.jestful.core.annotation.Command;
