@@ -25,6 +25,7 @@
 	
 	<bean class="org.qfox.jestful.server.URLEncodedRequestDeserializer" />
 	<bean class="org.qfox.jestful.server.JavaResponseSerializer" />
+	<bean class="org.qfox.jestful.server.MultipartRequestDeserializer" />
 
 </beans>
 
