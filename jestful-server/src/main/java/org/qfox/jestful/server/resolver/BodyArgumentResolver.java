@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Deserializer;
+import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Message;
 import org.qfox.jestful.core.annotation.Command;
@@ -32,7 +32,7 @@ import org.springframework.context.ApplicationContextAware;
  * @since 1.0.0
  */
 public class BodyArgumentResolver implements Actor, ApplicationContextAware {
-	private final Map<MediaType, Deserializer> map = new HashMap<MediaType, Deserializer>();
+	private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
 
 	public Object react(Action action) throws Exception {
 		Command command = action.getCommand();
@@ -44,17 +44,17 @@ public class BodyArgumentResolver implements Actor, ApplicationContextAware {
 		MediaType mediaType = MediaType.valueOf(contentType);
 		Set<MediaType> consumes = action.getConsumes();
 		if (map.containsKey(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
-			Deserializer deserializer = map.get(mediaType);
+			RequestDeserializer deserializer = map.get(mediaType);
 			deserializer.deserialize(action, mediaType, request.getInputStream());
 		} else {
-			throw new UnsupportedTypeException(mediaType, map.keySet());
+			throw new UnsupportedTypeException(mediaType, consumes.isEmpty() ? map.keySet() : consumes);
 		}
 		return action.execute();
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		Collection<Deserializer> deserializers = applicationContext.getBeansOfType(Deserializer.class).values();
-		for (Deserializer deserializer : deserializers) {
+		Collection<RequestDeserializer> deserializers = applicationContext.getBeansOfType(RequestDeserializer.class).values();
+		for (RequestDeserializer deserializer : deserializers) {
 			String contentType = deserializer.getContentType();
 			MediaType mediaType = MediaType.valueOf(contentType);
 			map.put(mediaType, deserializer);

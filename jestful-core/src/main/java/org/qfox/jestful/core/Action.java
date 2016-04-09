@@ -36,6 +36,7 @@ public class Action {
 	private Object controller;
 	private Method method;
 	private Parameter[] parameters;
+	private Object result;
 	private Pattern pattern;
 
 	private Command command;
@@ -115,6 +116,14 @@ public class Action {
 
 	public void setParameters(Parameter[] parameters) {
 		this.parameters = parameters;
+	}
+
+	public Object getResult() {
+		return result;
+	}
+
+	public void setResult(Object result) {
+		this.result = result;
 	}
 
 	public Pattern getPattern() {

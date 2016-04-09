@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Deserializer;
+import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Source;
@@ -42,7 +42,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class URLEncodedDeserializer implements Deserializer, ApplicationContextAware, ConversionProvider {
+public class URLEncodedRequestDeserializer implements RequestDeserializer, ApplicationContextAware, ConversionProvider {
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	public final Set<Converter> converters = new LinkedHashSet<Converter>();
 

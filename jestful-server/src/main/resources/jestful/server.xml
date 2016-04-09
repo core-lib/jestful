@@ -7,6 +7,7 @@
 		<property name="members">
 			<list>
 				<ref bean="resolver" />
+				<bean class="org.qfox.jestful.server.render.DefaultResultRender" />
 			</list>
 		</property>
 	</bean>
@@ -22,7 +23,8 @@
 		</property>
 	</bean>
 	
-	<bean class="org.qfox.jestful.server.URLEncodedDeserializer" />
+	<bean class="org.qfox.jestful.server.URLEncodedRequestDeserializer" />
+	<bean class="org.qfox.jestful.server.JavaResponseSerializer" />
 
 </beans>
 

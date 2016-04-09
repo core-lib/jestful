@@ -50,6 +50,10 @@ public class DefaultServletRequest implements Message {
 		return request.getHeader(name);
 	}
 
+	public void setHeader(String name, String value) {
+		throw new UnsupportedOperationException();
+	}
+
 	public String[] getHeaders(String name) {
 		Enumeration<String> enumeration = request.getHeaders(name);
 		if (enumeration == null) {
@@ -60,6 +64,10 @@ public class DefaultServletRequest implements Message {
 			values.add(enumeration.nextElement());
 		}
 		return values.toArray(new String[values.size()]);
+	}
+	
+	public void setHeaders(String name, String[] values) {
+		throw new UnsupportedOperationException();
 	}
 
 	public InputStream getInputStream() throws IOException {

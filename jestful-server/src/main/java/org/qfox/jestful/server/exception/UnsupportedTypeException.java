@@ -24,20 +24,20 @@ public class UnsupportedTypeException extends StatusException {
 	private static final long serialVersionUID = 5552964842892180698L;
 
 	private final MediaType mediaType;
-	private final Set<MediaType> expects;
+	private final Set<MediaType> consumes;
 
-	public UnsupportedTypeException(MediaType mediaType, Set<MediaType> expects) {
+	public UnsupportedTypeException(MediaType mediaType, Set<MediaType> consumes) {
 		super(415, "Unsupported Media Type");
 		this.mediaType = mediaType;
-		this.expects = expects;
+		this.consumes = consumes;
 	}
 
 	public MediaType getMediaType() {
 		return mediaType;
 	}
 
-	public Set<MediaType> getExpects() {
-		return expects;
+	public Set<MediaType> getConsumes() {
+		return consumes;
 	}
 
 }

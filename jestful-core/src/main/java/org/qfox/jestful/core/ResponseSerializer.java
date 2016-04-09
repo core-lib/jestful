@@ -18,7 +18,7 @@ import java.io.OutputStream;
  *
  * @since 1.0.0
  */
-public interface Serializer {
+public interface ResponseSerializer {
 
 	String getContentType();
 

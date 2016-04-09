@@ -25,7 +25,11 @@ public interface Message {
 
 	String getHeader(String name);
 
+	void setHeader(String name, String value);
+
 	String[] getHeaders(String name);
+
+	void setHeaders(String name, String[] values);
 
 	InputStream getInputStream() throws IOException;
 

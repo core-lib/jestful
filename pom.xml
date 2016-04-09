@@ -12,6 +12,7 @@
 		<module>jestful-client</module>
 		<module>jestful-commons</module>
 		<module>jestful-server</module>
+		<module>jestful-json</module>
 	</modules>
 
 	<repositories>

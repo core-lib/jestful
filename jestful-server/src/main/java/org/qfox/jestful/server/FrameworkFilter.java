@@ -106,7 +106,9 @@ public class FrameworkFilter implements Filter, Actor {
 		for (int i = 0; i < parameters.length; i++) {
 			arguments[i] = parameters[i].getValue();
 		}
-		return method.invoke(controller, arguments);
+		Object result = method.invoke(controller, arguments);
+		action.setResult(result);
+		return result;
 	}
 
 	public void destroy() {

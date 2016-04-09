@@ -60,12 +60,12 @@ public class MediaType implements Comparable<MediaType> {
 		if (contentType.matches("[^;/]+/[^;/]+(;[^;=]+=[^;=]+)*") == false) {
 			throw new MediaTypeFormatException(contentType);
 		}
-		String name = contentType.split(";")[0].trim();
+		String name = contentType.split(";")[0];
 		Map<String, String> parameters = new CaseInsensitiveMap<String, String>();
 		Pattern pattern = Pattern.compile(";([^;=]+)=([^;=]+)");
 		Matcher matcher = pattern.matcher(contentType);
 		while (matcher.find()) {
-			parameters.put(matcher.group(1).trim(), matcher.group(2).trim());
+			parameters.put(matcher.group(1), matcher.group(2));
 		}
 		return new MediaType(name, parameters);
 	}
@@ -95,7 +95,7 @@ public class MediaType implements Comparable<MediaType> {
 	}
 
 	public int compareTo(MediaType o) {
-		return weight > o.weight ? -1 : weight < o.weight ? 1 : 0;
+		return weight > o.weight ? -1 : weight < o.weight ? 1 : name.compareTo(o.name);
 	}
 
 	@Override

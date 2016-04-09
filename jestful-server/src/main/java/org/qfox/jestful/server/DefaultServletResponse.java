@@ -41,9 +41,20 @@ public class DefaultServletResponse implements Message {
 		return response.getHeader(name);
 	}
 
+	public void setHeader(String name, String value) {
+		response.setHeader(name, value);
+	}
+
 	public String[] getHeaders(String name) {
 		Collection<String> values = response.getHeaders(name);
 		return values != null ? values.toArray(new String[values.size()]) : null;
+	}
+
+	public void setHeaders(String name, String[] values) {
+		response.setHeader(name, null);
+		for (String value : values) {
+			response.addHeader(name, value);
+		}
 	}
 
 	public InputStream getInputStream() throws IOException {

@@ -18,7 +18,7 @@ import java.io.InputStream;
  *
  * @since 1.0.0
  */
-public interface Deserializer {
+public interface ResponseDeserializer {
 
 	String getContentType();
 

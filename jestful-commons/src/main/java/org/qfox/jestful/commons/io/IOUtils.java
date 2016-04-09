@@ -26,7 +26,7 @@ public class IOUtils {
 	 * @see {@link IOUtils#close(Closeable, boolean)}
 	 * @param closeable
 	 */
-	public void close(Closeable closeable) {
+	public static void close(Closeable closeable) {
 		close(closeable, true);
 	}
 
@@ -41,7 +41,10 @@ public class IOUtils {
 	 * @throws RuntimeException
 	 *             exception thrown only quietly is true and {@link IOException} thrown when closing the I/O stream
 	 */
-	public void close(Closeable closeable, boolean quietly) throws RuntimeException {
+	public static void close(Closeable closeable, boolean quietly) throws RuntimeException {
+		if (closeable == null) {
+			return;
+		}
 		try {
 			closeable.close();
 		} catch (IOException e) {
