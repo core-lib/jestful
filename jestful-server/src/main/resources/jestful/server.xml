@@ -21,6 +21,8 @@
 			</list>
 		</property>
 	</bean>
+	
+	<bean class="org.qfox.jestful.server.URLEncodedDeserializer" />
 
 </beans>
 

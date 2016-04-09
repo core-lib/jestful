@@ -43,6 +43,9 @@ public class FieldArgumentResolver implements Actor, ApplicationContextAware, Co
 
 	public Object react(Action action) throws Exception {
 		String query = action.getQuery();
+		if (query == null || query.isEmpty()) {
+			return action.execute();
+		}
 		String charset = action.getCharset();
 		String[] pairs = query.split("&+");
 		Map<String, String[]> map = new HashMap<String, String[]>();

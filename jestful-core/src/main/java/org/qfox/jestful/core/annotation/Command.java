@@ -38,13 +38,13 @@ public @interface Command {
 	 * 
 	 * @return
 	 */
-	boolean output();
+	boolean hasRequestBody();
 
 	/**
 	 * does the HTTP method has response body?
 	 * 
 	 * @return
 	 */
-	boolean input();
+	boolean hasResponseBody();
 
 }

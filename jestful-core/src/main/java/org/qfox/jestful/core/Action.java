@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
 
 /**
@@ -37,7 +38,7 @@ public class Action {
 	private Parameter[] parameters;
 	private Pattern pattern;
 
-	private String command;
+	private Command command;
 	private String URI;
 	private String query;
 	private String protocol;
@@ -124,11 +125,11 @@ public class Action {
 		this.pattern = pattern;
 	}
 
-	public String getCommand() {
+	public Command getCommand() {
 		return command;
 	}
 
-	public void setCommand(String command) {
+	public void setCommand(Command command) {
 		this.command = command;
 	}
 

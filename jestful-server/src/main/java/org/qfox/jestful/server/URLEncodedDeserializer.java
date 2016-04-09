@@ -47,17 +47,17 @@ public class URLEncodedDeserializer implements Deserializer, ApplicationContextA
 	public final Set<Converter> converters = new LinkedHashSet<Converter>();
 
 	public String getContentType() {
-		return "application/x-www-url-encoded";
+		return "application/x-www-form-urlencoded";
 	}
 
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
 		Map<String, String[]> map = new HashMap<String, String[]>();
 
+		String charset = mediaType.getCharset();
 		InputStreamReader isr = new InputStreamReader(in);
 		BufferedReader br = new BufferedReader(isr);
 		String line = null;
 		while ((line = br.readLine()) != null) {
-			String charset = mediaType.getCharset();
 			String[] pairs = line.split("&+");
 			for (String pair : pairs) {
 				String[] keyvalue = pair.split("=+");

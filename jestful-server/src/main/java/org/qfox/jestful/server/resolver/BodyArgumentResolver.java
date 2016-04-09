@@ -10,6 +10,7 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Deserializer;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Message;
+import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -34,6 +35,10 @@ public class BodyArgumentResolver implements Actor, ApplicationContextAware {
 	private final Map<MediaType, Deserializer> map = new HashMap<MediaType, Deserializer>();
 
 	public Object react(Action action) throws Exception {
+		Command command = action.getCommand();
+		if (command.hasRequestBody() == false) {
+			return action.execute();
+		}
 		Message request = action.getRequest();
 		String contentType = request.getHeader("Content-Type");
 		MediaType mediaType = MediaType.valueOf(contentType);

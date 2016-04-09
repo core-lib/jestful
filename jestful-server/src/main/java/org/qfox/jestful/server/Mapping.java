@@ -68,12 +68,12 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 			this.parameters = extract(method);
 			this.command = annotation.annotationType().getAnnotation(Command.class);
 			this.consumes = new TreeSet<MediaType>();
-			String[] consumes = command.input() ? (String[]) annotation.annotationType().getMethod("consumes").invoke(annotation) : new String[0];
+			String[] consumes = command.hasRequestBody() ? (String[]) annotation.annotationType().getMethod("consumes").invoke(annotation) : new String[0];
 			for (String consume : consumes) {
 				this.consumes.add(MediaType.valueOf(consume));
 			}
 			this.produces = new TreeSet<MediaType>();
-			String[] produces = command.output() ? (String[]) annotation.annotationType().getMethod("produces").invoke(annotation) : new String[0];
+			String[] produces = command.hasResponseBody() ? (String[]) annotation.annotationType().getMethod("produces").invoke(annotation) : new String[0];
 			for (String produce : produces) {
 				this.produces.add(MediaType.valueOf(produce));
 			}
