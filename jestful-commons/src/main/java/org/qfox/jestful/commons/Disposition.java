@@ -1,8 +1,5 @@
 package org.qfox.jestful.commons;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,32 +38,20 @@ public class Disposition {
 	}
 
 	public static Disposition valueOf(String disposition) {
-		try {
-			return valueOf(disposition, Charset.defaultCharset().name());
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static void main(String[] args) {
-		System.out.println(Disposition.valueOf("form-data; name=\"file\"; filename=\"image.jpg\""));
-	}
-
-	public static Disposition valueOf(String disposition, String charset) throws UnsupportedEncodingException {
 		if (disposition == null) {
 			throw new NullPointerException();
 		}
 		disposition = disposition.replace(" ", "");
-		if (disposition.matches("[^:;]+(;[^=;]+=\"[^=;]+\")*") == false) {
+		if (disposition.matches("[^:;]+(;[^=;]*=\"[^=;]*\")*") == false) {
 			throw new IllegalArgumentException(disposition);
 		}
 		String type = disposition.split(";")[0];
 		Map<String, String> parameters = new CaseInsensitiveMap<String, String>();
-		Pattern pattern = Pattern.compile(";([^;=]+)=\"([^;=]+)\"");
+		Pattern pattern = Pattern.compile(";([^;=]*)=\"([^;=]*)\"");
 		Matcher matcher = pattern.matcher(disposition);
 		while (matcher.find()) {
-			String key = URLDecoder.decode(matcher.group(1), charset);
-			String value = URLDecoder.decode(matcher.group(2), charset);
+			String key = matcher.group(1);
+			String value = matcher.group(2);
 			parameters.put(key, value);
 		}
 		return new Disposition(type, parameters);

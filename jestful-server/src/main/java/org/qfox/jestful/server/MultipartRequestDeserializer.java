@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.RequestDeserializer;
 import org.springframework.beans.BeansException;
@@ -36,11 +38,23 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Applic
 	}
 
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
-		byte[] buffer = new byte[1024];
-		int length = 0;
-		while ((length = in.read(buffer)) != -1) {
-			System.out.write(buffer, 0, length);
+		String boundary = mediaType.getParameters().get("boundary");
+		MultipartInputStream mis = new MultipartInputStream(in, boundary);
+		Multipart multipart = null;
+		while ((multipart = mis.getNextMultipart()) != null) {
+			System.out.println("--" + boundary);
+			System.out.println(multipart);
+			System.out.println();
+			byte[] buffer = new byte[1024];
+			int length = 0;
+			while ((length = mis.read(buffer)) != -1) {
+				System.out.write(buffer, 0, length);
+			}
+			System.out.flush();
+			System.out.println();
 		}
+		System.out.println("--" + boundary + "--");
+		mis.close();
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

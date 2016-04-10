@@ -2,6 +2,8 @@ package org.qfox.jestful.commons.io;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
 
 /**
  * <p>
@@ -31,15 +33,18 @@ public class IOUtils {
 	}
 
 	/**
-	 * close an {@link Closeable} I/O stream quietly or not quietly by parameter quietly
+	 * close an {@link Closeable} I/O stream quietly or not quietly by parameter
+	 * quietly
 	 * 
 	 * @param closeable
 	 *            I/O stream
 	 * @param quietly
 	 *            if true : catch and ignore all exceptions <br/>
-	 *            if false : throw a runtime exception to wrap the exception caught
+	 *            if false : throw a runtime exception to wrap the exception
+	 *            caught
 	 * @throws RuntimeException
-	 *             exception thrown only quietly is true and {@link IOException} thrown when closing the I/O stream
+	 *             exception thrown only quietly is true and {@link IOException}
+	 *             thrown when closing the I/O stream
 	 */
 	public static void close(Closeable closeable, boolean quietly) throws RuntimeException {
 		if (closeable == null) {
@@ -53,6 +58,27 @@ public class IOUtils {
 			}
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static String readLine(InputStream in) throws IOException {
+		int b = in.read();
+		if (b == -1) {
+			return null;
+		}
+		StringWriter writer = new StringWriter();
+		while (b != -1) {
+			switch (b) {
+			case '\r':
+				break;
+			case '\n':
+				return writer.toString();
+			default:
+				writer.write(b);
+				break;
+			}
+			b = in.read();
+		}
+		return writer.toString();
 	}
 
 }

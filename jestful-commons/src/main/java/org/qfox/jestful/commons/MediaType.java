@@ -1,7 +1,5 @@
 package org.qfox.jestful.commons;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
@@ -44,26 +42,16 @@ public class MediaType implements Comparable<MediaType> {
 		this.weight = parameters.containsKey("q") ? Float.valueOf(parameters.get("q")) : 1.0f;
 	}
 
-	public static MediaType valueOf(String mediaType) {
-		try {
-			return valueOf(mediaType, Charset.defaultCharset().name());
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
 	/**
 	 * convert Content-Type from {@link String} to {@link MediaType}
 	 * 
 	 * @param mediaType
 	 *            http Content-Type such as application/json;charset=UTF-8;q=0.9
 	 * @return
-	 * @throws UnsupportedEncodingException
-	 *             unsupported charset
 	 * @throws MediaTypeFormatException
 	 *             wrong format of Content-Type
 	 */
-	public static MediaType valueOf(String mediaType, String charset) throws UnsupportedEncodingException {
+	public static MediaType valueOf(String mediaType) {
 		if (mediaType == null) {
 			throw new NullPointerException();
 		}
@@ -76,8 +64,8 @@ public class MediaType implements Comparable<MediaType> {
 		Pattern pattern = Pattern.compile(";([^;=]+)=([^;=]+)");
 		Matcher matcher = pattern.matcher(mediaType);
 		while (matcher.find()) {
-			String key = URLDecoder.decode(matcher.group(1), charset);
-			String value = URLDecoder.decode(matcher.group(2), charset);
+			String key = matcher.group(1);
+			String value = matcher.group(2);
 			parameters.put(key, value);
 		}
 		return new MediaType(name, parameters);
