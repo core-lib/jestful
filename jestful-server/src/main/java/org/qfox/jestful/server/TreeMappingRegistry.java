@@ -4,13 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.qfox.jestful.server.exception.AlreadyValuedException;
+import org.qfox.jestful.commons.tree.AlreadyValuedException;
+import org.qfox.jestful.commons.tree.Node;
+import org.qfox.jestful.commons.tree.PathExpression;
+import org.qfox.jestful.core.Mapping;
+import org.qfox.jestful.core.Resource;
+import org.qfox.jestful.core.exception.DuplicateMappingException;
+import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
-import org.qfox.jestful.server.exception.DuplicateMappingException;
-import org.qfox.jestful.server.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
-import org.qfox.jestful.server.tree.Node;
-import org.qfox.jestful.server.tree.PathExpression;
 
 /**
  * <p>

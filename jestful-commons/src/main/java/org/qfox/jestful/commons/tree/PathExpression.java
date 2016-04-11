@@ -1,4 +1,4 @@
-package org.qfox.jestful.server.tree;
+package org.qfox.jestful.commons.tree;
 
 public class PathExpression implements Expression<PathExpression> {
 	private final String path;

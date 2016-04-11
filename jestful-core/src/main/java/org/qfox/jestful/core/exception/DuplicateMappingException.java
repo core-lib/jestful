@@ -1,6 +1,6 @@
-package org.qfox.jestful.server.exception;
+package org.qfox.jestful.core.exception;
 
-import org.qfox.jestful.server.Mapping;
+import org.qfox.jestful.core.Mapping;
 
 /**
  * <p>

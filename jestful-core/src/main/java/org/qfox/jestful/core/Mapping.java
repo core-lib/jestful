@@ -1,4 +1,4 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -15,20 +15,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Source;
+import org.qfox.jestful.commons.tree.Hierarchical;
+import org.qfox.jestful.commons.tree.Node;
+import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Argument;
 import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.exception.DuplicateParameterException;
+import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.core.exception.JestfulRuntimeException;
-import org.qfox.jestful.server.exception.AlreadyValuedException;
-import org.qfox.jestful.server.exception.DuplicateParameterException;
-import org.qfox.jestful.server.exception.IllegalConfigException;
-import org.qfox.jestful.server.exception.NonuniqueSourceException;
-import org.qfox.jestful.server.exception.UnassailableParameterException;
-import org.qfox.jestful.server.exception.UndefinedParameterException;
-import org.qfox.jestful.server.tree.Hierarchical;
-import org.qfox.jestful.server.tree.Node;
-import org.qfox.jestful.server.tree.PathExpression;
+import org.qfox.jestful.core.exception.NonuniqueSourceException;
+import org.qfox.jestful.core.exception.UnassailableParameterException;
+import org.qfox.jestful.core.exception.UndefinedParameterException;
 
 /**
  * <p>
@@ -45,7 +42,7 @@ import org.qfox.jestful.server.tree.PathExpression;
  *
  * @since 1.0.0
  */
-public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping> {
+public class Mapping extends Annotated implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping> {
 	private final Operation operation;
 	private final Object controller;
 	private final Method method;
@@ -58,26 +55,32 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 	private final String expression;
 	private final Pattern pattern;
 
-	public Mapping(Operation operation, Annotation annotation) throws IllegalConfigException {
-		super();
+	public Mapping(Operation operation, Annotation[] annotations, Command command) throws IllegalConfigException {
+		super(annotations);
 		try {
 			this.operation = operation;
 			this.controller = operation.getController();
 			this.method = operation.getMethod();
-			this.configuration = operation.getMethod();
+			this.configuration = operation.getConfiguration();
 			this.parameters = extract(method);
-			this.command = annotation.annotationType().getAnnotation(Command.class);
+			Annotation http = null;
+			for (Annotation annotation : annotations) {
+				if (command.equals(annotation.annotationType().getAnnotation(Command.class))) {
+					http = annotation;
+				}
+			}
+			this.command = command;
 			this.consumes = new TreeSet<MediaType>();
-			String[] consumes = command.hasRequestBody() ? (String[]) annotation.annotationType().getMethod("consumes").invoke(annotation) : new String[0];
+			String[] consumes = command.hasRequestBody() ? (String[]) http.annotationType().getMethod("consumes").invoke(http) : new String[0];
 			for (String consume : consumes) {
 				this.consumes.add(MediaType.valueOf(consume));
 			}
 			this.produces = new TreeSet<MediaType>();
-			String[] produces = command.hasResponseBody() ? (String[]) annotation.annotationType().getMethod("produces").invoke(annotation) : new String[0];
+			String[] produces = command.hasResponseBody() ? (String[]) http.annotationType().getMethod("produces").invoke(http) : new String[0];
 			for (String produce : produces) {
 				this.produces.add(MediaType.valueOf(produce));
 			}
-			this.definition = (String) annotation.annotationType().getMethod("value").invoke(annotation);
+			this.definition = (String) http.annotationType().getMethod("value").invoke(http);
 			this.expression = bind(definition);
 			this.pattern = Pattern.compile(expression);
 		} catch (Exception e) {
@@ -174,7 +177,7 @@ public class Mapping implements Hierarchical<PathExpression, Mapping>, Comparabl
 		return parameters;
 	}
 
-	public Node<PathExpression, Mapping> toNode() throws AlreadyValuedException {
+	public Node<PathExpression, Mapping> toNode() {
 		String[] hierarchies = expression.split("\\/+");
 		Iterator<String> iterator = Arrays.asList(hierarchies).iterator();
 		Node<PathExpression, Mapping> result = null;

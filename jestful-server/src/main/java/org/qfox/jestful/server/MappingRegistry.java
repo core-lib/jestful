@@ -2,8 +2,10 @@ package org.qfox.jestful.server;
 
 import java.util.Collection;
 
+import org.qfox.jestful.core.Mapping;
+import org.qfox.jestful.core.Resource;
+import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
-import org.qfox.jestful.server.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
 
 /**

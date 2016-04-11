@@ -1,6 +1,4 @@
-package org.qfox.jestful.server.tree;
-
-import org.qfox.jestful.server.exception.AlreadyValuedException;
+package org.qfox.jestful.commons.tree;
 
 /**
  * <p>
@@ -23,9 +21,7 @@ public interface Hierarchical<K extends Expression<K>, V extends Comparable<V>> 
 	 * 转换成对应的树节点
 	 * 
 	 * @return 对应的树节点
-	 * @throws AlreadyValuedException
-	 *             当需要合并的两个节点都存在值的情况下抛出,表明不能合并
 	 */
-	Node<K, V> toNode() throws AlreadyValuedException;
+	Node<K, V> toNode();
 
 }

@@ -1,4 +1,4 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -9,13 +9,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.qfox.jestful.commons.tree.Hierarchical;
+import org.qfox.jestful.commons.tree.Node;
+import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.annotation.Jestful;
-import org.qfox.jestful.server.exception.AlreadyValuedException;
-import org.qfox.jestful.server.exception.IllegalConfigException;
-import org.qfox.jestful.server.tree.Hierarchical;
-import org.qfox.jestful.server.tree.Node;
-import org.qfox.jestful.server.tree.PathExpression;
+import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
  * <p>
@@ -32,15 +31,15 @@ import org.qfox.jestful.server.tree.PathExpression;
  *
  * @since 1.0.0
  */
-public class Resource implements Hierarchical<PathExpression, Mapping> {
+public class Resource extends Annotated implements Hierarchical<PathExpression, Mapping> {
 	private final Object controller;
 	private final String expression;
 	private final Set<Operation> operations = new HashSet<Operation>();
 
 	public Resource(Object controller) throws IllegalConfigException {
-		super();
+		super(controller.getClass().getAnnotations());
 		this.controller = controller;
-		Jestful jestful = controller.getClass().getAnnotation(Jestful.class);
+		Jestful jestful = this.getAnnotation(Jestful.class);
 		if (jestful == null) {
 			throw new IllegalConfigException(controller.getClass() + " is not a resource controller because it did not annatated @" + Jestful.class.getSimpleName(), controller);
 		}
@@ -124,7 +123,7 @@ public class Resource implements Hierarchical<PathExpression, Mapping> {
 		return null;
 	}
 
-	public Node<PathExpression, Mapping> toNode() throws AlreadyValuedException {
+	public Node<PathExpression, Mapping> toNode() {
 		String[] hierarchies = expression.split("\\/+");
 		Iterator<String> iterator = Arrays.asList(hierarchies).iterator();
 		Node<PathExpression, Mapping> result = null;

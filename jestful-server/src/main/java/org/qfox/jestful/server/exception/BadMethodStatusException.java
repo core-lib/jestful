@@ -2,8 +2,8 @@ package org.qfox.jestful.server.exception;
 
 import java.util.Collection;
 
+import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.exception.StatusException;
-import org.qfox.jestful.server.Mapping;
 
 /**
  * <p>

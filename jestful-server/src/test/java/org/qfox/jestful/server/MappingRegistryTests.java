@@ -1,6 +1,7 @@
 package org.qfox.jestful.server;
 
 import org.junit.Test;
+import org.qfox.jestful.core.Mapping;
 
 /**
  * <p>

@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;

@@ -1,16 +1,15 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
+import org.qfox.jestful.commons.tree.Hierarchical;
+import org.qfox.jestful.commons.tree.Node;
+import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Command;
-import org.qfox.jestful.server.exception.AlreadyValuedException;
-import org.qfox.jestful.server.exception.IllegalConfigException;
-import org.qfox.jestful.server.tree.Hierarchical;
-import org.qfox.jestful.server.tree.Node;
-import org.qfox.jestful.server.tree.PathExpression;
+import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
  * <p>
@@ -27,7 +26,7 @@ import org.qfox.jestful.server.tree.PathExpression;
  *
  * @since 1.0.0
  */
-public class Operation implements Hierarchical<PathExpression, Mapping> {
+public class Operation extends Annotated implements Hierarchical<PathExpression, Mapping> {
 	private final Resource resource;
 	private final Object controller;
 	private final Method method;
@@ -35,22 +34,22 @@ public class Operation implements Hierarchical<PathExpression, Mapping> {
 	private final Map<String, Mapping> mappings = new CaseInsensitiveMap<String, Mapping>();
 
 	public Operation(Resource resource, Method method, Method configuration) throws IllegalConfigException {
-		super();
+		super(configuration.getAnnotations());
 		this.resource = resource;
 		this.controller = resource.getController();
 		this.method = method;
 		this.configuration = configuration;
-		for (Annotation annotation : configuration.getAnnotations()) {
+		for (Annotation annotation : annotations) {
 			Command command = annotation.annotationType().getAnnotation(Command.class);
 			if (command == null) {
 				continue;
 			}
-			Mapping mapping = new Mapping(this, annotation);
+			Mapping mapping = new Mapping(this, annotations, command);
 			this.mappings.put(command.name(), mapping);
 		}
 	}
 
-	public Node<PathExpression, Mapping> toNode() throws AlreadyValuedException {
+	public Node<PathExpression, Mapping> toNode() {
 		Node<PathExpression, Mapping> result = new Node<PathExpression, Mapping>(new PathExpression());
 		for (Mapping mapping : mappings.values()) {
 			Node<PathExpression, Mapping> node = mapping.toNode();

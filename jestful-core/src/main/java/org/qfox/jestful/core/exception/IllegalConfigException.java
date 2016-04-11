@@ -1,8 +1,6 @@
-package org.qfox.jestful.server.exception;
+package org.qfox.jestful.core.exception;
 
 import java.lang.reflect.Method;
-
-import org.qfox.jestful.core.exception.JestfulRuntimeException;
 
 /**
  * <p>

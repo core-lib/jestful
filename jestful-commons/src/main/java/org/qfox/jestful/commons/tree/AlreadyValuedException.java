@@ -1,6 +1,5 @@
-package org.qfox.jestful.server.exception;
+package org.qfox.jestful.commons.tree;
 
-import org.qfox.jestful.server.tree.Node;
 
 /**
  * <p>
@@ -17,7 +16,7 @@ import org.qfox.jestful.server.tree.Node;
  *
  * @since 1.0.0
  */
-public class AlreadyValuedException extends Exception {
+public class AlreadyValuedException extends IllegalStateException {
 	private static final long serialVersionUID = -6954428631812725990L;
 
 	private final Node<?, ?> current;

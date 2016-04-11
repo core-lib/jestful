@@ -12,7 +12,6 @@ import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.qfox.jestful.core.Source;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -42,18 +41,11 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Applic
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
 		String boundary = mediaType.getParameters().get("boundary");
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
-		Multipart multipart = null;
-		while ((multipart = mis.getNextMultipart()) != null) {
-			Parameter[] parameters = action.getParameters();
-			for(Parameter parameter : parameters){
-				
-			}
-		}
 		mis.close();
 	}
-	
+
 	public void deserialize(Action action, Parameter parameter, Multipart multipart, InputStream in) throws IOException {
-		
+
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

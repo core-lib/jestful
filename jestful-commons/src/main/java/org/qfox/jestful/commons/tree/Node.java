@@ -1,11 +1,9 @@
-package org.qfox.jestful.server.tree;
+package org.qfox.jestful.commons.tree;
 
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
-
-import org.qfox.jestful.server.exception.AlreadyValuedException;
 
 /**
  * <p>
