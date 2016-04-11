@@ -26,7 +26,7 @@ import org.qfox.jestful.commons.io.IOUtils;
  */
 public class Multipart {
 	private final Disposition disposition;
-	private final MediaType contentType;
+	private final MediaType type;
 	private final Map<String, String> header;
 
 	public Multipart(InputStream inputStream) throws IOException {
@@ -42,15 +42,15 @@ public class Multipart {
 			this.header.put(key, value);
 		}
 		this.disposition = this.header.containsKey("Content-Disposition") ? Disposition.valueOf(this.header.get("Content-Disposition")) : null;
-		this.contentType = this.header.containsKey("Content-Type") ? MediaType.valueOf(this.header.get("Content-Type")) : null;
+		this.type = this.header.containsKey("Content-Type") ? MediaType.valueOf(this.header.get("Content-Type")) : null;
 	}
 
 	public Disposition getDisposition() {
 		return disposition;
 	}
 
-	public MediaType getContentType() {
-		return contentType;
+	public MediaType getType() {
+		return type;
 	}
 
 	public Map<String, String> getHeader() {

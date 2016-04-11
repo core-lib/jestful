@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.qfox.jestful.commons.Disposition;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multipart;
 import org.qfox.jestful.commons.io.MultipartInputStream;
@@ -40,7 +41,27 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Applic
 
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
 		String boundary = mediaType.getParameters().get("boundary");
+		Parameter[] parameters = action.getParameters();
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
+		Multipart multipart = null;
+		while ((multipart = mis.getNextMultipart()) != null) {
+			Disposition disposition = multipart.getDisposition();
+			MediaType type = multipart.getType();
+			String name = disposition.getName();
+			for (Parameter parameter : parameters) {
+				if (parameter.getName().equals(name) == false || parameter.from("body") == false) {
+					continue;
+				}
+				if (type == null) {
+					deserialize(action, parameter, multipart, mis);
+				}
+				if (map.containsKey(type)) {
+					RequestDeserializer deserializer = map.get(type);
+					deserializer.deserialize(action, parameter, multipart, mis);
+				}
+				break;
+			}
+		}
 		mis.close();
 	}
 
