@@ -27,7 +27,7 @@ import org.qfox.jestful.core.Source;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@Argument(Source.BODY)
+@Argument(Source.PART)
 public @interface Part {
 
 	/**

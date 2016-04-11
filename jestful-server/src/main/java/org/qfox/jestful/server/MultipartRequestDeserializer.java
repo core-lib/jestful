@@ -10,7 +10,9 @@ import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multipart;
 import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.RequestDeserializer;
+import org.qfox.jestful.core.Source;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -42,19 +44,16 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Applic
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
 		Multipart multipart = null;
 		while ((multipart = mis.getNextMultipart()) != null) {
-			System.out.println("--" + boundary);
-			System.out.println(multipart);
-			System.out.println();
-			byte[] buffer = new byte[1024];
-			int length = 0;
-			while ((length = mis.read(buffer)) != -1) {
-				System.out.write(buffer, 0, length);
+			Parameter[] parameters = action.getParameters();
+			for(Parameter parameter : parameters){
+				
 			}
-			System.out.flush();
-			System.out.println();
 		}
-		System.out.println("--" + boundary + "--");
 		mis.close();
+	}
+	
+	public void deserialize(Action action, Parameter parameter, Multipart multipart, InputStream in) throws IOException {
+		
 	}
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

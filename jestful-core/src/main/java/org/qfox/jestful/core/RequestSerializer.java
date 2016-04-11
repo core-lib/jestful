@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.Multipart;
 
 /**
  * <p>
@@ -24,6 +25,10 @@ public interface RequestSerializer {
 
 	String getContentType();
 
+	boolean supports(Parameter parameter);
+
 	void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException;
+
+	void serialize(Action action, Parameter parameter, Multipart multipart, OutputStream out) throws IOException;
 
 }

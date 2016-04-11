@@ -14,9 +14,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.Multipart;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.core.Source;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
@@ -84,6 +85,10 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Appli
 			Object value = convert(name, type, map);
 			parameter.setValue(value);
 		}
+	}
+
+	public void deserialize(Action action, Parameter parameter, Multipart multipart, InputStream in) throws IOException {
+		throw new UnsupportedOperationException();
 	}
 
 	public Object convert(String name, Type type, Map<String, String[]> map) throws UnconvertableParameterException {
