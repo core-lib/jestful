@@ -19,7 +19,6 @@ import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.exception.DuplicateParameterException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
-import org.qfox.jestful.core.exception.UnassailableParameterException;
 import org.qfox.jestful.core.exception.UndefinedParameterException;
 
 /**
@@ -92,9 +91,6 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 	private String bind(String path) {
 		Map<String, Parameter> map = new LinkedHashMap<String, Parameter>();
 		for (Parameter parameter : parameters) {
-			if (parameter.from("path") == false) {
-				continue;
-			}
 			map.put(parameter.getName(), parameter);
 		}
 		Matcher matcher = Pattern.compile("\\{([^{}]+?)(:([^{}]+?))?\\}").matcher(path);
@@ -112,11 +108,7 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 				throw new UndefinedParameterException(controller, method, name, path);
 			}
 		}
-		if (map.isEmpty()) {
-			return path;
-		} else {
-			throw new UnassailableParameterException(controller, method, map.values());
-		}
+		return path;
 	}
 
 	/**

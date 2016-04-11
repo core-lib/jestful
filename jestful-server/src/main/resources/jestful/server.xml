@@ -15,9 +15,9 @@
 	<bean id="resolver" class="org.qfox.jestful.core.Group">
 		<property name="members">
 			<list>
-				<bean class="org.qfox.jestful.server.resolver.PathParameterResolver" />
-				<bean class="org.qfox.jestful.server.resolver.QueryParameterResolver" />
 				<bean class="org.qfox.jestful.server.resolver.HeaderParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.QueryParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.PathParameterResolver" />
 				<bean class="org.qfox.jestful.server.resolver.BodyParameterResolver" />
 			</list>
 		</property>

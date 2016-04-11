@@ -10,7 +10,6 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConverter;
-import org.qfox.jestful.server.exception.UnsupportedParameterException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -41,10 +40,10 @@ public class PathParameterResolver implements Actor, ApplicationContextAware {
 		matcher.find();
 		flag: for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			if (parameter.from("path") == false) {
+			int group = parameter.getGroup();
+			if (parameter.from("path") == false || group <= 0) {
 				continue;
 			}
-			int group = parameter.getGroup();
 			String source = matcher.group(group);
 			for (StringConverter<?> converter : converters) {
 				if (converter.support(parameter)) {
@@ -53,7 +52,6 @@ public class PathParameterResolver implements Actor, ApplicationContextAware {
 					continue flag;
 				}
 			}
-			throw new UnsupportedParameterException(parameter);
 		}
 		return action.execute();
 	}

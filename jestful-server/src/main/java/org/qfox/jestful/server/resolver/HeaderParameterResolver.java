@@ -3,11 +3,11 @@ package org.qfox.jestful.server.resolver;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Message;
@@ -41,7 +41,7 @@ public class HeaderParameterResolver implements Actor, ApplicationContextAware, 
 	public final Set<Converter> converters = new LinkedHashSet<Converter>();
 
 	public Object react(Action action) throws Exception {
-		Map<String, String[]> map = new HashMap<String, String[]>();
+		Map<String, String[]> map = new CaseInsensitiveMap<String, String[]>();
 		Message request = action.getRequest();
 		String charset = action.getCharset();
 		String[] names = request.getHeaders();
@@ -56,10 +56,10 @@ public class HeaderParameterResolver implements Actor, ApplicationContextAware, 
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			if (parameter.from("header") == false) {
+			String name = parameter.getName();
+			if (parameter.from("header") == false || map.containsKey(name) == false) {
 				continue;
 			}
-			String name = parameter.getName();
 			Type type = parameter.getType();
 			Object value = convert(name, type, map);
 			parameter.setValue(value);
