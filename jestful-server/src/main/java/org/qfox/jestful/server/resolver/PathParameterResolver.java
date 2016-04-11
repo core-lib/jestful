@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Source;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.qfox.jestful.server.exception.UnsupportedParameterException;
 import org.springframework.beans.BeansException;
@@ -31,7 +30,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class PathArgumentResolver implements Actor, ApplicationContextAware {
+public class PathParameterResolver implements Actor, ApplicationContextAware {
 	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
 
 	public Object react(Action action) throws Exception {
@@ -42,7 +41,8 @@ public class PathArgumentResolver implements Actor, ApplicationContextAware {
 		matcher.find();
 		flag: for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			if (parameter.getSource() != Source.PATH) {
+			String place = parameter.getPlace();
+			if ("path".equalsIgnoreCase(place) == false) {
 				continue;
 			}
 			int group = parameter.getGroup();

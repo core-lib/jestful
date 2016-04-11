@@ -18,7 +18,6 @@ import org.qfox.jestful.commons.Multipart;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.qfox.jestful.core.Source;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
 import org.qfox.jestful.server.exception.UnconvertableParameterException;
@@ -77,7 +76,8 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Appli
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			if (parameter.getSource() != Source.FIELD) {
+			String place = parameter.getPlace();
+			if ("body".equalsIgnoreCase(place) == false) {
 				continue;
 			}
 			String name = parameter.getName();

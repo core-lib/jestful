@@ -12,7 +12,6 @@ import java.util.Set;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Source;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
 import org.qfox.jestful.server.exception.UnconvertableParameterException;
@@ -37,7 +36,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class FieldArgumentResolver implements Actor, ApplicationContextAware, ConversionProvider {
+public class QueryParameterResolver implements Actor, ApplicationContextAware, ConversionProvider {
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	public final Set<Converter> converters = new LinkedHashSet<Converter>();
 
@@ -64,7 +63,8 @@ public class FieldArgumentResolver implements Actor, ApplicationContextAware, Co
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			if (parameter.getSource() != Source.FIELD) {
+			String place = parameter.getPlace();
+			if ("query".equalsIgnoreCase(place) == false) {
 				continue;
 			}
 			String name = parameter.getName();

@@ -15,10 +15,10 @@
 	<bean id="resolver" class="org.qfox.jestful.core.Group">
 		<property name="members">
 			<list>
-				<bean class="org.qfox.jestful.server.resolver.PathArgumentResolver" />
-				<bean class="org.qfox.jestful.server.resolver.FieldArgumentResolver" />
-				<bean class="org.qfox.jestful.server.resolver.HeaderArgumentResolver" />
-				<bean class="org.qfox.jestful.server.resolver.BodyArgumentResolver" />
+				<bean class="org.qfox.jestful.server.resolver.PathParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.QueryParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.HeaderParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.BodyParameterResolver" />
 			</list>
 		</property>
 	</bean>

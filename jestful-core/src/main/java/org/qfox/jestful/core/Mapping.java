@@ -2,12 +2,9 @@ package org.qfox.jestful.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -18,12 +15,9 @@ import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
-import org.qfox.jestful.core.annotation.Argument;
 import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.exception.DuplicateParameterException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
-import org.qfox.jestful.core.exception.JestfulRuntimeException;
-import org.qfox.jestful.core.exception.NonuniqueSourceException;
 import org.qfox.jestful.core.exception.UnassailableParameterException;
 import org.qfox.jestful.core.exception.UndefinedParameterException;
 
@@ -47,7 +41,7 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 	private final Object controller;
 	private final Method method;
 	private final Method configuration;
-	private final List<Parameter> parameters;
+	private final Set<Parameter> parameters;
 	private final Command command;
 	private final Set<MediaType> consumes;
 	private final Set<MediaType> produces;
@@ -63,24 +57,24 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 			this.method = operation.getMethod();
 			this.configuration = operation.getConfiguration();
 			this.parameters = extract(method);
-			Annotation http = null;
+			Annotation restful = null;
 			for (Annotation annotation : annotations) {
 				if (command.equals(annotation.annotationType().getAnnotation(Command.class))) {
-					http = annotation;
+					restful = annotation;
 				}
 			}
 			this.command = command;
 			this.consumes = new TreeSet<MediaType>();
-			String[] consumes = command.hasRequestBody() ? (String[]) http.annotationType().getMethod("consumes").invoke(http) : new String[0];
+			String[] consumes = command.hasRequestBody() ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful) : new String[0];
 			for (String consume : consumes) {
 				this.consumes.add(MediaType.valueOf(consume));
 			}
 			this.produces = new TreeSet<MediaType>();
-			String[] produces = command.hasResponseBody() ? (String[]) http.annotationType().getMethod("produces").invoke(http) : new String[0];
+			String[] produces = command.hasResponseBody() ? (String[]) restful.annotationType().getMethod("produces").invoke(restful) : new String[0];
 			for (String produce : produces) {
 				this.produces.add(MediaType.valueOf(produce));
 			}
-			this.definition = (String) http.annotationType().getMethod("value").invoke(http);
+			this.definition = (String) restful.annotationType().getMethod("value").invoke(restful);
 			this.expression = bind(definition);
 			this.pattern = Pattern.compile(expression);
 		} catch (Exception e) {
@@ -97,7 +91,8 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 	private String bind(String path) {
 		Map<String, Parameter> map = new LinkedHashMap<String, Parameter>();
 		for (Parameter parameter : parameters) {
-			if (parameter.getSource() != Source.PATH) {
+			String place = parameter.getPlace();
+			if ("path".equalsIgnoreCase(place) == false) {
 				continue;
 			}
 			map.put(parameter.getName(), parameter);
@@ -125,49 +120,16 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 	}
 
 	/**
-	 * 提取指定下标的方法参数
-	 * 
-	 * @param method
-	 *            方法
-	 * @param index
-	 *            参数下标
-	 * @return 参数的封装
-	 */
-	private Parameter extract(Method method, int index) throws IllegalConfigException {
-		Type type = method.getGenericParameterTypes()[index];
-		String name = null;
-		Source source = null;
-		Annotation[] annotations = method.getParameterAnnotations()[index];
-		for (Annotation annotation : annotations) {
-			Argument argument = annotation.annotationType().getAnnotation(Argument.class);
-			if (argument == null) {
-				continue;
-			}
-			if (name != null || source != null) {
-				throw new NonuniqueSourceException(controller, method, index, Arrays.asList(source, argument.value()));
-			}
-			try {
-				name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
-				source = argument.value();
-			} catch (Exception e) {
-				throw new JestfulRuntimeException(e);
-			}
-		}
-		Parameter parameter = new Parameter(method, type, index, name == null || name.isEmpty() ? String.valueOf(index) : name, source);
-		return parameter;
-	}
-
-	/**
 	 * 提取方法的所有参数
 	 * 
 	 * @param method
 	 *            方法
 	 * @return 方法的所有参数的封装
 	 */
-	private List<Parameter> extract(Method method) throws IllegalConfigException {
-		List<Parameter> parameters = new ArrayList<Parameter>();
-		for (int index = 0; index < method.getGenericParameterTypes().length; index++) {
-			Parameter parameter = extract(method, index);
+	private Set<Parameter> extract(Method method) throws IllegalConfigException {
+		Set<Parameter> parameters = new TreeSet<Parameter>();
+		for (int index = 0; index < method.getParameterTypes().length; index++) {
+			Parameter parameter = new Parameter(method, index);
 			if (parameters.contains(parameter)) {
 				throw new DuplicateParameterException(controller, method, index);
 			} else {
@@ -224,7 +186,7 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 		return configuration;
 	}
 
-	public List<Parameter> getParameters() {
+	public Set<Parameter> getParameters() {
 		return parameters;
 	}
 

@@ -1,10 +1,10 @@
 package org.qfox.jestful.core;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import org.qfox.jestful.core.annotation.Name;
+import org.qfox.jestful.core.annotation.Place;
 
 /**
  * <p>
@@ -21,27 +21,23 @@ import java.util.Map;
  *
  * @since 1.0.0
  */
-public class Parameter {
+public class Parameter extends Annotated implements Comparable<Parameter> {
 	private final Method method;
 	private final Type type;
 	private final int index;
 	private final String name;
-	private final Source source;
-	private final Map<Class<? extends Annotation>, Annotation> annotations = new LinkedHashMap<Class<? extends Annotation>, Annotation>();
+	private final String place;
 	private Object value;
 	private int group;
 	private String regex;
 
-	public Parameter(Method method, Type type, int index, String name, Source source) {
-		super();
+	public Parameter(Method method, int index) {
+		super(method.getParameterAnnotations()[index]);
 		this.method = method;
-		this.type = type;
+		this.type = method.getGenericParameterTypes()[index];
 		this.index = index;
-		this.name = name;
-		this.source = source;
-		for (Annotation annotation : method.getParameterAnnotations()[index]) {
-			annotations.put(annotation.annotationType(), annotation);
-		}
+		this.name = isAnnotationPresent(Name.class) ? getAnnotation(Name.class).value() : String.valueOf(index);
+		this.place = isAnnotationPresent(Place.class) ? getAnnotation(Place.class).value() : null;
 	}
 
 	public int compareTo(Parameter o) {
@@ -88,12 +84,8 @@ public class Parameter {
 		return name;
 	}
 
-	public Source getSource() {
-		return source;
-	}
-
-	public Map<Class<? extends Annotation>, Annotation> getAnnotations() {
-		return annotations;
+	public String getPlace() {
+		return place;
 	}
 
 	@Override
@@ -101,7 +93,7 @@ public class Parameter {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((source == null) ? 0 : source.hashCode());
+		result = prime * result + ((place == null) ? 0 : place.hashCode());
 		return result;
 	}
 
@@ -119,7 +111,7 @@ public class Parameter {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (source != other.source)
+		if (place != other.place)
 			return false;
 		return true;
 	}
@@ -128,4 +120,5 @@ public class Parameter {
 	public String toString() {
 		return type.toString();
 	}
+
 }

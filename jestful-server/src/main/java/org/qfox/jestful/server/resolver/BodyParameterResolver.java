@@ -31,7 +31,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class BodyArgumentResolver implements Actor, ApplicationContextAware {
+public class BodyParameterResolver implements Actor, ApplicationContextAware {
 	private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
 
 	public Object react(Action action) throws Exception {

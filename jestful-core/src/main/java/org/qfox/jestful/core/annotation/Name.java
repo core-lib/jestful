@@ -6,13 +6,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.qfox.jestful.core.Source;
-
 /**
  * <p>
- * Description: Specify the parameter value come from http headers by using {@link Header#value()} as the header name,
- * such as Content-Type/Transfer-Encoding or something else<br/>
- * There is an important fact you should know is the header to match is case ignored
+ * Description: 参数名称注解, 用于标识资源操作方法上的参数名称, 默认情况下采用参数所在方法的参数下标作为名称
  * </p>
  * 
  * <p>
@@ -21,21 +17,15 @@ import org.qfox.jestful.core.Source;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年1月15日 下午8:41:45
+ * @date 2016年4月11日 下午3:54:36
  *
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@Argument(Source.HEADER)
-public @interface Header {
+public @interface Name {
 
-	/**
-	 * header name
-	 * 
-	 * @return
-	 */
 	String value();
 
 }
