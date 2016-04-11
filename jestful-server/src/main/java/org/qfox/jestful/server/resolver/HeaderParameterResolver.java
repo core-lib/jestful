@@ -56,8 +56,7 @@ public class HeaderParameterResolver implements Actor, ApplicationContextAware, 
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			String place = parameter.getPlace();
-			if ("header".equalsIgnoreCase(place) == false) {
+			if (parameter.from("header") == false) {
 				continue;
 			}
 			String name = parameter.getName();

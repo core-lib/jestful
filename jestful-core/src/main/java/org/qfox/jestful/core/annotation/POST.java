@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
-@Command(name = "POST", hasRequestBody = true, hasResponseBody = true)
+@Command(name = "POST", hasRequestBody = true, hasResponseBody = true, idempotent = false)
 public @interface POST {
 
 	/**

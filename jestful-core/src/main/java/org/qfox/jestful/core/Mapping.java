@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -41,7 +42,7 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 	private final Object controller;
 	private final Method method;
 	private final Method configuration;
-	private final Set<Parameter> parameters;
+	private final Parameter[] parameters;
 	private final Command command;
 	private final Set<MediaType> consumes;
 	private final Set<MediaType> produces;
@@ -91,8 +92,7 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 	private String bind(String path) {
 		Map<String, Parameter> map = new LinkedHashMap<String, Parameter>();
 		for (Parameter parameter : parameters) {
-			String place = parameter.getPlace();
-			if ("path".equalsIgnoreCase(place) == false) {
+			if (parameter.from("path") == false) {
 				continue;
 			}
 			map.put(parameter.getName(), parameter);
@@ -126,8 +126,8 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 	 *            方法
 	 * @return 方法的所有参数的封装
 	 */
-	private Set<Parameter> extract(Method method) throws IllegalConfigException {
-		Set<Parameter> parameters = new TreeSet<Parameter>();
+	private Parameter[] extract(Method method) throws IllegalConfigException {
+		Set<Parameter> parameters = new LinkedHashSet<Parameter>();
 		for (int index = 0; index < method.getParameterTypes().length; index++) {
 			Parameter parameter = new Parameter(method, index);
 			if (parameters.contains(parameter)) {
@@ -136,7 +136,7 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 				parameters.add(parameter);
 			}
 		}
-		return parameters;
+		return parameters.toArray(new Parameter[0]);
 	}
 
 	public Node<PathExpression, Mapping> toNode() {
@@ -186,7 +186,7 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 		return configuration;
 	}
 
-	public Set<Parameter> getParameters() {
+	public Parameter[] getParameters() {
 		return parameters;
 	}
 

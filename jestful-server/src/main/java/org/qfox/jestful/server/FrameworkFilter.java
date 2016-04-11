@@ -74,7 +74,7 @@ public class FrameworkFilter implements Filter, Actor {
 
 			action.setController(mapping.getController());
 			action.setMethod(mapping.getMethod());
-			action.setParameters(mapping.getParameters().toArray(new Parameter[0]));
+			action.setParameters(mapping.getParameters());
 			action.setPattern(mapping.getPattern());
 
 			action.setCommand(mapping.getCommand());

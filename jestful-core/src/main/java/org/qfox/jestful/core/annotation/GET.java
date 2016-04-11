@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })
-@Command(name = "GET", hasRequestBody = false, hasResponseBody = true)
+@Command(name = "GET", hasRequestBody = false, hasResponseBody = true, idempotent = true)
 public @interface GET {
 
 	/**

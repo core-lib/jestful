@@ -41,8 +41,7 @@ public class PathParameterResolver implements Actor, ApplicationContextAware {
 		matcher.find();
 		flag: for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			String place = parameter.getPlace();
-			if ("path".equalsIgnoreCase(place) == false) {
+			if (parameter.from("path") == false) {
 				continue;
 			}
 			int group = parameter.getGroup();

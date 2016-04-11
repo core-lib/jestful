@@ -2,6 +2,9 @@ package org.qfox.jestful.core;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.qfox.jestful.core.annotation.Name;
 import org.qfox.jestful.core.annotation.Place;
@@ -26,7 +29,7 @@ public class Parameter extends Annotated implements Comparable<Parameter> {
 	private final Type type;
 	private final int index;
 	private final String name;
-	private final String place;
+	private final Set<String> places;
 	private Object value;
 	private int group;
 	private String regex;
@@ -37,7 +40,16 @@ public class Parameter extends Annotated implements Comparable<Parameter> {
 		this.type = method.getGenericParameterTypes()[index];
 		this.index = index;
 		this.name = isAnnotationPresent(Name.class) ? getAnnotation(Name.class).value() : String.valueOf(index);
-		this.place = isAnnotationPresent(Place.class) ? getAnnotation(Place.class).value() : null;
+		String place = isAnnotationPresent(Place.class) ? getAnnotation(Place.class).value().replaceAll("(\\||\\s)+", "|").toLowerCase() : "";
+		this.places = new HashSet<String>(Arrays.asList(place.isEmpty() ? new String[0] : place.split("|")));
+	}
+
+	public boolean from(String place) {
+		return places.isEmpty() || places.contains(place.toLowerCase());
+	}
+
+	public boolean to(String place) {
+		return places.isEmpty() || places.contains(place.toLowerCase());
 	}
 
 	public int compareTo(Parameter o) {
@@ -84,16 +96,11 @@ public class Parameter extends Annotated implements Comparable<Parameter> {
 		return name;
 	}
 
-	public String getPlace() {
-		return place;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((place == null) ? 0 : place.hashCode());
 		return result;
 	}
 
@@ -110,8 +117,6 @@ public class Parameter extends Annotated implements Comparable<Parameter> {
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
-			return false;
-		if (place != other.place)
 			return false;
 		return true;
 	}

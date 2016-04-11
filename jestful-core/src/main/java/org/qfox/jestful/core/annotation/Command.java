@@ -47,4 +47,11 @@ public @interface Command {
 	 */
 	boolean hasResponseBody();
 
+	/**
+	 * does the HTTP method is idempotent?
+	 * 
+	 * @return
+	 */
+	boolean idempotent();
+
 }

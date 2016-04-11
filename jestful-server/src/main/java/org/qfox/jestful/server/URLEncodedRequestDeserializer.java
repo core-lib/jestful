@@ -76,8 +76,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Appli
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			String place = parameter.getPlace();
-			if ("body".equalsIgnoreCase(place) == false) {
+			if (parameter.from("body") == false) {
 				continue;
 			}
 			String name = parameter.getName();

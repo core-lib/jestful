@@ -63,8 +63,7 @@ public class QueryParameterResolver implements Actor, ApplicationContextAware, C
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
-			String place = parameter.getPlace();
-			if ("query".equalsIgnoreCase(place) == false) {
+			if (parameter.from("query") == false) {
 				continue;
 			}
 			String name = parameter.getName();
