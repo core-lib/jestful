@@ -9,6 +9,7 @@ import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.exception.AmbiguousCommandException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
@@ -39,11 +40,14 @@ public class Operation extends Configuration implements Hierarchical<PathExpress
 		this.controller = resource.getController();
 		this.method = method;
 		this.configuration = configuration;
-		Annotation[] annotations = getAnnotationsWith(Command.class);
-		for (Annotation annotation : annotations) {
+		Annotation[] commands = getAnnotationsWith(Command.class);
+		if (commands.length == 1) {
+			Annotation annotation = getAnnotationWith(Command.class);
 			Command command = annotation.annotationType().getAnnotation(Command.class);
 			Mapping mapping = new Mapping(this, annotations, command);
 			this.mappings.put(command.name(), mapping);
+		} else {
+			throw new AmbiguousCommandException("Ambiguous http method of resource operation " + this, controller, method, this);
 		}
 	}
 

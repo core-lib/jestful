@@ -27,7 +27,7 @@ public abstract class Configuration implements AnnotatedElement {
 		super();
 		this.annotations = annotations;
 	}
-
+	
 	public Annotation getAnnotationWith(Class<? extends Annotation> annotationType) {
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType().isAnnotationPresent(annotationType)) {

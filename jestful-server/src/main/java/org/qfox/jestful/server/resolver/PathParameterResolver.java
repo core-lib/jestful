@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.annotation.Argument.Position;
+import org.qfox.jestful.core.annotation.Variable.Position;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;

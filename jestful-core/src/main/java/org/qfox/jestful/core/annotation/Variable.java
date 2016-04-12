@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.ANNOTATION_TYPE })
-public @interface Argument {
+public @interface Variable {
 
 	/**
 	 * 参数所在位置, 请求头/路径/查询字符串/请求体

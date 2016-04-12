@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.qfox.jestful.core.annotation.Argument.Position;
+import org.qfox.jestful.core.annotation.Variable.Position;
 
 /**
  * <p>
@@ -26,7 +26,7 @@ import org.qfox.jestful.core.annotation.Argument.Position;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@Argument(position = Position.PATH)
+@Variable(position = Position.PATH)
 public @interface Path {
 
 	/**

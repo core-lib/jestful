@@ -12,7 +12,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Message;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.annotation.Argument.Position;
+import org.qfox.jestful.core.annotation.Variable.Position;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
 import org.qfox.jestful.server.exception.UnconvertableParameterException;

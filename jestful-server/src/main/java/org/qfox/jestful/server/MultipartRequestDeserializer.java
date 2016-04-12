@@ -13,7 +13,7 @@ import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.qfox.jestful.core.annotation.Argument.Position;
+import org.qfox.jestful.core.annotation.Variable.Position;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

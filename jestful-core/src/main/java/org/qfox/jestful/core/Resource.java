@@ -75,7 +75,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 							continue flag;
 						}
 					}
-					// 在父类中找到了对应的被重写的方法, 判断是否有restful的注解
+					// 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
 					for (Annotation annotation : m.getAnnotations()) {
 						if (annotation.annotationType().isAnnotationPresent(Command.class)) {
 							return m;

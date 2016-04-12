@@ -4,8 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import org.qfox.jestful.core.annotation.Argument;
-import org.qfox.jestful.core.annotation.Argument.Position;
+import org.qfox.jestful.core.annotation.Variable;
+import org.qfox.jestful.core.annotation.Variable.Position;
+import org.qfox.jestful.core.exception.AmbiguousVariableException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
@@ -43,11 +44,19 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 			this.method = method;
 			this.type = method.getGenericParameterTypes()[index];
 			this.index = index;
-			Annotation annotation = getAnnotationWith(Argument.class);
-			String name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
-			this.name = name.isEmpty() ? String.valueOf(index) : name;
-			Argument argument = annotation.annotationType().getAnnotation(Argument.class);
-			this.position = argument.position();
+			Annotation[] variables = getAnnotationsWith(Variable.class);
+			if (variables.length == 1) {
+				Annotation annotation = getAnnotationWith(Variable.class);
+				String name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
+				this.name = name.isEmpty() ? String.valueOf(index) : name;
+				Variable variable = annotation.annotationType().getAnnotation(Variable.class);
+				this.position = variable.position();
+			} else if (variables.length == 0) {
+				this.name = String.valueOf(index);
+				this.position = null;
+			} else {
+				throw new AmbiguousVariableException("Ambiguous variable at index " + index + " in " + method + " which has more than one variable kind annotation", controller, method, this);
+			}
 		} catch (Exception e) {
 			throw new IllegalConfigException(e, mapping.getController(), method);
 		}
