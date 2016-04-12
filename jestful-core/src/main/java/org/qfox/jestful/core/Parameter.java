@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
 import org.qfox.jestful.core.annotation.Variable;
-import org.qfox.jestful.core.annotation.Variable.Position;
 import org.qfox.jestful.core.exception.AmbiguousParameterException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 

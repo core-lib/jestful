@@ -9,8 +9,8 @@ import org.qfox.jestful.commons.Multipart;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.qfox.jestful.core.annotation.Variable.Position;
 
 /**
  * <p>

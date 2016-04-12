@@ -8,8 +8,8 @@ import java.util.Set;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.qfox.jestful.core.Message;
 import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
 import org.springframework.beans.BeansException;
@@ -39,7 +39,7 @@ public class BodyParameterResolver implements Actor, ApplicationContextAware {
 		if (command.hasRequestBody() == false) {
 			return action.execute();
 		}
-		Message request = action.getRequest();
+		Request request = action.getRequest();
 		String contentType = request.getHeader("Content-Type");
 		MediaType mediaType = MediaType.valueOf(contentType);
 		Set<MediaType> consumes = action.getConsumes();

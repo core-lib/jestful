@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.qfox.jestful.core.annotation.Variable.Position;
+import org.qfox.jestful.core.Position;
 
 /**
  * <p>

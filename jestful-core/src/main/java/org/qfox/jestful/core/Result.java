@@ -1,12 +1,9 @@
 package org.qfox.jestful.core;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import org.qfox.jestful.core.annotation.Variable;
-import org.qfox.jestful.core.annotation.Variable.Position;
-import org.qfox.jestful.core.exception.AmbiguousResultException;
+import org.qfox.jestful.core.annotation.Return;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
@@ -30,7 +27,7 @@ public class Result extends Configuration {
 	private final Method method;
 	private final Type type;
 	private final String name;
-	private final Position position;
+	private final Location location;
 	private Object value;
 
 	public Result(Mapping mapping, Method method) throws IllegalConfigException {
@@ -40,18 +37,8 @@ public class Result extends Configuration {
 			this.controller = mapping.getController();
 			this.method = method;
 			this.type = method.getGenericReturnType();
-			Annotation[] variables = getAnnotationsWith(Variable.class);
-			if (variables.length == 1) {
-				Annotation annotation = getAnnotationWith(Variable.class);
-				this.name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
-				Variable variable = annotation.annotationType().getAnnotation(Variable.class);
-				this.position = variable.position();
-			} else if (variables.length == 0) {
-				this.name = null;
-				this.position = Position.BODY;
-			} else {
-				throw new AmbiguousResultException("Ambiguous result definded in " + method + " which has more than one variable kind annotation", controller, method, this);
-			}
+			this.name = isAnnotationPresent(Return.class) ? getAnnotation(Return.class).name() : null;
+			this.location = isAnnotationPresent(Return.class) ? getAnnotation(Return.class).location() : Location.BODY;
 		} catch (Exception e) {
 			throw new IllegalConfigException(e, mapping.getController(), method);
 		}
@@ -85,8 +72,8 @@ public class Result extends Configuration {
 		return name;
 	}
 
-	public Position getPosition() {
-		return position;
+	public Location getLocation() {
+		return location;
 	}
 
 }

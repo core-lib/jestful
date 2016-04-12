@@ -45,8 +45,8 @@ public class Action {
 	private String protocol;
 	private String version;
 
-	private Message request;
-	private Message response;
+	private Request request;
+	private Response response;
 
 	private Set<MediaType> consumes;
 	private Set<MediaType> produces;
@@ -174,19 +174,19 @@ public class Action {
 		this.version = version;
 	}
 
-	public Message getRequest() {
+	public Request getRequest() {
 		return request;
 	}
 
-	public void setRequest(Message request) {
+	public void setRequest(Request request) {
 		this.request = request;
 	}
 
-	public Message getResponse() {
+	public Response getResponse() {
 		return response;
 	}
 
-	public void setResponse(Message response) {
+	public void setResponse(Response response) {
 		this.response = response;
 	}
 

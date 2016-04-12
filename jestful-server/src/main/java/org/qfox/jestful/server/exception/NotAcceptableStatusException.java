@@ -20,13 +20,13 @@ import org.qfox.jestful.core.exception.StatusException;
  *
  * @since 1.0.0
  */
-public class NotAcceptableException extends StatusException {
+public class NotAcceptableStatusException extends StatusException {
 	private static final long serialVersionUID = -3926715913399376714L;
 
 	private final Set<MediaType> accepts;
 	private final Set<MediaType> produces;
 
-	public NotAcceptableException(Set<MediaType> accepts, Set<MediaType> produces) {
+	public NotAcceptableStatusException(Set<MediaType> accepts, Set<MediaType> produces) {
 		super(406, "Not Acceptable");
 		this.accepts = accepts;
 		this.produces = produces;

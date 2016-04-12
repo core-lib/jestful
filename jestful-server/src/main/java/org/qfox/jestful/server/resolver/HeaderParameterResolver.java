@@ -10,9 +10,9 @@ import java.util.Set;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Message;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.annotation.Variable.Position;
+import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.Request;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
 import org.qfox.jestful.server.exception.UnconvertableParameterException;
@@ -43,7 +43,7 @@ public class HeaderParameterResolver implements Actor, ApplicationContextAware, 
 
 	public Object react(Action action) throws Exception {
 		Map<String, String[]> map = new CaseInsensitiveMap<String, String[]>();
-		Message request = action.getRequest();
+		Request request = action.getRequest();
 		String charset = action.getCharset();
 		String[] names = request.getHeaders();
 		for (String name : names) {

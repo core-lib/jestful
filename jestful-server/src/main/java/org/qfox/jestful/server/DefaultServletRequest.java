@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.qfox.jestful.core.Message;
+import org.qfox.jestful.core.Request;
 
 /**
  * <p>
@@ -26,7 +26,7 @@ import org.qfox.jestful.core.Message;
  *
  * @since 1.0.0
  */
-public class DefaultServletRequest implements Message {
+public class DefaultServletRequest implements Request {
 	private final HttpServletRequest request;
 
 	public DefaultServletRequest(HttpServletRequest request) {

@@ -10,10 +10,13 @@ import java.util.TreeSet;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Location;
 import org.qfox.jestful.core.Message;
+import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.ResponseSerializer;
+import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.annotation.Command;
-import org.qfox.jestful.server.exception.NotAcceptableException;
+import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -33,10 +36,15 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class DefaultResultRender implements Actor, ApplicationContextAware {
+public class BodyResultRender implements Actor, ApplicationContextAware {
 	private final Map<MediaType, ResponseSerializer> map = new HashMap<MediaType, ResponseSerializer>();
 
 	public Object react(Action action) throws Exception {
+		Result result = action.getResult();
+		if (result.getLocation() != Location.BODY) {
+			return action.execute();
+		}
+
 		Command command = action.getCommand();
 		if (command.hasResponseBody() == false) {
 			return action.execute();
@@ -44,17 +52,17 @@ public class DefaultResultRender implements Actor, ApplicationContextAware {
 
 		MediaType mediaType = getMediaType(action);
 
-		Object result = action.execute();
+		Object value = action.execute();
 
-		Message response = action.getResponse();
+		Response response = action.getResponse();
 		response.setHeader("Content-Type", mediaType.getName());
 		ResponseSerializer serializer = map.get(mediaType);
 		serializer.serialize(action, mediaType, response.getOutputStream());
 
-		return result;
+		return value;
 	}
 
-	private MediaType getMediaType(Action action) throws NotAcceptableException {
+	private MediaType getMediaType(Action action) throws NotAcceptableStatusException {
 		Message request = action.getRequest();
 		String accept = request.getHeader("Accept");
 		Set<MediaType> accepts = new TreeSet<MediaType>();
@@ -112,7 +120,7 @@ public class DefaultResultRender implements Actor, ApplicationContextAware {
 			}
 		}
 		if (mediaType == null) {
-			throw new NotAcceptableException(accepts, produces.isEmpty() ? map.keySet() : produces);
+			throw new NotAcceptableStatusException(accepts, produces.isEmpty() ? map.keySet() : produces);
 		}
 		return mediaType;
 	}

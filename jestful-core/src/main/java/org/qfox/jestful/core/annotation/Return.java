@@ -6,11 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.Location;
 
 /**
  * <p>
- * Description: 标识注解是一个参数注解的注解,参数标注了该注解的注解不能超过一个
+ * Description: 标识一个资源操作方法返回结果的名字和存放位置
  * </p>
  * 
  * <p>
@@ -19,21 +19,17 @@ import org.qfox.jestful.core.Position;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月12日 上午10:32:17
+ * @date 2016年4月12日 下午7:57:33
  *
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.ANNOTATION_TYPE })
-public @interface Variable {
+@Target({ ElementType.METHOD })
+public @interface Return {
 
-	/**
-	 * 参数所在位置, 请求头/路径/查询字符串/请求体
-	 * 
-	 * @see {@link Position}
-	 * @return 参数所在位置
-	 */
-	Position position();
+	String name() default "";
+
+	Location location() default Location.BODY;
 
 }

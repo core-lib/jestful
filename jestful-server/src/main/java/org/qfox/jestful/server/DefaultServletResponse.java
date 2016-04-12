@@ -7,7 +7,8 @@ import java.util.Collection;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.qfox.jestful.core.Message;
+import org.qfox.jestful.core.Response;
+import org.qfox.jestful.core.Status;
 
 /**
  * <p>
@@ -24,12 +25,26 @@ import org.qfox.jestful.core.Message;
  *
  * @since 1.0.0
  */
-public class DefaultServletResponse implements Message {
+public class DefaultServletResponse implements Response {
 	private final HttpServletResponse response;
 
 	public DefaultServletResponse(HttpServletResponse response) {
 		super();
 		this.response = response;
+	}
+
+	public Status getStatus() throws IOException {
+		int code = response.getStatus();
+		String reason = Status.SPECIFICATIONS.get(code);
+		return new Status(code, reason);
+	}
+
+	public void setStatus(Status status) throws IOException {
+		if (status.isSuccess()) {
+			response.setStatus(status.getCode());
+		} else {
+			response.sendError(status.getCode(), status.getReason());
+		}
 	}
 
 	public String[] getHeaders() {
