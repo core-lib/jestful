@@ -6,9 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.qfox.jestful.core.annotation.Argument.Position;
+
 /**
  * <p>
- * Description: 参数所在位置注解, 用于标识资源操作方法上的参数所在位置, path/query/header/body. 不区分大小写!
+ * Description: 请求头参数注解
  * </p>
  * 
  * <p>
@@ -17,15 +19,21 @@ import java.lang.annotation.Target;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月11日 下午3:56:01
+ * @date 2016年4月12日 上午10:15:24
  *
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-public @interface Place {
+@Argument(position = Position.HEADER)
+public @interface Header {
 
+	/**
+	 * 参数名称
+	 * 
+	 * @return
+	 */
 	String value();
 
 }

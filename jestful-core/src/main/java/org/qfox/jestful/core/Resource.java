@@ -31,7 +31,7 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
  *
  * @since 1.0.0
  */
-public class Resource extends Annotated implements Hierarchical<PathExpression, Mapping> {
+public class Resource extends Configuration implements Hierarchical<PathExpression, Mapping> {
 	private final Object controller;
 	private final String expression;
 	private final Set<Operation> operations = new HashSet<Operation>();

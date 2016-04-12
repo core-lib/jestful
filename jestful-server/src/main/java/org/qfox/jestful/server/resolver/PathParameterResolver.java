@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.annotation.Argument.Position;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -41,7 +42,7 @@ public class PathParameterResolver implements Actor, ApplicationContextAware {
 		flag: for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
 			int group = parameter.getGroup();
-			if (parameter.from("path") == false || group <= 0) {
+			if (parameter.getPosition() != Position.PATH || group <= 0) {
 				continue;
 			}
 			String source = matcher.group(group);

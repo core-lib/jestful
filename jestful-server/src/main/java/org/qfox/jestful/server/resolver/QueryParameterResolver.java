@@ -12,6 +12,7 @@ import java.util.Set;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.annotation.Argument.Position;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
 import org.qfox.jestful.server.exception.UnconvertableParameterException;
@@ -64,7 +65,7 @@ public class QueryParameterResolver implements Actor, ApplicationContextAware, C
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
 			String name = parameter.getName();
-			if (parameter.from("query") == false || map.containsKey(name) == false) {
+			if (parameter.getPosition() != Position.QUERY || map.containsKey(name) == false) {
 				continue;
 			}
 			Type type = parameter.getType();

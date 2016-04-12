@@ -12,6 +12,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Message;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.annotation.Argument.Position;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
 import org.qfox.jestful.server.exception.UnconvertableParameterException;
@@ -57,7 +58,7 @@ public class HeaderParameterResolver implements Actor, ApplicationContextAware, 
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
 			String name = parameter.getName();
-			if (parameter.from("header") == false || map.containsKey(name) == false) {
+			if (parameter.getPosition() != Position.HEADER || map.containsKey(name) == false) {
 				continue;
 			}
 			Type type = parameter.getType();

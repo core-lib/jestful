@@ -36,7 +36,7 @@ import org.qfox.jestful.core.exception.UndefinedParameterException;
  *
  * @since 1.0.0
  */
-public class Mapping extends Annotated implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping> {
+public class Mapping extends Configuration implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping> {
 	private final Operation operation;
 	private final Object controller;
 	private final Method method;
@@ -121,7 +121,7 @@ public class Mapping extends Annotated implements Hierarchical<PathExpression, M
 	private Parameter[] extract(Method method) throws IllegalConfigException {
 		Set<Parameter> parameters = new LinkedHashSet<Parameter>();
 		for (int index = 0; index < method.getParameterTypes().length; index++) {
-			Parameter parameter = new Parameter(method, index);
+			Parameter parameter = new Parameter(this, method, index);
 			if (parameters.contains(parameter)) {
 				throw new DuplicateParameterException(controller, method, index);
 			} else {

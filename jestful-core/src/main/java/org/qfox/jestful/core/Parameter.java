@@ -1,13 +1,12 @@
 package org.qfox.jestful.core;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
-import org.qfox.jestful.core.annotation.Name;
-import org.qfox.jestful.core.annotation.Place;
+import org.qfox.jestful.core.annotation.Argument;
+import org.qfox.jestful.core.annotation.Argument.Position;
+import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
  * <p>
@@ -24,32 +23,34 @@ import org.qfox.jestful.core.annotation.Place;
  *
  * @since 1.0.0
  */
-public class Parameter extends Annotated implements Comparable<Parameter> {
+public class Parameter extends Configuration implements Comparable<Parameter> {
+	private final Mapping mapping;
+	private final Object controller;
 	private final Method method;
 	private final Type type;
 	private final int index;
 	private final String name;
-	private final Set<String> places;
+	private final Position position;
 	private Object value;
 	private int group;
 	private String regex;
 
-	public Parameter(Method method, int index) {
+	public Parameter(Mapping mapping, Method method, int index) throws IllegalConfigException {
 		super(method.getParameterAnnotations()[index]);
-		this.method = method;
-		this.type = method.getGenericParameterTypes()[index];
-		this.index = index;
-		this.name = isAnnotationPresent(Name.class) ? getAnnotation(Name.class).value() : String.valueOf(index);
-		String place = isAnnotationPresent(Place.class) ? getAnnotation(Place.class).value().replaceAll("(\\||\\s)+", "|").toLowerCase() : "";
-		this.places = new HashSet<String>(Arrays.asList(place.isEmpty() ? new String[0] : place.split("|")));
-	}
-
-	public boolean from(String place) {
-		return places.isEmpty() || places.contains(place.toLowerCase());
-	}
-
-	public boolean to(String place) {
-		return places.isEmpty() || places.contains(place.toLowerCase());
+		try {
+			this.mapping = mapping;
+			this.controller = mapping.getController();
+			this.method = method;
+			this.type = method.getGenericParameterTypes()[index];
+			this.index = index;
+			Annotation annotation = getAnnotationWith(Argument.class);
+			String name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
+			this.name = name.isEmpty() ? String.valueOf(index) : name;
+			Argument argument = annotation.annotationType().getAnnotation(Argument.class);
+			this.position = argument.position();
+		} catch (Exception e) {
+			throw new IllegalConfigException(e, mapping.getController(), method);
+		}
 	}
 
 	public int compareTo(Parameter o) {
@@ -80,6 +81,14 @@ public class Parameter extends Annotated implements Comparable<Parameter> {
 		this.regex = regex;
 	}
 
+	public Mapping getMapping() {
+		return mapping;
+	}
+
+	public Object getController() {
+		return controller;
+	}
+
 	public Method getMethod() {
 		return method;
 	}
@@ -94,6 +103,10 @@ public class Parameter extends Annotated implements Comparable<Parameter> {
 
 	public String getName() {
 		return name;
+	}
+
+	public Position getPosition() {
+		return position;
 	}
 
 	@Override

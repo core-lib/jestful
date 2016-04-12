@@ -13,6 +13,7 @@ import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.RequestDeserializer;
+import org.qfox.jestful.core.annotation.Argument.Position;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -49,7 +50,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Applic
 			MediaType type = multipart.getType();
 			String name = disposition.getName();
 			for (Parameter parameter : parameters) {
-				if (parameter.getName().equals(name) == false || parameter.from("body") == false) {
+				if (parameter.getName().equals(name) == false || parameter.getPosition() != Position.BODY) {
 					continue;
 				}
 				if (type == null) {

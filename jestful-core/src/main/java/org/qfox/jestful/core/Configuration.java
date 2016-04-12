@@ -2,10 +2,12 @@ package org.qfox.jestful.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
- * Description:
+ * Description: 框架配置
  * </p>
  * 
  * <p>
@@ -18,12 +20,31 @@ import java.lang.reflect.AnnotatedElement;
  *
  * @since 1.0.0
  */
-public abstract class Annotated implements AnnotatedElement {
+public abstract class Configuration implements AnnotatedElement {
 	protected final Annotation[] annotations;
 
-	protected Annotated(Annotation[] annotations) {
+	protected Configuration(Annotation[] annotations) {
 		super();
 		this.annotations = annotations;
+	}
+
+	public Annotation getAnnotationWith(Class<? extends Annotation> annotationType) {
+		for (Annotation annotation : annotations) {
+			if (annotation.annotationType().isAnnotationPresent(annotationType)) {
+				return annotation;
+			}
+		}
+		return null;
+	}
+
+	public Annotation[] getAnnotationsWith(Class<? extends Annotation> annotationType) {
+		List<Annotation> list = new ArrayList<Annotation>();
+		for (Annotation annotation : annotations) {
+			if (annotation.annotationType().isAnnotationPresent(annotationType)) {
+				list.add(annotation);
+			}
+		}
+		return list.toArray(new Annotation[list.size()]);
 	}
 
 	public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {

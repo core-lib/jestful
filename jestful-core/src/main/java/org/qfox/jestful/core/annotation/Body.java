@@ -6,9 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.qfox.jestful.core.annotation.Argument.Position;
+
 /**
  * <p>
- * Description: 参数名称注解, 用于标识资源操作方法上的参数名称, 默认情况下采用参数所在方法的参数下标作为名称
+ * Description: 请求体参数注解
  * </p>
  * 
  * <p>
@@ -17,15 +19,21 @@ import java.lang.annotation.Target;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月11日 下午3:54:36
+ * @date 2016年4月12日 上午10:28:06
  *
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-public @interface Name {
+@Argument(position = Position.BODY)
+public @interface Body {
 
-	String value();
+	/**
+	 * 参数名称, 如果只有一个请求体则不需要给名称
+	 * 
+	 * @return
+	 */
+	String value() default "";
 
 }

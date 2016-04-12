@@ -26,7 +26,7 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
  *
  * @since 1.0.0
  */
-public class Operation extends Annotated implements Hierarchical<PathExpression, Mapping> {
+public class Operation extends Configuration implements Hierarchical<PathExpression, Mapping> {
 	private final Resource resource;
 	private final Object controller;
 	private final Method method;
@@ -39,11 +39,9 @@ public class Operation extends Annotated implements Hierarchical<PathExpression,
 		this.controller = resource.getController();
 		this.method = method;
 		this.configuration = configuration;
+		Annotation[] annotations = getAnnotationsWith(Command.class);
 		for (Annotation annotation : annotations) {
 			Command command = annotation.annotationType().getAnnotation(Command.class);
-			if (command == null) {
-				continue;
-			}
 			Mapping mapping = new Mapping(this, annotations, command);
 			this.mappings.put(command.name(), mapping);
 		}
