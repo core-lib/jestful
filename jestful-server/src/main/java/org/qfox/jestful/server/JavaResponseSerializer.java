@@ -33,9 +33,8 @@ public class JavaResponseSerializer implements ResponseSerializer {
 	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
 		ObjectOutputStream oos = null;
 		try {
-			Object result = action.getResult();
 			oos = new ObjectOutputStream(out);
-			oos.writeObject(result);
+			oos.writeObject(action.getResult().getValue());
 		} finally {
 			IOUtils.close(oos);
 		}

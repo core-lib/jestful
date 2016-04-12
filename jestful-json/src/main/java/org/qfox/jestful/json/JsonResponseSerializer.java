@@ -37,7 +37,7 @@ public class JsonResponseSerializer extends ObjectMapper implements ResponseSeri
 		OutputStreamWriter osw = null;
 		try {
 			osw = new OutputStreamWriter(out);
-			writeValue(osw, action.getResult());
+			writeValue(osw, action.getResult().getValue());
 		} finally {
 			IOUtils.close(osw);
 		}

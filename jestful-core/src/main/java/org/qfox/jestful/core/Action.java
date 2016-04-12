@@ -1,6 +1,5 @@
 package org.qfox.jestful.core;
 
-import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,10 +33,10 @@ public class Action {
 	private final List<Actor> actors;
 	private int index = 0;
 
-	private Object controller;
-	private Method method;
+	private Resource resource;
+	private Mapping mapping;
 	private Parameter[] parameters;
-	private Object result;
+	private Result result;
 	private Pattern pattern;
 
 	private Command command;
@@ -95,20 +94,20 @@ public class Action {
 		actors.addAll(index, intruders);
 	}
 
-	public Object getController() {
-		return controller;
+	public Resource getResource() {
+		return resource;
 	}
 
-	public void setController(Object controller) {
-		this.controller = controller;
+	public void setResource(Resource resource) {
+		this.resource = resource;
 	}
 
-	public Method getMethod() {
-		return method;
+	public Mapping getMapping() {
+		return mapping;
 	}
 
-	public void setMethod(Method method) {
-		this.method = method;
+	public void setMapping(Mapping mapping) {
+		this.mapping = mapping;
 	}
 
 	public Parameter[] getParameters() {
@@ -119,11 +118,11 @@ public class Action {
 		this.parameters = parameters;
 	}
 
-	public Object getResult() {
+	public Result getResult() {
 		return result;
 	}
 
-	public void setResult(Object result) {
+	public void setResult(Result result) {
 		this.result = result;
 	}
 

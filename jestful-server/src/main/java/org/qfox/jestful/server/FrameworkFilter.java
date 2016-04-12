@@ -72,9 +72,10 @@ public class FrameworkFilter implements Filter, Actor {
 
 			Action action = new Action(Arrays.asList(actor, this));
 
-			action.setController(mapping.getController());
-			action.setMethod(mapping.getMethod());
+			action.setResource(mapping.getResource());
+			action.setMapping(mapping);
 			action.setParameters(mapping.getParameters());
+			action.setResult(mapping.getResult());
 			action.setPattern(mapping.getPattern());
 
 			action.setCommand(mapping.getCommand());
@@ -100,16 +101,16 @@ public class FrameworkFilter implements Filter, Actor {
 	}
 
 	public Object react(Action action) throws Exception {
-		Object controller = action.getController();
-		Method method = action.getMethod();
+		Object controller = action.getResource().getController();
+		Method method = action.getMapping().getMethod();
 		Parameter[] parameters = action.getParameters();
 		Object[] arguments = new Object[parameters.length];
 		for (int i = 0; i < parameters.length; i++) {
 			arguments[i] = parameters[i].getValue();
 		}
-		Object result = method.invoke(controller, arguments);
-		action.setResult(result);
-		return result;
+		Object value = method.invoke(controller, arguments);
+		action.getResult().setValue(value);
+		return value;
 	}
 
 	public void destroy() {

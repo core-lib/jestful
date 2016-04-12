@@ -43,6 +43,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 	private final Method method;
 	private final Method configuration;
 	private final Parameter[] parameters;
+	private final Result result;
 	private final Command command;
 	private final Set<MediaType> consumes;
 	private final Set<MediaType> produces;
@@ -58,6 +59,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 			this.method = method;
 			this.configuration = configuration;
 			this.parameters = extract(method);
+			this.result = new Result(this, method);
 			Annotation[] commands = getAnnotationsWith(Command.class);
 			if (commands.length == 1) {
 				Annotation restful = getAnnotationWith(Command.class);
@@ -183,6 +185,10 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 
 	public Parameter[] getParameters() {
 		return parameters;
+	}
+
+	public Result getResult() {
+		return result;
 	}
 
 	public Command getCommand() {

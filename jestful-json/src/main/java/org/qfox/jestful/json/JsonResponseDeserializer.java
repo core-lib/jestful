@@ -8,6 +8,7 @@ import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.ResponseDeserializer;
+import org.qfox.jestful.core.Result;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -37,8 +38,9 @@ public class JsonResponseDeserializer extends ObjectMapper implements ResponseDe
 		InputStreamReader isr = null;
 		try {
 			isr = new InputStreamReader(in);
-			Object value = readValue(isr, constructType(action.getMethod().getGenericReturnType()));
-			action.setResult(value);
+			Result result = action.getResult();
+			Object value = readValue(isr, constructType(result.getType()));
+			result.setValue(value);
 		} finally {
 			IOUtils.close(isr);
 		}
