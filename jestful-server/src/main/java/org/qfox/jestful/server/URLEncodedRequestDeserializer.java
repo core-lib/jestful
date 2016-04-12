@@ -15,6 +15,7 @@ import java.util.Set;
 
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.RequestDeserializer;
@@ -52,38 +53,44 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Appli
 	}
 
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
-		Map<String, String[]> map = new HashMap<String, String[]>();
-
-		String charset = mediaType.getCharset();
-		InputStreamReader isr = new InputStreamReader(in);
-		BufferedReader br = new BufferedReader(isr);
-		String line = null;
-		while ((line = br.readLine()) != null) {
-			String[] pairs = line.split("&+");
-			for (String pair : pairs) {
-				String[] keyvalue = pair.split("=+");
-				String key = URLDecoder.decode(keyvalue[0], charset);
-				String value = keyvalue.length > 1 ? URLDecoder.decode(keyvalue[1], charset) : "";
-				if (map.containsKey(key) == false) {
-					map.put(key, new String[0]);
+		InputStreamReader isr = null;
+		BufferedReader br = null;
+		try {
+			Map<String, String[]> map = new HashMap<String, String[]>();
+			String charset = mediaType.getCharset();
+			isr = new InputStreamReader(in);
+			br = new BufferedReader(isr);
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				String[] pairs = line.split("&+");
+				for (String pair : pairs) {
+					String[] keyvalue = pair.split("=+");
+					String key = URLDecoder.decode(keyvalue[0], charset);
+					String value = keyvalue.length > 1 ? URLDecoder.decode(keyvalue[1], charset) : "";
+					if (map.containsKey(key) == false) {
+						map.put(key, new String[0]);
+					}
+					String[] values = map.get(key);
+					values = Arrays.copyOf(values, values.length + 1);
+					values[values.length - 1] = value;
+					map.put(key, values);
 				}
-				String[] values = map.get(key);
-				values = Arrays.copyOf(values, values.length + 1);
-				values[values.length - 1] = value;
-				map.put(key, values);
 			}
-		}
 
-		Parameter[] parameters = action.getParameters();
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter parameter = parameters[i];
-			String name = parameter.getName();
-			if (parameter.getPosition() != Position.BODY || map.containsKey(name) == false) {
-				continue;
+			Parameter[] parameters = action.getParameters();
+			for (int i = 0; i < parameters.length; i++) {
+				Parameter parameter = parameters[i];
+				String name = parameter.getName();
+				if (parameter.getPosition() != Position.BODY || map.containsKey(name) == false) {
+					continue;
+				}
+				Type type = parameter.getType();
+				Object value = convert(name, type, map);
+				parameter.setValue(value);
 			}
-			Type type = parameter.getType();
-			Object value = convert(name, type, map);
-			parameter.setValue(value);
+		} finally {
+			IOUtils.close(br);
+			IOUtils.close(isr);
 		}
 	}
 

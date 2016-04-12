@@ -4,6 +4,10 @@
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
 	<bean class="org.qfox.jestful.json.JsonResponseSerializer" />
+	<bean class="org.qfox.jestful.json.JsonResponseDeserializer" />
+	
+	<bean class="org.qfox.jestful.json.JsonRequestSerializer" />
+	<bean class="org.qfox.jestful.json.JsonRequestDeserializer" />
 
 </beans>
 

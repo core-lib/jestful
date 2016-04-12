@@ -108,8 +108,14 @@ public class MultipartInputStream extends InputStream {
 
 	@Override
 	public void close() throws IOException {
-		super.close();
-		inputStream.close();
+		close(false);
+	}
+
+	public void close(boolean force) throws IOException {
+		if (end || force) {
+			super.close();
+			inputStream.close();
+		}
 	}
 
 }

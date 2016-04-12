@@ -2,8 +2,10 @@ package org.qfox.jestful.json;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.ResponseSerializer;
 
@@ -24,15 +26,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * @since 1.0.0
  */
-public class JsonResponseSerializer implements ResponseSerializer {
+public class JsonResponseSerializer extends ObjectMapper implements ResponseSerializer {
+	private static final long serialVersionUID = 1842993874881568207L;
 
 	public String getContentType() {
 		return "application/json";
 	}
 
 	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
-		ObjectMapper jackson = new ObjectMapper();
-		jackson.writeValue(out, action.getResult());
+		OutputStreamWriter osw = null;
+		try {
+			osw = new OutputStreamWriter(out);
+			writeValue(osw, action.getResult());
+		} finally {
+			IOUtils.close(osw);
+		}
+
 	}
 
 }
