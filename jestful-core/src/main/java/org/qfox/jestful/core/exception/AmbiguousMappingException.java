@@ -2,7 +2,7 @@ package org.qfox.jestful.core.exception;
 
 import java.lang.reflect.Method;
 
-import org.qfox.jestful.core.Operation;
+import org.qfox.jestful.core.Mapping;
 
 /**
  * <p>
@@ -19,18 +19,18 @@ import org.qfox.jestful.core.Operation;
  *
  * @since 1.0.0
  */
-public class AmbiguousCommandException extends IllegalConfigException {
+public class AmbiguousMappingException extends IllegalConfigException {
 	private static final long serialVersionUID = 6106792803333438394L;
 
-	private final Operation operation;
+	private final Mapping mapping;
 
-	public AmbiguousCommandException(String message, Object controller, Method method, Operation operation) {
+	public AmbiguousMappingException(String message, Object controller, Method method, Mapping mapping) {
 		super(message, controller, method);
-		this.operation = operation;
+		this.mapping = mapping;
 	}
 
-	public Operation getOperation() {
-		return operation;
+	public Mapping getMapping() {
+		return mapping;
 	}
 
 }

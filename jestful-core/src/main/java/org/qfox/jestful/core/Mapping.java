@@ -17,6 +17,7 @@ import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.exception.AmbiguousMappingException;
 import org.qfox.jestful.core.exception.DuplicateParameterException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.core.exception.UndefinedParameterException;
@@ -37,7 +38,7 @@ import org.qfox.jestful.core.exception.UndefinedParameterException;
  * @since 1.0.0
  */
 public class Mapping extends Configuration implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping> {
-	private final Operation operation;
+	private final Resource resource;
 	private final Object controller;
 	private final Method method;
 	private final Method configuration;
@@ -49,34 +50,34 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 	private final String expression;
 	private final Pattern pattern;
 
-	public Mapping(Operation operation, Annotation[] annotations, Command command) throws IllegalConfigException {
-		super(annotations);
+	public Mapping(Resource resource, Object controller, Method method, Method configuration) throws IllegalConfigException {
+		super(configuration.getAnnotations());
 		try {
-			this.operation = operation;
-			this.controller = operation.getController();
-			this.method = operation.getMethod();
-			this.configuration = operation.getConfiguration();
+			this.resource = resource;
+			this.controller = controller;
+			this.method = method;
+			this.configuration = configuration;
 			this.parameters = extract(method);
-			Annotation restful = null;
-			for (Annotation annotation : annotations) {
-				if (command.equals(annotation.annotationType().getAnnotation(Command.class))) {
-					restful = annotation;
+			Annotation[] commands = getAnnotationsWith(Command.class);
+			if (commands.length == 1) {
+				Annotation restful = getAnnotationWith(Command.class);
+				this.command = restful.annotationType().getAnnotation(Command.class);
+				this.consumes = new TreeSet<MediaType>();
+				String[] consumes = command.hasRequestBody() ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful) : new String[0];
+				for (String consume : consumes) {
+					this.consumes.add(MediaType.valueOf(consume));
 				}
+				this.produces = new TreeSet<MediaType>();
+				String[] produces = command.hasResponseBody() ? (String[]) restful.annotationType().getMethod("produces").invoke(restful) : new String[0];
+				for (String produce : produces) {
+					this.produces.add(MediaType.valueOf(produce));
+				}
+				this.definition = (String) restful.annotationType().getMethod("value").invoke(restful);
+				this.expression = bind(definition);
+				this.pattern = Pattern.compile(expression);
+			} else {
+				throw new AmbiguousMappingException("Ambiguous mapping " + configuration.toGenericString() + " which has " + commands.length + " http method kind annotation", controller, method, this);
 			}
-			this.command = command;
-			this.consumes = new TreeSet<MediaType>();
-			String[] consumes = command.hasRequestBody() ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful) : new String[0];
-			for (String consume : consumes) {
-				this.consumes.add(MediaType.valueOf(consume));
-			}
-			this.produces = new TreeSet<MediaType>();
-			String[] produces = command.hasResponseBody() ? (String[]) restful.annotationType().getMethod("produces").invoke(restful) : new String[0];
-			for (String produce : produces) {
-				this.produces.add(MediaType.valueOf(produce));
-			}
-			this.definition = (String) restful.annotationType().getMethod("value").invoke(restful);
-			this.expression = bind(definition);
-			this.pattern = Pattern.compile(expression);
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -128,7 +129,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 				parameters.add(parameter);
 			}
 		}
-		return parameters.toArray(new Parameter[0]);
+		return parameters.toArray(new Parameter[parameters.size()]);
 	}
 
 	public Node<PathExpression, Mapping> toNode() {
@@ -155,15 +156,17 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 			result = new Node<PathExpression, Mapping>(new PathExpression(null, command.name()));
 			result.setValue(this);
 		}
-		return result;
+		parent = new Node<PathExpression, Mapping>(new PathExpression(null, command.name()));
+		parent.getBranches().add(result);
+		return parent;
 	}
 
 	public int compareTo(Mapping o) {
 		return expression.compareTo(o.expression) != 0 ? expression.compareTo(o.expression) : command.name().compareTo(o.command.name());
 	}
 
-	public Operation getOperation() {
-		return operation;
+	public Resource getResource() {
+		return resource;
 	}
 
 	public Object getController() {
@@ -208,11 +211,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 
 	@Override
 	public String toString() {
-		return command.name() + " : " + operation.toString();
-	}
-
-	public String toLogString() {
-		return command.name() + " : " + definition + " " + operation.toString();
+		return command.name() + " : " + method.toGenericString();
 	}
 
 }

@@ -19,12 +19,12 @@ import org.qfox.jestful.core.Parameter;
  *
  * @since 1.0.0
  */
-public class AmbiguousVariableException extends IllegalConfigException {
+public class AmbiguousParameterException extends IllegalConfigException {
 	private static final long serialVersionUID = 6106792803333438394L;
 
 	private final Parameter parameter;
 
-	public AmbiguousVariableException(String message, Object controller, Method method, Parameter parameter) {
+	public AmbiguousParameterException(String message, Object controller, Method method, Parameter parameter) {
 		super(message, controller, method);
 		this.parameter = parameter;
 	}

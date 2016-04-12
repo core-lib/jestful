@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 
 import org.qfox.jestful.core.annotation.Variable;
 import org.qfox.jestful.core.annotation.Variable.Position;
-import org.qfox.jestful.core.exception.AmbiguousVariableException;
+import org.qfox.jestful.core.exception.AmbiguousParameterException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
@@ -55,7 +55,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 				this.name = String.valueOf(index);
 				this.position = null;
 			} else {
-				throw new AmbiguousVariableException("Ambiguous variable at index " + index + " in " + method + " which has more than one variable kind annotation", controller, method, this);
+				throw new AmbiguousParameterException("Ambiguous parameter at index " + index + " in " + method + " which has more than one variable kind annotation", controller, method, this);
 			}
 		} catch (Exception e) {
 			throw new IllegalConfigException(e, mapping.getController(), method);

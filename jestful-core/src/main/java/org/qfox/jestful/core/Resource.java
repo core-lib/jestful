@@ -34,7 +34,7 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
 public class Resource extends Configuration implements Hierarchical<PathExpression, Mapping> {
 	private final Object controller;
 	private final String expression;
-	private final Set<Operation> operations = new HashSet<Operation>();
+	private final Set<Mapping> mappings = new HashSet<Mapping>();
 
 	public Resource(Object controller) throws IllegalConfigException {
 		super(controller.getClass().getAnnotations());
@@ -51,11 +51,11 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 			}
 			Method configuration = null;
 			if ((configuration = getRestfulMethodFromClasses(method, controller.getClass())) != null) {
-				this.operations.add(new Operation(this, method, configuration));
+				this.mappings.add(new Mapping(this, controller, method, configuration));
 				continue;
 			}
 			if ((configuration = getRestfulMethodFromInterfaces(method, controller.getClass())) != null) {
-				this.operations.add(new Operation(this, method, configuration));
+				this.mappings.add(new Mapping(this, controller, method, configuration));
 				continue;
 			}
 		}
@@ -71,7 +71,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 					for (int i = 0; i < m.getGenericParameterTypes().length; i++) {
 						Type actual = m.getGenericParameterTypes()[i];
 						Type expect = method.getGenericParameterTypes()[i];
-						if (actual != expect && actual instanceof TypeVariable<?> == false) {
+						if (actual.equals(expect) == false && actual instanceof TypeVariable<?> == false) {
 							continue flag;
 						}
 					}
@@ -100,7 +100,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 						for (int i = 0; i < m.getGenericParameterTypes().length; i++) {
 							Type actual = m.getGenericParameterTypes()[i];
 							Type expect = method.getGenericParameterTypes()[i];
-							if (actual != expect && actual instanceof TypeVariable<?> == false) {
+							if (actual.equals(expect) == false && actual instanceof TypeVariable<?> == false) {
 								continue flag;
 							}
 						}
@@ -145,8 +145,8 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 		if (result == null) {
 			result = parent = new Node<PathExpression, Mapping>(new PathExpression());
 		}
-		for (Operation operation : operations) {
-			Node<PathExpression, Mapping> node = operation.toNode();
+		for (Mapping mapping : mappings) {
+			Node<PathExpression, Mapping> node = mapping.toNode();
 			parent.merge(node);
 		}
 		return result;
@@ -158,10 +158,6 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 
 	public String getPath() {
 		return expression;
-	}
-
-	public Set<Operation> getOperations() {
-		return operations;
 	}
 
 	@Override
