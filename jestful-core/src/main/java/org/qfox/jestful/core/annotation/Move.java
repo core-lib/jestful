@@ -6,11 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.qfox.jestful.core.Location;
+import org.qfox.jestful.core.Movement;
 
 /**
  * <p>
- * Description: 标识一个资源操作方法返回结果的名字和存放位置
+ * Description: 标识一个注解是重定向/跳转
  * </p>
  * 
  * <p>
@@ -19,17 +19,15 @@ import org.qfox.jestful.core.Location;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月12日 下午7:57:33
+ * @date 2016年4月13日 上午10:41:36
  *
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD })
-public @interface Return {
+@Target({ ElementType.ANNOTATION_TYPE })
+public @interface Move {
 
-	String name() default "";
-
-	Location location() default Location.BODY;
+	Movement value();
 
 }

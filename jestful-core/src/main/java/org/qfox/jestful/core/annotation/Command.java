@@ -38,14 +38,14 @@ public @interface Command {
 	 * 
 	 * @return
 	 */
-	boolean hasRequestBody();
+	boolean acceptBody();
 
 	/**
 	 * does the HTTP method has response body?
 	 * 
 	 * @return
 	 */
-	boolean hasResponseBody();
+	boolean returnBody();
 
 	/**
 	 * does the HTTP method is idempotent?

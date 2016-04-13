@@ -10,12 +10,10 @@ import java.util.TreeSet;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Location;
 import org.qfox.jestful.core.Message;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.ResponseSerializer;
-import org.qfox.jestful.core.Result;
-import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -36,17 +34,12 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class BodyResultRender implements Actor, ApplicationContextAware {
+public class DefaultResultRender implements Actor, ApplicationContextAware {
 	private final Map<MediaType, ResponseSerializer> map = new HashMap<MediaType, ResponseSerializer>();
 
 	public Object react(Action action) throws Exception {
-		Result result = action.getResult();
-		if (result.getLocation() != Location.BODY) {
-			return action.execute();
-		}
-
-		Command command = action.getCommand();
-		if (command.hasResponseBody() == false) {
+		Restful restful = action.getRestful();
+		if (restful.isReturnBody() == false) {
 			return action.execute();
 		}
 

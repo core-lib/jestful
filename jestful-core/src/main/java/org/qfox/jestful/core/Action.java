@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
 
 /**
@@ -39,7 +38,7 @@ public class Action {
 	private Result result;
 	private Pattern pattern;
 
-	private Command command;
+	private Restful restful;
 	private String URI;
 	private String query;
 	private String protocol;
@@ -134,12 +133,12 @@ public class Action {
 		this.pattern = pattern;
 	}
 
-	public Command getCommand() {
-		return command;
+	public Restful getRestful() {
+		return restful;
 	}
 
-	public void setCommand(Command command) {
-		this.command = command;
+	public void setRestful(Restful restful) {
+		this.restful = restful;
 	}
 
 	public String getURI() {

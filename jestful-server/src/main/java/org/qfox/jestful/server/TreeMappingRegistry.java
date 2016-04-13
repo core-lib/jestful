@@ -45,17 +45,17 @@ public class TreeMappingRegistry implements MappingRegistry {
 		return tree.match(URI);
 	}
 
-	public Mapping lookup(String command, String URI) throws NotFoundStatusException, BadMethodStatusException {
+	public Mapping lookup(String method, String URI) throws NotFoundStatusException, BadMethodStatusException {
 		Collection<Mapping> mappings = lookup(URI);
 		for (Mapping mapping : mappings) {
-			if (mapping.getCommand().name().equalsIgnoreCase(command)) {
+			if (mapping.getRestful().getMethod().equalsIgnoreCase(method)) {
 				return mapping;
 			}
 		}
 		if (mappings.isEmpty()) {
 			throw new NotFoundStatusException(URI);
 		} else {
-			throw new BadMethodStatusException(command, URI, mappings);
+			throw new BadMethodStatusException(method, URI, mappings);
 		}
 	}
 

@@ -41,7 +41,7 @@ public interface MappingRegistry {
 	/**
 	 * 搜索支持指定请求方法并且匹配指定URI的资源
 	 * 
-	 * @param command
+	 * @param method
 	 *            请求方法
 	 * @param URI
 	 *            请求路径
@@ -51,7 +51,7 @@ public interface MappingRegistry {
 	 * @throws BadMethodStatusException
 	 *             请求方法不支持
 	 */
-	Mapping lookup(String command, String URI) throws NotFoundStatusException, BadMethodStatusException;
+	Mapping lookup(String method, String URI) throws NotFoundStatusException, BadMethodStatusException;
 
 	/**
 	 * 注册资源控制器

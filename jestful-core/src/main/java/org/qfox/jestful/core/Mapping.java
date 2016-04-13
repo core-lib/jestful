@@ -44,7 +44,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 	private final Method configuration;
 	private final Parameter[] parameters;
 	private final Result result;
-	private final Command command;
+	private final Restful restful;
 	private final Set<MediaType> consumes;
 	private final Set<MediaType> produces;
 	private final String definition;
@@ -63,14 +63,15 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 			Annotation[] commands = getAnnotationsWith(Command.class);
 			if (commands.length == 1) {
 				Annotation restful = getAnnotationWith(Command.class);
-				this.command = restful.annotationType().getAnnotation(Command.class);
+				Command command = restful.annotationType().getAnnotation(Command.class);
+				this.restful = new Restful(command);
 				this.consumes = new TreeSet<MediaType>();
-				String[] consumes = command.hasRequestBody() ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful) : new String[0];
+				String[] consumes = command.acceptBody() ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful) : new String[0];
 				for (String consume : consumes) {
 					this.consumes.add(MediaType.valueOf(consume));
 				}
 				this.produces = new TreeSet<MediaType>();
-				String[] produces = command.hasResponseBody() ? (String[]) restful.annotationType().getMethod("produces").invoke(restful) : new String[0];
+				String[] produces = command.returnBody() ? (String[]) restful.annotationType().getMethod("produces").invoke(restful) : new String[0];
 				for (String produce : produces) {
 					this.produces.add(MediaType.valueOf(produce));
 				}
@@ -78,7 +79,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 				this.expression = bind(definition);
 				this.pattern = Pattern.compile(expression);
 			} else {
-				throw new AmbiguousMappingException("Ambiguous mapping " + configuration.toGenericString() + " which has " + commands.length + " http method kind annotation", controller, method, this);
+				throw new AmbiguousMappingException("Ambiguous mapping " + configuration.toGenericString() + " which has " + commands.length + " http method kind annotations " + Arrays.toString(commands), controller, method, this);
 			}
 		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
@@ -144,7 +145,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 			if (hierarchy.isEmpty()) {
 				continue;
 			}
-			Node<PathExpression, Mapping> branch = new Node<PathExpression, Mapping>(new PathExpression(hierarchy, iterator.hasNext() ? null : command.name()));
+			Node<PathExpression, Mapping> branch = new Node<PathExpression, Mapping>(new PathExpression(hierarchy, iterator.hasNext() ? null : restful.getMethod()));
 			branch.setValue(iterator.hasNext() ? null : this);
 			if (result == null) {
 				result = branch;
@@ -155,16 +156,16 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 			}
 		}
 		if (result == null) {
-			result = new Node<PathExpression, Mapping>(new PathExpression(null, command.name()));
+			result = new Node<PathExpression, Mapping>(new PathExpression(null, restful.getMethod()));
 			result.setValue(this);
 		}
-		parent = new Node<PathExpression, Mapping>(new PathExpression(null, command.name()));
+		parent = new Node<PathExpression, Mapping>(new PathExpression(null, restful.getMethod()));
 		parent.getBranches().add(result);
 		return parent;
 	}
 
 	public int compareTo(Mapping o) {
-		return expression.compareTo(o.expression) != 0 ? expression.compareTo(o.expression) : command.name().compareTo(o.command.name());
+		return expression.compareTo(o.expression) != 0 ? expression.compareTo(o.expression) : restful.getMethod().compareTo(o.restful.getMethod());
 	}
 
 	public Resource getResource() {
@@ -191,8 +192,8 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 		return result;
 	}
 
-	public Command getCommand() {
-		return command;
+	public Restful getRestful() {
+		return restful;
 	}
 
 	public Set<MediaType> getConsumes() {
@@ -217,7 +218,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 
 	@Override
 	public String toString() {
-		return command.name() + " : " + method.toGenericString();
+		return restful.getMethod() + " : " + method.toGenericString();
 	}
 
 }

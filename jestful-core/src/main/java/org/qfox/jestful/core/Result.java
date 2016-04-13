@@ -1,9 +1,12 @@
 package org.qfox.jestful.core;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 
-import org.qfox.jestful.core.annotation.Return;
+import org.qfox.jestful.core.annotation.Move;
+import org.qfox.jestful.core.exception.AmbiguousResultException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
@@ -26,9 +29,9 @@ public class Result extends Configuration {
 	private final Object controller;
 	private final Method method;
 	private final Type type;
-	private final String name;
-	private final Location location;
 	private Object value;
+	private final Movement movement;
+	private final String expression;
 
 	public Result(Mapping mapping, Method method) throws IllegalConfigException {
 		super(method.getAnnotations());
@@ -37,8 +40,17 @@ public class Result extends Configuration {
 			this.controller = mapping.getController();
 			this.method = method;
 			this.type = method.getGenericReturnType();
-			this.name = isAnnotationPresent(Return.class) ? getAnnotation(Return.class).name() : null;
-			this.location = isAnnotationPresent(Return.class) ? getAnnotation(Return.class).location() : Location.BODY;
+			Annotation[] moves = getAnnotationsWith(Move.class);
+			if (moves.length == 1) {
+				Annotation move = getAnnotationWith(Move.class);
+				this.movement = move.annotationType().getAnnotation(Move.class).value();
+				this.expression = move.annotationType().getMethod("value").invoke(move).toString();
+			} else if (moves.length == 0) {
+				this.movement = null;
+				this.expression = null;
+			} else {
+				throw new AmbiguousResultException("Ambiguous result of method " + method + " has more than one move kind annotations " + Arrays.toString(moves), controller, method, this);
+			}
 		} catch (Exception e) {
 			throw new IllegalConfigException(e, mapping.getController(), method);
 		}
@@ -68,12 +80,12 @@ public class Result extends Configuration {
 		return type;
 	}
 
-	public String getName() {
-		return name;
+	public Movement getMovement() {
+		return movement;
 	}
 
-	public Location getLocation() {
-		return location;
+	public String getExpression() {
+		return expression;
 	}
 
 }

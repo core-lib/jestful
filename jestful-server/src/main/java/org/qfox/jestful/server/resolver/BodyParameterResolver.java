@@ -10,7 +10,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -35,8 +35,8 @@ public class BodyParameterResolver implements Actor, ApplicationContextAware {
 	private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
 
 	public Object react(Action action) throws Exception {
-		Command command = action.getCommand();
-		if (command.hasRequestBody() == false) {
+		Restful restful = action.getRestful();
+		if (restful.isAcceptBody() == false) {
 			return action.execute();
 		}
 		Request request = action.getRequest();
