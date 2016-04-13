@@ -7,7 +7,7 @@
 		<property name="members">
 			<list>
 				<ref bean="resolver" />
-				<bean class="org.qfox.jestful.server.render.DefaultResultRender" />
+				<ref bean="render" />
 			</list>
 		</property>
 	</bean>
@@ -19,6 +19,16 @@
 				<bean class="org.qfox.jestful.server.resolver.QueryParameterResolver" />
 				<bean class="org.qfox.jestful.server.resolver.PathParameterResolver" />
 				<bean class="org.qfox.jestful.server.resolver.BodyParameterResolver" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="render" class="org.qfox.jestful.core.Group">
+		<property name="members">
+			<list>
+				<bean class="org.qfox.jestful.server.render.DefaultResultRender" />
+				<bean class="org.qfox.jestful.server.render.ForwardResultRender" />
+				<bean class="org.qfox.jestful.server.render.RedirectResultRender" />
 			</list>
 		</property>
 	</bean>

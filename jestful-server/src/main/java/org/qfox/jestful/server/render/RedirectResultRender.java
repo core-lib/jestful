@@ -27,7 +27,7 @@ import org.qfox.jestful.core.Result;
  *
  * @since 1.0.0
  */
-public class ForwardResultRender implements Actor {
+public class RedirectResultRender implements Actor {
 	private String regex = "\\$\\{\\s*([^${}]+?)\\s*\\}";
 	private int group = 1;
 	private JexlEngine jexlEngine = new JexlEngine();
