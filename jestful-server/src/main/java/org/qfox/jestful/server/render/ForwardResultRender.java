@@ -28,7 +28,6 @@ public class ForwardResultRender implements Actor {
 			return action.execute();
 		}
 		
-		
 
 		return null;
 	}

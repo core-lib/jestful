@@ -42,6 +42,6 @@ public @interface Forward {
 	 * 
 	 * @return true: 执行后跳转 false: 不执行直接跳转
 	 */
-	boolean execute() default true;
+	boolean invoke() default true;
 
 }

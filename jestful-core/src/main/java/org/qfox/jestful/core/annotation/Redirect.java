@@ -30,6 +30,6 @@ public @interface Redirect {
 	 * 
 	 * @return true: 执行后重定向 false: 不执行直接重定向
 	 */
-	boolean execute() default true;
+	boolean invoke() default true;
 
 }

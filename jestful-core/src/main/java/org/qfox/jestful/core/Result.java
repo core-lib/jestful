@@ -32,6 +32,7 @@ public class Result extends Configuration {
 	private Object value;
 	private final Movement movement;
 	private final String expression;
+	private final boolean invoke;
 
 	public Result(Mapping mapping, Method method) throws IllegalConfigException {
 		super(method.getAnnotations());
@@ -44,10 +45,12 @@ public class Result extends Configuration {
 			if (moves.length == 1) {
 				Annotation move = getAnnotationWith(Move.class);
 				this.movement = move.annotationType().getAnnotation(Move.class).value();
-				this.expression = move.annotationType().getMethod("value").invoke(move).toString();
+				this.expression = (String) move.annotationType().getMethod("value").invoke(move);
+				this.invoke = (Boolean) move.annotationType().getMethod("invoke").invoke(move);
 			} else if (moves.length == 0) {
 				this.movement = null;
 				this.expression = null;
+				this.invoke = true;
 			} else {
 				throw new AmbiguousResultException("Ambiguous result of method " + method + " has more than one move kind annotations " + Arrays.toString(moves), controller, method, this);
 			}
@@ -86,6 +89,10 @@ public class Result extends Configuration {
 
 	public String getExpression() {
 		return expression;
+	}
+
+	public boolean isInvoke() {
+		return invoke;
 	}
 
 }

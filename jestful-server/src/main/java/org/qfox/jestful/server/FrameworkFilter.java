@@ -19,6 +19,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
@@ -101,16 +102,20 @@ public class FrameworkFilter implements Filter, Actor {
 	}
 
 	public Object react(Action action) throws Exception {
-		Object controller = action.getResource().getController();
-		Method method = action.getMapping().getMethod();
-		Parameter[] parameters = action.getParameters();
-		Object[] arguments = new Object[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			arguments[i] = parameters[i].getValue();
+		Result result = action.getResult();
+		if (result.isInvoke()) {
+			Object controller = action.getResource().getController();
+			Method method = action.getMapping().getMethod();
+			Parameter[] parameters = action.getParameters();
+			Object[] arguments = new Object[parameters.length];
+			for (int i = 0; i < parameters.length; i++) {
+				arguments[i] = parameters[i].getValue();
+			}
+			Object value = method.invoke(controller, arguments);
+			result.setValue(value);
+			return value;
 		}
-		Object value = method.invoke(controller, arguments);
-		action.getResult().setValue(value);
-		return value;
+		return null;
 	}
 
 	public void destroy() {
