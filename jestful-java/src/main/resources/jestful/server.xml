@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean id="jestful" class="org.qfox.jestful.core.Group">
+		<property name="members">
+			<list>
+				<ref bean="resolver" />
+				<ref bean="render" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="resolver" class="org.qfox.jestful.core.Group">
+		<property name="members">
+			<list>
+				<bean class="org.qfox.jestful.server.resolver.HeaderParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.QueryParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.PathParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.BodyParameterResolver" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="render" class="org.qfox.jestful.core.Group">
+		<property name="members">
+			<list>
+				<bean class="org.qfox.jestful.server.render.DefaultResultRender" />
+				<bean class="org.qfox.jestful.server.render.ForwardResultRender" />
+				<bean class="org.qfox.jestful.server.render.RedirectResultRender" />
+			</list>
+		</property>
+	</bean>
+
+	<bean class="org.qfox.jestful.server.URLEncodedRequestDeserializer" />
+	<bean class="org.qfox.jestful.server.JavaResponseSerializer" />
+	<bean class="org.qfox.jestful.server.MultipartRequestDeserializer" />
+
+</beans>
+

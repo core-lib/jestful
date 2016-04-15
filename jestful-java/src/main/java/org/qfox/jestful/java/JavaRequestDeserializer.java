@@ -1,4 +1,4 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.java;
 
 import java.io.IOException;
 import java.io.InputStream;

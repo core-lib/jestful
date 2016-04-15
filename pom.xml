@@ -14,6 +14,7 @@
 		<module>jestful-server</module>
 		<module>jestful-json</module>
 		<module>jestful-xml</module>
+		<module>jestful-java</module>
 	</modules>
 
 	<repositories>
