@@ -2,6 +2,7 @@ package org.qfox.jestful.commons;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,6 +30,13 @@ public class Multipart {
 	private final MediaType type;
 	private final Map<String, String> header;
 
+	public Multipart(Map<String, String> header) {
+		super();
+		this.header = new CaseInsensitiveMap<String, String>(header);
+		this.disposition = this.header.containsKey("Content-Disposition") ? Disposition.valueOf(this.header.get("Content-Disposition")) : null;
+		this.type = this.header.containsKey("Content-Type") ? MediaType.valueOf(this.header.get("Content-Type")) : null;
+	}
+
 	public Multipart(InputStream inputStream) throws IOException {
 		this.header = new CaseInsensitiveMap<String, String>();
 		String line = null;
@@ -43,6 +51,11 @@ public class Multipart {
 		}
 		this.disposition = this.header.containsKey("Content-Disposition") ? Disposition.valueOf(this.header.get("Content-Disposition")) : null;
 		this.type = this.header.containsKey("Content-Type") ? MediaType.valueOf(this.header.get("Content-Type")) : null;
+	}
+
+	public void writeTo(Writer writer) throws IOException {
+		writer.write(toString());
+		writer.write(new char[] { '\r', '\n' });
 	}
 
 	public Disposition getDisposition() {
@@ -92,4 +105,5 @@ public class Multipart {
 		}
 		return builder.toString();
 	}
+
 }

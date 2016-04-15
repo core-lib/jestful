@@ -7,7 +7,7 @@ import org.qfox.jestful.commons.Multipart;
 
 /**
  * <p>
- * Description:
+ * Description: multipart/form-data stream reader
  * </p>
  * 
  * <p>
@@ -50,6 +50,17 @@ public class MultipartInputStream extends InputStream {
 		}
 	}
 
+	/**
+	 * get a multipart/form-data item from the source input stream, while it has already reach the end of
+	 * multipart/form-data item, return null. so use null return value to identify whether it has reach the end of
+	 * source input stream, the important thing you should know is that if current multipart/form-data item's content
+	 * didn't read fully, this method will ignore all remain content and go to the start of next multipart/form-data
+	 * item with return the next item header or end of source input stream with return null.
+	 * 
+	 * @return next multipart/form-data item description
+	 * @throws IOException
+	 *             when IO error occur
+	 */
 	public Multipart getNextMultipart() throws IOException {
 		if (end) {
 			return null;
@@ -106,11 +117,23 @@ public class MultipartInputStream extends InputStream {
 		return b;
 	}
 
+	/**
+	 * close softly
+	 */
 	@Override
 	public void close() throws IOException {
 		close(false);
 	}
 
+	/**
+	 * close softly (if force == false or already reach the end of source input stream) <br/>
+	 * close forcibly (if force == true ignoring whether it has already reach the end of source input stream)
+	 * 
+	 * @param force
+	 *            false: softly true: forcibly
+	 * @throws IOException
+	 *             when IO error occur
+	 */
 	public void close(boolean force) throws IOException {
 		if (end || force) {
 			super.close();

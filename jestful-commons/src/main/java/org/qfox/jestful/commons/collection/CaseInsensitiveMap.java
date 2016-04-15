@@ -26,7 +26,15 @@ import java.util.Set;
  */
 @SuppressWarnings(value = "all")
 public class CaseInsensitiveMap<K extends String, V> implements Map<String, V> {
-	private final Set<Entry<String, V>> entries = new LinkedHashSet<Map.Entry<String, V>>();
+	private final Set<Entry<String, V>> entries = new LinkedHashSet<Entry<String, V>>();
+
+	public CaseInsensitiveMap() {
+		super();
+	}
+
+	public CaseInsensitiveMap(Map<? extends K, ? extends V> map) {
+		this.putAll(map);
+	}
 
 	public int size() {
 		return entries.size();
