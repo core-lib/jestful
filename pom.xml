@@ -13,6 +13,7 @@
 		<module>jestful-commons</module>
 		<module>jestful-server</module>
 		<module>jestful-json</module>
+		<module>jestful-xml</module>
 	</modules>
 
 	<repositories>
