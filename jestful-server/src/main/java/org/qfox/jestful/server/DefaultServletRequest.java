@@ -8,6 +8,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 import org.qfox.jestful.core.Request;
 
@@ -26,15 +27,15 @@ import org.qfox.jestful.core.Request;
  *
  * @since 1.0.0
  */
-public class DefaultServletRequest implements Request {
+public class DefaultServletRequest extends HttpServletRequestWrapper implements Request {
 	private final HttpServletRequest request;
 
 	public DefaultServletRequest(HttpServletRequest request) {
-		super();
+		super(request);
 		this.request = request;
 	}
 
-	public String[] getHeaders() {
+	public String[] getRequestHeaders() {
 		Enumeration<String> enumeration = request.getHeaderNames();
 		if (enumeration == null) {
 			return null;
@@ -46,15 +47,15 @@ public class DefaultServletRequest implements Request {
 		return names.toArray(new String[names.size()]);
 	}
 
-	public String getHeader(String name) {
+	public String getRequestHeader(String name) {
 		return request.getHeader(name);
 	}
 
-	public void setHeader(String name, String value) {
+	public void setRequestHeader(String name, String value) {
 		throw new UnsupportedOperationException();
 	}
 
-	public String[] getHeaders(String name) {
+	public String[] getRequestHeaders(String name) {
 		Enumeration<String> enumeration = request.getHeaders(name);
 		if (enumeration == null) {
 			return null;
@@ -65,16 +66,16 @@ public class DefaultServletRequest implements Request {
 		}
 		return values.toArray(new String[values.size()]);
 	}
-	
-	public void setHeaders(String name, String[] values) {
+
+	public void setRequestHeaders(String name, String[] values) {
 		throw new UnsupportedOperationException();
 	}
 
-	public InputStream getInputStream() throws IOException {
+	public InputStream getRequestInputStream() throws IOException {
 		return request.getInputStream();
 	}
 
-	public OutputStream getOutputStream() throws IOException {
+	public OutputStream getRequestOutputStream() throws IOException {
 		throw new UnsupportedOperationException();
 	}
 

@@ -1,6 +1,8 @@
 package org.qfox.jestful.core;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * <p>
@@ -17,10 +19,24 @@ import java.io.IOException;
  *
  * @since 1.0.0
  */
-public interface Response extends Message {
+public interface Response {
 
-	Status getStatus() throws IOException;
+	String[] getResponseHeaders();
 
-	void setStatus(Status status) throws IOException;
+	String getResponseHeader(String name);
+
+	void setResponseHeader(String name, String value);
+
+	String[] getResponseHeaders(String name);
+
+	void setResponseHeaders(String name, String[] values);
+
+	InputStream getResponseInputStream() throws IOException;
+
+	OutputStream getResponseOutputStream() throws IOException;
+
+	Status getResponseStatus() throws IOException;
+
+	void setResponseStatus(Status status) throws IOException;
 
 }

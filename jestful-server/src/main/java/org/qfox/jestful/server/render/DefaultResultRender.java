@@ -10,7 +10,7 @@ import java.util.TreeSet;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Message;
+import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.ResponseSerializer;
 import org.qfox.jestful.core.Restful;
@@ -48,16 +48,16 @@ public class DefaultResultRender implements Actor, ApplicationContextAware {
 		Object value = action.execute();
 
 		Response response = action.getResponse();
-		response.setHeader("Content-Type", mediaType.getName());
+		response.setResponseHeader("Content-Type", mediaType.getName());
 		ResponseSerializer serializer = map.get(mediaType);
-		serializer.serialize(action, mediaType, response.getOutputStream());
+		serializer.serialize(action, mediaType, response.getResponseOutputStream());
 
 		return value;
 	}
 
 	private MediaType getMediaType(Action action) throws NotAcceptableStatusException {
-		Message request = action.getRequest();
-		String accept = request.getHeader("Accept");
+		Request request = action.getRequest();
+		String accept = request.getRequestHeader("Accept");
 		Set<MediaType> accepts = new TreeSet<MediaType>();
 		String[] mediaTypes = accept != null ? accept.split(",") : new String[0];
 		for (String contentType : mediaTypes) {

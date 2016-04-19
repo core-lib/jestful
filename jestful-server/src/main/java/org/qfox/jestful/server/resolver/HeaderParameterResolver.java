@@ -45,9 +45,9 @@ public class HeaderParameterResolver implements Actor, ApplicationContextAware, 
 		Map<String, String[]> map = new CaseInsensitiveMap<String, String[]>();
 		Request request = action.getRequest();
 		String charset = action.getCharset();
-		String[] names = request.getHeaders();
+		String[] names = request.getRequestHeaders();
 		for (String name : names) {
-			String[] values = request.getHeaders(name);
+			String[] values = request.getRequestHeaders(name);
 			for (int i = 0; i < values.length; i++) {
 				String value = values[i];
 				values[i] = URLDecoder.decode(value, charset);

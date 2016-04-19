@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;
@@ -25,21 +26,21 @@ import org.qfox.jestful.core.Status;
  *
  * @since 1.0.0
  */
-public class DefaultServletResponse implements Response {
+public class DefaultServletResponse extends HttpServletResponseWrapper implements Response {
 	private final HttpServletResponse response;
 
 	public DefaultServletResponse(HttpServletResponse response) {
-		super();
+		super(response);
 		this.response = response;
 	}
 
-	public Status getStatus() throws IOException {
+	public Status getResponseStatus() throws IOException {
 		int code = response.getStatus();
 		String reason = Status.SPECIFICATIONS.get(code);
 		return new Status(code, reason);
 	}
 
-	public void setStatus(Status status) throws IOException {
+	public void setResponseStatus(Status status) throws IOException {
 		if (status.isSuccess()) {
 			response.setStatus(status.getCode());
 		} else {
@@ -47,36 +48,36 @@ public class DefaultServletResponse implements Response {
 		}
 	}
 
-	public String[] getHeaders() {
+	public String[] getResponseHeaders() {
 		Collection<String> names = response.getHeaderNames();
 		return names != null ? names.toArray(new String[names.size()]) : null;
 	}
 
-	public String getHeader(String name) {
+	public String getResponseHeader(String name) {
 		return response.getHeader(name);
 	}
 
-	public void setHeader(String name, String value) {
+	public void setResponseHeader(String name, String value) {
 		response.setHeader(name, value);
 	}
 
-	public String[] getHeaders(String name) {
+	public String[] getResponseHeaders(String name) {
 		Collection<String> values = response.getHeaders(name);
 		return values != null ? values.toArray(new String[values.size()]) : null;
 	}
 
-	public void setHeaders(String name, String[] values) {
+	public void setResponseHeaders(String name, String[] values) {
 		response.setHeader(name, null);
 		for (String value : values) {
 			response.addHeader(name, value);
 		}
 	}
 
-	public InputStream getInputStream() throws IOException {
+	public InputStream getResponseInputStream() throws IOException {
 		throw new UnsupportedOperationException();
 	}
 
-	public OutputStream getOutputStream() throws IOException {
+	public OutputStream getResponseOutputStream() throws IOException {
 		return response.getOutputStream();
 	}
 

@@ -40,12 +40,12 @@ public class BodyParameterResolver implements Actor, ApplicationContextAware {
 			return action.execute();
 		}
 		Request request = action.getRequest();
-		String contentType = request.getHeader("Content-Type");
+		String contentType = request.getRequestHeader("Content-Type");
 		MediaType mediaType = MediaType.valueOf(contentType);
 		Set<MediaType> consumes = action.getConsumes();
 		if (map.containsKey(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
 			RequestDeserializer deserializer = map.get(mediaType);
-			deserializer.deserialize(action, mediaType, request.getInputStream());
+			deserializer.deserialize(action, mediaType, request.getRequestInputStream());
 		} else {
 			throw new UnsupportedTypeException(mediaType, consumes.isEmpty() ? map.keySet() : consumes);
 		}

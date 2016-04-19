@@ -1,5 +1,9 @@
 package org.qfox.jestful.core;  
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /** 
  * <p> 
  * Description: 
@@ -15,7 +19,21 @@ package org.qfox.jestful.core;
  *
  * @since 1.0.0 
  */
-public interface Request extends Message {
+public interface Request {
 
+	String[] getRequestHeaders();
+
+	String getRequestHeader(String name);
+
+	void setRequestHeader(String name, String value);
+
+	String[] getRequestHeaders(String name);
+
+	void setRequestHeaders(String name, String[] values);
+
+	InputStream getRequestInputStream() throws IOException;
+
+	OutputStream getRequestOutputStream() throws IOException;
+	
 }
  
