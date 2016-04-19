@@ -103,19 +103,16 @@ public class FrameworkFilter implements Filter, Actor {
 
 	public Object react(Action action) throws Exception {
 		Result result = action.getResult();
-		if (result.isInvoke()) {
-			Object controller = action.getResource().getController();
-			Method method = action.getMapping().getMethod();
-			Parameter[] parameters = action.getParameters();
-			Object[] arguments = new Object[parameters.length];
-			for (int i = 0; i < parameters.length; i++) {
-				arguments[i] = parameters[i].getValue();
-			}
-			Object value = method.invoke(controller, arguments);
-			result.setValue(value);
-			return value;
+		Object controller = action.getResource().getController();
+		Method method = action.getMapping().getMethod();
+		Parameter[] parameters = action.getParameters();
+		Object[] arguments = new Object[parameters.length];
+		for (int i = 0; i < parameters.length; i++) {
+			arguments[i] = parameters[i].getValue();
 		}
-		return null;
+		Object value = method.invoke(controller, arguments);
+		result.setValue(value);
+		return value;
 	}
 
 	public void destroy() {

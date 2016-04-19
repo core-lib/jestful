@@ -28,8 +28,6 @@
 		<property name="members">
 			<list>
 				<bean class="org.qfox.jestful.server.render.DefaultResultRender" />
-				<bean class="org.qfox.jestful.server.render.ForwardResultRender" />
-				<bean class="org.qfox.jestful.server.render.RedirectResultRender" />
 			</list>
 		</property>
 	</bean>

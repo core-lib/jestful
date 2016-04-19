@@ -1,12 +1,8 @@
 package org.qfox.jestful.core;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 
-import org.qfox.jestful.core.annotation.Move;
-import org.qfox.jestful.core.exception.AmbiguousResultException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
 /**
@@ -31,9 +27,6 @@ public class Result extends Configuration {
 	private final Type type;
 	private final Class<?> klass;
 	private Object value;
-	private final Movement movement;
-	private final String path;
-	private final boolean invoke;
 
 	public Result(Mapping mapping, Method method) throws IllegalConfigException {
 		super(method.getAnnotations());
@@ -43,19 +36,6 @@ public class Result extends Configuration {
 			this.method = method;
 			this.type = method.getGenericReturnType();
 			this.klass = method.getReturnType();
-			Annotation[] moves = getAnnotationsWith(Move.class);
-			if (moves.length == 1) {
-				Annotation move = getAnnotationWith(Move.class);
-				this.movement = move.annotationType().getAnnotation(Move.class).value();
-				this.path = (String) move.annotationType().getMethod("value").invoke(move);
-				this.invoke = (Boolean) move.annotationType().getMethod("invoke").invoke(move);
-			} else if (moves.length == 0) {
-				this.movement = null;
-				this.path = null;
-				this.invoke = true;
-			} else {
-				throw new AmbiguousResultException("Ambiguous result of method " + method + " has more than one move kind annotations " + Arrays.toString(moves), controller, method, this);
-			}
 		} catch (Exception e) {
 			throw new IllegalConfigException(e, mapping.getController(), method);
 		}
@@ -87,18 +67,6 @@ public class Result extends Configuration {
 
 	public Class<?> getKlass() {
 		return klass;
-	}
-
-	public Movement getMovement() {
-		return movement;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public boolean isInvoke() {
-		return invoke;
 	}
 
 }
