@@ -29,6 +29,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 	private final Object controller;
 	private final Method method;
 	private final Type type;
+	private final Class<?> klass;
 	private final int index;
 	private final String name;
 	private final Position position;
@@ -43,6 +44,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 			this.controller = mapping.getController();
 			this.method = method;
 			this.type = method.getGenericParameterTypes()[index];
+			this.klass = method.getParameterTypes()[index];
 			this.index = index;
 			Annotation[] variables = getAnnotationsWith(Variable.class);
 			if (variables.length == 1) {
@@ -104,6 +106,10 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 
 	public Type getType() {
 		return type;
+	}
+
+	public Class<?> getKlass() {
+		return klass;
 	}
 
 	public int getIndex() {

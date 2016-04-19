@@ -29,6 +29,7 @@ public class Result extends Configuration {
 	private final Object controller;
 	private final Method method;
 	private final Type type;
+	private final Class<?> klass;
 	private Object value;
 	private final Movement movement;
 	private final String path;
@@ -41,6 +42,7 @@ public class Result extends Configuration {
 			this.controller = mapping.getController();
 			this.method = method;
 			this.type = method.getGenericReturnType();
+			this.klass = method.getReturnType();
 			Annotation[] moves = getAnnotationsWith(Move.class);
 			if (moves.length == 1) {
 				Annotation move = getAnnotationWith(Move.class);
@@ -81,6 +83,10 @@ public class Result extends Configuration {
 
 	public Type getType() {
 		return type;
+	}
+
+	public Class<?> getKlass() {
+		return klass;
 	}
 
 	public Movement getMovement() {

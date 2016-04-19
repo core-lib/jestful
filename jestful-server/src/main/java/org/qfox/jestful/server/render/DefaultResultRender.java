@@ -14,6 +14,7 @@ import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.ResponseSerializer;
 import org.qfox.jestful.core.Restful;
+import org.qfox.jestful.core.Result;
 import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -39,7 +40,9 @@ public class DefaultResultRender implements Actor, ApplicationContextAware {
 
 	public Object react(Action action) throws Exception {
 		Restful restful = action.getRestful();
-		if (restful.isReturnBody() == false) {
+		Result result = action.getResult();
+		// 忽略没有回应体和声明void返回值的方法
+		if (restful.isReturnBody() == false || result.getKlass() == Void.TYPE) {
 			return action.execute();
 		}
 

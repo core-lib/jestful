@@ -19,10 +19,11 @@
 				<bean class="org.qfox.jestful.server.resolver.QueryParameterResolver" />
 				<bean class="org.qfox.jestful.server.resolver.PathParameterResolver" />
 				<bean class="org.qfox.jestful.server.resolver.BodyParameterResolver" />
+				<bean class="org.qfox.jestful.server.resolver.ExtraParameterResolver" />
 			</list>
 		</property>
 	</bean>
-	
+
 	<bean id="render" class="org.qfox.jestful.core.Group">
 		<property name="members">
 			<list>
