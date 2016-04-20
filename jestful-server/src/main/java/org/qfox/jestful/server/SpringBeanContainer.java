@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletContext;
-
 import org.qfox.jestful.commons.collection.Enumerator;
 import org.qfox.jestful.core.Bean;
 import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Destroyable;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.exception.BeanNonuniqueException;
 import org.qfox.jestful.core.exception.BeanUndefinedException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * <p>
@@ -36,13 +36,8 @@ import org.springframework.web.context.WebApplicationContext;
  *
  * @since 1.0.0
  */
-public class SpringBeanContainer implements BeanContainer, Initialable, Destroyable {
-	private final ListableBeanFactory listableBeanFactory;
-
-	public SpringBeanContainer(ServletContext servletContext) {
-		super();
-		this.listableBeanFactory = (ListableBeanFactory) servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-	}
+public class SpringBeanContainer implements BeanContainer, BeanPostProcessor, ApplicationContextAware {
+	private ListableBeanFactory listableBeanFactory;
 
 	public Enumeration<Bean> enumeration() {
 		Map<String, Object> map = listableBeanFactory.getBeansOfType(Object.class);
@@ -94,18 +89,20 @@ public class SpringBeanContainer implements BeanContainer, Initialable, Destroya
 		return listableBeanFactory.getBeansWithAnnotation(annotationType);
 	}
 
-	public void initialize(BeanContainer beanContainer) {
-		Map<String, Initialable> initialables = find(Initialable.class);
-		for (Initialable initialable : initialables.values()) {
-			initialable.initialize(this);
-		}
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		return bean;
 	}
 
-	public void destroy() {
-		Map<String, Destroyable> destroyables = find(Destroyable.class);
-		for (Destroyable destroyable : destroyables.values()) {
-			destroyable.destroy();
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+		if (bean instanceof Initialable) {
+			Initialable initialable = (Initialable) bean;
+			initialable.initialize(this);
 		}
+		return bean;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.listableBeanFactory = applicationContext;
 	}
 
 }
