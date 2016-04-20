@@ -23,8 +23,6 @@ import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
 
 /**
  * <p>
@@ -43,18 +41,19 @@ import org.springframework.web.context.WebApplicationContext;
  */
 public class FrameworkFilter implements Filter, Actor {
 	private MappingRegistry mappingRegistry;
-	private ApplicationContext applicationContext;
+	private SpringBeanContainer springBeanContainer;
 	private Actor actor;
 
 	public void init(FilterConfig config) throws ServletException {
 		ServletContext servletContext = config.getServletContext();
 		String ctxpath = servletContext.getContextPath();
 		mappingRegistry = new TreeMappingRegistry(ctxpath);
-		applicationContext = (ApplicationContext) servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+		springBeanContainer = new SpringBeanContainer(config.getServletContext());
+		springBeanContainer.initialize(springBeanContainer);
 		String name = config.getInitParameter("actor");
 		name = name == null || name.isEmpty() ? "jestful" : name;
-		actor = applicationContext.getBean(name, Actor.class);
-		Collection<Object> controllers = applicationContext.getBeansWithAnnotation(Jestful.class).values();
+		actor = springBeanContainer.get(name, Actor.class);
+		Collection<?> controllers = springBeanContainer.with(Jestful.class).values();
 		for (Object controller : controllers) {
 			mappingRegistry.register(controller);
 		}
@@ -71,7 +70,7 @@ public class FrameworkFilter implements Filter, Actor {
 		try {
 			Mapping mapping = mappingRegistry.lookup(command, URI);
 
-			Action action = new Action(Arrays.asList(actor, this));
+			Action action = new Action(springBeanContainer, Arrays.asList(actor, this));
 
 			action.setResource(mapping.getResource());
 			action.setMapping(mapping);
@@ -116,8 +115,7 @@ public class FrameworkFilter implements Filter, Actor {
 	}
 
 	public void destroy() {
-		mappingRegistry = null;
-		applicationContext = null;
+		springBeanContainer.destroy();
 	}
 
 }

@@ -29,6 +29,7 @@ import org.qfox.jestful.core.exception.DuplicateExecuteException;
  * @since 1.0.0
  */
 public class Action {
+	private final BeanContainer beanContainer;
 	private final List<Actor> actors;
 	private int index = 0;
 
@@ -54,8 +55,9 @@ public class Action {
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
-	public Action(Collection<Actor> actors) {
+	public Action(BeanContainer beanContainer, Collection<Actor> actors) {
 		super();
+		this.beanContainer = beanContainer;
 		this.actors = new ArrayList<Actor>(actors);
 	}
 
@@ -91,6 +93,10 @@ public class Action {
 	 */
 	public void intrude(List<Actor> intruders) {
 		actors.addAll(index, intruders);
+	}
+
+	public BeanContainer getBeanContainer() {
+		return beanContainer;
 	}
 
 	public Resource getResource() {
