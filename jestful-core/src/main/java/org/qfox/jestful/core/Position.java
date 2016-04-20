@@ -33,6 +33,10 @@ public enum Position {
 	/**
 	 * 请求体
 	 */
-	BODY;
+	BODY,
+	/**
+	 * Cookie
+	 */
+	COOKIE;
 
 }

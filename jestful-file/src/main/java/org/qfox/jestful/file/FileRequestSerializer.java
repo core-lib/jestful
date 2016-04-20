@@ -11,6 +11,7 @@ import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.RequestSerializer;
 
 /**
@@ -40,6 +41,7 @@ public class FileRequestSerializer implements RequestSerializer {
 	}
 
 	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
+		Request request = action.getRequest();
 		Parameter[] parameters = action.getParameters();
 		for (Parameter parameter : parameters) {
 			if (parameter.getPosition() != Position.BODY) {
@@ -48,6 +50,7 @@ public class FileRequestSerializer implements RequestSerializer {
 			FileInputStream fis = null;
 			try {
 				File file = (File) parameter.getValue();
+				request.setRequestHeader("File-Name", file.getName());
 				fis = new FileInputStream(file);
 				byte[] buffer = new byte[bufferSize];
 				int length = 0;
