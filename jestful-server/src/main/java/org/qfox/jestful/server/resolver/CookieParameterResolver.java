@@ -25,33 +25,43 @@ import org.qfox.jestful.core.Request;
  * @since 1.0.0
  */
 public class CookieParameterResolver implements Actor {
+	private boolean caseInsensitive = true;
 
 	public Object react(Action action) throws Exception {
+		Request request = action.getRequest();
+		if (request instanceof HttpServletRequest == false) {
+			return null;
+		}
+		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		Parameter[] parameters = action.getParameters();
 		for (Parameter parameter : parameters) {
 			if (parameter.getPosition() != Position.COOKIE) {
 				continue;
 			}
-			Request request = action.getRequest();
-			if (request instanceof HttpServletRequest) {
-				HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-				Cookie[] cookies = httpServletRequest.getCookies();
-				for (Cookie cookie : cookies) {
-					if (cookie.getName().equals(parameter.getName()) == false) {
-						continue;
-					}
-					if (parameter.getKlass() == String.class) {
-						parameter.setValue(cookie.getValue());
-						break;
-					}
-					if (parameter.getKlass() == Cookie.class) {
-						parameter.setValue(cookie);
-						break;
-					}
+			Cookie[] cookies = httpServletRequest.getCookies();
+			for (Cookie cookie : cookies) {
+				if (caseInsensitive ? cookie.getName().equalsIgnoreCase(parameter.getName()) == false : cookie.getName().equals(parameter.getName()) == false) {
+					continue;
+				}
+				if (parameter.getKlass() == String.class) {
+					parameter.setValue(cookie.getValue());
+					break;
+				}
+				if (parameter.getKlass() == Cookie.class) {
+					parameter.setValue(cookie);
+					break;
 				}
 			}
 		}
 		return action.execute();
+	}
+
+	public boolean isCaseInsensitive() {
+		return caseInsensitive;
+	}
+
+	public void setCaseInsensitive(boolean caseInsensitive) {
+		this.caseInsensitive = caseInsensitive;
 	}
 
 }

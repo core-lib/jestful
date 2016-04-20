@@ -6,6 +6,7 @@
 	<bean class="org.qfox.jestful.server.obtainer.ActionParameterObtainer" />
 	<bean class="org.qfox.jestful.server.obtainer.RequestParameterObtainer" />
 	<bean class="org.qfox.jestful.server.obtainer.ResponseParameterObtainer" />
+	<bean class="org.qfox.jestful.server.obtainer.SessionParameterObtainer" />
 
 </beans>
 

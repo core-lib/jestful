@@ -10,7 +10,7 @@ import org.qfox.jestful.core.Position;
 
 /**
  * <p>
- * Description:
+ * Description: 请求cookie
  * </p>
  * 
  * <p>
@@ -26,9 +26,14 @@ import org.qfox.jestful.core.Position;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@Variable(position = Position.BODY)
-public @interface Cookie {
+@Variable(position = Position.COOKIE)
+public @interface Cooky {
 
+	/**
+	 * cookie 名称, 不区分大小写!
+	 * 
+	 * @return
+	 */
 	String value();
 
 }
