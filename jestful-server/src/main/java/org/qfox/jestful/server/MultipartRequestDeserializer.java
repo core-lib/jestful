@@ -11,12 +11,11 @@ import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multipart;
 import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * <p>
@@ -33,7 +32,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class MultipartRequestDeserializer implements RequestDeserializer, ApplicationContextAware {
+public class MultipartRequestDeserializer implements RequestDeserializer, Initialable {
 	private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
 
 	public String getContentType() {
@@ -70,8 +69,8 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Applic
 
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		Collection<RequestDeserializer> deserializers = applicationContext.getBeansOfType(RequestDeserializer.class).values();
+	public void initialize(BeanContainer beanContainer) {
+		Collection<RequestDeserializer> deserializers = beanContainer.find(RequestDeserializer.class).values();
 		for (RequestDeserializer deserializer : deserializers) {
 			String contentType = deserializer.getContentType();
 			MediaType mediaType = MediaType.valueOf(contentType);

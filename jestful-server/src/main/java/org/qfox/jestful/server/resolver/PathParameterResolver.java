@@ -8,12 +8,11 @@ import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.converter.StringConverter;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * <p>
@@ -30,7 +29,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class PathParameterResolver implements Actor, ApplicationContextAware {
+public class PathParameterResolver implements Actor, Initialable {
 	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
 
 	public Object react(Action action) throws Exception {
@@ -57,8 +56,8 @@ public class PathParameterResolver implements Actor, ApplicationContextAware {
 		return action.execute();
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		Map<String, ?> beans = applicationContext.getBeansOfType(StringConverter.class);
+	public void initialize(BeanContainer beanContainer) {
+		Map<String, ?> beans = beanContainer.find(StringConverter.class);
 		for (Object bean : beans.values()) {
 			converters.add((StringConverter<?>) bean);
 		}

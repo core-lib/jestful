@@ -8,13 +8,12 @@ import java.util.Set;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * <p>
@@ -31,7 +30,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class BodyParameterResolver implements Actor, ApplicationContextAware {
+public class BodyParameterResolver implements Actor, Initialable {
 	private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
 
 	public Object react(Action action) throws Exception {
@@ -52,8 +51,8 @@ public class BodyParameterResolver implements Actor, ApplicationContextAware {
 		return action.execute();
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		Collection<RequestDeserializer> deserializers = applicationContext.getBeansOfType(RequestDeserializer.class).values();
+	public void initialize(BeanContainer beanContainer) {
+		Collection<RequestDeserializer> deserializers = beanContainer.find(RequestDeserializer.class).values();
 		for (RequestDeserializer deserializer : deserializers) {
 			String contentType = deserializer.getContentType();
 			MediaType mediaType = MediaType.valueOf(contentType);

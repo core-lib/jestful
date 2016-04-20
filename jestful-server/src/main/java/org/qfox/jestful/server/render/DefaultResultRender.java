@@ -10,15 +10,14 @@ import java.util.TreeSet;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.ResponseSerializer;
 import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.server.exception.NotAcceptableStatusException;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * <p>
@@ -35,7 +34,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class DefaultResultRender implements Actor, ApplicationContextAware {
+public class DefaultResultRender implements Actor, Initialable {
 	private final Map<MediaType, ResponseSerializer> map = new HashMap<MediaType, ResponseSerializer>();
 
 	public Object react(Action action) throws Exception {
@@ -121,8 +120,8 @@ public class DefaultResultRender implements Actor, ApplicationContextAware {
 		return mediaType;
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		Collection<ResponseSerializer> serializers = applicationContext.getBeansOfType(ResponseSerializer.class).values();
+	public void initialize(BeanContainer beanContainer) {
+		Collection<ResponseSerializer> serializers = beanContainer.find(ResponseSerializer.class).values();
 		for (ResponseSerializer serializer : serializers) {
 			String contentType = serializer.getContentType();
 			MediaType mediaType = MediaType.valueOf(contentType);

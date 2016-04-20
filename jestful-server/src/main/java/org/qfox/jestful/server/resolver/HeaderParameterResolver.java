@@ -10,6 +10,8 @@ import java.util.Set;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
@@ -18,9 +20,6 @@ import org.qfox.jestful.server.converter.Converter;
 import org.qfox.jestful.server.exception.UnconvertableParameterException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * <p>
@@ -37,7 +36,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class HeaderParameterResolver implements Actor, ApplicationContextAware, ConversionProvider {
+public class HeaderParameterResolver implements Actor, Initialable, ConversionProvider {
 	public final Logger logger = LoggerFactory.getLogger(this.getClass());
 	public final Set<Converter> converters = new LinkedHashSet<Converter>();
 
@@ -106,8 +105,8 @@ public class HeaderParameterResolver implements Actor, ApplicationContextAware, 
 		throw new UnconvertableParameterException("unsupported parameterized type " + type, name, type, map, this);
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		Map<String, ?> beans = applicationContext.getBeansOfType(Converter.class);
+	public void initialize(BeanContainer beanContainer) {
+		Map<String, ?> beans = beanContainer.find(Converter.class);
 		for (Object bean : beans.values()) {
 			converters.add((Converter) bean);
 		}

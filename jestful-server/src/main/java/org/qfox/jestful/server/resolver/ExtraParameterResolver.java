@@ -8,12 +8,11 @@ import java.util.Map;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.annotation.Variable;
 import org.qfox.jestful.server.obtainer.Obtainer;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * <p>
@@ -30,7 +29,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class ExtraParameterResolver implements Actor, ApplicationContextAware {
+public class ExtraParameterResolver implements Actor, Initialable {
 	private final List<Obtainer> obtainers = new ArrayList<Obtainer>();
 
 	public Object react(Action action) throws Exception {
@@ -50,8 +49,8 @@ public class ExtraParameterResolver implements Actor, ApplicationContextAware {
 		return action.execute();
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		Map<String, Obtainer> map = applicationContext.getBeansOfType(Obtainer.class);
+	public void initialize(BeanContainer beanContainer) {
+		Map<String, Obtainer> map = beanContainer.find(Obtainer.class);
 		obtainers.addAll(map.values());
 	}
 
