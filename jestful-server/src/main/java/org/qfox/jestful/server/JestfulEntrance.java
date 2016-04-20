@@ -42,7 +42,7 @@ import org.springframework.web.context.WebApplicationContext;
  *
  * @since 1.0.0
  */
-public class FrameworkFilter implements Filter, Actor {
+public class JestfulEntrance implements Filter, Actor {
 	private MappingRegistry mappingRegistry;
 	private BeanContainer beanContainer;
 	private Actor actor;
