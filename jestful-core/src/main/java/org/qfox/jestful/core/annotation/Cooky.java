@@ -10,7 +10,8 @@ import org.qfox.jestful.core.Position;
 
 /**
  * <p>
- * Description: 请求cookie
+ * Description: 请求cookie, 如果参数类型是{@link String}那么直接获取Cookie的value值,如果参数类型是{@link javax.servlet.http.Cookie}
+ * 那么获取的是完整的该cookie对象, 两种参数类型以外的都是{@link null}
  * </p>
  * 
  * <p>
@@ -30,7 +31,7 @@ import org.qfox.jestful.core.Position;
 public @interface Cooky {
 
 	/**
-	 * cookie 名称, 不区分大小写!
+	 * cookie 名称, 通常情况下不区分大小写!
 	 * 
 	 * @return
 	 */
