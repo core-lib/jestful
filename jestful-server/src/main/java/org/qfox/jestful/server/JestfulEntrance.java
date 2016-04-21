@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Destroyable;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Result;
@@ -118,7 +119,10 @@ public class JestfulEntrance implements Filter, Actor {
 	}
 
 	public void destroy() {
-		
+		Collection<Destroyable> destroyables = beanContainer.find(Destroyable.class).values();
+		for (Destroyable destroyable : destroyables) {
+			destroyable.destroy();
+		}
 	}
 
 }
