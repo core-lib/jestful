@@ -27,11 +27,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.qfox</groupId>
-			<artifactId>detector</artifactId>
-			<version>1.0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.qfox</groupId>
 			<artifactId>jestful-commons</artifactId>
 			<version>1.0.0</version>
 		</dependency>
