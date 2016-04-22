@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.qfox.jestful.commons.Disposition;
 import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
@@ -43,21 +43,21 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 		String boundary = mediaType.getParameters().get("boundary");
 		Parameter[] parameters = action.getParameters();
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
-		Multipart multipart = null;
-		while ((multipart = mis.getNextMultipart()) != null) {
-			Disposition disposition = multipart.getDisposition();
-			MediaType type = multipart.getType();
+		Multihead multihead = null;
+		while ((multihead = mis.getNextMultihead()) != null) {
+			Disposition disposition = multihead.getDisposition();
+			MediaType type = multihead.getType();
 			String name = disposition.getName();
 			for (Parameter parameter : parameters) {
 				if (parameter.getName().equals(name) == false || parameter.getPosition() != Position.BODY) {
 					continue;
 				}
 				if (type == null) {
-					deserialize(action, parameter, multipart, mis);
+					deserialize(action, parameter, multihead, mis);
 				}
 				if (map.containsKey(type)) {
 					RequestDeserializer deserializer = map.get(type);
-					deserializer.deserialize(action, parameter, multipart, mis);
+					deserializer.deserialize(action, parameter, multihead, mis);
 				}
 				break;
 			}
@@ -65,7 +65,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 		mis.close();
 	}
 
-	public void deserialize(Action action, Parameter parameter, Multipart multipart, InputStream in) throws IOException {
+	public void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException {
 
 	}
 

@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 
 import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
@@ -56,10 +56,10 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
 		}
 	}
 
-	public void deserialize(Action action, Parameter parameter, Multipart multipart, InputStream in) throws IOException {
+	public void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException {
 		InputStreamReader isr = null;
 		try {
-			MediaType mediaType = multipart.getType();
+			MediaType mediaType = multihead.getType();
 			isr = new InputStreamReader(in, mediaType.getCharset());
 			Type type = parameter.getType();
 			Object value = readValue(isr, constructType(type));

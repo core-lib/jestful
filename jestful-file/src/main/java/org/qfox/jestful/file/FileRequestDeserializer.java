@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
@@ -73,8 +73,8 @@ public class FileRequestDeserializer implements RequestDeserializer {
 		}
 	}
 
-	public void deserialize(Action action, Parameter parameter, Multipart multipart, InputStream in) throws IOException {
-		String filename = multipart.getDisposition().getFilename();
+	public void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException {
+		String filename = multihead.getDisposition().getFilename();
 		filename = filename == null || filename.isEmpty() ? UUID.randomUUID() + ".tmp" : filename;
 		String directory = this.directory + new SimpleDateFormat(pattern).format(new Date());
 		File file = new File(directory, filename);

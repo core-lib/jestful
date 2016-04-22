@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.Multihead;
 
 /**
  * <p>
@@ -27,6 +27,6 @@ public interface RequestDeserializer {
 
 	void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException;
 
-	void deserialize(Action action, Parameter parameter, Multipart multipart, InputStream in) throws IOException;
+	void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException;
 
 }

@@ -12,7 +12,7 @@ import org.qfox.jestful.commons.io.IOUtils;
 
 /**
  * <p>
- * Description:
+ * Description: 多部分内容头
  * </p>
  * 
  * <p>
@@ -25,22 +25,22 @@ import org.qfox.jestful.commons.io.IOUtils;
  *
  * @since 1.0.0
  */
-public class Multipart {
+public class Multihead {
 	private final Disposition disposition;
 	private final MediaType type;
 	private final Map<String, String> header;
 
-	public Multipart(Map<String, String> header) {
+	public Multihead(Map<String, String> header) {
 		super();
 		this.header = new CaseInsensitiveMap<String, String>(header);
 		this.disposition = this.header.containsKey("Content-Disposition") ? Disposition.valueOf(this.header.get("Content-Disposition")) : null;
 		this.type = this.header.containsKey("Content-Type") ? MediaType.valueOf(this.header.get("Content-Type")) : null;
 	}
 
-	public Multipart(InputStream inputStream) throws IOException {
+	public Multihead(InputStream inputStream) throws IOException {
 		this.header = new CaseInsensitiveMap<String, String>();
 		String line = null;
-		while ((line = IOUtils.readLine(inputStream)) != null && line.isEmpty() == false) {
+		while ((line = IOUtils.readln(inputStream)) != null && line.isEmpty() == false) {
 			int index = line.indexOf(':');
 			if (index < 0) {
 				throw new IllegalArgumentException(line);
@@ -86,7 +86,7 @@ public class Multipart {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Multipart other = (Multipart) obj;
+		Multihead other = (Multihead) obj;
 		if (header == null) {
 			if (other.header != null)
 				return false;

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
@@ -64,7 +64,7 @@ public class FileRequestSerializer implements RequestSerializer {
 		}
 	}
 
-	public void serialize(Action action, Parameter parameter, Multipart multipart, OutputStream out) throws IOException {
+	public void serialize(Action action, Parameter parameter, Multihead multihead, OutputStream out) throws IOException {
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream((File) parameter.getValue());

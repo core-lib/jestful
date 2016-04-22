@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
@@ -57,10 +57,10 @@ public class JsonRequestSerializer extends ObjectMapper implements RequestSerial
 		}
 	}
 
-	public void serialize(Action action, Parameter parameter, Multipart multipart, OutputStream out) throws IOException {
+	public void serialize(Action action, Parameter parameter, Multihead multihead, OutputStream out) throws IOException {
 		OutputStreamWriter osw = null;
 		try {
-			MediaType mediaType = multipart.getType();
+			MediaType mediaType = multihead.getType();
 			osw = new OutputStreamWriter(out, mediaType.getCharset());
 			writeValue(osw, parameter.getValue());
 		} finally {

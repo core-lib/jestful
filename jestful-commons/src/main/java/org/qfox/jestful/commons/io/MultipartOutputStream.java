@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.qfox.jestful.commons.Multipart;
+import org.qfox.jestful.commons.Multihead;
 
 /**
  * <p>
@@ -43,27 +43,27 @@ public class MultipartOutputStream extends OutputStream {
 	/**
 	 * set a multipart/form-data item before call this's write method
 	 * 
-	 * @param multipart
+	 * @param multihead
 	 *            multipart/form-data item
 	 * @throws IOException
 	 *             when IO error occur
 	 */
-	public void setNextMultipart(Multipart multipart) throws IOException {
+	public void setNextMultihead(Multihead multihead) throws IOException {
 		if (closed) {
 			throw new IOException("Already closed");
 		}
 		outputStreamWriter.write(parts++ > 0 ? new char[] { '\r', '\n' } : new char[0]);
 		outputStreamWriter.write("--" + boundary + "\r\n");
-		multipart.writeTo(outputStreamWriter);
+		multihead.writeTo(outputStreamWriter);
 		outputStreamWriter.write(new char[] { '\r', '\n' });
 		outputStreamWriter.flush();
 	}
 
 	/**
 	 * write multipart/form-data item content before call this method please ensure it's already has at least one
-	 * mutipart-form item, use {@link MultipartOutputStream#setNextMultipart(Multipart)} to add a mutipart-form item
+	 * mutipart-form item, use {@link MultipartOutputStream#setNextMultihead(Multihead)} to add a mutipart-form item
 	 * 
-	 * @see {@link MultipartOutputStream#setNextMultipart(Multipart)}
+	 * @see {@link MultipartOutputStream#setNextMultihead(Multihead)}
 	 */
 	@Override
 	public void write(int b) throws IOException {
@@ -78,9 +78,9 @@ public class MultipartOutputStream extends OutputStream {
 
 	/**
 	 * write multipart/form-data item content before call this method please ensure it's already has at least one
-	 * mutipart-form item, use {@link MultipartOutputStream#setNextMultipart(Multipart)} to add a mutipart-form item
+	 * mutipart-form item, use {@link MultipartOutputStream#setNextMultihead(Multihead)} to add a mutipart-form item
 	 * 
-	 * @see {@link MultipartOutputStream#setNextMultipart(Multipart)}
+	 * @see {@link MultipartOutputStream#setNextMultihead(Multihead)}
 	 */
 	@Override
 	public void write(byte[] b) throws IOException {
@@ -95,9 +95,9 @@ public class MultipartOutputStream extends OutputStream {
 
 	/**
 	 * write multipart/form-data item content before call this method please ensure it's already has at least one
-	 * mutipart-form item, use {@link MultipartOutputStream#setNextMultipart(Multipart)} to add a mutipart-form item
+	 * mutipart-form item, use {@link MultipartOutputStream#setNextMultihead(Multihead)} to add a mutipart-form item
 	 * 
-	 * @see {@link MultipartOutputStream#setNextMultipart(Multipart)}
+	 * @see {@link MultipartOutputStream#setNextMultihead(Multihead)}
 	 */
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
