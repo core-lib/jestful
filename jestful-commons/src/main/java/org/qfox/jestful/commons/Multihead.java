@@ -47,7 +47,7 @@ public class Multihead implements Cloneable {
 			}
 			String key = line.substring(0, index);
 			String value = line.substring(index + 1);
-			this.header.put(key, value);
+			this.header.put(key.trim(), value.trim());
 		}
 		this.disposition = this.header.containsKey("Content-Disposition") ? Disposition.valueOf(this.header.get("Content-Disposition")) : null;
 		this.type = this.header.containsKey("Content-Type") ? MediaType.valueOf(this.header.get("Content-Type")) : null;
