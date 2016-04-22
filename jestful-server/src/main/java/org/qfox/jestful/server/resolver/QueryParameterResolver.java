@@ -14,7 +14,7 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
-import org.qfox.jestful.server.converter.UncompitableConversionException;
+import org.qfox.jestful.server.converter.IncompatibleConversionException;
 
 /**
  * <p>
@@ -62,7 +62,7 @@ public class QueryParameterResolver implements Actor, Initialable {
 			try {
 				Object value = queryConversionProvider.convert(parameter.getName(), parameter.getType(), map);
 				parameter.setValue(value);
-			} catch (UncompitableConversionException e) {
+			} catch (IncompatibleConversionException e) {
 				throw new IOException(e);
 			} catch (ConversionException e) {
 				continue;

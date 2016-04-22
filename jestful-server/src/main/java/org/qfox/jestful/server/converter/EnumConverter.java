@@ -19,7 +19,7 @@ public class EnumConverter implements Converter {
 			Object result = clazz.getMethod("valueOf", String.class).invoke(null, value);
 			return clazz.cast(result);
 		} catch (Exception e) {
-			throw new UncompitableConversionException(e, name, clazz, map, provider);
+			throw new IncompatibleConversionException(e, name, clazz, map, provider);
 		}
 	}
 

@@ -44,11 +44,11 @@ public class DateConverter implements Converter {
 				try {
 					return clazz.cast(entry.getValue().parse(value));
 				} catch (ParseException e) {
-					throw new UncompitableConversionException(e, name, clazz, map, provider);
+					throw new IncompatibleConversionException(e, name, clazz, map, provider);
 				}
 			}
 		}
-		throw new UncompitableConversionException("unsupported date format of " + value + " please use one of " + formats.keySet(), name, clazz, map, provider);
+		throw new IncompatibleConversionException("unsupported date format of " + value + " please use one of " + formats.keySet(), name, clazz, map, provider);
 	}
 
 	public boolean supports(ParameterizedType type) {

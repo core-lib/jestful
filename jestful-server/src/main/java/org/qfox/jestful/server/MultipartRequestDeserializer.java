@@ -22,7 +22,7 @@ import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
-import org.qfox.jestful.server.converter.UncompitableConversionException;
+import org.qfox.jestful.server.converter.IncompatibleConversionException;
 
 /**
  * <p>
@@ -136,7 +136,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 			try {
 				Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), fields);
 				parameter.setValue(value);
-			} catch (UncompitableConversionException e) {
+			} catch (IncompatibleConversionException e) {
 				throw new IOException(e);
 			} catch (ConversionException e) {
 				continue;

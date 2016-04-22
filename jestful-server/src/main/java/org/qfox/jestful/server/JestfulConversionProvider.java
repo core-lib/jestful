@@ -12,8 +12,6 @@ import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.Converter;
 import org.qfox.jestful.server.converter.UnsupportedConversionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -31,7 +29,6 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.0
  */
 public class JestfulConversionProvider implements ConversionProvider, Initialable {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final Set<Converter> converters = new LinkedHashSet<Converter>();
 
 	public Object convert(String name, Type type, Map<String, String[]> map) throws ConversionException {
@@ -47,12 +44,7 @@ public class JestfulConversionProvider implements ConversionProvider, Initialabl
 	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map) throws ConversionException {
 		for (Converter converter : converters) {
 			if (converter.supports(clazz)) {
-				try {
-					return converter.convert(name, clazz, map, this);
-				} catch (Exception e) {
-					logger.warn("can not convert class {} with name {} using parameters {}", clazz, name, map, e);
-					return null;
-				}
+				return converter.convert(name, clazz, map, this);
 			}
 		}
 		throw new UnsupportedConversionException("unsupported clazz " + clazz, name, clazz, map, this);
@@ -61,12 +53,7 @@ public class JestfulConversionProvider implements ConversionProvider, Initialabl
 	public Object convert(String name, ParameterizedType type, Map<String, String[]> map) throws ConversionException {
 		for (Converter converter : converters) {
 			if (converter.supports(type)) {
-				try {
-					return converter.convert(name, type, map, this);
-				} catch (Exception e) {
-					logger.warn("can not convert parameterized type {} with name {} using parameters {}", type, name, map, e);
-					return null;
-				}
+				return converter.convert(name, type, map, this);
 			}
 		}
 		throw new UnsupportedConversionException("unsupported parameterized type " + type, name, type, map, this);

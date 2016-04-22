@@ -58,7 +58,7 @@ public class WrapperConverter implements Converter {
 				break;
 			}
 		} catch (Exception e) {
-			throw new UncompitableConversionException(e, name, clazz, map, provider);
+			throw new IncompatibleConversionException(e, name, clazz, map, provider);
 		}
 		return clazz.cast(result);
 	}
