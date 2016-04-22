@@ -130,15 +130,16 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 			}
 		}
 		for (Parameter parameter : parameters) {
-			if (parameter.getPosition() == Position.BODY && parameter.getValue() == null) {
-				try {
-					Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), fields);
-					parameter.setValue(value);
-				} catch (UncompitableConversionException e) {
-					throw new IOException(e);
-				} catch (ConversionException e) {
-					continue;
-				}
+			if (parameter.getPosition() != Position.BODY || parameter.getValue() != null) {
+				continue;
+			}
+			try {
+				Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), fields);
+				parameter.setValue(value);
+			} catch (UncompitableConversionException e) {
+				throw new IOException(e);
+			} catch (ConversionException e) {
+				continue;
 			}
 		}
 		JestfulServletRequest jestfulServletRequest = (JestfulServletRequest) action.getRequest();

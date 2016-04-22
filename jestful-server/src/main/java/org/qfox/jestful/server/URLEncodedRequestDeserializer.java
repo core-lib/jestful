@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -69,17 +68,13 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 					map.put(key, values);
 				}
 			}
-
 			Parameter[] parameters = action.getParameters();
-			for (int i = 0; i < parameters.length; i++) {
-				Parameter parameter = parameters[i];
-				String name = parameter.getName();
-				if (parameter.getPosition() != Position.BODY || map.containsKey(name) == false) {
+			for (Parameter parameter : parameters) {
+				if (parameter.getPosition() != Position.BODY || parameter.getValue() != null) {
 					continue;
 				}
-				Type type = parameter.getType();
 				try {
-					Object value = urlConversionProvider.convert(name, type, map);
+					Object value = urlConversionProvider.convert(parameter.getName(), parameter.getType(), map);
 					parameter.setValue(value);
 				} catch (UncompitableConversionException e) {
 					throw new IOException(e);

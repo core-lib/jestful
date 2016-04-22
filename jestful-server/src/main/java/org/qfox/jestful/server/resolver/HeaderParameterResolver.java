@@ -1,6 +1,6 @@
 package org.qfox.jestful.server.resolver;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Map;
 
@@ -12,7 +12,9 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
+import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
+import org.qfox.jestful.server.converter.UncompitableConversionException;
 
 /**
  * <p>
@@ -46,15 +48,18 @@ public class HeaderParameterResolver implements Actor, Initialable {
 			map.put(key, values);
 		}
 		Parameter[] parameters = action.getParameters();
-		for (int i = 0; i < parameters.length; i++) {
-			Parameter parameter = parameters[i];
-			String name = parameter.getName();
-			if (parameter.getPosition() != Position.HEADER || map.containsKey(name) == false) {
+		for (Parameter parameter : parameters) {
+			if (parameter.getPosition() != Position.HEADER || parameter.getValue() != null) {
 				continue;
 			}
-			Type type = parameter.getType();
-			Object value = headerConversionProvider.convert(name, type, map);
-			parameter.setValue(value);
+			try {
+				Object value = headerConversionProvider.convert(parameter.getName(), parameter.getType(), map);
+				parameter.setValue(value);
+			} catch (UncompitableConversionException e) {
+				throw new IOException(e);
+			} catch (ConversionException e) {
+				continue;
+			}
 		}
 		return action.execute();
 	}
