@@ -12,6 +12,7 @@ import org.qfox.jestful.commons.Disposition;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multibody;
 import org.qfox.jestful.commons.Multihead;
+import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
@@ -19,6 +20,9 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
+import org.qfox.jestful.server.converter.ConversionException;
+import org.qfox.jestful.server.converter.ConversionProvider;
+import org.qfox.jestful.server.converter.UncompitableConversionException;
 
 /**
  * <p>
@@ -37,6 +41,7 @@ import org.qfox.jestful.core.RequestDeserializer;
  */
 public class MultipartRequestDeserializer implements RequestDeserializer, Initialable {
 	private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
+	private ConversionProvider multipartConversionProvider;
 
 	public String getContentType() {
 		return "multipart/form-data";
@@ -45,6 +50,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
 		String boundary = mediaType.getParameters().get("boundary");
 		List<Multipart> multiparts = new ArrayList<Multipart>();
+		Map<String, String[]> fields = new HashMap<String, String[]>();
 		Parameter[] parameters = action.getParameters();
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
 		Multihead multihead = null;
@@ -83,14 +89,10 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 					}
 					break;
 				}
-			} else {
+			} else if (type != null) {
 				for (Parameter parameter : parameters) {
 					if (parameter.getName().equals(name) == false || parameter.getPosition() != Position.BODY) {
 						continue;
-					}
-					if (type == null) {
-						deserialize(action, parameter, multihead, mis);
-						break;
 					}
 					if (map.containsKey(type)) {
 						RequestDeserializer deserializer = map.get(type);
@@ -113,6 +115,30 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 					}
 					break;
 				}
+			} else {
+				String value = IOUtils.toString(mis);
+				String[] values = fields.get(name);
+				if (values == null) {
+					values = new String[] { value };
+				} else {
+					String[] array = new String[values.length + 1];
+					System.arraycopy(values, 0, array, 0, values.length);
+					array[values.length] = value;
+					values = array;
+				}
+				fields.put(name, values);
+			}
+		}
+		for (Parameter parameter : parameters) {
+			if (parameter.getPosition() == Position.BODY && parameter.getValue() == null) {
+				try {
+					Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), fields);
+					parameter.setValue(value);
+				} catch (UncompitableConversionException e) {
+					throw new IOException(e);
+				} catch (ConversionException e) {
+					continue;
+				}
 			}
 		}
 		JestfulServletRequest jestfulServletRequest = (JestfulServletRequest) action.getRequest();
@@ -131,6 +157,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 			MediaType mediaType = MediaType.valueOf(contentType);
 			map.put(mediaType, deserializer);
 		}
+		multipartConversionProvider = beanContainer.get(ConversionProvider.class);
 	}
 
 }

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.qfox.jestful.server.exception.UnconvertableParameterException;
-
 public class PrimitiveConverter implements Converter {
 	private final List<Class<?>> primaries = new ArrayList<Class<?>>();
 
@@ -26,37 +24,39 @@ public class PrimitiveConverter implements Converter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
 		String[] values = map.get(name);
 		String value = values != null && values.length > 0 ? values[0] : "0";
 		Object result = null;
-		switch (primaries.indexOf(clazz)) {
-		case 0:
-			result = value.equals("0") ? Boolean.FALSE : Boolean.valueOf(value);
-			break;
-		case 1:
-			result = Byte.valueOf(value);
-			break;
-		case 2:
-			result = Short.valueOf(value);
-			break;
-		case 3:
-			result = Character.valueOf(value.charAt(0));
-			break;
-		case 4:
-			result = Integer.valueOf(value);
-			break;
-		case 5:
-			result = Long.valueOf(value);
-			break;
-		case 6:
-			result = Float.valueOf(value);
-			break;
-		case 7:
-			result = Double.valueOf(value);
-			break;
-		default:
-			throw new UnconvertableParameterException("can not converter class " + clazz + " with " + this.getClass(), name, clazz, map, provider);
+		try {
+			switch (primaries.indexOf(clazz)) {
+			case 0:
+				result = value.equals("0") ? Boolean.FALSE : Boolean.valueOf(value);
+				break;
+			case 1:
+				result = Byte.valueOf(value);
+				break;
+			case 2:
+				result = Short.valueOf(value);
+				break;
+			case 3:
+				result = Character.valueOf(value.charAt(0));
+				break;
+			case 4:
+				result = Integer.valueOf(value);
+				break;
+			case 5:
+				result = Long.valueOf(value);
+				break;
+			case 6:
+				result = Float.valueOf(value);
+				break;
+			case 7:
+				result = Double.valueOf(value);
+				break;
+			}
+		} catch (Exception e) {
+			throw new UncompitableConversionException(e, name, clazz, map, provider);
 		}
 		return (T) result;
 	}
@@ -65,7 +65,7 @@ public class PrimitiveConverter implements Converter {
 		return false;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
 		throw new UnsupportedOperationException("converter of " + this.getClass() + " do not supported parameterized type");
 	}
 

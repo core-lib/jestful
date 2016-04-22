@@ -6,15 +6,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.qfox.jestful.server.exception.UnconvertableParameterException;
-
 public class ArrayConverter implements Converter {
 
 	public boolean supports(Class<?> clazz) {
 		return clazz.isArray();
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
 		Object array = Array.newInstance(clazz.getComponentType(), 0);
 		for (String key : map.keySet()) {
 			if (key.equals(name) || key.startsWith(name + ".")) {
@@ -38,7 +36,7 @@ public class ArrayConverter implements Converter {
 		return false;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
 		throw new UnsupportedOperationException("converter of " + this.getClass() + " do not supported parameterized type");
 	}
 }

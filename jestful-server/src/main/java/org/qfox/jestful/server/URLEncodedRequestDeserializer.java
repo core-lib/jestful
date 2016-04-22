@@ -4,14 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multihead;
@@ -22,11 +19,9 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
+import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
-import org.qfox.jestful.server.converter.Converter;
-import org.qfox.jestful.server.exception.UnconvertableParameterException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.qfox.jestful.server.converter.UncompitableConversionException;
 
 /**
  * <p>
@@ -43,9 +38,8 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.0
  */
-public class URLEncodedRequestDeserializer implements RequestDeserializer, Initialable, ConversionProvider {
-	public final Logger logger = LoggerFactory.getLogger(this.getClass());
-	public final Set<Converter> converters = new LinkedHashSet<Converter>();
+public class URLEncodedRequestDeserializer implements RequestDeserializer, Initialable {
+	private ConversionProvider urlConversionProvider;
 
 	public String getContentType() {
 		return "application/x-www-form-urlencoded";
@@ -84,8 +78,14 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 					continue;
 				}
 				Type type = parameter.getType();
-				Object value = convert(name, type, map);
-				parameter.setValue(value);
+				try {
+					Object value = urlConversionProvider.convert(name, type, map);
+					parameter.setValue(value);
+				} catch (UncompitableConversionException e) {
+					throw new IOException(e);
+				} catch (ConversionException e) {
+					continue;
+				}
 			}
 		} finally {
 			IOUtils.close(br);
@@ -97,48 +97,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 		throw new UnsupportedOperationException();
 	}
 
-	public Object convert(String name, Type type, Map<String, String[]> map) throws UnconvertableParameterException {
-		if (type instanceof Class<?>) {
-			return convert(name, (Class<?>) type, map);
-		}
-		if (type instanceof ParameterizedType) {
-			return convert(name, (ParameterizedType) type, map);
-		}
-		throw new UnconvertableParameterException("unsupported type " + type, name, type, map, this);
-	}
-
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map) throws UnconvertableParameterException {
-		for (Converter converter : converters) {
-			if (converter.supports(clazz)) {
-				try {
-					return converter.convert(name, clazz, map, this);
-				} catch (Exception e) {
-					logger.warn("can not convert class {} with name {} using parameters {}", clazz, name, map, e);
-					return null;
-				}
-			}
-		}
-		throw new UnconvertableParameterException("unsupported clazz " + clazz, name, clazz, map, this);
-	}
-
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map) throws UnconvertableParameterException {
-		for (Converter converter : converters) {
-			if (converter.supports(type)) {
-				try {
-					return converter.convert(name, type, map, this);
-				} catch (Exception e) {
-					logger.warn("can not convert parameterized type {} with name {} using parameters {}", type, name, map, e);
-					return null;
-				}
-			}
-		}
-		throw new UnconvertableParameterException("unsupported parameterized type " + type, name, type, map, this);
-	}
-
 	public void initialize(BeanContainer beanContainer) {
-		Map<String, ?> beans = beanContainer.find(Converter.class);
-		for (Object bean : beans.values()) {
-			converters.add((Converter) bean);
-		}
+		urlConversionProvider = beanContainer.get(ConversionProvider.class);
 	}
 }

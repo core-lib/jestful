@@ -1,5 +1,6 @@
 package org.qfox.jestful.commons.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -96,45 +97,54 @@ public class IOUtils {
 		out.write('\n');
 	}
 
-	public static void transfer(InputStream in, OutputStream out) throws IOException {
+	public static long transfer(InputStream in, OutputStream out) throws IOException {
+		long total = 0;
 		byte[] buffer = new byte[4096];
 		int length = 0;
 		while ((length = in.read(buffer)) != -1) {
 			out.write(buffer, 0, length);
+			total += length;
 		}
+		return total;
 	}
 
-	public static void transfer(InputStream in, File target) throws IOException {
+	public static long transfer(InputStream in, File target) throws IOException {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(target);
-			transfer(in, out);
+			return transfer(in, out);
 		} finally {
 			out.close();
 		}
 	}
 
-	public static void transfer(File source, OutputStream out) throws IOException {
+	public static long transfer(File source, OutputStream out) throws IOException {
 		FileInputStream in = null;
 		try {
 			in = new FileInputStream(source);
-			transfer(in, out);
+			return transfer(in, out);
 		} finally {
 			in.close();
 		}
 	}
 
-	public static void transfer(File source, File target) throws IOException {
+	public static long transfer(File source, File target) throws IOException {
 		FileInputStream in = null;
 		FileOutputStream out = null;
 		try {
 			in = new FileInputStream(source);
 			out = new FileOutputStream(target);
-			transfer(in, out);
+			return transfer(in, out);
 		} finally {
 			in.close();
 			out.close();
 		}
+	}
+
+	public static String toString(InputStream in) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		transfer(in, baos);
+		return baos.toString();
 	}
 
 }

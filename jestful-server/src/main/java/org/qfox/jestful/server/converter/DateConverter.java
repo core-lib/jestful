@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import org.qfox.jestful.server.exception.UnconvertableParameterException;
-
 public class DateConverter implements Converter {
 	private final Map<Pattern, DateFormat> formats = new HashMap<Pattern, DateFormat>();
 
@@ -32,7 +30,7 @@ public class DateConverter implements Converter {
 		return Date.class == clazz;
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
+	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
 		String[] values = map.get(name);
 		String value = values != null && values.length > 0 ? values[0] : null;
 		if (value == null) {
@@ -46,18 +44,18 @@ public class DateConverter implements Converter {
 				try {
 					return clazz.cast(entry.getValue().parse(value));
 				} catch (ParseException e) {
-					throw new UnconvertableParameterException(e, name, clazz, map, provider);
+					throw new UncompitableConversionException(e, name, clazz, map, provider);
 				}
 			}
 		}
-		throw new UnconvertableParameterException("unsupported date format of " + value + " please use one of " + formats.keySet(), name, clazz, map, provider);
+		throw new UncompitableConversionException("unsupported date format of " + value + " please use one of " + formats.keySet(), name, clazz, map, provider);
 	}
 
 	public boolean supports(ParameterizedType type) {
 		return false;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws UnconvertableParameterException {
+	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
 		throw new UnsupportedOperationException("converter of " + this.getClass() + " do not supported parameterized type");
 	}
 
