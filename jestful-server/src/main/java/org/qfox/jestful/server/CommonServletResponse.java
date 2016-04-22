@@ -26,10 +26,10 @@ import org.qfox.jestful.core.Status;
  *
  * @since 1.0.0
  */
-public class DefaultServletResponse extends HttpServletResponseWrapper implements Response {
+public class CommonServletResponse extends HttpServletResponseWrapper implements Response {
 	private final HttpServletResponse response;
 
-	public DefaultServletResponse(HttpServletResponse response) {
+	public CommonServletResponse(HttpServletResponse response) {
 		super(response);
 		this.response = response;
 	}

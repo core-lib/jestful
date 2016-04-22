@@ -27,10 +27,10 @@ import org.qfox.jestful.core.Request;
  *
  * @since 1.0.0
  */
-public class DefaultServletRequest extends HttpServletRequestWrapper implements Request {
+public class CommonServletRequest extends HttpServletRequestWrapper implements Request {
 	private final HttpServletRequest request;
 
-	public DefaultServletRequest(HttpServletRequest request) {
+	public CommonServletRequest(HttpServletRequest request) {
 		super(request);
 		this.request = request;
 	}
