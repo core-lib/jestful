@@ -25,7 +25,7 @@ import eu.medsea.mimeutil.MimeUtil;
  *
  * @since 1.0.0
  */
-public class Multibody {
+public class Multibody implements Cloneable {
 	private final File file;
 	private final String contentType;
 	private final long size;
@@ -61,6 +61,15 @@ public class Multibody {
 
 	public long getSize() {
 		return size;
+	}
+
+	@Override
+	public Multibody clone() {
+		try {
+			return new Multibody(file);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

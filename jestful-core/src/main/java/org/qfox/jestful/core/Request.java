@@ -21,7 +21,7 @@ import java.io.OutputStream;
  */
 public interface Request {
 
-	String[] getRequestHeaders();
+	String[] getHeaderKeys();
 
 	String getRequestHeader(String name);
 

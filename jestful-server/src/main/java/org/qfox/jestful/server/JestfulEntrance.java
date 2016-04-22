@@ -88,8 +88,8 @@ public class JestfulEntrance implements Filter, Actor {
 			action.setProtocol(protocol);
 			action.setVersion(version);
 
-			action.setRequest(new CommonServletRequest(httpServletRequest));
-			action.setResponse(new CommonServletResponse(httpServletResponse));
+			action.setRequest(new JestfulServletRequest(httpServletRequest));
+			action.setResponse(new JestfulServletResponse(httpServletResponse));
 
 			action.setConsumes(mapping.getConsumes());
 			action.setProduces(mapping.getProduces());

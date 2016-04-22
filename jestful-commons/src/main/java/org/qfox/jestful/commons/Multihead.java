@@ -25,7 +25,7 @@ import org.qfox.jestful.commons.io.IOUtils;
  *
  * @since 1.0.0
  */
-public class Multihead {
+public class Multihead implements Cloneable {
 	private final Disposition disposition;
 	private final MediaType type;
 	private final Map<String, String> header;
@@ -68,6 +68,11 @@ public class Multihead {
 
 	public Map<String, String> getHeader() {
 		return header;
+	}
+
+	@Override
+	public Multihead clone() {
+		return new Multihead(header);
 	}
 
 	@Override

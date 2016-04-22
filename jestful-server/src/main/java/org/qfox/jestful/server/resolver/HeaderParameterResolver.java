@@ -44,14 +44,14 @@ public class HeaderParameterResolver implements Actor, Initialable, ConversionPr
 		Map<String, String[]> map = new CaseInsensitiveMap<String, String[]>();
 		Request request = action.getRequest();
 		String charset = action.getCharset();
-		String[] names = request.getRequestHeaders();
-		for (String name : names) {
-			String[] values = request.getRequestHeaders(name);
+		String[] keys = request.getHeaderKeys();
+		for (String key : keys) {
+			String[] values = request.getRequestHeaders(key);
 			for (int i = 0; i < values.length; i++) {
 				String value = values[i];
 				values[i] = URLDecoder.decode(value, charset);
 			}
-			map.put(name, values);
+			map.put(key, values);
 		}
 		Parameter[] parameters = action.getParameters();
 		for (int i = 0; i < parameters.length; i++) {

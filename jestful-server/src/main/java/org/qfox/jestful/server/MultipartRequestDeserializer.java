@@ -2,12 +2,15 @@ package org.qfox.jestful.server;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.qfox.jestful.commons.Disposition;
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.Multibody;
 import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.MultipartInputStream;
 import org.qfox.jestful.core.Action;
@@ -41,6 +44,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
 		String boundary = mediaType.getParameters().get("boundary");
+		List<Multipart> multiparts = new ArrayList<Multipart>();
 		Parameter[] parameters = action.getParameters();
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
 		Multihead multihead = null;
@@ -48,20 +52,71 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 			Disposition disposition = multihead.getDisposition();
 			MediaType type = multihead.getType();
 			String name = disposition.getName();
-			for (Parameter parameter : parameters) {
-				if (parameter.getName().equals(name) == false || parameter.getPosition() != Position.BODY) {
-					continue;
+			if (disposition.getFilename() != null) {
+				Multibody multibody = new Multibody(mis);
+				Multipart multipart = new Multipart(multihead, multibody);
+				multiparts.add(multipart);
+				for (Parameter parameter : parameters) {
+					if (parameter.getName().equals(name) == false || parameter.getPosition() != Position.BODY) {
+						continue;
+					}
+					if (type == null) {
+						deserialize(action, parameter, multihead, mis);
+						break;
+					}
+					if (map.containsKey(type)) {
+						RequestDeserializer deserializer = map.get(type);
+						deserializer.deserialize(action, parameter, multihead, mis);
+						break;
+					}
+					if (parameter.getKlass().isInstance(multihead)) {
+						parameter.setValue(multihead.clone());
+						break;
+					}
+					if (parameter.getKlass().isInstance(multibody)) {
+						parameter.setValue(multibody.clone());
+						break;
+					}
+					if (parameter.getKlass().isInstance(multipart)) {
+						parameter.setValue(multipart.clone());
+						break;
+					}
+					break;
 				}
-				if (type == null) {
-					deserialize(action, parameter, multihead, mis);
+			} else {
+				for (Parameter parameter : parameters) {
+					if (parameter.getName().equals(name) == false || parameter.getPosition() != Position.BODY) {
+						continue;
+					}
+					if (type == null) {
+						deserialize(action, parameter, multihead, mis);
+						break;
+					}
+					if (map.containsKey(type)) {
+						RequestDeserializer deserializer = map.get(type);
+						deserializer.deserialize(action, parameter, multihead, mis);
+						break;
+					}
+					if (parameter.getKlass().isInstance(multihead)) {
+						parameter.setValue(multihead);
+						break;
+					}
+					Multibody multibody = new Multibody(mis);
+					if (parameter.getKlass().isInstance(multibody)) {
+						parameter.setValue(multibody);
+						break;
+					}
+					Multipart multipart = new Multipart(multihead, multibody);
+					if (parameter.getKlass().isInstance(multipart)) {
+						parameter.setValue(multipart);
+						break;
+					}
+					break;
 				}
-				if (map.containsKey(type)) {
-					RequestDeserializer deserializer = map.get(type);
-					deserializer.deserialize(action, parameter, multihead, mis);
-				}
-				break;
 			}
 		}
+		JestfulServletRequest jestfulServletRequest = (JestfulServletRequest) action.getRequest();
+		jestfulServletRequest.setMultiparts(multiparts);
 		mis.close();
 	}
 

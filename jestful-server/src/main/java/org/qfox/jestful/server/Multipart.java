@@ -1,7 +1,6 @@
 package org.qfox.jestful.server;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,16 +26,23 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @since 1.0.0
  */
-public class Multipart implements MultipartFile, Closeable {
+public class Multipart implements MultipartFile, Cloneable {
 	private final Multihead multihead;
 	private final Multibody multibody;
-	private final InputStream inputStream;
+	private InputStream inputStream;
 
-	public Multipart(Multihead multihead, Multibody multibody) throws IOException {
+	public Multipart(Multihead multihead, Multibody multibody) {
 		super();
 		this.multihead = multihead;
 		this.multibody = multibody;
-		this.inputStream = new FileInputStream(multibody.getFile());
+	}
+
+	public Multihead getMultihead() {
+		return multihead;
+	}
+
+	public Multibody getMultibody() {
+		return multibody;
 	}
 
 	public String getName() {
@@ -61,20 +67,25 @@ public class Multipart implements MultipartFile, Closeable {
 
 	public byte[] getBytes() throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		IOUtils.transfer(inputStream, baos);
+		IOUtils.transfer(getInputStream(), baos);
 		return baos.toByteArray();
 	}
 
-	public InputStream getInputStream() throws IOException {
-		return inputStream;
+	public synchronized InputStream getInputStream() throws IOException {
+		if (inputStream == null) {
+			return inputStream;
+		} else {
+			return inputStream = new FileInputStream(multibody.getFile());
+		}
 	}
 
 	public void transferTo(File dest) throws IOException, IllegalStateException {
-		IOUtils.transfer(inputStream, dest);
+		IOUtils.transfer(getInputStream(), dest);
 	}
 
-	public void close() throws IOException {
-		inputStream.close();
+	@Override
+	public Multipart clone() {
+		return new Multipart(multihead.clone(), multibody.clone());
 	}
 
 }
