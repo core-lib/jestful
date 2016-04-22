@@ -10,11 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class BeanConverter implements Converter {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public boolean supports(Class<?> clazz) {
 		return clazz.isInterface() || clazz.isAnnotation() || clazz.isEnum() || clazz.isArray() || Modifier.isAbstract(clazz.getModifiers()) ? false : true;
@@ -38,8 +34,10 @@ public class BeanConverter implements Converter {
 					PropertyDescriptor descriptor = new PropertyDescriptor(property.split("\\.")[0], clazz);
 					Object value = provider.convert(property.split("\\.")[0], descriptor.getPropertyType(), _map);
 					descriptor.getWriteMethod().invoke(bean, value);
+				} catch (ConversionException e) {
+					throw e;
 				} catch (Exception e) {
-					logger.warn("property {} is unfound from class {}", property, clazz);
+					throw new UnknownConversionException(e, name, clazz, map, provider);
 				}
 			}
 		}
@@ -75,8 +73,10 @@ public class BeanConverter implements Converter {
 					}
 					Object value = provider.convert(property.split("\\.")[0], _type, _map);
 					descriptor.getWriteMethod().invoke(bean, value);
+				} catch (ConversionException e) {
+					throw e;
 				} catch (Exception e) {
-					logger.warn("property {} is unfound from class {}", property, clazz);
+					throw new UnknownConversionException(e, name, clazz, map, provider);
 				}
 			}
 		}
