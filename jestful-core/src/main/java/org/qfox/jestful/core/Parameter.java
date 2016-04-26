@@ -36,6 +36,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 	private Object value;
 	private int group;
 	private String regex;
+	private boolean resolved;
 
 	public Parameter(Mapping mapping, Method method, int index) throws IllegalConfigException {
 		super(method.getParameterAnnotations()[index]);
@@ -90,6 +91,14 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 
 	public void setRegex(String regex) {
 		this.regex = regex;
+	}
+
+	public boolean isResolved() {
+		return resolved;
+	}
+
+	public void setResolved(boolean resolved) {
+		this.resolved = resolved;
 	}
 
 	public Mapping getMapping() {

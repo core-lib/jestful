@@ -50,7 +50,7 @@ public class Action {
 
 	private Set<MediaType> consumes;
 	private Set<MediaType> produces;
-
+	
 	private String charset = Charset.defaultCharset().name();
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();

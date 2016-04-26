@@ -49,6 +49,10 @@ public class DefaultResultRender implements Actor, Initialable {
 
 		Object value = action.execute();
 
+		if (result.isRendered()) {
+			return value;
+		}
+
 		Response response = action.getResponse();
 		response.setResponseHeader("Content-Type", mediaType.getName());
 		ResponseSerializer serializer = map.get(mediaType);

@@ -29,14 +29,14 @@ import org.qfox.jestful.server.exception.NotFoundStatusException;
  *
  * @since 1.0.0
  */
-public class TreeMappingRegistry implements MappingRegistry {
+public class JestfulMappingRegistry implements MappingRegistry {
 	private final Node<PathExpression, Mapping> tree;
 
-	public TreeMappingRegistry() {
+	public JestfulMappingRegistry() {
 		this("/");
 	}
 
-	public TreeMappingRegistry(String ctxpath) {
+	public JestfulMappingRegistry(String ctxpath) {
 		ctxpath = ctxpath == null || ctxpath.trim().isEmpty() || ctxpath.trim().equals("/") ? "" : ctxpath.trim();
 		this.tree = new Node<PathExpression, Mapping>(new PathExpression(ctxpath));
 	}

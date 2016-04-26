@@ -27,6 +27,7 @@ public class Result extends Configuration {
 	private final Type type;
 	private final Class<?> klass;
 	private Object value;
+	private boolean rendered;
 
 	public Result(Mapping mapping, Method method) throws IllegalConfigException {
 		super(method.getAnnotations());
@@ -47,6 +48,14 @@ public class Result extends Configuration {
 
 	public void setValue(Object value) {
 		this.value = value;
+	}
+
+	public boolean isRendered() {
+		return rendered;
+	}
+
+	public void setRendered(boolean rendered) {
+		this.rendered = rendered;
 	}
 
 	public Mapping getMapping() {

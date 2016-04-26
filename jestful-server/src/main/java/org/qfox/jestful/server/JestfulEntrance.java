@@ -51,7 +51,7 @@ public class JestfulEntrance implements Filter, Actor {
 	public void init(FilterConfig config) throws ServletException {
 		ServletContext servletContext = config.getServletContext();
 		String ctxpath = servletContext.getContextPath();
-		mappingRegistry = new TreeMappingRegistry(ctxpath);
+		mappingRegistry = new JestfulMappingRegistry(ctxpath);
 		ApplicationContext applicationContext = (ApplicationContext) config.getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		beanContainer = applicationContext.getBean(BeanContainer.class);
 		String name = config.getInitParameter("actor");
