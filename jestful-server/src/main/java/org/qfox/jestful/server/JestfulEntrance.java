@@ -72,7 +72,7 @@ public class JestfulEntrance implements Filter, Actor {
 		String protocol = httpServletRequest.getProtocol().split("/")[0];
 		String version = httpServletRequest.getProtocol().split("/")[1];
 		try {
-			Mapping mapping = mappingRegistry.lookup(command, URI);
+			Mapping mapping = mappingRegistry.lookup(command, URI).clone();
 
 			Action action = new Action(beanContainer, Arrays.asList(actor, this));
 

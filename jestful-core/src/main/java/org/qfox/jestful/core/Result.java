@@ -27,7 +27,7 @@ public class Result extends Configuration {
 	private final Type type;
 	private final Class<?> klass;
 	private Object value;
-	private boolean rendered;
+	private boolean rendered = false;
 
 	public Result(Mapping mapping, Method method) throws IllegalConfigException {
 		super(method.getAnnotations());

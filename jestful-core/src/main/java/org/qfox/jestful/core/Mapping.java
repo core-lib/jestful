@@ -37,7 +37,7 @@ import org.qfox.jestful.core.exception.UndefinedParameterException;
  *
  * @since 1.0.0
  */
-public class Mapping extends Configuration implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping> {
+public class Mapping extends Configuration implements Hierarchical<PathExpression, Mapping>, Comparable<Mapping>, Cloneable {
 	private final Resource resource;
 	private final Object controller;
 	private final Method method;
@@ -166,6 +166,11 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 
 	public int compareTo(Mapping o) {
 		return expression.compareTo(o.expression) != 0 ? expression.compareTo(o.expression) : restful.getMethod().compareTo(o.restful.getMethod());
+	}
+
+	@Override
+	public Mapping clone() {
+		return new Mapping(resource, controller, method, configuration);
 	}
 
 	public Resource getResource() {
