@@ -3,9 +3,9 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean class="org.qfox.jestful.server.JestfulMappingRegistry" />
-	<bean class="org.qfox.jestful.server.jestfulBeanContainer" />
-	<bean class="org.qfox.jestful.server.JestfulConversionProvider" />
+	<bean id="jestfulBeanContainer" class="org.qfox.jestful.server.JestfulBeanContainer" />
+	<bean id="jestfulMappingRegistry" class="org.qfox.jestful.server.JestfulMappingRegistry" />
+	<bean id="jestfulConversionProvider" class="org.qfox.jestful.server.JestfulConversionProvider" />
 
 	<bean id="jestful" class="org.qfox.jestful.core.Group">
 		<property name="members">
