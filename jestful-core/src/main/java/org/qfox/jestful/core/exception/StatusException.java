@@ -1,6 +1,8 @@
 package org.qfox.jestful.core.exception;
 
-import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.Charset;
 
 /**
  * <p>
@@ -49,30 +51,29 @@ public class StatusException extends JestfulException {
 		return message;
 	}
 
-	@Override
-	public void printStackTrace(PrintWriter s) {
-		s.println("<html>");
-		s.println("<head>");
-		s.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\"/>");
-		s.println("<title>Error " + status + " " + message + "</title>");
-		s.println("</head>");
-		s.println("<body><h2>HTTP ERROR " + status + "</h2>");
-		s.println("<p>Problem accessing " + uri + ". Reason:<pre>" + message + "</pre></p>");
-		s.println("<hr />");
-		s.println("<i><small>Powered by Jestful://</small></i>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("<br/>");
-		s.println("</body>");
-		s.println("</html>");
+	public void responseTo(Writer writer) throws IOException {
+		writer.append("<html>");
+		writer.append("<head>");
+		writer.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=" + Charset.defaultCharset().name() + "\"/>");
+		writer.append("<title>Error " + status + " " + message + "</title>");
+		writer.append("</head>");
+		writer.append("<body><h2>HTTP ERROR " + status + "</h2>");
+		writer.append("<p>Problem accessing " + uri + ". Reason:<pre>" + message + "</pre></p>");
+		writer.append("<hr />");
+		writer.append("<i><small>Powered by Jestful://</small></i>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("<br/>");
+		writer.append("</body>");
+		writer.append("</html>");
 	}
 
 }

@@ -1,7 +1,10 @@
 package org.qfox.jestful.server;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -15,6 +18,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -113,6 +117,16 @@ public class JestfulFilterSupport implements Filter, Actor {
 			chain.doFilter(request, response);
 		} catch (StatusException e) {
 			httpServletResponse.setStatus(e.getStatus());
+			OutputStream out = httpServletResponse.getOutputStream();
+			OutputStreamWriter writer = null;
+			try {
+				writer = new OutputStreamWriter(out, Charset.defaultCharset().name());
+				e.responseTo(writer);
+			} catch (IOException ioe) {
+				logger.warn("{}", ioe);
+			} finally {
+				IOUtils.close(writer);
+			}
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
