@@ -45,7 +45,7 @@ import org.springframework.web.context.WebApplicationContext;
  *
  * @since 1.0.0
  */
-public class JestfulEntrance implements Filter, Actor {
+public class JestfulFilterSupport implements Filter, Actor {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private MappingRegistry mappingRegistry;

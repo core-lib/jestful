@@ -22,8 +22,8 @@ public class NotFoundStatusException extends StatusException {
 
 	private final String uri;
 
-	public NotFoundStatusException(String uri) {
-		super(404, "Not Found");
+	public NotFoundStatusException(String uri, String method) {
+		super(uri, method, 404, "Not Found");
 		this.uri = uri;
 	}
 

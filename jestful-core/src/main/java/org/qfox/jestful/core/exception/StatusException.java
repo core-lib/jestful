@@ -1,5 +1,7 @@
 package org.qfox.jestful.core.exception;
 
+import java.io.PrintWriter;
+
 /**
  * <p>
  * Description:
@@ -18,13 +20,25 @@ package org.qfox.jestful.core.exception;
 public class StatusException extends JestfulException {
 	private static final long serialVersionUID = 6260672121780209011L;
 
+	protected final String uri;
+	protected final String method;
 	protected final int status;
 	protected final String message;
 
-	public StatusException(int status, String message) {
+	public StatusException(String uri, String method, int status, String message) {
 		super();
+		this.uri = uri;
+		this.method = method;
 		this.status = status;
 		this.message = message;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public String getMethod() {
+		return method;
 	}
 
 	public int getStatus() {
@@ -33,6 +47,31 @@ public class StatusException extends JestfulException {
 
 	public String getMessage() {
 		return message;
+	}
+
+	@Override
+	public void printStackTrace(PrintWriter s) {
+		s.println("<html>");
+		s.println("<head>");
+		s.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\"/>");
+		s.println("<title>Error " + status + " " + message + "</title>");
+		s.println("</head>");
+		s.println("<body><h2>HTTP ERROR " + status + "</h2>");
+		s.println("<p>Problem accessing " + uri + ". Reason:");
+		s.println("<pre>    " + message + "</pre></p><hr /><i><small>Powered by Jestful:");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("<br/>                                                ");
+		s.println("</body>");
+		s.println("</html>");
 	}
 
 }

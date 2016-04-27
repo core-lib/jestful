@@ -26,8 +26,8 @@ public class NotAcceptableStatusException extends StatusException {
 	private final Set<MediaType> accepts;
 	private final Set<MediaType> produces;
 
-	public NotAcceptableStatusException(Set<MediaType> accepts, Set<MediaType> produces) {
-		super(406, "Not Acceptable");
+	public NotAcceptableStatusException(String uri, String method, Set<MediaType> accepts, Set<MediaType> produces) {
+		super(uri, method, 406, "Not Acceptable");
 		this.accepts = accepts;
 		this.produces = produces;
 	}

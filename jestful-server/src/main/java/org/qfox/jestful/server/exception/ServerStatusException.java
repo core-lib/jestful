@@ -20,8 +20,8 @@ import org.qfox.jestful.core.exception.StatusException;
 public class ServerStatusException extends StatusException {
 	private static final long serialVersionUID = -8338726210762952801L;
 
-	public ServerStatusException(String message) {
-		super(500, message);
+	public ServerStatusException(String uri, String method, String message) {
+		super(uri, method, 500, message);
 	}
 
 }

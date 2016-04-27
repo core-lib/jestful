@@ -46,7 +46,9 @@ public class BodyParameterResolver implements Actor, Initialable {
 			RequestDeserializer deserializer = map.get(mediaType);
 			deserializer.deserialize(action, mediaType, request.getRequestInputStream());
 		} else {
-			throw new UnsupportedTypeException(mediaType, consumes.isEmpty() ? map.keySet() : consumes);
+			String URI = action.getURI();
+			String method = action.getRestful().getMethod();
+			throw new UnsupportedTypeException(URI, method, mediaType, consumes.isEmpty() ? map.keySet() : consumes);
 		}
 		return action.execute();
 	}

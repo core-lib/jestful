@@ -23,23 +23,11 @@ import org.qfox.jestful.core.exception.StatusException;
 public class BadMethodStatusException extends StatusException {
 	private static final long serialVersionUID = 6704304796450151398L;
 
-	private final String method;
-	private final String uri;
 	private final Collection<Mapping> mappings;
 
-	public BadMethodStatusException(String method, String uri, Collection<Mapping> mappings) {
-		super(405, "Method Not Allowed");
-		this.uri = uri;
-		this.method = method;
+	public BadMethodStatusException(String uri, String method, Collection<Mapping> mappings) {
+		super(uri, method, 405, "Method Not Allowed");
 		this.mappings = mappings;
-	}
-
-	public String getMethod() {
-		return method;
-	}
-
-	public String getUri() {
-		return uri;
 	}
 
 	public Collection<Mapping> getMappings() {

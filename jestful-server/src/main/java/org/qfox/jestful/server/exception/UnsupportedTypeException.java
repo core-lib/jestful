@@ -26,8 +26,8 @@ public class UnsupportedTypeException extends StatusException {
 	private final MediaType mediaType;
 	private final Set<MediaType> consumes;
 
-	public UnsupportedTypeException(MediaType mediaType, Set<MediaType> consumes) {
-		super(415, "Unsupported Media Type");
+	public UnsupportedTypeException(String uri, String method, MediaType mediaType, Set<MediaType> consumes) {
+		super(uri, method, 415, "Unsupported Media Type");
 		this.mediaType = mediaType;
 		this.consumes = consumes;
 	}

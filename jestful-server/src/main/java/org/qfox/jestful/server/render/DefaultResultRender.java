@@ -119,7 +119,9 @@ public class DefaultResultRender implements Actor, Initialable {
 			}
 		}
 		if (mediaType == null) {
-			throw new NotAcceptableStatusException(accepts, produces.isEmpty() ? map.keySet() : produces);
+			String URI = action.getURI();
+			String method = action.getRestful().getMethod();
+			throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? map.keySet() : produces);
 		}
 		return mediaType;
 	}
