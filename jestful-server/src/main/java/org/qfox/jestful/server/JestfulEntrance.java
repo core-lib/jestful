@@ -25,6 +25,8 @@ import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -44,6 +46,8 @@ import org.springframework.web.context.WebApplicationContext;
  * @since 1.0.0
  */
 public class JestfulEntrance implements Filter, Actor {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	private MappingRegistry mappingRegistry;
 	private BeanContainer beanContainer;
 	private Actor actor;
@@ -51,15 +55,26 @@ public class JestfulEntrance implements Filter, Actor {
 	public void init(FilterConfig config) throws ServletException {
 		ServletContext servletContext = config.getServletContext();
 		ApplicationContext applicationContext = (ApplicationContext) servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-		beanContainer = applicationContext.getBean(BeanContainer.class);
-		mappingRegistry = applicationContext.getBean(MappingRegistry.class);
-		String name = config.getInitParameter("actor");
-		name = name == null || name.isEmpty() ? "jestful" : name;
-		actor = beanContainer.get(name, Actor.class);
+		{
+			String name = config.getInitParameter("beanContainer");
+			name = name == null || name.isEmpty() ? "jestfulBeanContainer" : name;
+			beanContainer = applicationContext.getBean(name, BeanContainer.class);
+		}
+		{
+			String name = config.getInitParameter("mappingRegistry");
+			name = name == null || name.isEmpty() ? "jestfulMappingRegistry" : name;
+			mappingRegistry = applicationContext.getBean(name, MappingRegistry.class);
+		}
+		{
+			String name = config.getInitParameter("actor");
+			name = name == null || name.isEmpty() ? "jestful" : name;
+			actor = beanContainer.get(name, Actor.class);
+		}
 		Collection<?> controllers = beanContainer.with(Jestful.class).values();
 		for (Object controller : controllers) {
 			mappingRegistry.register(controller);
 		}
+		logger.info("\r\n{}", mappingRegistry);
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
