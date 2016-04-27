@@ -25,6 +25,11 @@
 			<artifactId>jestful-core</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.core-lib</groupId>
+			<artifactId>detector</artifactId>
+			<version>1.0.2</version>
+		</dependency>
 	</dependencies>
 
 </project>

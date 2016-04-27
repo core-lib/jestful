@@ -1,4 +1,4 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.client;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 
 /**
  * <p>
- * Description: 与Spring集成的bean容器
+ * Description:
  * </p>
  * 
  * <p>
@@ -32,11 +32,11 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月20日 下午12:22:17
+ * @date 2016年4月27日 下午9:46:56
  *
  * @since 1.0.0
  */
-public class JestfulBeanContainer implements BeanContainer, BeanPostProcessor, BeanFactoryAware {
+public class DefaultBeanContainer implements BeanContainer, BeanPostProcessor, BeanFactoryAware {
 	private ListableBeanFactory listableBeanFactory;
 
 	public Enumeration<Bean> enumeration() {

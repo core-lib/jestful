@@ -5,9 +5,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
@@ -34,28 +34,32 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
 public class Resource extends Configuration implements Hierarchical<PathExpression, Mapping> {
 	private final Object controller;
 	private final String expression;
-	private final Set<Mapping> mappings = new HashSet<Mapping>();
+	private final Map<Method, Mapping> mappings = new HashMap<Method, Mapping>();
 
 	public Resource(Object controller) throws IllegalConfigException {
-		super(controller.getClass().getAnnotations());
+		this(controller, controller.getClass());
+	}
+
+	public Resource(Object controller, Class<?> klass) throws IllegalConfigException {
+		super(klass.getAnnotations());
 		this.controller = controller;
 		Jestful jestful = this.getAnnotation(Jestful.class);
 		if (jestful == null) {
-			throw new IllegalConfigException(controller.getClass() + " is not a resource controller because it did not annatated @" + Jestful.class.getSimpleName(), controller);
+			throw new IllegalConfigException(klass + " is not a resource controller because it did not annatated @" + Jestful.class.getSimpleName(), controller);
 		}
 		this.expression = ("/" + jestful.value() + "/").replaceAll("\\/+", "/");
-		Method[] methods = controller.getClass().getMethods();
+		Method[] methods = klass.getMethods();
 		for (Method method : methods) {
 			if (method.isSynthetic()) {
 				continue;
 			}
 			Method configuration = null;
-			if ((configuration = getRestfulMethodFromClasses(method, controller.getClass())) != null) {
-				this.mappings.add(new Mapping(this, controller, method, configuration));
+			if ((configuration = getRestfulMethodFromClasses(method, klass)) != null) {
+				this.mappings.put(method, new Mapping(this, controller, method, configuration));
 				continue;
 			}
-			if ((configuration = getRestfulMethodFromInterfaces(method, controller.getClass())) != null) {
-				this.mappings.add(new Mapping(this, controller, method, configuration));
+			if ((configuration = getRestfulMethodFromInterfaces(method, klass)) != null) {
+				this.mappings.put(method, new Mapping(this, controller, method, configuration));
 				continue;
 			}
 		}
@@ -145,7 +149,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 		if (result == null) {
 			result = parent = new Node<PathExpression, Mapping>(new PathExpression());
 		}
-		for (Mapping mapping : mappings) {
+		for (Mapping mapping : mappings.values()) {
 			Node<PathExpression, Mapping> node = mapping.toNode();
 			parent.merge(node);
 		}
@@ -156,8 +160,12 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 		return controller;
 	}
 
-	public String getPath() {
+	public String getExpression() {
 		return expression;
+	}
+
+	public Map<Method, Mapping> getMappings() {
+		return mappings;
 	}
 
 	@Override

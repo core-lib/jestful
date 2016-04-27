@@ -21,7 +21,7 @@ import java.io.OutputStream;
  */
 public interface Response {
 
-	String[] getResponseHeaders();
+	String[] getHeaderKeys();
 
 	String getResponseHeader(String name);
 
