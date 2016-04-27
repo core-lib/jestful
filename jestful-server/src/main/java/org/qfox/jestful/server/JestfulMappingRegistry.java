@@ -57,7 +57,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
 		if (mappings.isEmpty()) {
 			throw new NotFoundStatusException(URI, method);
 		} else {
-			throw new BadMethodStatusException(method, URI, mappings);
+			throw new BadMethodStatusException(URI, method, mappings);
 		}
 	}
 
