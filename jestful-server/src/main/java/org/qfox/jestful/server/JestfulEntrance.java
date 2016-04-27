@@ -74,7 +74,7 @@ public class JestfulEntrance implements Filter, Actor {
 		for (Object controller : controllers) {
 			mappingRegistry.register(controller);
 		}
-		logger.info("\r\n{}", mappingRegistry);
+		logger.info("resource mapping tree\r\n{}", mappingRegistry);
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
