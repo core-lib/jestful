@@ -125,6 +125,8 @@ public class JestfulServletSupport implements Servlet, Actor {
 			try {
 				writer = new OutputStreamWriter(out, Charset.defaultCharset().name());
 				e.responseTo(writer);
+				writer.flush();
+				out.flush();
 			} catch (IOException ioe) {
 				logger.warn("{}", ioe);
 			} finally {
