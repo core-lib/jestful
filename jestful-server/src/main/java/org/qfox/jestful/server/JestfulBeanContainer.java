@@ -36,7 +36,7 @@ import org.springframework.context.ApplicationContextAware;
  *
  * @since 1.0.0
  */
-public class SpringBeanContainer implements BeanContainer, BeanPostProcessor, ApplicationContextAware {
+public class JestfulBeanContainer implements BeanContainer, BeanPostProcessor, ApplicationContextAware {
 	private ListableBeanFactory listableBeanFactory;
 
 	public Enumeration<Bean> enumeration() {

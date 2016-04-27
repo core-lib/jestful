@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.servlet.ServletContext;
+
 import org.qfox.jestful.commons.tree.AlreadyValuedException;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.exception.DuplicateMappingException;
@@ -29,14 +33,12 @@ import org.qfox.jestful.server.exception.NotFoundStatusException;
  *
  * @since 1.0.0
  */
-public class JestfulMappingRegistry implements MappingRegistry {
-	private final Node<PathExpression, Mapping> tree;
+public class JestfulMappingRegistry implements MappingRegistry, Initialable {
+	private Node<PathExpression, Mapping> tree;
 
-	public JestfulMappingRegistry() {
-		this("/");
-	}
-
-	public JestfulMappingRegistry(String ctxpath) {
+	public void initialize(BeanContainer beanContainer) {
+		ServletContext servletContext = beanContainer.get(ServletContext.class);
+		String ctxpath = servletContext.getContextPath();
 		ctxpath = ctxpath == null || ctxpath.trim().isEmpty() || ctxpath.trim().equals("/") ? "" : ctxpath.trim();
 		this.tree = new Node<PathExpression, Mapping>(new PathExpression(ctxpath));
 	}
@@ -85,10 +87,6 @@ public class JestfulMappingRegistry implements MappingRegistry {
 			resources.add(resource);
 		}
 		return resources;
-	}
-
-	public Node<PathExpression, Mapping> getTree() {
-		return tree;
 	}
 
 	@Override
