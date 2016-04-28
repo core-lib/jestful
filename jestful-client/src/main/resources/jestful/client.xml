@@ -2,6 +2,18 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
-
+	
+	<bean id="defaultBeanContainer" class="org.qfox.jestful.client.DefaultBeanContainer" />
+	
+	<bean id="client" class="org.qfox.jestful.core.Group">
+		<property name="members">
+			<list>
+				<bean class="org.qfox.jestful.client.PathParameterProcessor" />
+				<bean class="org.qfox.jestful.client.QueriesAnnotationHandler" />
+				<bean class="org.qfox.jestful.client.QueryParameterProcessor" />
+				<bean class="org.qfox.jestful.client.HttpURLConnectionBuilder" />
+			</list>
+		</property>
+	</bean>
+	
 </beans>
-

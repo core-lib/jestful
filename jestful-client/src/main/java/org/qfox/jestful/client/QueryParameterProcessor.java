@@ -1,10 +1,9 @@
-package org.qfox.jestful.server.resolver;
+package org.qfox.jestful.client;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
@@ -26,35 +25,39 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月7日 下午8:36:13
+ * @date 2016年4月28日 下午5:49:14
  *
  * @since 1.0.0
  */
-public class PathParameterResolver implements Actor, Initialable {
+public class QueryParameterProcessor implements Actor, Initialable {
 	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
 
 	public Object react(Action action) throws Exception {
-		String URI = action.getURI();
+		String query = action.getQuery();
+		query = query != null ? query : "";
+		String charset = action.getCharset();
 		Parameter[] parameters = action.getParameters();
-		Pattern pattern = action.getPattern();
-		Matcher matcher = pattern.matcher(URI);
-		matcher.find();
-		flag: for (int i = 0; i < parameters.length; i++) {
-			Parameter parameter = parameters[i];
-			int group = parameter.getGroup();
-			if (parameter.getPosition() != Position.PATH || group <= 0) {
+		flag: for (Parameter parameter : parameters) {
+			if (parameter.getPosition() != Position.QUERY) {
 				continue;
 			}
-			String source = matcher.group(group);
 			for (StringConverter<?> converter : converters) {
-				if (converter.support(parameter)) {
-					Object value = converter.convert(parameter, source);
-					parameter.setValue(value);
-					continue flag;
+				if (converter.support(parameter) == false) {
+					continue;
 				}
+				@SuppressWarnings("unchecked")
+				String value = ((StringConverter<Object>) converter).convert(parameter, parameter.getValue());
+				String regex = parameter.getRegex();
+				if (regex != null && value.matches(regex) == false) {
+					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
+				}
+				String name = parameter.getName();
+				query += (query.isEmpty() ? "" : "&") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
+				continue flag;
 			}
 			throw new NoSuchConverterException(parameter);
 		}
+		action.setQuery(query == null || query.isEmpty() ? null : query);
 		return action.execute();
 	}
 

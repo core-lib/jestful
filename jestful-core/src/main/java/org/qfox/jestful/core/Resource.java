@@ -47,7 +47,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 		if (jestful == null) {
 			throw new IllegalConfigException(klass + " is not a resource controller because it did not annatated @" + Jestful.class.getSimpleName(), controller);
 		}
-		this.expression = ("/" + jestful.value() + "/").replaceAll("\\/+", "/");
+		this.expression = ("/" + jestful.value()).replaceAll("\\/+", "/");
 		Method[] methods = klass.getMethods();
 		for (Method method : methods) {
 			if (method.isSynthetic()) {

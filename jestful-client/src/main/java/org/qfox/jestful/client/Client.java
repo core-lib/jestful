@@ -1,19 +1,13 @@
 package org.qfox.jestful.client;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.qfox.detector.DefaultResourceDetector;
-import org.qfox.detector.ResourceDetector;
-import org.qfox.detector.ResourceFilter;
-import org.qfox.detector.ResourceFilterChain;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -22,7 +16,6 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Resource;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.core.io.InputStreamResource;
 
 /**
  * <p>
@@ -39,40 +32,32 @@ import org.springframework.core.io.InputStreamResource;
  *
  * @since 1.0.0
  */
-public class Client implements InvocationHandler, Actor, ResourceFilter {
+public class Client implements InvocationHandler, Actor {
 	private final String protocol;
 	private final String host;
-	private final int port;
+	private final Integer port;
 	private final String route;
 	private final ClassLoader classLoader;
-	private final Map<Class<?>, Resource> resources = new HashMap<Class<?>, Resource>();
+	private final Map<Class<?>, Resource> resources;
+	private final String[] configLocations;
 	private final BeanContainer beanContainer;
 	private final Actor actor;
 
-	private Client(String protocol, String host, int port, String route, ClassLoader classLoader, String beanContainer, String actor) {
+	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String[] configLocations, String beanContainer, String actor) {
 		super();
 		this.protocol = protocol;
 		this.host = host;
 		this.port = port;
 		this.route = route;
 		this.classLoader = classLoader;
-		try {
-			ResourceDetector detector = DefaultResourceDetector.Builder.scan("/jestful").build();
-			Collection<org.qfox.detector.Resource> resources = detector.detect(this);
-			DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
-			XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
-			for (org.qfox.detector.Resource resource : resources) {
-				reader.loadBeanDefinitions(new InputStreamResource(resource.getInputStream()));
-			}
-			this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
-			this.actor = defaultListableBeanFactory.getBean(actor, Actor.class);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public boolean accept(org.qfox.detector.Resource resource, ResourceFilterChain chain) {
-		return resource.getName().endsWith(".xml");
+		this.resources = new HashMap<Class<?>, Resource>();
+		this.configLocations = configLocations;
+		DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
+		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
+		reader.setBeanClassLoader(classLoader);
+		reader.loadBeanDefinitions(configLocations);
+		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
+		this.actor = defaultListableBeanFactory.getBean(actor, Actor.class);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -83,16 +68,25 @@ public class Client implements InvocationHandler, Actor, ResourceFilter {
 		action.setResource(resource);
 		action.setMapping(mapping);
 		Parameter[] parameters = mapping.getParameters();
-		for (int i = 0; i < args.length; i++) {
+		for (int i = 0; args != null && i < args.length; i++) {
 			parameters[i].setValue(args[i]);
 		}
 		action.setParameters(parameters);
 		action.setResult(mapping.getResult());
+
+		action.setRestful(mapping.getRestful());
+		action.setProtocol(protocol);
+		action.setHost(host);
+		action.setPort(port);
+		action.setRoute(route);
+
+		action.setConsumes(mapping.getConsumes());
+		action.setProduces(mapping.getProduces());
+
 		return action.execute();
 	}
 
 	public Object react(Action action) throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -110,14 +104,15 @@ public class Client implements InvocationHandler, Actor, ResourceFilter {
 	public static class Builder {
 		private String protocol = "http";
 		private String host = "localhost";
-		private int port;
+		private Integer port;
 		private String route;
 		private ClassLoader classLoader = this.getClass().getClassLoader();
 		private String beanContainer = "defaultBeanContainer";
 		private String actor = "client";
+		private String[] configLocations = new String[] { "classpath*:/jestful/*.xml" };
 
 		public Client build() {
-			return new Client(protocol, host, port, route, classLoader, beanContainer, actor);
+			return new Client(protocol, host, port, route, classLoader, configLocations, beanContainer, actor);
 		}
 
 		public Builder setEndpoint(URL endpoint) {
@@ -126,7 +121,7 @@ public class Client implements InvocationHandler, Actor, ResourceFilter {
 			}
 			setProtocol(endpoint.getProtocol());
 			setHost(endpoint.getHost());
-			setPort(endpoint.getPort() != -1 ? endpoint.getPort() : 0);
+			setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
 			setRoute(endpoint.getFile());
 			return this;
 		}
@@ -147,8 +142,8 @@ public class Client implements InvocationHandler, Actor, ResourceFilter {
 			return this;
 		}
 
-		public Builder setPort(int port) {
-			if (port < 0 || port > 65535) {
+		public Builder setPort(Integer port) {
+			if (port != null && (port < 0 || port > 65535)) {
 				throw new IllegalArgumentException("port " + port + " out of bounds [0, 65535]");
 			}
 			this.port = port;
@@ -171,18 +166,28 @@ public class Client implements InvocationHandler, Actor, ResourceFilter {
 			return this;
 		}
 
-		public void setBeanContainer(String beanContainer) {
+		public Builder setBeanContainer(String beanContainer) {
 			if (beanContainer == null) {
 				throw new IllegalArgumentException("bean container is null");
 			}
 			this.beanContainer = beanContainer;
+			return this;
 		}
 
-		public void setActor(String actor) {
+		public Builder setActor(String actor) {
 			if (actor == null) {
 				throw new IllegalArgumentException("actor is null");
 			}
 			this.actor = actor;
+			return this;
+		}
+
+		public Builder setConfigLocations(String[] configLocations) {
+			if (configLocations == null || configLocations.length == 0) {
+				throw new IllegalArgumentException("config locations is null or empty");
+			}
+			this.configLocations = configLocations;
+			return this;
 		}
 
 	}
@@ -195,7 +200,7 @@ public class Client implements InvocationHandler, Actor, ResourceFilter {
 		return host;
 	}
 
-	public int getPort() {
+	public Integer getPort() {
 		return port;
 	}
 
@@ -203,9 +208,29 @@ public class Client implements InvocationHandler, Actor, ResourceFilter {
 		return route;
 	}
 
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	public Map<Class<?>, Resource> getResources() {
+		return resources;
+	}
+
+	public String[] getConfigLocations() {
+		return configLocations;
+	}
+
+	public BeanContainer getBeanContainer() {
+		return beanContainer;
+	}
+
+	public Actor getActor() {
+		return actor;
+	}
+
 	@Override
 	public String toString() {
-		return protocol + "://" + host + (port > 0 ? port : "") + (route != null ? route : "");
+		return protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
 	}
 
 }

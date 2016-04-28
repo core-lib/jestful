@@ -20,6 +20,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 /**
  * <p>
@@ -102,6 +103,10 @@ public class DefaultBeanContainer implements BeanContainer, BeanPostProcessor, B
 	}
 
 	public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+		if (beanFactory instanceof ConfigurableBeanFactory) {
+			ConfigurableBeanFactory configurableBeanFactory = (ConfigurableBeanFactory) beanFactory;
+			configurableBeanFactory.addBeanPostProcessor(this);
+		}
 		this.listableBeanFactory = (ListableBeanFactory) beanFactory;
 	}
 

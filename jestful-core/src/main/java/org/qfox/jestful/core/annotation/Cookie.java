@@ -28,7 +28,7 @@ import org.qfox.jestful.core.Position;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
 @Variable(position = Position.COOKIE)
-public @interface Cooky {
+public @interface Cookie {
 
 	/**
 	 * cookie 名称, 通常情况下不区分大小写!

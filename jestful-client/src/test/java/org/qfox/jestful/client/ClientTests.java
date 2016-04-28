@@ -21,7 +21,7 @@ public class ClientTests {
 
 	@Test
 	public void testCreate() {
-		Client.builder().build().create(ProductController.class).index();
+		Client.builder().build().create(ProductController.class).index(1, 2, "eee", 231L);
 	}
 
 }

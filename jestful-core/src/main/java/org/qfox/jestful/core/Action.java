@@ -44,13 +44,16 @@ public class Action {
 	private String query;
 	private String protocol;
 	private String version;
+	private String host;
+	private Integer port;
+	private String route;
 
 	private Request request;
 	private Response response;
 
 	private Set<MediaType> consumes;
 	private Set<MediaType> produces;
-	
+
 	private String charset = Charset.defaultCharset().name();
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
@@ -177,6 +180,30 @@ public class Action {
 
 	public void setVersion(String version) {
 		this.version = version;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public Integer getPort() {
+		return port;
+	}
+
+	public void setPort(Integer port) {
+		this.port = port;
+	}
+
+	public String getRoute() {
+		return route;
+	}
+
+	public void setRoute(String route) {
+		this.route = route;
 	}
 
 	public Request getRequest() {
