@@ -11,6 +11,7 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
@@ -54,7 +55,7 @@ public class QueryParameterResolver implements Actor, Initialable {
 			values[values.length - 1] = value;
 			map.put(key, values);
 		}
-		Parameter[] parameters = action.getParameters();
+		Parameters parameters = action.getParameters();
 		for (Parameter parameter : parameters) {
 			if (parameter.getPosition() != Position.QUERY || parameter.getValue() != null) {
 				continue;

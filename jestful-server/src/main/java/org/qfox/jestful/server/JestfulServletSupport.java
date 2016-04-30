@@ -23,7 +23,7 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Destroyable;
 import org.qfox.jestful.core.Mapping;
-import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
@@ -101,7 +101,7 @@ public class JestfulServletSupport implements Servlet, Actor {
 
 			action.setResource(mapping.getResource());
 			action.setMapping(mapping);
-			action.setParameters(mapping.getParameters());
+			action.setParameters(new Parameters(mapping.getParameters()));
 			action.setResult(mapping.getResult());
 			action.setPattern(mapping.getPattern());
 
@@ -141,11 +141,8 @@ public class JestfulServletSupport implements Servlet, Actor {
 		Result result = action.getResult();
 		Object controller = action.getResource().getController();
 		Method method = action.getMapping().getMethod();
-		Parameter[] parameters = action.getParameters();
-		Object[] arguments = new Object[parameters.length];
-		for (int i = 0; i < parameters.length; i++) {
-			arguments[i] = parameters[i].getValue();
-		}
+		Parameters parameters = action.getParameters();
+		Object[] arguments = parameters.arguments();
 		Object value = method.invoke(controller, arguments);
 		result.setValue(value);
 		return value;

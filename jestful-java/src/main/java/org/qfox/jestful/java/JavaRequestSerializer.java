@@ -10,6 +10,7 @@ import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestSerializer;
 
@@ -39,7 +40,7 @@ public class JavaRequestSerializer implements RequestSerializer {
 	}
 
 	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
-		Parameter[] parameters = action.getParameters();
+		Parameters parameters = action.getParameters();
 		for (Parameter parameter : parameters) {
 			if (parameter.getPosition() != Position.BODY) {
 				continue;

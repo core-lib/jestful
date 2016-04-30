@@ -11,6 +11,7 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.annotation.Variable;
 import org.qfox.jestful.server.obtainer.Obtainer;
 
@@ -33,7 +34,7 @@ public class ExtraParameterResolver implements Actor, Initialable {
 	private final List<Obtainer> obtainers = new ArrayList<Obtainer>();
 
 	public Object react(Action action) throws Exception {
-		Parameter[] parameters = action.getParameters();
+		Parameters parameters = action.getParameters();
 		for (Parameter parameter : parameters) {
 			Annotation variable = parameter.getAnnotationWith(Variable.class);
 			if (variable != null) {

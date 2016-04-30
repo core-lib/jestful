@@ -16,6 +16,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.server.converter.ConversionException;
@@ -68,7 +69,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 					map.put(key, values);
 				}
 			}
-			Parameter[] parameters = action.getParameters();
+			Parameters parameters = action.getParameters();
 			for (Parameter parameter : parameters) {
 				if (parameter.getPosition() != Position.BODY || parameter.getValue() != null) {
 					continue;

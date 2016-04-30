@@ -35,7 +35,7 @@ public class Action {
 
 	private Resource resource;
 	private Mapping mapping;
-	private Parameter[] parameters;
+	private Parameters parameters;
 	private Result result;
 	private Pattern pattern;
 
@@ -118,11 +118,11 @@ public class Action {
 		this.mapping = mapping;
 	}
 
-	public Parameter[] getParameters() {
+	public Parameters getParameters() {
 		return parameters;
 	}
 
-	public void setParameters(Parameter[] parameters) {
+	public void setParameters(Parameters parameters) {
 		this.parameters = parameters;
 	}
 

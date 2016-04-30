@@ -10,6 +10,7 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
@@ -36,7 +37,7 @@ public class QueryParameterProcessor implements Actor, Initialable {
 		String query = action.getQuery();
 		query = query != null ? query : "";
 		String charset = action.getCharset();
-		Parameter[] parameters = action.getParameters();
+		Parameters parameters = action.getParameters();
 		flag: for (Parameter parameter : parameters) {
 			if (parameter.getPosition() != Position.QUERY) {
 				continue;

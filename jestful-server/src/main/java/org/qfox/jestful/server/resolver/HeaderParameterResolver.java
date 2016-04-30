@@ -10,6 +10,7 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.server.converter.ConversionException;
@@ -47,7 +48,7 @@ public class HeaderParameterResolver implements Actor, Initialable {
 			}
 			map.put(key, values);
 		}
-		Parameter[] parameters = action.getParameters();
+		Parameters parameters = action.getParameters();
 		for (Parameter parameter : parameters) {
 			if (parameter.getPosition() != Position.HEADER || parameter.getValue() != null) {
 				continue;

@@ -12,7 +12,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Mapping;
-import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Resource;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -67,10 +67,8 @@ public class Client implements InvocationHandler, Actor {
 		Action action = new Action(beanContainer, Arrays.asList(actor, this));
 		action.setResource(resource);
 		action.setMapping(mapping);
-		Parameter[] parameters = mapping.getParameters();
-		for (int i = 0; args != null && i < args.length; i++) {
-			parameters[i].setValue(args[i]);
-		}
+		Parameters parameters = new Parameters(mapping.getParameters());
+		parameters.arguments(args != null ? args : new Object[0]);
 		action.setParameters(parameters);
 		action.setResult(mapping.getResult());
 
