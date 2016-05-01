@@ -1,7 +1,5 @@
 package org.qfox.jestful.server.exception;
 
-import java.util.Set;
-
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.exception.StatusException;
 
@@ -24,9 +22,9 @@ public class UnsupportedTypeException extends StatusException {
 	private static final long serialVersionUID = 5552964842892180698L;
 
 	private final MediaType mediaType;
-	private final Set<MediaType> consumes;
+	private final Iterable<MediaType> consumes;
 
-	public UnsupportedTypeException(String uri, String method, MediaType mediaType, Set<MediaType> consumes) {
+	public UnsupportedTypeException(String uri, String method, MediaType mediaType, Iterable<MediaType> consumes) {
 		super(uri, method, 415, "Unsupported Media Type");
 		this.mediaType = mediaType;
 		this.consumes = consumes;
@@ -36,7 +34,7 @@ public class UnsupportedTypeException extends StatusException {
 		return mediaType;
 	}
 
-	public Set<MediaType> getConsumes() {
+	public Iterable<MediaType> getConsumes() {
 		return consumes;
 	}
 

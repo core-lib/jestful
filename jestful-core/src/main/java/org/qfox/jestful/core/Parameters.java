@@ -21,35 +21,35 @@ import java.util.List;
  * @since 1.0.0
  */
 public class Parameters implements Iterable<Parameter> {
-	private final List<Parameter> elements;
+	private final List<Parameter> parameters;
 
-	public Parameters(Parameter[] elements) {
+	public Parameters(Parameter[] parameters) {
 		super();
-		this.elements = Arrays.asList(elements);
+		this.parameters = Arrays.asList(parameters);
 	}
 
 	public int size() {
-		return elements.size();
+		return parameters.size();
 	}
 
 	public Parameter get(int index) {
-		return elements.get(index);
+		return parameters.get(index);
 	}
 
 	public List<Parameter> all(Position position) {
-		List<Parameter> parameters = new ArrayList<Parameter>();
-		for (Parameter element : elements) {
-			if (element.getPosition() == position) {
-				parameters.add(element);
+		List<Parameter> all = new ArrayList<Parameter>();
+		for (Parameter parameter : parameters) {
+			if (parameter.getPosition() == position) {
+				all.add(parameter);
 			}
 		}
-		return parameters;
+		return all;
 	}
 
 	public Object[] arguments() {
 		Object[] arguments = new Object[size()];
 		for (int i = 0; i < size(); i++) {
-			arguments[i] = elements.get(i).getValue();
+			arguments[i] = parameters.get(i).getValue();
 		}
 		return arguments;
 	}
@@ -59,7 +59,7 @@ public class Parameters implements Iterable<Parameter> {
 			throw new IllegalArgumentException("Unexpected array length " + arguments.length);
 		}
 		for (int i = 0; i < size(); i++) {
-			elements.get(i).setValue(arguments[i]);
+			parameters.get(i).setValue(arguments[i]);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class Parameters implements Iterable<Parameter> {
 	}
 
 	public Iterator<Parameter> iterator() {
-		return elements.iterator();
+		return parameters.iterator();
 	}
 
 }

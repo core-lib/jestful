@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -78,8 +79,8 @@ public class Client implements InvocationHandler, Actor {
 		action.setPort(port);
 		action.setRoute(route);
 
-		action.setConsumes(mapping.getConsumes());
-		action.setProduces(mapping.getProduces());
+		action.setConsumes(new Accepts(mapping.getConsumes()));
+		action.setProduces(new Accepts(mapping.getProduces()));
 
 		return action.execute();
 	}

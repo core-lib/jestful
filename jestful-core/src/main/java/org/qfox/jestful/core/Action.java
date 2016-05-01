@@ -7,10 +7,8 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
 
 /**
@@ -51,8 +49,8 @@ public class Action {
 	private Request request;
 	private Response response;
 
-	private Set<MediaType> consumes;
-	private Set<MediaType> produces;
+	private Accepts consumes;
+	private Accepts produces;
 
 	private String charset = Charset.defaultCharset().name();
 
@@ -222,19 +220,19 @@ public class Action {
 		this.response = response;
 	}
 
-	public Set<MediaType> getConsumes() {
+	public Accepts getConsumes() {
 		return consumes;
 	}
 
-	public void setConsumes(Set<MediaType> consumes) {
+	public void setConsumes(Accepts consumes) {
 		this.consumes = consumes;
 	}
 
-	public Set<MediaType> getProduces() {
+	public Accepts getProduces() {
 		return produces;
 	}
 
-	public void setProduces(Set<MediaType> produces) {
+	public void setProduces(Accepts produces) {
 		this.produces = produces;
 	}
 

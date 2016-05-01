@@ -7,10 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.io.MultipartOutputStream;
+import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -47,7 +47,7 @@ public class BodyParameterProcessor implements Actor, Initialable {
 				bodies.add(parameter);
 			}
 		}
-		Set<MediaType> consumes = action.getConsumes();
+		Accepts consumes = action.getConsumes();
 		Request request = action.getRequest();
 		OutputStream outputStream = request.getRequestOutputStream();
 		if (bodies.size() > 1) {

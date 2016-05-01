@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.qfox.jestful.commons.io.IOUtils;
+import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -114,8 +115,8 @@ public class JestfulServletSupport implements Servlet, Actor {
 			action.setRequest(new JestfulServletRequest(httpServletRequest));
 			action.setResponse(new JestfulServletResponse(httpServletResponse));
 
-			action.setConsumes(mapping.getConsumes());
-			action.setProduces(mapping.getProduces());
+			action.setConsumes(new Accepts(mapping.getConsumes()));
+			action.setProduces(new Accepts(mapping.getProduces()));
 
 			action.execute();
 		} catch (StatusException e) {

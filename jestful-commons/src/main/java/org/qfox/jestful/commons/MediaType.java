@@ -43,6 +43,36 @@ public class MediaType implements Comparable<MediaType> {
 	}
 
 	/**
+	 * judge this media type is matches the specified content type, such as
+	 * {@link MediaType} {@code application/json} matches content type
+	 * {@link application/json} {@link application/*} matches
+	 * {@code application/json}
+	 * 
+	 * @param contentType
+	 *            the content type
+	 * @return
+	 */
+	public boolean matches(String contentType) {
+		return matches(MediaType.valueOf(contentType));
+	}
+
+	public boolean matches(MediaType mediaType) {
+		if (this.equals(mediaType)) {
+			return true;
+		}
+		if (this.type.equalsIgnoreCase(mediaType.type) && this.isWildcardSubtype()) {
+			return true;
+		}
+		if (this.subtype.equalsIgnoreCase(mediaType.subtype) && this.isWildcardType()) {
+			return true;
+		}
+		if (this.isWildcardType() && this.isWildcardSubtype()) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * convert Content-Type from {@link String} to {@link MediaType}
 	 * 
 	 * @param mediaType
@@ -93,6 +123,14 @@ public class MediaType implements Comparable<MediaType> {
 
 	public float getWeight() {
 		return weight;
+	}
+
+	public boolean isWildcardType() {
+		return "*".equals(type);
+	}
+
+	public boolean isWildcardSubtype() {
+		return "*".equals(subtype);
 	}
 
 	public int compareTo(MediaType o) {

@@ -29,8 +29,46 @@ public class Accepts implements Iterable<MediaType> {
 		this.mediaTypes = Collections.unmodifiableSet(mediaTypes);
 	}
 
+	public int size() {
+		return mediaTypes.size();
+	}
+
+	public boolean contains(String contentType) {
+		for (MediaType mediaType : mediaTypes) {
+			if (mediaType.matches(contentType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean contains(MediaType mediaType) {
+		for (MediaType type : mediaTypes) {
+			if (type.matches(mediaType)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean isEmpty() {
+		return size() == 0;
+	}
+
 	public Iterator<MediaType> iterator() {
 		return mediaTypes.iterator();
+	}
+
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		Iterator<MediaType> iterator = iterator();
+		while (iterator.hasNext()) {
+			builder.append(iterator.next().toString());
+			if (iterator.hasNext()) {
+				builder.append(",");
+			}
+		}
+		return builder.toString();
 	}
 
 }

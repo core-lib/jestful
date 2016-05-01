@@ -1,7 +1,5 @@
 package org.qfox.jestful.server.exception;
 
-import java.util.Set;
-
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.exception.StatusException;
 
@@ -23,20 +21,20 @@ import org.qfox.jestful.core.exception.StatusException;
 public class NotAcceptableStatusException extends StatusException {
 	private static final long serialVersionUID = -3926715913399376714L;
 
-	private final Set<MediaType> accepts;
-	private final Set<MediaType> produces;
+	private final Iterable<MediaType> accepts;
+	private final Iterable<MediaType> produces;
 
-	public NotAcceptableStatusException(String uri, String method, Set<MediaType> accepts, Set<MediaType> produces) {
+	public NotAcceptableStatusException(String uri, String method, Iterable<MediaType> accepts, Iterable<MediaType> produces) {
 		super(uri, method, 406, "Not Acceptable");
 		this.accepts = accepts;
 		this.produces = produces;
 	}
 
-	public Set<MediaType> getAccepts() {
+	public Iterable<MediaType> getAccepts() {
 		return accepts;
 	}
 
-	public Set<MediaType> getProduces() {
+	public Iterable<MediaType> getProduces() {
 		return produces;
 	}
 

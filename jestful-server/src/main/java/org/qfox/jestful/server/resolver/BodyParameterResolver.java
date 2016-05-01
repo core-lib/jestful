@@ -3,9 +3,9 @@ package org.qfox.jestful.server.resolver;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -41,7 +41,7 @@ public class BodyParameterResolver implements Actor, Initialable {
 		Request request = action.getRequest();
 		String contentType = request.getRequestHeader("Content-Type");
 		MediaType mediaType = MediaType.valueOf(contentType);
-		Set<MediaType> consumes = action.getConsumes();
+		Accepts consumes = action.getConsumes();
 		if (map.containsKey(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
 			RequestDeserializer deserializer = map.get(mediaType);
 			deserializer.deserialize(action, mediaType, request.getRequestInputStream());

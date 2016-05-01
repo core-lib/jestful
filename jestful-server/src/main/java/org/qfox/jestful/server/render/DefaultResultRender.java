@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -19,10 +20,7 @@ import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 
-/**
- * <p>
- * Description:
- * </p>
+/* </p>
  * 
  * <p>
  * Company: 广州市俏狐信息科技有限公司
@@ -71,7 +69,7 @@ public class DefaultResultRender implements Actor, Initialable {
 			accepts.add(mediaType);
 		}
 
-		Set<MediaType> produces = action.getProduces();
+		Accepts produces = action.getProduces();
 		MediaType mediaType = null;
 		for (MediaType type : accepts) {
 			if (map.containsKey(type) && (produces.isEmpty() || produces.contains(type))) {
