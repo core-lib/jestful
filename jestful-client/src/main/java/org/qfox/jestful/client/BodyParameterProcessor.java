@@ -57,20 +57,32 @@ public class BodyParameterProcessor implements Actor, Initialable {
 				nonce += base.charAt(index);
 			}
 			String boundary = "----JestfulFormBoundary" + nonce;
-			MultipartOutputStream mos = new MultipartOutputStream(outputStream, boundary);
-			for (Parameter body : bodies) {
-				for (Entry<MediaType, RequestSerializer> entry : map.entrySet()) {
-					if (consumes.contains(entry.getKey()) == false || entry.getValue().supports(body) == false) {
-						continue;
+			MultipartOutputStream mos = null;
+			try {
+				mos = new MultipartOutputStream(outputStream, boundary);
+				for (Parameter body : bodies) {
+					for (Entry<MediaType, RequestSerializer> entry : map.entrySet()) {
+						MediaType mediaType = entry.getKey();
+						RequestSerializer serializer = entry.getValue();
+						if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(body)) {
+							Map<String, String> header = new CaseInsensitiveMap<String, String>();
+							Disposition disposition = Disposition.valueOf("form-data; name=\"" + body.getName() + "\"");
+							header.put("Content-Disposition", disposition.toString());
+							header.put("Content-Type", mediaType.toString());
+							Multihead multihead = new Multihead(header);
+							mos.setNextMultihead(multihead);
+							serializer.serialize(action, body, multihead, mos);
+						}
 					}
-					Map<String, String> header = new CaseInsensitiveMap<String, String>();
-					Disposition disposition = Disposition.valueOf("");
-					Multihead multihead = new Multihead(header);
+					throw new NoSuchSerializerException(body, consumes, map.values());
 				}
-				throw new NoSuchSerializerException(body, consumes, map.values());
+			} finally {
+				mos.close();
 			}
+		} else if (bodies.size() == 1) {
+			
 		} else {
-
+			
 		}
 		return null;
 	}
