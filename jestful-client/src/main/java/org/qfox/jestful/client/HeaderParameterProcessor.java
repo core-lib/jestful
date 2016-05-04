@@ -10,7 +10,6 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.converter.StringConverter;
@@ -37,11 +36,8 @@ public class HeaderParameterProcessor implements Actor, Initialable {
 	public Object react(Action action) throws Exception {
 		Request request = action.getRequest();
 		String charset = action.getCharset();
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.HEADER);
 		flag: for (Parameter parameter : parameters) {
-			if (parameter.getPosition() != Position.HEADER) {
-				continue;
-			}
 			for (StringConverter<?> converter : converters) {
 				if (converter.support(parameter) == false) {
 					continue;

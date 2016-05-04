@@ -2,6 +2,7 @@ package org.qfox.jestful.server.resolver;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.List;
 import java.util.Map;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
@@ -10,7 +11,6 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.server.converter.ConversionException;
@@ -48,9 +48,9 @@ public class HeaderParameterResolver implements Actor, Initialable {
 			}
 			map.put(key, values);
 		}
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.HEADER);
 		for (Parameter parameter : parameters) {
-			if (parameter.getPosition() != Position.HEADER || parameter.getValue() != null) {
+			if (parameter.getValue() != null) {
 				continue;
 			}
 			try {

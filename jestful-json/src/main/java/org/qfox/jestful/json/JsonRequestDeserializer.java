@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.util.List;
 
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
 
@@ -39,11 +39,8 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
 	}
 
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
-			if (parameter.getPosition() != Position.BODY) {
-				continue;
-			}
 			InputStreamReader isr = null;
 			try {
 				isr = new InputStreamReader(in, mediaType.getCharset());

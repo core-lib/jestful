@@ -18,7 +18,6 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.server.converter.ConversionException;
@@ -52,7 +51,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 		String boundary = mediaType.getParameters().get("boundary");
 		List<Multipart> multiparts = new ArrayList<Multipart>();
 		Map<String, String[]> fields = new HashMap<String, String[]>();
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
 		Multihead multihead = null;
 		while ((multihead = mis.getNextMultihead()) != null) {
@@ -64,7 +63,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 				Multipart multipart = new Multipart(multihead, multibody);
 				multiparts.add(multipart);
 				for (Parameter parameter : parameters) {
-					if (parameter.getName().equals(name) == false || parameter.getPosition() != Position.BODY) {
+					if (parameter.getName().equals(name) == false) {
 						continue;
 					}
 					if (type == null) {

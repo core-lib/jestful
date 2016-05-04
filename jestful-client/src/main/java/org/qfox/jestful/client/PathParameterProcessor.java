@@ -12,7 +12,6 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
@@ -40,11 +39,8 @@ public class PathParameterProcessor implements Actor, Initialable {
 		String definition = action.getMapping().getDefinition();
 		String URI = definition;
 		String charset = action.getCharset();
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.PATH);
 		flag: for (Parameter parameter : parameters) {
-			if (parameter.getPosition() != Position.PATH) {
-				continue;
-			}
 			for (StringConverter<?> converter : converters) {
 				if (converter.support(parameter) == false) {
 					continue;

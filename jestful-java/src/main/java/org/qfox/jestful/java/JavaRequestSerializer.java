@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.List;
 
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestSerializer;
 
@@ -40,11 +40,8 @@ public class JavaRequestSerializer implements RequestSerializer {
 	}
 
 	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
-			if (parameter.getPosition() != Position.BODY) {
-				continue;
-			}
 			ObjectOutputStream oos = null;
 			try {
 				oos = new ObjectOutputStream(out);

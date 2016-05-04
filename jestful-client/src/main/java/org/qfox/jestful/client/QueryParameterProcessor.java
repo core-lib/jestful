@@ -37,11 +37,8 @@ public class QueryParameterProcessor implements Actor, Initialable {
 		String query = action.getQuery();
 		query = query != null ? query : "";
 		String charset = action.getCharset();
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.QUERY);
 		flag: for (Parameter parameter : parameters) {
-			if (parameter.getPosition() != Position.QUERY) {
-				continue;
-			}
 			for (StringConverter<?> converter : converters) {
 				if (converter.support(parameter) == false) {
 					continue;

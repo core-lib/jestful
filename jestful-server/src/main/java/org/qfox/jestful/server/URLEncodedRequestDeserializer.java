@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.qfox.jestful.commons.MediaType;
@@ -16,7 +17,6 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.server.converter.ConversionException;
@@ -69,9 +69,9 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 					map.put(key, values);
 				}
 			}
-			Parameters parameters = action.getParameters();
+			List<Parameter> parameters = action.getParameters().all( Position.BODY);
 			for (Parameter parameter : parameters) {
-				if (parameter.getPosition() != Position.BODY || parameter.getValue() != null) {
+				if (parameter.getValue() != null) {
 					continue;
 				}
 				try {

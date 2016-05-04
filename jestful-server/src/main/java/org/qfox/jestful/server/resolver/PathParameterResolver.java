@@ -11,7 +11,6 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
@@ -36,13 +35,13 @@ public class PathParameterResolver implements Actor, Initialable {
 
 	public Object react(Action action) throws Exception {
 		String URI = action.getURI();
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.PATH);
 		Pattern pattern = action.getPattern();
 		Matcher matcher = pattern.matcher(URI);
 		matcher.find();
 		flag: for (Parameter parameter : parameters) {
 			int group = parameter.getGroup();
-			if (parameter.getPosition() != Position.PATH || group <= 0) {
+			if (group <= 0) {
 				continue;
 			}
 			String source = matcher.group(group);

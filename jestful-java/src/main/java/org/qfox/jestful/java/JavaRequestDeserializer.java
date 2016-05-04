@@ -3,13 +3,13 @@ package org.qfox.jestful.java;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.List;
 
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestDeserializer;
 
@@ -35,11 +35,8 @@ public class JavaRequestDeserializer implements RequestDeserializer {
 	}
 
 	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
-		Parameters parameters = action.getParameters();
+		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
-			if (parameter.getPosition() != Position.BODY) {
-				continue;
-			}
 			ObjectInputStream ois = null;
 			try {
 				ois = new ObjectInputStream(in);
