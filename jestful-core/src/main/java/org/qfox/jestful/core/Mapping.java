@@ -42,11 +42,11 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 	private final Object controller;
 	private final Method method;
 	private final Method configuration;
-	private final Parameter[] parameters;
+	private final Parameters parameters;
 	private final Result result;
 	private final Restful restful;
-	private final Set<MediaType> consumes;
-	private final Set<MediaType> produces;
+	private final Accepts consumes;
+	private final Accepts produces;
 	private final String definition;
 	private final String expression;
 	private final Pattern pattern;
@@ -65,15 +65,21 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 				Annotation restful = getAnnotationWith(Command.class);
 				Command command = restful.annotationType().getAnnotation(Command.class);
 				this.restful = new Restful(command);
-				this.consumes = new TreeSet<MediaType>();
-				String[] consumes = command.acceptBody() ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful) : new String[0];
-				for (String consume : consumes) {
-					this.consumes.add(MediaType.valueOf(consume));
+				{
+					Set<MediaType> mediaTypes = new TreeSet<MediaType>();
+					String[] consumes = command.acceptBody() ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful) : new String[0];
+					for (String consume : consumes) {
+						mediaTypes.add(MediaType.valueOf(consume));
+					}
+					this.consumes = new Accepts(mediaTypes);
 				}
-				this.produces = new TreeSet<MediaType>();
-				String[] produces = command.returnBody() ? (String[]) restful.annotationType().getMethod("produces").invoke(restful) : new String[0];
-				for (String produce : produces) {
-					this.produces.add(MediaType.valueOf(produce));
+				{
+					Set<MediaType> mediaTypes = new TreeSet<MediaType>();
+					String[] produces = command.returnBody() ? (String[]) restful.annotationType().getMethod("produces").invoke(restful) : new String[0];
+					for (String produce : produces) {
+						mediaTypes.add(MediaType.valueOf(produce));
+					}
+					this.produces = new Accepts(mediaTypes);
 				}
 				this.definition = (String) restful.annotationType().getMethod("value").invoke(restful);
 				this.expression = bind(definition);
@@ -122,7 +128,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 	 *            方法
 	 * @return 方法的所有参数的封装
 	 */
-	private Parameter[] extract(Method method) throws IllegalConfigException {
+	private Parameters extract(Method method) throws IllegalConfigException {
 		Set<Parameter> parameters = new LinkedHashSet<Parameter>();
 		for (int index = 0; index < method.getParameterTypes().length; index++) {
 			Parameter parameter = new Parameter(this, method, index);
@@ -132,7 +138,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 				parameters.add(parameter);
 			}
 		}
-		return parameters.toArray(new Parameter[parameters.size()]);
+		return new Parameters(parameters);
 	}
 
 	public Node<PathExpression, Mapping> toNode() {
@@ -189,7 +195,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 		return configuration;
 	}
 
-	public Parameter[] getParameters() {
+	public Parameters getParameters() {
 		return parameters;
 	}
 
@@ -201,11 +207,11 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 		return restful;
 	}
 
-	public Set<MediaType> getConsumes() {
+	public Accepts getConsumes() {
 		return consumes;
 	}
 
-	public Set<MediaType> getProduces() {
+	public Accepts getProduces() {
 		return produces;
 	}
 

@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.qfox.jestful.commons.io.IOUtils;
-import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -97,7 +96,7 @@ public class JestfulFilterSupport implements Filter, Actor {
 
 			action.setResource(mapping.getResource());
 			action.setMapping(mapping);
-			action.setParameters(new Parameters(mapping.getParameters()));
+			action.setParameters(mapping.getParameters());
 			action.setResult(mapping.getResult());
 			action.setPattern(mapping.getPattern());
 
@@ -110,8 +109,8 @@ public class JestfulFilterSupport implements Filter, Actor {
 			action.setRequest(new JestfulServletRequest(httpServletRequest));
 			action.setResponse(new JestfulServletResponse(httpServletResponse));
 
-			action.setConsumes(new Accepts(mapping.getConsumes()));
-			action.setProduces(new Accepts(mapping.getProduces()));
+			action.setConsumes(mapping.getConsumes());
+			action.setProduces(mapping.getProduces());
 
 			action.execute();
 		} catch (NotFoundStatusException e) {

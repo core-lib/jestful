@@ -2,7 +2,6 @@ package org.qfox.jestful.server.render;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -20,7 +19,8 @@ import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 
-/* </p>
+/**
+ * </p>
  * 
  * <p>
  * Company: 广州市俏狐信息科技有限公司
@@ -62,66 +62,41 @@ public class DefaultResultRender implements Actor, Initialable {
 	private MediaType getMediaType(Action action) throws NotAcceptableStatusException {
 		Request request = action.getRequest();
 		String accept = request.getRequestHeader("Accept");
-		Set<MediaType> accepts = new TreeSet<MediaType>();
-		String[] mediaTypes = accept != null ? accept.split(",") : new String[0];
-		for (String contentType : mediaTypes) {
+		Set<MediaType> mediaTypes = new TreeSet<MediaType>();
+		String[] contentTypes = accept != null && accept.isEmpty() == false ? accept.split(",") : new String[0];
+		for (String contentType : contentTypes) {
 			MediaType mediaType = MediaType.valueOf(contentType);
-			accepts.add(mediaType);
+			mediaTypes.add(mediaType);
 		}
 
+		Accepts accepts = new Accepts(mediaTypes.isEmpty() ? map.keySet() : mediaTypes);
 		Accepts produces = action.getProduces();
-		MediaType mediaType = null;
-		for (MediaType type : accepts) {
-			if (map.containsKey(type) && (produces.isEmpty() || produces.contains(type))) {
-				mediaType = type;
-				break;
+		Accepts supports = new Accepts(map.keySet());
+
+		for (MediaType mediaType : accepts) {
+			if ((produces.isEmpty() || produces.contains(mediaType)) && (supports.contains(mediaType))) {
+				return mediaType;
 			}
-			if (type.getType().equals("*")) {
-				Iterator<MediaType> iterator = map.keySet().iterator();
-				while (iterator.hasNext() && mediaType == null) {
-					MediaType next = iterator.next();
-					if (next.getSubtype().equalsIgnoreCase(type.getSubtype()) && (produces.isEmpty() || produces.contains(next))) {
-						mediaType = next;
-						break;
+			if (mediaType.isWildcardSubtype() || mediaType.isWildcardType()) {
+				if (produces.isEmpty()) {
+					for (MediaType support : supports) {
+						if (mediaType.matches(support)) {
+							return support;
+						}
 					}
-				}
-				if (mediaType != null) {
-					break;
-				}
-			}
-			if (type.getSubtype().equals("*")) {
-				Iterator<MediaType> iterator = map.keySet().iterator();
-				while (iterator.hasNext() && mediaType == null) {
-					MediaType next = iterator.next();
-					if (next.getType().equalsIgnoreCase(type.getType()) && (produces.isEmpty() || produces.contains(next))) {
-						mediaType = next;
-						break;
+				} else {
+					for (MediaType produce : produces) {
+						if (mediaType.matches(produce) && supports.contains(produce)) {
+							return produce;
+						}
 					}
-				}
-				if (mediaType != null) {
-					break;
-				}
-			}
-			if (type.getType().equals("*") && type.getSubtype().equals("*")) {
-				Iterator<MediaType> iterator = map.keySet().iterator();
-				while (iterator.hasNext() && mediaType == null) {
-					MediaType next = iterator.next();
-					if (produces.isEmpty() || produces.contains(next)) {
-						mediaType = next;
-						break;
-					}
-				}
-				if (mediaType != null) {
-					break;
 				}
 			}
 		}
-		if (mediaType == null) {
-			String URI = action.getURI();
-			String method = action.getRestful().getMethod();
-			throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? map.keySet() : produces);
-		}
-		return mediaType;
+
+		String URI = action.getURI();
+		String method = action.getRestful().getMethod();
+		throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? supports : produces);
 	}
 
 	public void initialize(BeanContainer beanContainer) {

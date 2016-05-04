@@ -1,7 +1,7 @@
 package org.qfox.jestful.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,9 +23,9 @@ import java.util.List;
 public class Parameters implements Iterable<Parameter> {
 	private final List<Parameter> parameters;
 
-	public Parameters(Parameter[] parameters) {
+	public Parameters(Collection<Parameter> parameters) {
 		super();
-		this.parameters = Arrays.asList(parameters);
+		this.parameters = new ArrayList<Parameter>(parameters);
 	}
 
 	public int size() {

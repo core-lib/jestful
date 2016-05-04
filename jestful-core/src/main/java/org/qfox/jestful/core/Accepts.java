@@ -1,8 +1,9 @@
 package org.qfox.jestful.core;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.qfox.jestful.commons.MediaType;
 
@@ -24,9 +25,9 @@ import org.qfox.jestful.commons.MediaType;
 public class Accepts implements Iterable<MediaType> {
 	private final Set<MediaType> mediaTypes;
 
-	public Accepts(Set<MediaType> mediaTypes) {
+	public Accepts(Collection<MediaType> mediaTypes) {
 		super();
-		this.mediaTypes = Collections.unmodifiableSet(mediaTypes);
+		this.mediaTypes = new TreeSet<MediaType>(mediaTypes);
 	}
 
 	public int size() {
