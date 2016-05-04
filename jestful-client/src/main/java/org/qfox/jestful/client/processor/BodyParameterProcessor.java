@@ -18,6 +18,7 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.RequestSerializer;
+import org.qfox.jestful.core.Restful;
 
 /**
  * <p>
@@ -38,6 +39,10 @@ public class BodyParameterProcessor implements Actor, Initialable {
 	private final Map<MediaType, RequestSerializer> map = new HashMap<MediaType, RequestSerializer>();
 
 	public Object react(Action action) throws Exception {
+		Restful restful = action.getRestful();
+		if (restful.isAcceptBody() == false) {
+			return action.execute();
+		}
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
 		Accepts consumes = action.getConsumes();
 		if (bodies.isEmpty()) {

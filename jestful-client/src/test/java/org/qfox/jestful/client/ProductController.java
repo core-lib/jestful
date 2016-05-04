@@ -1,13 +1,10 @@
 package org.qfox.jestful.client;
 
-import java.io.File;
+import java.util.List;
 
-import org.qfox.jestful.client.annotation.Queries;
-import org.qfox.jestful.core.annotation.Body;
+import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
-import org.qfox.jestful.core.annotation.POST;
 import org.qfox.jestful.core.annotation.Path;
-import org.qfox.jestful.core.annotation.Query;
 
 /**
  * <p>
@@ -24,11 +21,9 @@ import org.qfox.jestful.core.annotation.Query;
  *
  * @since 1.0.0
  */
-@Jestful("/product")
+@Jestful("/products")
 public interface ProductController {
 
-	@Queries("q3=中文")
-	@POST(value = "/page={page:\\d+}/size={size:\\d+}.res")
-	public String index(@Path("page") int page, @Path("size") int size, @Query("q1") String q1, @Query("q2") long q2, @Body("file") File file);
-
+	@GET(value = "/page={page:\\d+}/size={size:\\d+}.res", produces = { "application/json" })
+	List<Product> list(@Path("page") int page, @Path("size") int size);
 }

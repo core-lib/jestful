@@ -35,8 +35,8 @@ public class MediaType implements Comparable<MediaType> {
 	private MediaType(String name, Map<String, String> parameters) {
 		super();
 		this.name = String.valueOf(name);
-		this.type = name.split("/")[0];
-		this.subtype = name.split("/")[1];
+		this.type = name.contains("/") ? name.split("/")[0] : name;
+		this.subtype = name.contains("/") ? name.split("/")[1] : "*";
 		this.parameters = Collections.unmodifiableMap(parameters);
 		this.charset = parameters.containsKey("charset") ? parameters.get("charset") : Charset.defaultCharset().name();
 		this.weight = parameters.containsKey("q") ? Float.valueOf(parameters.get("q")) : 1.0f;
@@ -84,7 +84,7 @@ public class MediaType implements Comparable<MediaType> {
 			throw new NullPointerException();
 		}
 		mediaType = mediaType.replace(" ", "");
-		if (mediaType.matches("[^;/]+/[^;/]+(;[^;=]+=[^;=]+)*") == false) {
+		if (mediaType.matches("[^;]+(;[^;=]+=[^;=]+)*") == false) {
 			throw new IllegalArgumentException(mediaType);
 		}
 		String name = mediaType.split(";")[0];

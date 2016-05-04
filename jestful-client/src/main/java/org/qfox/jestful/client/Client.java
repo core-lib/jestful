@@ -1,19 +1,32 @@
 package org.qfox.jestful.client;
 
+import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.qfox.jestful.client.exception.UnexpectedStatusException;
+import org.qfox.jestful.client.exception.UnexpectedTypeException;
+import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.io.IOUtils;
+import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Resource;
+import org.qfox.jestful.core.Response;
+import org.qfox.jestful.core.ResponseDeserializer;
+import org.qfox.jestful.core.Restful;
+import org.qfox.jestful.core.Result;
+import org.qfox.jestful.core.Status;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
@@ -32,7 +45,9 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
  *
  * @since 1.0.0
  */
-public class Client implements InvocationHandler, Actor {
+public class Client implements InvocationHandler, Actor, Initialable {
+	private final Map<MediaType, ResponseDeserializer> map = new HashMap<MediaType, ResponseDeserializer>();
+
 	private final String protocol;
 	private final String host;
 	private final Integer port;
@@ -58,6 +73,16 @@ public class Client implements InvocationHandler, Actor {
 		reader.loadBeanDefinitions(configLocations);
 		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
 		this.actor = defaultListableBeanFactory.getBean(actor, Actor.class);
+		this.initialize(this.beanContainer);
+	}
+
+	public void initialize(BeanContainer beanContainer) {
+		Collection<ResponseDeserializer> deserializers = beanContainer.find(ResponseDeserializer.class).values();
+		for (ResponseDeserializer deserializer : deserializers) {
+			String contentType = deserializer.getContentType();
+			MediaType mediaType = MediaType.valueOf(contentType);
+			map.put(mediaType, deserializer);
+		}
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -85,7 +110,34 @@ public class Client implements InvocationHandler, Actor {
 	}
 
 	public Object react(Action action) throws Exception {
-		return null;
+		Response response = action.getResponse();
+		if (response.isResponseSuccess()) {
+			Restful restful = action.getRestful();
+			Result result = action.getResult();
+			if (restful.isReturnBody() == false || result.getKlass() == Void.TYPE) {
+				return null;
+			}
+			String contentType = response.getResponseHeader("Content-Type");
+			Accepts produces = action.getProduces();
+			Accepts supports = new Accepts(map.keySet());
+			MediaType mediaType = MediaType.valueOf(contentType);
+			if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
+				ResponseDeserializer deserializer = map.get(mediaType);
+				InputStream in = response.getResponseInputStream();
+				deserializer.deserialize(action, mediaType, in);
+				return result.getValue();
+			} else {
+				if (produces.isEmpty() == false) {
+					supports.retainAll(produces);
+				}
+				throw new UnexpectedTypeException(mediaType, supports);
+			}
+		} else {
+			Status status = response.getResponseStatus();
+			InputStream in = response.getResponseInputStream();
+			String body = IOUtils.toString(in);
+			throw new UnexpectedStatusException(status, body);
+		}
 	}
 
 	public <T> T create(Class<T> interfase) {

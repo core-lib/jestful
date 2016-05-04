@@ -45,13 +45,17 @@ public class BodyParameterResolver implements Actor, Initialable {
 		}
 		MediaType mediaType = MediaType.valueOf(contentType);
 		Accepts consumes = action.getConsumes();
-		if (map.containsKey(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
+		Accepts supports = new Accepts(map.keySet());
+		if (supports.contains(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
 			RequestDeserializer deserializer = map.get(mediaType);
 			deserializer.deserialize(action, mediaType, request.getRequestInputStream());
 		} else {
 			String URI = action.getURI();
 			String method = action.getRestful().getMethod();
-			throw new UnsupportedTypeException(URI, method, mediaType, consumes.isEmpty() ? map.keySet() : consumes);
+			if (consumes.isEmpty() == false) {
+				supports.retainAll(consumes);
+			}
+			throw new UnsupportedTypeException(URI, method, mediaType, supports);
 		}
 		return action.execute();
 	}

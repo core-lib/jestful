@@ -54,7 +54,11 @@ public class HttpResponse implements Response {
 	}
 
 	public InputStream getResponseInputStream() throws IOException {
-		return httpURLConnection.getInputStream();
+		if (isResponseSuccess()) {
+			return httpURLConnection.getInputStream();
+		} else {
+			return httpURLConnection.getErrorStream();
+		}
 	}
 
 	public OutputStream getResponseOutputStream() throws IOException {
@@ -69,6 +73,12 @@ public class HttpResponse implements Response {
 
 	public void setResponseStatus(Status status) throws IOException {
 		throw new UnsupportedOperationException();
+	}
+
+	public boolean isResponseSuccess() throws IOException {
+		Status status = getResponseStatus();
+		int code = status.getCode();
+		return code >= 200 && code < 300;
 	}
 
 }

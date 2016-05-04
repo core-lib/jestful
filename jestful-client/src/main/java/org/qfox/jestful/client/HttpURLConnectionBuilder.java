@@ -35,14 +35,21 @@ public class HttpURLConnectionBuilder implements Actor {
 			String URI = action.getURI();
 			String query = action.getQuery();
 			String url = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "") + URI + (query != null ? "?" + query : "");
-			HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
-			Restful restful = action.getRestful();
-			httpURLConnection.setDoOutput(restful.isAcceptBody());
-			httpURLConnection.setDoInput(restful.isReturnBody());
-			Request request = new HttpRequest(httpURLConnection);
-			Response response = new HttpResponse(httpURLConnection);
-			action.setRequest(request);
-			action.setResponse(response);
+			HttpURLConnection httpURLConnection = null;
+			try {
+				httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
+				Restful restful = action.getRestful();
+				httpURLConnection.setDoOutput(restful.isAcceptBody());
+				httpURLConnection.setDoInput(restful.isReturnBody());
+				Request request = new HttpRequest(httpURLConnection);
+				Response response = new HttpResponse(httpURLConnection);
+				action.setRequest(request);
+				action.setResponse(response);
+			} catch (Exception e) {
+				throw e;
+			} finally {
+				httpURLConnection.disconnect();
+			}
 		}
 		return action.execute();
 	}

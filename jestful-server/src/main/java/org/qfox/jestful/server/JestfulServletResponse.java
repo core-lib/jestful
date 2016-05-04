@@ -47,6 +47,12 @@ public class JestfulServletResponse extends HttpServletResponseWrapper implement
 			response.sendError(status.getCode(), status.getReason());
 		}
 	}
+	
+	public boolean isResponseSuccess() throws IOException {
+		Status status = getResponseStatus();
+		int code = status.getCode();
+		return code >= 200 && code < 300;
+	}
 
 	public String[] getHeaderKeys() {
 		Collection<String> names = response.getHeaderNames();

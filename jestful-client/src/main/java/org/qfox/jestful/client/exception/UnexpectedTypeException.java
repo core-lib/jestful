@@ -1,8 +1,8 @@
-package org.qfox.jestful.server.exception;
+package org.qfox.jestful.client.exception;
 
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Accepts;
-import org.qfox.jestful.core.exception.StatusException;
+import org.qfox.jestful.core.exception.JestfulException;
 
 /**
  * <p>
@@ -15,18 +15,18 @@ import org.qfox.jestful.core.exception.StatusException;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月9日 下午2:44:19
+ * @date 2016年5月4日 下午9:45:31
  *
  * @since 1.0.0
  */
-public class UnsupportedTypeException extends StatusException {
-	private static final long serialVersionUID = 5552964842892180698L;
+public class UnexpectedTypeException extends JestfulException {
+	private static final long serialVersionUID = 4950971763482628055L;
 
 	private final MediaType mediaType;
 	private final Accepts accepts;
 
-	public UnsupportedTypeException(String uri, String method, MediaType mediaType, Accepts accepts) {
-		super(uri, method, 415, "Unsupported Media Type");
+	public UnexpectedTypeException(MediaType mediaType, Accepts accepts) {
+		super("expect content type : " + accepts.toString() + " but got : " + mediaType);
 		this.mediaType = mediaType;
 		this.accepts = accepts;
 	}

@@ -39,4 +39,6 @@ public interface Response {
 
 	void setResponseStatus(Status status) throws IOException;
 
+	boolean isResponseSuccess() throws IOException;
+
 }

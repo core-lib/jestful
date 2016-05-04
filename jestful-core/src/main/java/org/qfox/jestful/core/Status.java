@@ -1,7 +1,5 @@
 package org.qfox.jestful.core;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -22,21 +20,6 @@ import java.util.TreeMap;
  */
 public class Status {
 	public static final Map<Integer, String> SPECIFICATIONS = new TreeMap<Integer, String>();
-
-	static {
-		try {
-			Field[] fields = Status.class.getFields();
-			for (Field field : fields) {
-				int modifiers = field.getModifiers();
-				if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers) && field.getType() == Status.class) {
-					Status status = (Status) field.get(Status.class);
-					SPECIFICATIONS.put(status.code, status.reason);
-				}
-			}
-		} catch (Exception e) {
-			throw new Error(e);
-		}
-	}
 
 	private final boolean success;
 	private final int code;

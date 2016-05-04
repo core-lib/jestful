@@ -72,4 +72,8 @@ public class Accepts implements Iterable<MediaType> {
 		return builder.toString();
 	}
 
+	public boolean retainAll(Accepts accepts) {
+		return this.mediaTypes.retainAll(accepts.mediaTypes);
+	}
+
 }

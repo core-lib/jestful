@@ -1,6 +1,7 @@
 package org.qfox.jestful.client;
 
-import java.io.File;
+import java.net.URL;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -22,8 +23,9 @@ import org.junit.Test;
 public class ClientTests {
 
 	@Test
-	public void testCreate() {
-		Client.builder().build().create(ProductController.class).index(1, 2, "eee", 231L, new File("/Users/yangchangpei/Project/Terminal_v4/QiaoYing4/gradle.properties"));
+	public void testCreate() throws Exception {
+		List<Product> products = Client.builder().setEndpoint(new URL("http://localhost:8080")).build().create(ProductController.class).list(1, 10);
+		System.out.println(products);
 	}
 
 }
