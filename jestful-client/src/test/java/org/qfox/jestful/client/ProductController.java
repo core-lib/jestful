@@ -1,5 +1,7 @@
 package org.qfox.jestful.client;
 
+import java.io.File;
+
 import org.qfox.jestful.client.annotation.Queries;
 import org.qfox.jestful.core.annotation.Body;
 import org.qfox.jestful.core.annotation.Jestful;
@@ -27,6 +29,6 @@ public interface ProductController {
 
 	@Queries("q3=中文")
 	@POST(value = "/page={page:\\d+}/size={size:\\d+}.res")
-	public String index(@Path("page") int page, @Path("size") int size, @Query("q1") String q1, @Query("q2") long q2, @Body("body") String body);
+	public String index(@Path("page") int page, @Path("size") int size, @Query("q1") String q1, @Query("q2") long q2, @Body("file") File file);
 
 }

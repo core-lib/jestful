@@ -1,5 +1,7 @@
 package org.qfox.jestful.client;
 
+import java.io.File;
+
 import org.junit.Test;
 
 /**
@@ -21,7 +23,7 @@ public class ClientTests {
 
 	@Test
 	public void testCreate() {
-		Client.builder().build().create(ProductController.class).index(1, 2, "eee", 231L, "bodyyyyyy");
+		Client.builder().build().create(ProductController.class).index(1, 2, "eee", 231L, new File("/Users/yangchangpei/Project/Terminal_v4/QiaoYing4/gradle.properties"));
 	}
 
 }

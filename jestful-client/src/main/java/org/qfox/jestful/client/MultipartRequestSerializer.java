@@ -1,5 +1,6 @@
 package org.qfox.jestful.client;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -10,7 +11,10 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
+import org.qfox.jestful.commons.Disposition;
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.Multihead;
+import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.commons.io.MultipartOutputStream;
 import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
@@ -19,6 +23,8 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestSerializer;
+
+import eu.medsea.mimeutil.MimeUtil;
 
 /**
  * <p>
@@ -44,11 +50,11 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 
 	public boolean supports(Action action) {
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
-		return bodies.size() > 1;
+		return bodies.size() == 0 ? true : bodies.size() == 1 ? supports(bodies.get(0)) : true;
 	}
 
 	public boolean supports(Parameter parameter) {
-		return false;
+		return File.class.isAssignableFrom(parameter.getKlass());
 	}
 
 	public void serialize(Action action, OutputStream out) throws IOException {
@@ -66,12 +72,13 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 		MultipartOutputStream mos = null;
 		try {
 			mos = new MultipartOutputStream(out, boundary);
-			for (Parameter body : bodies) {
+			flag: for (Parameter body : bodies) {
 				for (Entry<MediaType, RequestSerializer> entry : map.entrySet()) {
 					MediaType mediaType = entry.getKey();
 					RequestSerializer serializer = entry.getValue();
 					if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(body)) {
 						serializer.serialize(action, body, mos);
+						continue flag;
 					}
 				}
 				throw new NoSuchSerializerException(action, body, consumes, map.values());
@@ -84,7 +91,22 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 	}
 
 	public void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException {
-		throw new UnsupportedOperationException();
+		File file = (File) parameter.getValue();
+		String name = parameter.getName();
+		if (file == null) {
+			Disposition disposition = Disposition.valueOf("form-data; name=\"" + name + "\"");
+			Multihead multihead = new Multihead(disposition, null);
+			out.setNextMultihead(multihead);
+		} else {
+			String filename = file.getName();
+			Disposition disposition = Disposition.valueOf("form-data; name=\"" + name + "\"; filename=\"" + filename + "\"");
+			Collection<?> mediaTypes = MimeUtil.getMimeTypes(file);
+			String mediaType = mediaTypes == null || mediaTypes.isEmpty() ? "application/octet-stream" : mediaTypes.toArray()[0].toString();
+			MediaType type = MediaType.valueOf(mediaType);
+			Multihead multihead = new Multihead(disposition, type);
+			out.setNextMultihead(multihead);
+			IOUtils.transfer(file, out);
+		}
 	}
 
 	public void initialize(BeanContainer beanContainer) {
