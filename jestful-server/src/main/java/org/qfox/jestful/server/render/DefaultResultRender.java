@@ -77,7 +77,7 @@ public class DefaultResultRender implements Actor, Initialable {
 			if ((produces.isEmpty() || produces.contains(mediaType)) && (supports.contains(mediaType))) {
 				return mediaType;
 			}
-			if (mediaType.isWildcardSubtype() || mediaType.isWildcardType()) {
+			if (mediaType.isWildcard()) {
 				if (produces.isEmpty()) {
 					for (MediaType support : supports) {
 						if (mediaType.matches(support)) {

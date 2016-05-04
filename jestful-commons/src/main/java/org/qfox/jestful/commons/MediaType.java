@@ -43,10 +43,8 @@ public class MediaType implements Comparable<MediaType> {
 	}
 
 	/**
-	 * judge this media type is matches the specified content type, such as
-	 * {@link MediaType} {@code application/json} matches content type
-	 * {@link application/json} {@link application/*} matches
-	 * {@code application/json}
+	 * judge this media type is matches the specified content type, such as {@link MediaType} {@code application/json}
+	 * matches content type {@link application/json} {@link application/*} matches {@code application/json}
 	 * 
 	 * @param contentType
 	 *            the content type
@@ -123,6 +121,10 @@ public class MediaType implements Comparable<MediaType> {
 
 	public float getWeight() {
 		return weight;
+	}
+
+	public boolean isWildcard() {
+		return isWildcardType() || isWildcardSubtype();
 	}
 
 	public boolean isWildcardType() {
