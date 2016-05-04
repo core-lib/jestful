@@ -2,7 +2,6 @@ package org.qfox.jestful.client;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -109,10 +108,6 @@ public class DefaultBeanContainer implements BeanContainer, BeanPostProcessor, B
 			configurableBeanFactory.addBeanPostProcessor(this);
 		}
 		this.listableBeanFactory = (ListableBeanFactory) beanFactory;
-		Collection<Initialable> initialables = find(Initialable.class).values();
-		for (Initialable initialable : initialables) {
-			initialable.initialize(this);
-		}
 	}
 
 }
