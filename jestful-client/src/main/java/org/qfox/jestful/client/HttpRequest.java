@@ -63,7 +63,8 @@ public class HttpRequest implements Request {
 	}
 
 	public OutputStream getRequestOutputStream() throws IOException {
-		return httpURLConnection.getOutputStream();
+		return System.out;
+		// return httpURLConnection.getOutputStream();
 	}
 
 }

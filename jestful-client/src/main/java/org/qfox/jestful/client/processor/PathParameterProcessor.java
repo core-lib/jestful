@@ -1,16 +1,17 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.processor;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
@@ -26,18 +27,19 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月28日 下午5:49:14
+ * @date 2016年4月28日 下午2:47:59
  *
  * @since 1.0.0
  */
-public class QueryParameterProcessor implements Actor, Initialable {
+public class PathParameterProcessor implements Actor, Initialable {
+	private final Pattern pattern = Pattern.compile("\\{[^{}]+?\\}");
 	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
 
 	public Object react(Action action) throws Exception {
-		String query = action.getQuery();
-		query = query != null ? query : "";
+		String definition = action.getMapping().getDefinition();
+		String URI = definition;
 		String charset = action.getCharset();
-		List<Parameter> parameters = action.getParameters().all(Position.QUERY);
+		List<Parameter> parameters = action.getParameters().all(Position.PATH);
 		flag: for (Parameter parameter : parameters) {
 			for (StringConverter<?> converter : converters) {
 				if (converter.support(parameter) == false) {
@@ -49,13 +51,18 @@ public class QueryParameterProcessor implements Actor, Initialable {
 				if (regex != null && value.matches(regex) == false) {
 					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
 				}
-				String name = parameter.getName();
-				query += (query.isEmpty() ? "" : "&") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
+				Matcher matcher = pattern.matcher(definition);
+				int group = parameter.getGroup();
+				for (int i = 0; i < group; i++) {
+					matcher.find();
+				}
+				String variable = matcher.group();
+				URI = URI.replace(variable, URLEncoder.encode(value, charset));
 				continue flag;
 			}
 			throw new NoSuchConverterException(parameter);
 		}
-		action.setQuery(query == null || query.isEmpty() ? null : query);
+		action.setURI(URI);
 		return action.execute();
 	}
 

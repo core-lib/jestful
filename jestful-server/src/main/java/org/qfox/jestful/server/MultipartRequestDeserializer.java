@@ -91,7 +91,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 				}
 			} else if (type != null) {
 				for (Parameter parameter : parameters) {
-					if (parameter.getName().equals(name) == false || parameter.getPosition() != Position.BODY) {
+					if (parameter.getName().equals(name) == false) {
 						continue;
 					}
 					if (map.containsKey(type)) {
@@ -130,7 +130,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 			}
 		}
 		for (Parameter parameter : parameters) {
-			if (parameter.getPosition() != Position.BODY || parameter.getValue() != null) {
+			if (parameter.getValue() != null) {
 				continue;
 			}
 			try {

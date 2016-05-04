@@ -40,6 +40,9 @@ public class BodyParameterResolver implements Actor, Initialable {
 		}
 		Request request = action.getRequest();
 		String contentType = request.getRequestHeader("Content-Type");
+		if (contentType == null || contentType.isEmpty()) {
+			return action.execute();
+		}
 		MediaType mediaType = MediaType.valueOf(contentType);
 		Accepts consumes = action.getConsumes();
 		if (map.containsKey(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {

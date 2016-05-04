@@ -3,8 +3,7 @@ package org.qfox.jestful.core;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multihead;
+import org.qfox.jestful.commons.io.MultipartOutputStream;
 
 /**
  * <p>
@@ -25,10 +24,12 @@ public interface RequestSerializer {
 
 	String getContentType();
 
+	boolean supports(Action action);
+
 	boolean supports(Parameter parameter);
 
-	void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException;
+	void serialize(Action action, OutputStream out) throws IOException;
 
-	void serialize(Action action, Parameter parameter, Multihead multihead, OutputStream out) throws IOException;
+	void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException;
 
 }

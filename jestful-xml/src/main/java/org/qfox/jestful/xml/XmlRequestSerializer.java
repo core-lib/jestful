@@ -5,9 +5,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
+import org.qfox.jestful.commons.Disposition;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
+import org.qfox.jestful.commons.io.MultipartOutputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
@@ -32,21 +34,29 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
  */
 public class XmlRequestSerializer extends XmlMapper implements RequestSerializer {
 	private static final long serialVersionUID = -240520430267871287L;
+	private final String contentType = "application/xml";
 
 	public String getContentType() {
-		return "application/xml";
+		return contentType;
+	}
+
+	public boolean supports(Action action) {
+		List<Parameter> bodies = action.getParameters().all(Position.BODY);
+		return bodies.size() == 0 ? true : bodies.size() == 1 ? supports(bodies.get(0)) : false;
 	}
 
 	public boolean supports(Parameter parameter) {
 		return parameter.getValue() != null ? canSerialize(parameter.getValue().getClass()) : true;
 	}
 
-	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
+	public void serialize(Action action, OutputStream out) throws IOException {
 		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
 			OutputStreamWriter osw = null;
 			try {
-				osw = new OutputStreamWriter(out, mediaType.getCharset());
+				String charset = action.getCharset();
+				action.getRequest().setRequestHeader("Content-Type", contentType + ";charset=" + charset);
+				osw = new OutputStreamWriter(out, charset);
 				writeValue(osw, parameter.getValue());
 				break;
 			} finally {
@@ -55,11 +65,15 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 		}
 	}
 
-	public void serialize(Action action, Parameter parameter, Multihead multihead, OutputStream out) throws IOException {
+	public void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException {
 		OutputStreamWriter osw = null;
 		try {
-			MediaType mediaType = multihead.getType();
-			osw = new OutputStreamWriter(out, mediaType.getCharset());
+			String charset = action.getCharset();
+			Disposition disposition = Disposition.valueOf("form-data; name=\"" + parameter.getName() + "\"");
+			MediaType type = MediaType.valueOf(contentType + ";charset=" + charset);
+			Multihead multihead = new Multihead(disposition, type);
+			out.setNextMultihead(multihead);
+			osw = new OutputStreamWriter(out, charset);
 			writeValue(osw, parameter.getValue());
 		} finally {
 			IOUtils.close(osw);

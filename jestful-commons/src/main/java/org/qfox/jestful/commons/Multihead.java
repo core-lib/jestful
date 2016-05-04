@@ -30,6 +30,18 @@ public class Multihead implements Cloneable {
 	private final MediaType type;
 	private final Map<String, String> header;
 
+	public Multihead(Disposition disposition, MediaType type) {
+		this.disposition = disposition;
+		this.type = type;
+		this.header = new CaseInsensitiveMap<String, String>();
+		if (disposition != null) {
+			this.header.put("Content-Disposition", disposition.toString());
+		}
+		if (type != null) {
+			this.header.put("Content-Type", type.toString());
+		}
+	}
+
 	public Multihead(Map<String, String> header) {
 		super();
 		this.header = new CaseInsensitiveMap<String, String>(header);

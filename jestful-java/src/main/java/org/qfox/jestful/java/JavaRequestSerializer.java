@@ -6,9 +6,11 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
 
+import org.qfox.jestful.commons.Disposition;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.commons.io.IOUtils;
+import org.qfox.jestful.commons.io.MultipartOutputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
@@ -30,20 +32,27 @@ import org.qfox.jestful.core.RequestSerializer;
  * @since 1.0.0
  */
 public class JavaRequestSerializer implements RequestSerializer {
+	private final String contentType = "application/x-java-serialized-object";
 
 	public String getContentType() {
-		return "application/x-java-serialized-object";
+		return contentType;
+	}
+
+	public boolean supports(Action action) {
+		List<Parameter> bodies = action.getParameters().all(Position.BODY);
+		return bodies.size() == 0 ? true : bodies.size() == 1 ? supports(bodies.get(0)) : false;
 	}
 
 	public boolean supports(Parameter parameter) {
 		return parameter.getValue() != null ? parameter.getValue() instanceof Serializable : true;
 	}
 
-	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
+	public void serialize(Action action, OutputStream out) throws IOException {
 		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
 			ObjectOutputStream oos = null;
 			try {
+				action.getRequest().setRequestHeader("Content-Type", contentType);
 				oos = new ObjectOutputStream(out);
 				oos.writeObject(parameter.getValue());
 				break;
@@ -53,9 +62,13 @@ public class JavaRequestSerializer implements RequestSerializer {
 		}
 	}
 
-	public void serialize(Action action, Parameter parameter, Multihead multihead, OutputStream out) throws IOException {
+	public void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException {
 		ObjectOutputStream oos = null;
 		try {
+			Disposition disposition = Disposition.valueOf("form-data; name=\"" + parameter.getName() + "\"");
+			MediaType type = MediaType.valueOf(contentType);
+			Multihead multihead = new Multihead(disposition, type);
+			out.setNextMultihead(multihead);
 			oos = new ObjectOutputStream(out);
 			oos.writeObject(parameter.getValue());
 		} finally {

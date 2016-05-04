@@ -1,4 +1,4 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.handler;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;

@@ -1,11 +1,9 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.processor;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
@@ -13,6 +11,7 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
 
@@ -27,19 +26,19 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月28日 下午2:47:59
+ * @date 2016年4月28日 下午8:12:17
  *
  * @since 1.0.0
  */
-public class PathParameterProcessor implements Actor, Initialable {
-	private final Pattern pattern = Pattern.compile("\\{[^{}]+?\\}");
+public class CookieParameterProcessor implements Actor, Initialable {
 	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
 
 	public Object react(Action action) throws Exception {
-		String definition = action.getMapping().getDefinition();
-		String URI = definition;
+		Request request = action.getRequest();
+		String cookie = request.getRequestHeader("Cookie");
+		cookie = cookie != null ? cookie : "";
 		String charset = action.getCharset();
-		List<Parameter> parameters = action.getParameters().all(Position.PATH);
+		List<Parameter> parameters = action.getParameters().all(Position.COOKIE);
 		flag: for (Parameter parameter : parameters) {
 			for (StringConverter<?> converter : converters) {
 				if (converter.support(parameter) == false) {
@@ -51,18 +50,13 @@ public class PathParameterProcessor implements Actor, Initialable {
 				if (regex != null && value.matches(regex) == false) {
 					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
 				}
-				Matcher matcher = pattern.matcher(definition);
-				int group = parameter.getGroup();
-				for (int i = 0; i < group; i++) {
-					matcher.find();
-				}
-				String variable = matcher.group();
-				URI = URI.replace(variable, URLEncoder.encode(value, charset));
+				String name = parameter.getName();
+				cookie += (cookie.isEmpty() ? "" : "; ") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
 				continue flag;
 			}
 			throw new NoSuchConverterException(parameter);
 		}
-		action.setURI(URI);
+		request.setRequestHeader("Cookie", cookie.isEmpty() ? null : cookie);
 		return action.execute();
 	}
 

@@ -1,4 +1,4 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.processor;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -11,7 +11,6 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
-import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.converter.StringConverter;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
 
@@ -26,19 +25,18 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年4月28日 下午8:12:17
+ * @date 2016年4月28日 下午5:49:14
  *
  * @since 1.0.0
  */
-public class CookieParameterProcessor implements Actor, Initialable {
+public class QueryParameterProcessor implements Actor, Initialable {
 	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
 
 	public Object react(Action action) throws Exception {
-		Request request = action.getRequest();
-		String cookie = request.getRequestHeader("Cookie");
-		cookie = cookie != null ? cookie : "";
+		String query = action.getQuery();
+		query = query != null ? query : "";
 		String charset = action.getCharset();
-		List<Parameter> parameters = action.getParameters().all(Position.COOKIE);
+		List<Parameter> parameters = action.getParameters().all(Position.QUERY);
 		flag: for (Parameter parameter : parameters) {
 			for (StringConverter<?> converter : converters) {
 				if (converter.support(parameter) == false) {
@@ -51,12 +49,12 @@ public class CookieParameterProcessor implements Actor, Initialable {
 					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
 				}
 				String name = parameter.getName();
-				cookie += (cookie.isEmpty() ? "" : "; ") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
+				query += (query.isEmpty() ? "" : "&") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
 				continue flag;
 			}
 			throw new NoSuchConverterException(parameter);
 		}
-		request.setRequestHeader("Cookie", cookie.isEmpty() ? null : cookie);
+		action.setQuery(query == null || query.isEmpty() ? null : query);
 		return action.execute();
 	}
 

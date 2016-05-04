@@ -2,22 +2,26 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
-	
+
 	<bean id="defaultBeanContainer" class="org.qfox.jestful.client.DefaultBeanContainer" />
-	
+
 	<bean id="client" class="org.qfox.jestful.core.Group">
 		<property name="members">
 			<list>
-				<bean class="org.qfox.jestful.client.PathParameterProcessor" />
-				<bean class="org.qfox.jestful.client.QueriesAnnotationHandler" />
-				<bean class="org.qfox.jestful.client.QueryParameterProcessor" />
+				<bean class="org.qfox.jestful.client.processor.PathParameterProcessor" />
+				<bean class="org.qfox.jestful.client.handler.QueriesAnnotationHandler" />
+				<bean class="org.qfox.jestful.client.processor.QueryParameterProcessor" />
 				<bean class="org.qfox.jestful.client.HttpURLConnectionBuilder" />
-				<bean class="org.qfox.jestful.client.HeadersAnnotationHandler" />
-				<bean class="org.qfox.jestful.client.HeaderParameterProcessor" />
-				<bean class="org.qfox.jestful.client.CookiesAnnotationHandler" />
-				<bean class="org.qfox.jestful.client.CookieParameterProcessor" />
+				<bean class="org.qfox.jestful.client.handler.HeadersAnnotationHandler" />
+				<bean class="org.qfox.jestful.client.processor.HeaderParameterProcessor" />
+				<bean class="org.qfox.jestful.client.handler.CookiesAnnotationHandler" />
+				<bean class="org.qfox.jestful.client.processor.CookieParameterProcessor" />
+				<bean class="org.qfox.jestful.client.processor.BodyParameterProcessor" />
 			</list>
 		</property>
 	</bean>
-	
+
+	<bean class="org.qfox.jestful.client.URLEncodedRequestSerializer" />
+	<bean class="org.qfox.jestful.client.MultipartRequestSerializer" />
+
 </beans>
