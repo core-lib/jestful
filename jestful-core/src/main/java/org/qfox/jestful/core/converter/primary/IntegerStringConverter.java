@@ -1,6 +1,5 @@
 package org.qfox.jestful.core.converter.primary;
 
-import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConverter;
 
 /**
@@ -20,15 +19,15 @@ import org.qfox.jestful.core.converter.StringConverter;
  */
 public class IntegerStringConverter implements StringConverter<Integer> {
 
-	public boolean support(Parameter parameter) {
-		return parameter.getType() == int.class;
+	public boolean support(Class<?> klass) {
+		return klass == int.class;
 	}
 
-	public String convert(Parameter parameter, Integer source) {
+	public String convert(Class<?> klass, Integer source) {
 		return String.valueOf(source);
 	}
 
-	public Integer convert(Parameter parameter, String source) {
+	public Integer convert(Class<?> klass, String source) {
 		return source != null && source.isEmpty() == false ? Integer.valueOf(source) : 0;
 	}
 

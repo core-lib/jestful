@@ -1,7 +1,5 @@
 package org.qfox.jestful.core.converter;
 
-import org.qfox.jestful.core.Parameter;
-
 /**
  * <p>
  * Description:
@@ -19,11 +17,11 @@ import org.qfox.jestful.core.Parameter;
  */
 public class DefaultStringConverter implements StringConverter<String> {
 
-	public boolean support(Parameter parameter) {
-		return parameter.getType() == String.class;
+	public boolean support(Class<?> klass) {
+		return klass == String.class;
 	}
 
-	public String convert(Parameter parameter, String source) {
+	public String convert(Class<?> klass, String source) {
 		return source;
 	}
 

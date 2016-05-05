@@ -1,6 +1,5 @@
 package org.qfox.jestful.core.converter.primary;
 
-import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConverter;
 
 /**
@@ -20,15 +19,15 @@ import org.qfox.jestful.core.converter.StringConverter;
  */
 public class BooleanStringConverter implements StringConverter<Boolean> {
 
-	public boolean support(Parameter parameter) {
-		return parameter.getType() == boolean.class;
+	public boolean support(Class<?> klass) {
+		return klass == boolean.class;
 	}
 
-	public String convert(Parameter parameter, Boolean source) {
+	public String convert(Class<?> klass, Boolean source) {
 		return String.valueOf(source);
 	}
 
-	public Boolean convert(Parameter parameter, String source) {
+	public Boolean convert(Class<?> klass, String source) {
 		return source != null && source.isEmpty() == false ? Boolean.valueOf(source) : false;
 	}
 

@@ -1,6 +1,5 @@
 package org.qfox.jestful.core.converter.primary;
 
-import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConverter;
 
 /**
@@ -20,15 +19,15 @@ import org.qfox.jestful.core.converter.StringConverter;
  */
 public class ShortStringConverter implements StringConverter<Short> {
 
-	public boolean support(Parameter parameter) {
-		return parameter.getType() == short.class;
+	public boolean support(Class<?> klass) {
+		return klass == short.class;
 	}
 
-	public String convert(Parameter parameter, Short source) {
+	public String convert(Class<?> klass, Short source) {
 		return String.valueOf(source);
 	}
 
-	public Short convert(Parameter parameter, String source) {
+	public Short convert(Class<?> klass, String source) {
 		return source != null && source.isEmpty() == false ? Short.valueOf(source) : 0;
 	}
 

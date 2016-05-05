@@ -1,6 +1,5 @@
 package org.qfox.jestful.core.converter.wrapper;
 
-import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConverter;
 
 /**
@@ -20,15 +19,15 @@ import org.qfox.jestful.core.converter.StringConverter;
  */
 public class FloatStringConverter implements StringConverter<Float> {
 
-	public boolean support(Parameter parameter) {
-		return parameter.getType() == Float.class;
+	public boolean support(Class<?> klass) {
+		return klass == Float.class;
 	}
 
-	public String convert(Parameter parameter, Float source) {
+	public String convert(Class<?> klass, Float source) {
 		return source == null ? null : String.valueOf(source);
 	}
 
-	public Float convert(Parameter parameter, String source) {
+	public Float convert(Class<?> klass, String source) {
 		return source != null && source.isEmpty() == false ? Float.valueOf(source) : null;
 	}
 

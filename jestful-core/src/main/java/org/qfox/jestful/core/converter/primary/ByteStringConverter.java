@@ -1,6 +1,5 @@
 package org.qfox.jestful.core.converter.primary;
 
-import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConverter;
 
 /**
@@ -20,15 +19,15 @@ import org.qfox.jestful.core.converter.StringConverter;
  */
 public class ByteStringConverter implements StringConverter<Byte> {
 
-	public boolean support(Parameter parameter) {
-		return parameter.getType() == byte.class;
+	public boolean support(Class<?> klass) {
+		return klass == byte.class;
 	}
 
-	public String convert(Parameter parameter, Byte source) {
+	public String convert(Class<?> klass, Byte source) {
 		return String.valueOf(source);
 	}
 
-	public Byte convert(Parameter parameter, String source) {
+	public Byte convert(Class<?> klass, String source) {
 		return source != null && source.isEmpty() == false ? Byte.valueOf(source) : 0;
 	}
 

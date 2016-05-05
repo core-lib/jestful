@@ -1,6 +1,5 @@
 package org.qfox.jestful.core.converter.primary;
 
-import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConverter;
 
 /**
@@ -20,15 +19,15 @@ import org.qfox.jestful.core.converter.StringConverter;
  */
 public class LongStringConverter implements StringConverter<Long> {
 
-	public boolean support(Parameter parameter) {
-		return parameter.getType() == long.class;
+	public boolean support(Class<?> klass) {
+		return klass == long.class;
 	}
 
-	public String convert(Parameter parameter, Long source) {
+	public String convert(Class<?> klass, Long source) {
 		return String.valueOf(source);
 	}
 
-	public Long convert(Parameter parameter, String source) {
+	public Long convert(Class<?> klass, String source) {
 		return source != null && source.isEmpty() == false ? Long.valueOf(source) : 0;
 	}
 

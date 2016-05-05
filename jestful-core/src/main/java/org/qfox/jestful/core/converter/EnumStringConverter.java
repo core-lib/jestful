@@ -1,7 +1,5 @@
 package org.qfox.jestful.core.converter;
 
-import org.qfox.jestful.core.Parameter;
-
 /**
  * <p>
  * Description:
@@ -19,22 +17,17 @@ import org.qfox.jestful.core.Parameter;
  */
 public class EnumStringConverter implements StringConverter<Enum<?>> {
 
-	public boolean support(Parameter parameter) {
-		if (parameter.getType() instanceof Class<?>) {
-			Class<?> type = (Class<?>) parameter.getType();
-			return Enum.class.isAssignableFrom(type);
-		}
-		return false;
+	public boolean support(Class<?> klass) {
+		return Enum.class.isAssignableFrom(klass);
 	}
 
-	public String convert(Parameter parameter, Enum<?> source) {
+	public String convert(Class<?> klass, Enum<?> source) {
 		return source.name();
 	}
 
-	public Enum<?> convert(Parameter parameter, String source) {
+	public Enum<?> convert(Class<?> klass, String source) {
 		try {
-			Class<?> type = (Class<?>) parameter.getType();
-			return (Enum<?>) type.getMethod("valueOf", String.class).invoke(null, source);
+			return (Enum<?>) klass.getMethod("valueOf", String.class).invoke(null, source);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

@@ -1,6 +1,5 @@
 package org.qfox.jestful.core.converter.wrapper;
 
-import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConverter;
 
 /**
@@ -20,15 +19,15 @@ import org.qfox.jestful.core.converter.StringConverter;
  */
 public class DoubleStringConverter implements StringConverter<Double> {
 
-	public boolean support(Parameter parameter) {
-		return parameter.getType() == Double.class;
+	public boolean support(Class<?> klass) {
+		return klass == Double.class;
 	}
 
-	public String convert(Parameter parameter, Double source) {
+	public String convert(Class<?> klass, Double source) {
 		return source == null ? null : String.valueOf(source);
 	}
 
-	public Double convert(Parameter parameter, String source) {
+	public Double convert(Class<?> klass, String source) {
 		return source != null && source.isEmpty() == false ? Double.valueOf(source) : null;
 	}
 

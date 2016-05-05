@@ -1,7 +1,5 @@
 package org.qfox.jestful.core.converter;
 
-import org.qfox.jestful.core.Parameter;
-
 /**
  * <p>
  * Description: 类型和字符串之间的转换
@@ -19,10 +17,10 @@ import org.qfox.jestful.core.Parameter;
  */
 public interface StringConverter<T> {
 
-	boolean support(Parameter parameter);
+	boolean support(Class<?> klass);
 
-	String convert(Parameter parameter, T source);
+	String convert(Class<?> klass, T source);
 
-	T convert(Parameter parameter, String source);
+	T convert(Class<?> klass, String source);
 
 }

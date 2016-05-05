@@ -53,7 +53,7 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 
 	public boolean supports(Parameter parameter) {
 		for (StringConverter<?> converter : converters) {
-			if (converter.support(parameter)) {
+			if (converter.support(parameter.getKlass())) {
 				return true;
 			}
 		}
@@ -69,11 +69,11 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 				continue;
 			}
 			for (StringConverter<?> converter : converters) {
-				if (converter.support(body)) {
+				if (converter.support(body.getKlass())) {
 					@SuppressWarnings("unchecked")
 					StringConverter<Object> stringConverter = (StringConverter<Object>) converter;
 					String name = body.getName();
-					String value = stringConverter.convert(body, body.getValue());
+					String value = stringConverter.convert(body.getKlass(), body.getValue());
 					if (builder.length() > 0) {
 						builder.append("&");
 					}
@@ -96,11 +96,11 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 		}
 		String charset = action.getCharset();
 		for (StringConverter<?> converter : converters) {
-			if (converter.support(parameter)) {
+			if (converter.support(parameter.getKlass())) {
 				@SuppressWarnings("unchecked")
 				StringConverter<Object> stringConverter = (StringConverter<Object>) converter;
 				String name = parameter.getName();
-				String value = stringConverter.convert(parameter, parameter.getValue());
+				String value = stringConverter.convert(parameter.getKlass(), parameter.getValue());
 				Disposition disposition = Disposition.valueOf("form-data; name=\"" + name + "\"");
 				Multihead multihead = new Multihead(disposition, null);
 				out.setNextMultihead(multihead);

@@ -39,11 +39,11 @@ public class HeaderParameterProcessor implements Actor, Initialable {
 		List<Parameter> parameters = action.getParameters().all(Position.HEADER);
 		flag: for (Parameter parameter : parameters) {
 			for (StringConverter<?> converter : converters) {
-				if (converter.support(parameter) == false) {
+				if (converter.support(parameter.getKlass()) == false) {
 					continue;
 				}
 				@SuppressWarnings("unchecked")
-				String value = ((StringConverter<Object>) converter).convert(parameter, parameter.getValue());
+				String value = ((StringConverter<Object>) converter).convert(parameter.getKlass(), parameter.getValue());
 				String regex = parameter.getRegex();
 				if (regex != null && value.matches(regex) == false) {
 					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);

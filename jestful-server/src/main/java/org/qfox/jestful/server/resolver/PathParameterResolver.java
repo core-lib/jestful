@@ -46,8 +46,8 @@ public class PathParameterResolver implements Actor, Initialable {
 			}
 			String source = matcher.group(group);
 			for (StringConverter<?> converter : converters) {
-				if (converter.support(parameter)) {
-					Object value = converter.convert(parameter, source);
+				if (converter.support(parameter.getKlass())) {
+					Object value = converter.convert(parameter.getKlass(), source);
 					parameter.setValue(value);
 					continue flag;
 				}
