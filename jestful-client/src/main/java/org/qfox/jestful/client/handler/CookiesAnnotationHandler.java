@@ -1,19 +1,14 @@
 package org.qfox.jestful.client.handler;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import org.qfox.jestful.client.annotation.Cookies;
 import org.qfox.jestful.client.exception.IllegalCookieException;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Resource;
-import org.qfox.jestful.core.converter.StringConverter;
 
 /**
  * <p>
@@ -31,7 +26,6 @@ import org.qfox.jestful.core.converter.StringConverter;
  * @since 1.0.0
  */
 public class CookiesAnnotationHandler implements Actor {
-	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
 
 	public Object react(Action action) throws Exception {
 		Request request = action.getRequest();
@@ -66,13 +60,6 @@ public class CookiesAnnotationHandler implements Actor {
 
 		request.setRequestHeader("Cookie", cookie.isEmpty() ? null : cookie);
 		return action.execute();
-	}
-
-	public void initialize(BeanContainer beanContainer) {
-		Map<String, ?> beans = beanContainer.find(StringConverter.class);
-		for (Object bean : beans.values()) {
-			converters.add((StringConverter<?>) bean);
-		}
 	}
 
 }

@@ -23,6 +23,9 @@
 
 	<bean class="org.qfox.jestful.core.converter.DefaultStringConverter" />
 	<bean class="org.qfox.jestful.core.converter.EnumStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.DateStringConverter" />
+	
+	<bean id="defaultStringConversion" class="org.qfox.jestful.core.converter.DefaultStringConversion" />
 
 </beans>
 

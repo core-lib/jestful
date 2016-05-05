@@ -1,8 +1,6 @@
 package org.qfox.jestful.server.resolver;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -14,8 +12,7 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.converter.StringConverter;
-import org.qfox.jestful.core.exception.NoSuchConverterException;
+import org.qfox.jestful.core.converter.StringConversion;
 
 /**
  * <p>
@@ -33,7 +30,7 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  * @since 1.0.0
  */
 public class CookieParameterResolver implements Actor, Initialable {
-	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
+	private StringConversion cookieStringConversion;
 	private boolean caseInsensitive = true;
 
 	public Object react(Action action) throws Exception {
@@ -43,21 +40,14 @@ public class CookieParameterResolver implements Actor, Initialable {
 		}
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		List<Parameter> parameters = action.getParameters().all(Position.COOKIE);
-		flag: for (Parameter parameter : parameters) {
+		for (Parameter parameter : parameters) {
 			Cookie[] cookies = httpServletRequest.getCookies();
 			for (Cookie cookie : cookies) {
 				if (caseInsensitive ? cookie.getName().equalsIgnoreCase(parameter.getName()) == false : cookie.getName().equals(parameter.getName()) == false) {
 					continue;
 				}
 				String source = cookie.getValue();
-				for (StringConverter<?> converter : converters) {
-					if (converter.support(parameter.getKlass())) {
-						Object value = converter.convert(parameter.getKlass(), source);
-						parameter.setValue(value);
-						continue flag;
-					}
-				}
-				throw new NoSuchConverterException(parameter);
+				cookieStringConversion.convert(parameter, source);
 			}
 		}
 		return action.execute();
@@ -72,10 +62,7 @@ public class CookieParameterResolver implements Actor, Initialable {
 	}
 
 	public void initialize(BeanContainer beanContainer) {
-		Map<String, ?> beans = beanContainer.find(StringConverter.class);
-		for (Object bean : beans.values()) {
-			converters.add((StringConverter<?>) bean);
-		}
+		this.cookieStringConversion = beanContainer.get(StringConversion.class);
 	}
 
 }

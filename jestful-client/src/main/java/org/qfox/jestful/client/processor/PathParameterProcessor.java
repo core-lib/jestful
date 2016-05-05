@@ -1,9 +1,7 @@
 package org.qfox.jestful.client.processor;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,8 +11,7 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
-import org.qfox.jestful.core.converter.StringConverter;
-import org.qfox.jestful.core.exception.NoSuchConverterException;
+import org.qfox.jestful.core.converter.StringConversion;
 
 /**
  * <p>
@@ -33,7 +30,7 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  */
 public class PathParameterProcessor implements Actor, Initialable {
 	private final Pattern pattern = Pattern.compile("\\{[^{}]+?\\}");
-	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
+	private StringConversion pathStringConversion;
 
 	public Object react(Action action) throws Exception {
 		String expression = action.getResource().getExpression();
@@ -41,37 +38,27 @@ public class PathParameterProcessor implements Actor, Initialable {
 		String URI = expression + definition;
 		String charset = action.getCharset();
 		List<Parameter> parameters = action.getParameters().all(Position.PATH);
-		flag: for (Parameter parameter : parameters) {
-			for (StringConverter<?> converter : converters) {
-				if (converter.support(parameter.getKlass()) == false) {
-					continue;
-				}
-				@SuppressWarnings("unchecked")
-				String value = ((StringConverter<Object>) converter).convert(parameter.getKlass(), parameter.getValue());
-				String regex = parameter.getRegex();
-				if (regex != null && value.matches(regex) == false) {
-					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
-				}
-				Matcher matcher = pattern.matcher(definition);
-				int group = parameter.getGroup();
-				for (int i = 0; i < group; i++) {
-					matcher.find();
-				}
-				String variable = matcher.group();
-				URI = URI.replace(variable, URLEncoder.encode(value, charset));
-				continue flag;
+		for (Parameter parameter : parameters) {
+			String[] values = pathStringConversion.convert(parameter);
+			String value = values[0];
+			String regex = parameter.getRegex();
+			if (regex != null && value.matches(regex) == false) {
+				throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
 			}
-			throw new NoSuchConverterException(parameter);
+			Matcher matcher = pattern.matcher(definition);
+			int group = parameter.getGroup();
+			for (int i = 0; i < group; i++) {
+				matcher.find();
+			}
+			String variable = matcher.group();
+			URI = URI.replace(variable, URLEncoder.encode(value, charset));
 		}
 		action.setURI(URI);
 		return action.execute();
 	}
 
 	public void initialize(BeanContainer beanContainer) {
-		Map<String, ?> beans = beanContainer.find(StringConverter.class);
-		for (Object bean : beans.values()) {
-			converters.add((StringConverter<?>) bean);
-		}
+		this.pathStringConversion = beanContainer.get(StringConversion.class);
 	}
 
 }

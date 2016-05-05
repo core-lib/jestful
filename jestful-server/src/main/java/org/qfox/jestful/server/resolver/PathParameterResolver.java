@@ -1,8 +1,6 @@
 package org.qfox.jestful.server.resolver;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,8 +10,7 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
-import org.qfox.jestful.core.converter.StringConverter;
-import org.qfox.jestful.core.exception.NoSuchConverterException;
+import org.qfox.jestful.core.converter.StringConversion;
 
 /**
  * <p>
@@ -31,7 +28,7 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  * @since 1.0.0
  */
 public class PathParameterResolver implements Actor, Initialable {
-	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
+	private StringConversion pathStringConversion;
 
 	public Object react(Action action) throws Exception {
 		String URI = action.getURI();
@@ -39,29 +36,19 @@ public class PathParameterResolver implements Actor, Initialable {
 		Pattern pattern = action.getPattern();
 		Matcher matcher = pattern.matcher(URI);
 		matcher.find();
-		flag: for (Parameter parameter : parameters) {
+		for (Parameter parameter : parameters) {
 			int group = parameter.getGroup();
 			if (group <= 0) {
 				continue;
 			}
 			String source = matcher.group(group);
-			for (StringConverter<?> converter : converters) {
-				if (converter.support(parameter.getKlass())) {
-					Object value = converter.convert(parameter.getKlass(), source);
-					parameter.setValue(value);
-					continue flag;
-				}
-			}
-			throw new NoSuchConverterException(parameter);
+			pathStringConversion.convert(parameter, source);
 		}
 		return action.execute();
 	}
 
 	public void initialize(BeanContainer beanContainer) {
-		Map<String, ?> beans = beanContainer.find(StringConverter.class);
-		for (Object bean : beans.values()) {
-			converters.add((StringConverter<?>) bean);
-		}
+		this.pathStringConversion = beanContainer.get(StringConversion.class);
 	}
 
 }

@@ -17,7 +17,7 @@ import org.qfox.jestful.core.Parameter;
  *
  * @since 1.0.0
  */
-public class NoSuchConverterException extends JestfulException {
+public class NoSuchConverterException extends JestfulRuntimeException {
 	private static final long serialVersionUID = 6803364287861961987L;
 
 	private final Parameter parameter;

@@ -1,9 +1,7 @@
 package org.qfox.jestful.client.processor;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
@@ -12,8 +10,7 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.converter.StringConverter;
-import org.qfox.jestful.core.exception.NoSuchConverterException;
+import org.qfox.jestful.core.converter.StringConversion;
 
 /**
  * <p>
@@ -31,37 +28,33 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  * @since 1.0.0
  */
 public class HeaderParameterProcessor implements Actor, Initialable {
-	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
+	private StringConversion headerStringConversion;
 
 	public Object react(Action action) throws Exception {
 		Request request = action.getRequest();
 		String charset = action.getCharset();
 		List<Parameter> parameters = action.getParameters().all(Position.HEADER);
-		flag: for (Parameter parameter : parameters) {
-			for (StringConverter<?> converter : converters) {
-				if (converter.support(parameter.getKlass()) == false) {
-					continue;
-				}
-				@SuppressWarnings("unchecked")
-				String value = ((StringConverter<Object>) converter).convert(parameter.getKlass(), parameter.getValue());
+		for (Parameter parameter : parameters) {
+			String name = parameter.getName();
+			String[] values = headerStringConversion.convert(parameter);
+			if (values == null) {
+				continue;
+			}
+			for (int i = 0; values != null && i < values.length; i++) {
+				String value = values[i];
 				String regex = parameter.getRegex();
 				if (regex != null && value.matches(regex) == false) {
 					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
 				}
-				String name = parameter.getName();
-				request.setRequestHeader(URLEncoder.encode(name, charset), URLEncoder.encode(value, charset));
-				continue flag;
+				values[i] = URLEncoder.encode(values[i], charset);
 			}
-			throw new NoSuchConverterException(parameter);
+			request.setRequestHeaders(URLEncoder.encode(name, charset), values);
 		}
 		return action.execute();
 	}
 
 	public void initialize(BeanContainer beanContainer) {
-		Map<String, ?> beans = beanContainer.find(StringConverter.class);
-		for (Object bean : beans.values()) {
-			converters.add((StringConverter<?>) bean);
-		}
+		this.headerStringConversion = beanContainer.get(StringConversion.class);
 	}
 
 }

@@ -3,9 +3,7 @@ package org.qfox.jestful.client;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.qfox.jestful.commons.Disposition;
 import org.qfox.jestful.commons.Multihead;
@@ -16,7 +14,7 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.RequestSerializer;
-import org.qfox.jestful.core.converter.StringConverter;
+import org.qfox.jestful.core.converter.StringConversion;
 
 /**
  * <p>
@@ -34,7 +32,7 @@ import org.qfox.jestful.core.converter.StringConverter;
  * @since 1.0.0
  */
 public class URLEncodedRequestSerializer implements RequestSerializer, Initialable {
-	private final List<StringConverter<?>> converters = new ArrayList<StringConverter<?>>();
+	private StringConversion urlStringConversion;
 	private final String contentType = "application/x-www-form-urlencoded";
 
 	public String getContentType() {
@@ -52,12 +50,7 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 	}
 
 	public boolean supports(Parameter parameter) {
-		for (StringConverter<?> converter : converters) {
-			if (converter.support(parameter.getKlass())) {
-				return true;
-			}
-		}
-		return false;
+		return urlStringConversion.supports(parameter);
 	}
 
 	public void serialize(Action action, OutputStream out) throws IOException {
@@ -68,20 +61,16 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 			if (body.getValue() == null) {
 				continue;
 			}
-			for (StringConverter<?> converter : converters) {
-				if (converter.support(body.getKlass())) {
-					@SuppressWarnings("unchecked")
-					StringConverter<Object> stringConverter = (StringConverter<Object>) converter;
-					String name = body.getName();
-					String value = stringConverter.convert(body.getKlass(), body.getValue());
-					if (builder.length() > 0) {
-						builder.append("&");
-					}
-					builder.append(URLEncoder.encode(name, charset));
-					builder.append("=");
-					builder.append(URLEncoder.encode(value, charset));
-					break;
+			String name = body.getName();
+			String[] values = urlStringConversion.convert(body);
+			for (int i = 0; values != null && i < values.length; i++) {
+				String value = values[i];
+				if (builder.length() > 0) {
+					builder.append("&");
 				}
+				builder.append(URLEncoder.encode(name, charset));
+				builder.append("=");
+				builder.append(URLEncoder.encode(value, charset));
 			}
 		}
 		if (builder.length() > 0) {
@@ -95,25 +84,19 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 			return;
 		}
 		String charset = action.getCharset();
-		for (StringConverter<?> converter : converters) {
-			if (converter.support(parameter.getKlass())) {
-				@SuppressWarnings("unchecked")
-				StringConverter<Object> stringConverter = (StringConverter<Object>) converter;
-				String name = parameter.getName();
-				String value = stringConverter.convert(parameter.getKlass(), parameter.getValue());
-				Disposition disposition = Disposition.valueOf("form-data; name=\"" + name + "\"");
-				Multihead multihead = new Multihead(disposition, null);
-				out.setNextMultihead(multihead);
-				out.write(URLEncoder.encode(value, charset).getBytes());
-			}
+		String name = parameter.getName();
+		String[] values = urlStringConversion.convert(parameter);
+		for (int i = 0; values != null && i < values.length; i++) {
+			String value = values[i];
+			Disposition disposition = Disposition.valueOf("form-data; name=\"" + name + "\"");
+			Multihead multihead = new Multihead(disposition, null);
+			out.setNextMultihead(multihead);
+			out.write(URLEncoder.encode(value, charset).getBytes());
 		}
 	}
 
 	public void initialize(BeanContainer beanContainer) {
-		Map<String, ?> beans = beanContainer.find(StringConverter.class);
-		for (Object bean : beans.values()) {
-			converters.add((StringConverter<?>) bean);
-		}
+		this.urlStringConversion = beanContainer.get(StringConversion.class);
 	}
 
 }
