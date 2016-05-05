@@ -40,7 +40,7 @@ public class PathParameterProcessor implements Actor, Initialable {
 		List<Parameter> parameters = action.getParameters().all(Position.PATH);
 		for (Parameter parameter : parameters) {
 			String[] values = pathStringConversion.convert(parameter);
-			String value = values != null && values.length > 0 ? values[0] : String.valueOf(null);
+			String value = values != null && values.length > 0 ? values[0] : "null";
 			String regex = parameter.getRegex();
 			if (regex != null && value.matches(regex) == false) {
 				throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
