@@ -12,7 +12,7 @@
 				<bean class="org.qfox.jestful.client.handler.QueriesAnnotationHandler" />
 				<bean class="org.qfox.jestful.client.processor.QueryParameterProcessor" />
 				<bean class="org.qfox.jestful.client.HttpURLConnectionBuilder" />
-				<bean class="org.qfox.jestful.client.AcceptHeaderDecider" />
+				<bean class="org.qfox.jestful.client.AcceptContentTypeDecider" />
 				<bean class="org.qfox.jestful.client.handler.HeadersAnnotationHandler" />
 				<bean class="org.qfox.jestful.client.processor.HeaderParameterProcessor" />
 				<bean class="org.qfox.jestful.client.handler.CookiesAnnotationHandler" />

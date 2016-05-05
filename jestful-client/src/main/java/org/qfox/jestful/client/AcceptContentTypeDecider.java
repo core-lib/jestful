@@ -28,7 +28,7 @@ import org.qfox.jestful.core.ResponseDeserializer;
  *
  * @since 1.0.0
  */
-public class AcceptHeaderDecider implements Actor, Initialable {
+public class AcceptContentTypeDecider implements Actor, Initialable {
 	private final Map<MediaType, ResponseDeserializer> map = new HashMap<MediaType, ResponseDeserializer>();
 
 	public Object react(Action action) throws Exception {
