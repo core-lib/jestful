@@ -14,18 +14,20 @@ import org.qfox.jestful.core.Action;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年5月6日 上午11:54:21
+ * @date 2016年5月6日 下午9:39:44
  *
  * @since 1.0.0
  */
-public class DefaultScheduler implements Scheduler {
+public class FutureScheduler implements Scheduler {
 
 	public boolean supports(Action action) {
-		return true;
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	public Object schedule(Client client, Action action) throws Exception {
-		return action.execute();
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

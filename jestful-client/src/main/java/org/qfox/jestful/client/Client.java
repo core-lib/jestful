@@ -118,14 +118,14 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		if (this.scheduler != null) {
 			Scheduler scheduler = schedulers.get(this.scheduler);
 			if (scheduler.supports(action)) {
-				return scheduler.schedule(action);
+				return scheduler.schedule(this, action);
 			} else {
 				throw new UnsuitableSchedulerException(action, scheduler);
 			}
 		} else {
 			for (Scheduler scheduler : schedulers.values()) {
 				if (scheduler.supports(action)) {
-					return scheduler.schedule(action);
+					return scheduler.schedule(this, action);
 				}
 			}
 			throw new NoSuchSchedulerException(action, new HashMap<String, Scheduler>(schedulers));

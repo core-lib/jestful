@@ -39,6 +39,58 @@ public class Parameters implements List<Parameter> {
 		return all;
 	}
 
+	public int count(Position position) {
+		int total = 0;
+		for (Parameter parameter : parameters) {
+			if (parameter.getPosition() == position) {
+				total++;
+			}
+		}
+		return total;
+	}
+
+	public List<Parameter> all(Class<?> klass) {
+		List<Parameter> all = new ArrayList<Parameter>();
+		for (Parameter parameter : parameters) {
+			if (klass.isAssignableFrom(parameter.getKlass())) {
+				all.add(parameter);
+			}
+		}
+		return all;
+	}
+	
+	public int count(Class<?> klass) {
+		int total = 0;
+		for (Parameter parameter : parameters) {
+			if (klass.isAssignableFrom(parameter.getKlass())) {
+				total++;
+			}
+		}
+		return total;
+	}
+
+	public Parameter first(Class<?> klass) {
+		Parameter first = null;
+		for (Parameter parameter : parameters) {
+			if (klass.isAssignableFrom(parameter.getKlass())) {
+				first = parameter;
+				break;
+			}
+		}
+		return first;
+	}
+
+	public Parameter last(Class<?> klass) {
+		Parameter last = null;
+		for (Parameter parameter : parameters) {
+			if (klass.isAssignableFrom(parameter.getKlass())) {
+				last = parameter;
+				continue;
+			}
+		}
+		return last;
+	}
+
 	public Object[] arguments() {
 		Object[] arguments = new Object[size()];
 		for (int i = 0; i < size(); i++) {

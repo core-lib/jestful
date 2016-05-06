@@ -1,5 +1,6 @@
 package org.qfox.jestful.client.scheduler;
 
+import org.qfox.jestful.client.Client;
 import org.qfox.jestful.core.Action;
 
 /**
@@ -21,6 +22,6 @@ public interface Scheduler {
 
 	boolean supports(Action action);
 
-	Object schedule(Action action) throws Exception;
+	Object schedule(Client client, Action action) throws Exception;
 
 }
