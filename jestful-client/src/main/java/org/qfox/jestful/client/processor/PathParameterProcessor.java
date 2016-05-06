@@ -35,7 +35,7 @@ public class PathParameterProcessor implements Actor, Initialable {
 	public Object react(Action action) throws Exception {
 		String expression = action.getResource().getExpression();
 		String definition = action.getMapping().getDefinition();
-		String URI = expression + definition;
+		String URI = (expression + definition).replaceAll("\\/+", "/");
 		String charset = action.getCharset();
 		List<Parameter> parameters = action.getParameters().all(Position.PATH);
 		for (Parameter parameter : parameters) {

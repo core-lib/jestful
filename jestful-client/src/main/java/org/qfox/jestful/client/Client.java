@@ -10,8 +10,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.qfox.jestful.client.exception.NoSuchSchedulerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
+import org.qfox.jestful.client.exception.UnsuitableSchedulerException;
+import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Accepts;
@@ -46,7 +49,8 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
  * @since 1.0.0
  */
 public class Client implements InvocationHandler, Actor, Initialable {
-	private final Map<MediaType, ResponseDeserializer> map = new HashMap<MediaType, ResponseDeserializer>();
+	private final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
+	private final Map<String, Scheduler> schedulers = new HashMap<String, Scheduler>();
 
 	private final String protocol;
 	private final String host;
@@ -57,8 +61,9 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final String[] configLocations;
 	private final BeanContainer beanContainer;
 	private final Actor actor;
+	private final String scheduler;
 
-	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String[] configLocations, String beanContainer, String actor) {
+	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String[] configLocations, String beanContainer, String actor, String scheduler) {
 		super();
 		this.protocol = protocol;
 		this.host = host;
@@ -73,6 +78,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		reader.loadBeanDefinitions(configLocations);
 		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
 		this.actor = defaultListableBeanFactory.getBean(actor, Actor.class);
+		this.scheduler = scheduler;
 		this.initialize(this.beanContainer);
 	}
 
@@ -81,8 +87,11 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		for (ResponseDeserializer deserializer : deserializers) {
 			String contentType = deserializer.getContentType();
 			MediaType mediaType = MediaType.valueOf(contentType);
-			map.put(mediaType, deserializer);
+			this.deserializers.put(mediaType, deserializer);
 		}
+
+		Map<String, Scheduler> schedulers = beanContainer.find(Scheduler.class);
+		this.schedulers.putAll(schedulers);
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -106,7 +115,21 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		action.setConsumes(mapping.getConsumes());
 		action.setProduces(mapping.getProduces());
 
-		return action.execute();
+		if (this.scheduler != null) {
+			Scheduler scheduler = schedulers.get(this.scheduler);
+			if (scheduler.supports(action)) {
+				return scheduler.schedule(action);
+			} else {
+				throw new UnsuitableSchedulerException(action, scheduler);
+			}
+		} else {
+			for (Scheduler scheduler : schedulers.values()) {
+				if (scheduler.supports(action)) {
+					return scheduler.schedule(action);
+				}
+			}
+			throw new NoSuchSchedulerException(action, new HashMap<String, Scheduler>(schedulers));
+		}
 	}
 
 	public Object react(Action action) throws Exception {
@@ -119,10 +142,10 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			}
 			String contentType = response.getResponseHeader("Content-Type");
 			Accepts produces = action.getProduces();
-			Accepts supports = new Accepts(map.keySet());
+			Accepts supports = new Accepts(deserializers.keySet());
 			MediaType mediaType = MediaType.valueOf(contentType);
 			if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
-				ResponseDeserializer deserializer = map.get(mediaType);
+				ResponseDeserializer deserializer = deserializers.get(mediaType);
 				InputStream in = response.getResponseInputStream();
 				deserializer.deserialize(action, mediaType, in);
 				return result.getValue();
@@ -154,15 +177,16 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	public static class Builder {
 		private String protocol = "http";
 		private String host = "localhost";
-		private Integer port;
-		private String route;
+		private Integer port = null;
+		private String route = null;
 		private ClassLoader classLoader = this.getClass().getClassLoader();
 		private String beanContainer = "defaultBeanContainer";
 		private String actor = "client";
 		private String[] configLocations = new String[] { "classpath*:/jestful/*.xml" };
+		private String scheduler = null;
 
 		public Client build() {
-			return new Client(protocol, host, port, route, classLoader, configLocations, beanContainer, actor);
+			return new Client(protocol, host, port, route, classLoader, configLocations, beanContainer, actor, scheduler);
 		}
 
 		public Builder setEndpoint(URL endpoint) {
@@ -237,6 +261,14 @@ public class Client implements InvocationHandler, Actor, Initialable {
 				throw new IllegalArgumentException("config locations is null or empty");
 			}
 			this.configLocations = configLocations;
+			return this;
+		}
+
+		public Builder setScheduler(String scheduler) {
+			if (scheduler == null) {
+				throw new IllegalArgumentException("scheduler is null");
+			}
+			this.scheduler = scheduler;
 			return this;
 		}
 

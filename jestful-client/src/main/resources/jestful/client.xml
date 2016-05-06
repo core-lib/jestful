@@ -24,5 +24,8 @@
 
 	<bean class="org.qfox.jestful.client.URLEncodedRequestSerializer" />
 	<bean class="org.qfox.jestful.client.MultipartRequestSerializer" />
+	
+	<bean class="org.qfox.jestful.client.scheduler.DefaultScheduler" />
+	<bean class="org.qfox.jestful.client.scheduler.CallbackScheduler" />
 
 </beans>

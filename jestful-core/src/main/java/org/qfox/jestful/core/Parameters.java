@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 /**
  * <p>
@@ -20,20 +21,12 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class Parameters implements Iterable<Parameter> {
+public class Parameters implements List<Parameter> {
 	private final List<Parameter> parameters;
 
 	public Parameters(Collection<Parameter> parameters) {
 		super();
 		this.parameters = new ArrayList<Parameter>(parameters);
-	}
-
-	public int size() {
-		return parameters.size();
-	}
-
-	public Parameter get(int index) {
-		return parameters.get(index);
 	}
 
 	public List<Parameter> all(Position position) {
@@ -63,12 +56,96 @@ public class Parameters implements Iterable<Parameter> {
 		}
 	}
 
+	public int size() {
+		return parameters.size();
+	}
+
 	public boolean isEmpty() {
-		return size() == 0;
+		return parameters.isEmpty();
+	}
+
+	public boolean contains(Object o) {
+		return parameters.contains(o);
 	}
 
 	public Iterator<Parameter> iterator() {
 		return parameters.iterator();
+	}
+
+	public Object[] toArray() {
+		return parameters.toArray();
+	}
+
+	public <T> T[] toArray(T[] a) {
+		return parameters.toArray(a);
+	}
+
+	public boolean add(Parameter e) {
+		return parameters.add(e);
+	}
+
+	public boolean remove(Object o) {
+		return parameters.remove(o);
+	}
+
+	public boolean containsAll(Collection<?> c) {
+		return parameters.containsAll(c);
+	}
+
+	public boolean addAll(Collection<? extends Parameter> c) {
+		return parameters.addAll(c);
+	}
+
+	public boolean addAll(int index, Collection<? extends Parameter> c) {
+		return parameters.addAll(index, c);
+	}
+
+	public boolean removeAll(Collection<?> c) {
+		return parameters.removeAll(c);
+	}
+
+	public boolean retainAll(Collection<?> c) {
+		return parameters.retainAll(c);
+	}
+
+	public void clear() {
+		parameters.clear();
+	}
+
+	public Parameter get(int index) {
+		return parameters.get(index);
+	}
+
+	public Parameter set(int index, Parameter element) {
+		return parameters.set(index, element);
+	}
+
+	public void add(int index, Parameter element) {
+		parameters.add(index, element);
+	}
+
+	public Parameter remove(int index) {
+		return parameters.remove(index);
+	}
+
+	public int indexOf(Object o) {
+		return parameters.indexOf(o);
+	}
+
+	public int lastIndexOf(Object o) {
+		return parameters.lastIndexOf(o);
+	}
+
+	public ListIterator<Parameter> listIterator() {
+		return parameters.listIterator();
+	}
+
+	public ListIterator<Parameter> listIterator(int index) {
+		return parameters.listIterator(index);
+	}
+
+	public List<Parameter> subList(int fromIndex, int toIndex) {
+		return parameters.subList(fromIndex, toIndex);
 	}
 
 }
