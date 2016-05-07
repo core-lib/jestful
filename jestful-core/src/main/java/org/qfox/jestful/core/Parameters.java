@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.qfox.jestful.core.exception.NoOnlyParameterException;
+import org.qfox.jestful.core.exception.NoSuchParameterException;
+
 /**
  * <p>
  * Description:
@@ -58,7 +61,7 @@ public class Parameters implements List<Parameter> {
 		}
 		return all;
 	}
-	
+
 	public int count(Class<?> klass) {
 		int total = 0;
 		for (Parameter parameter : parameters) {
@@ -67,6 +70,17 @@ public class Parameters implements List<Parameter> {
 			}
 		}
 		return total;
+	}
+
+	public Parameter unique(Class<?> klass) throws NoSuchParameterException, NoOnlyParameterException {
+		List<Parameter> all = all(klass);
+		if (all.isEmpty()) {
+			throw new NoSuchParameterException(this, klass);
+		} else if (all.size() > 1) {
+			throw new NoOnlyParameterException(this, klass);
+		} else {
+			return all.get(0);
+		}
 	}
 
 	public Parameter first(Class<?> klass) {

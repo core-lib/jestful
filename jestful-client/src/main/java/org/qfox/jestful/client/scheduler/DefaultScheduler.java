@@ -1,7 +1,11 @@
 package org.qfox.jestful.client.scheduler;
 
+import java.lang.reflect.Type;
+
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.exception.UncertainReturnTypeException;
 import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Result;
 
 /**
  * <p>
@@ -22,6 +26,11 @@ public class DefaultScheduler implements Scheduler {
 
 	public boolean supports(Action action) {
 		return true;
+	}
+
+	public Type getReturnType(Client client, Action action) throws UncertainReturnTypeException {
+		Result result = action.getResult();
+		return result.getType();
 	}
 
 	public Object schedule(Client client, Action action) throws Exception {

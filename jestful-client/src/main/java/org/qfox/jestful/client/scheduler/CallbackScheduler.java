@@ -1,9 +1,12 @@
 package org.qfox.jestful.client.scheduler;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.exception.UncertainReturnTypeException;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Parameters;
@@ -34,12 +37,43 @@ public class CallbackScheduler implements Scheduler {
 		return parameters.count(Callback.class) == 1 && result.getKlass() == Void.TYPE;
 	}
 
-	public Object schedule(Client client, Action action) throws Exception {
+	public Type getReturnType(Client client, Action action) throws UncertainReturnTypeException {
 		Parameters parameters = action.getParameters();
-		Parameter parameter = parameters.first(Callback.class);
-		Callback<?> callback = (Callback<?>) parameter.getValue();
-		
-		
+		Parameter parameter = parameters.unique(Callback.class);
+		Type type = parameter.getType();
+		if (type instanceof Class<?>) {
+			throw new UncertainReturnTypeException(type);
+		} else if (type instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = (ParameterizedType) type;
+			Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
+			return actualTypeArgument;
+		} else {
+			throw new UncertainReturnTypeException(type);
+		}
+	}
+
+	public Object schedule(final Client client, final Action action) throws Exception {
+		final Parameters parameters = action.getParameters();
+		final Parameter parameter = parameters.unique(Callback.class);
+		@SuppressWarnings("unchecked")
+		final Callback<Object> callback = (Callback<Object>) parameter.getValue();
+		executor.execute(new Runnable() {
+
+			public void run() {
+				Object result = null;
+				Throwable throwable = null;
+				try {
+					result = action.execute();
+					callback.onSuccess(result);
+				} catch (Throwable t) {
+					throwable = t;
+					callback.onFail(throwable);
+				} finally {
+					callback.onCompleted(throwable == null ? true : false, result, throwable);
+				}
+			}
+
+		});
 		return null;
 	}
 

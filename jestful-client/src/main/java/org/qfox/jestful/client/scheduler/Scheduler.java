@@ -1,6 +1,9 @@
 package org.qfox.jestful.client.scheduler;
 
+import java.lang.reflect.Type;
+
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.exception.UncertainReturnTypeException;
 import org.qfox.jestful.core.Action;
 
 /**
@@ -21,6 +24,8 @@ import org.qfox.jestful.core.Action;
 public interface Scheduler {
 
 	boolean supports(Action action);
+
+	Type getReturnType(Client client, Action action) throws UncertainReturnTypeException;
 
 	Object schedule(Client client, Action action) throws Exception;
 
