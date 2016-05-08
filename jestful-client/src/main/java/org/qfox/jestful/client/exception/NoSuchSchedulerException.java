@@ -3,7 +3,6 @@ package org.qfox.jestful.client.exception;
 import java.util.Map;
 
 import org.qfox.jestful.client.scheduler.Scheduler;
-import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.exception.JestfulException;
 
 /**
@@ -24,17 +23,17 @@ import org.qfox.jestful.core.exception.JestfulException;
 public class NoSuchSchedulerException extends JestfulException {
 	private static final long serialVersionUID = 1247770737847092768L;
 
-	private final Action action;
+	private final String name;
 	private final Map<String, Scheduler> schedulers;
 
-	public NoSuchSchedulerException(Action action, Map<String, Scheduler> schedulers) {
+	public NoSuchSchedulerException(String name, Map<String, Scheduler> schedulers) {
 		super();
-		this.action = action;
+		this.name = name;
 		this.schedulers = schedulers;
 	}
 
-	public Action getAction() {
-		return action;
+	public String getName() {
+		return name;
 	}
 
 	public Map<String, Scheduler> getSchedulers() {
