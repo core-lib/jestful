@@ -118,12 +118,16 @@ public class Client implements InvocationHandler, Actor, Initialable {
 
 		if (this.scheduler != null) {
 			Scheduler scheduler = schedulers.get(this.scheduler);
-			if (scheduler.supports(action)) {
-				Type bodyType = scheduler.getBodyType(this, action);
-				action.getResult().setBodyType(bodyType);
-				return scheduler.schedule(this, action);
+			if (scheduler != null) {
+				if (scheduler.supports(action)) {
+					Type bodyType = scheduler.getBodyType(this, action);
+					action.getResult().setBodyType(bodyType);
+					return scheduler.schedule(this, action);
+				} else {
+					throw new UnsuitableSchedulerException(action, scheduler);
+				}
 			} else {
-				throw new UnsuitableSchedulerException(action, scheduler);
+				throw new NoSuchSchedulerException(this.scheduler, new HashMap<String, Scheduler>(schedulers));
 			}
 		} else {
 			for (Scheduler scheduler : schedulers.values()) {
@@ -133,7 +137,9 @@ public class Client implements InvocationHandler, Actor, Initialable {
 					return scheduler.schedule(this, action);
 				}
 			}
-			throw new NoSuchSchedulerException(action, new HashMap<String, Scheduler>(schedulers));
+			Type bodyType = action.getResult().getReturnType();
+			action.getResult().setBodyType(bodyType);
+			return action.execute();
 		}
 	}
 
