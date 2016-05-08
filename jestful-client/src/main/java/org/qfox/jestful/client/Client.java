@@ -148,7 +148,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		if (response.isResponseSuccess()) {
 			Restful restful = action.getRestful();
 			Result result = action.getResult();
-			if (restful.isReturnBody() == false || result.getKlass() == Void.TYPE) {
+			if (restful.isReturnBody() == false || result.getBodyType() == Void.TYPE) {
 				return null;
 			}
 			String contentType = response.getResponseHeader("Content-Type");
