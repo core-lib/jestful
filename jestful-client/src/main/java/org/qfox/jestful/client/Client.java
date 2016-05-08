@@ -11,10 +11,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.qfox.jestful.client.exception.NoSuchSchedulerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
-import org.qfox.jestful.client.exception.UnsuitableSchedulerException;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.io.IOUtils;
@@ -62,9 +60,8 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final String[] configLocations;
 	private final BeanContainer beanContainer;
 	private final Actor actor;
-	private final String scheduler;
 
-	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String[] configLocations, String beanContainer, String actor, String scheduler) {
+	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String[] configLocations, String beanContainer, String actor) {
 		super();
 		this.protocol = protocol;
 		this.host = host;
@@ -79,7 +76,6 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		reader.loadBeanDefinitions(configLocations);
 		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
 		this.actor = defaultListableBeanFactory.getBean(actor, Actor.class);
-		this.scheduler = scheduler;
 		this.initialize(this.beanContainer);
 	}
 
@@ -116,31 +112,16 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		action.setConsumes(mapping.getConsumes());
 		action.setProduces(mapping.getProduces());
 
-		if (this.scheduler != null) {
-			Scheduler scheduler = schedulers.get(this.scheduler);
-			if (scheduler != null) {
-				if (scheduler.supports(action)) {
-					Type bodyType = scheduler.getBodyType(this, action);
-					action.getResult().setBodyType(bodyType);
-					return scheduler.schedule(this, action);
-				} else {
-					throw new UnsuitableSchedulerException(action, scheduler);
-				}
-			} else {
-				throw new NoSuchSchedulerException(this.scheduler, new HashMap<String, Scheduler>(schedulers));
+		for (Scheduler scheduler : schedulers.values()) {
+			if (scheduler.supports(action)) {
+				Type bodyType = scheduler.getBodyType(this, action);
+				action.getResult().setBodyType(bodyType);
+				return scheduler.schedule(this, action);
 			}
-		} else {
-			for (Scheduler scheduler : schedulers.values()) {
-				if (scheduler.supports(action)) {
-					Type bodyType = scheduler.getBodyType(this, action);
-					action.getResult().setBodyType(bodyType);
-					return scheduler.schedule(this, action);
-				}
-			}
-			Type bodyType = action.getResult().getReturnType();
-			action.getResult().setBodyType(bodyType);
-			return action.execute();
 		}
+		Type bodyType = action.getResult().getReturnType();
+		action.getResult().setBodyType(bodyType);
+		return action.execute();
 	}
 
 	public Object react(Action action) throws Exception {
@@ -194,10 +175,9 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		private String beanContainer = "defaultBeanContainer";
 		private String actor = "client";
 		private String[] configLocations = new String[] { "classpath*:/jestful/*.xml" };
-		private String scheduler = null;
 
 		public Client build() {
-			return new Client(protocol, host, port, route, classLoader, configLocations, beanContainer, actor, scheduler);
+			return new Client(protocol, host, port, route, classLoader, configLocations, beanContainer, actor);
 		}
 
 		public Builder setEndpoint(URL endpoint) {
@@ -272,14 +252,6 @@ public class Client implements InvocationHandler, Actor, Initialable {
 				throw new IllegalArgumentException("config locations is null or empty");
 			}
 			this.configLocations = configLocations;
-			return this;
-		}
-
-		public Builder setScheduler(String scheduler) {
-			if (scheduler == null) {
-				throw new IllegalArgumentException("scheduler is null");
-			}
-			this.scheduler = scheduler;
 			return this;
 		}
 
