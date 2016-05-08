@@ -37,7 +37,7 @@ public class CallbackScheduler implements Scheduler {
 		return parameters.count(Callback.class) == 1 && result.getKlass() == Void.TYPE;
 	}
 
-	public Type getReturnType(Client client, Action action) throws UncertainReturnTypeException {
+	public Type getBodyType(Client client, Action action) throws UncertainReturnTypeException {
 		Parameters parameters = action.getParameters();
 		Parameter parameter = parameters.unique(Callback.class);
 		Type type = parameter.getType();

@@ -39,7 +39,7 @@ public class XmlResponseDeserializer extends XmlMapper implements ResponseDeseri
 		try {
 			isr = new InputStreamReader(in);
 			Result result = action.getResult();
-			Object value = readValue(isr, constructType(result.getType()));
+			Object value = readValue(isr, constructType(result.getBodyType()));
 			result.setValue(value);
 		} finally {
 			IOUtils.close(isr);

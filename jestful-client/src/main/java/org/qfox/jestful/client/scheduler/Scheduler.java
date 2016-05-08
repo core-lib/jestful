@@ -25,7 +25,7 @@ public interface Scheduler {
 
 	boolean supports(Action action);
 
-	Type getReturnType(Client client, Action action) throws UncertainReturnTypeException;
+	Type getBodyType(Client client, Action action) throws UncertainReturnTypeException;
 
 	Object schedule(Client client, Action action) throws Exception;
 

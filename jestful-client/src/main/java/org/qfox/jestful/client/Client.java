@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
@@ -118,6 +119,8 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		if (this.scheduler != null) {
 			Scheduler scheduler = schedulers.get(this.scheduler);
 			if (scheduler.supports(action)) {
+				Type bodyType = scheduler.getBodyType(this, action);
+				action.getResult().setBodyType(bodyType);
 				return scheduler.schedule(this, action);
 			} else {
 				throw new UnsuitableSchedulerException(action, scheduler);
@@ -125,6 +128,8 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		} else {
 			for (Scheduler scheduler : schedulers.values()) {
 				if (scheduler.supports(action)) {
+					Type bodyType = scheduler.getBodyType(this, action);
+					action.getResult().setBodyType(bodyType);
 					return scheduler.schedule(this, action);
 				}
 			}

@@ -28,9 +28,9 @@ public class DefaultScheduler implements Scheduler {
 		return true;
 	}
 
-	public Type getReturnType(Client client, Action action) throws UncertainReturnTypeException {
+	public Type getBodyType(Client client, Action action) throws UncertainReturnTypeException {
 		Result result = action.getResult();
-		return result.getType();
+		return result.getReturnType();
 	}
 
 	public Object schedule(Client client, Action action) throws Exception {

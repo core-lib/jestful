@@ -51,7 +51,7 @@ public class Action {
 
 	private Accepts consumes;
 	private Accepts produces;
-
+	
 	private String charset = Charset.defaultCharset().name();
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();

@@ -37,9 +37,9 @@ public class FutureScheduler implements Scheduler {
 		return Future.class.isAssignableFrom(klass);
 	}
 
-	public Type getReturnType(Client client, Action action) throws UncertainReturnTypeException {
+	public Type getBodyType(Client client, Action action) throws UncertainReturnTypeException {
 		Result result = action.getResult();
-		Type type = result.getType();
+		Type type = result.getReturnType();
 		if (type instanceof Class<?>) {
 			throw new UncertainReturnTypeException(type);
 		} else if (type instanceof ParameterizedType) {
