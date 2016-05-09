@@ -57,4 +57,12 @@ public class HeaderParameterProcessor implements Actor, Initialable {
 		this.headerStringConversion = beanContainer.get(StringConversion.class);
 	}
 
+	public StringConversion getHeaderStringConversion() {
+		return headerStringConversion;
+	}
+
+	public void setHeaderStringConversion(StringConversion headerStringConversion) {
+		this.headerStringConversion = headerStringConversion;
+	}
+
 }

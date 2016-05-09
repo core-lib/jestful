@@ -99,4 +99,12 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 		this.urlStringConversion = beanContainer.get(StringConversion.class);
 	}
 
+	public StringConversion getUrlStringConversion() {
+		return urlStringConversion;
+	}
+
+	public void setUrlStringConversion(StringConversion urlStringConversion) {
+		this.urlStringConversion = urlStringConversion;
+	}
+
 }

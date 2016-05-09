@@ -54,4 +54,12 @@ public class QueryParameterProcessor implements Actor, Initialable {
 		this.queryStringConversion = beanContainer.get(StringConversion.class);
 	}
 
+	public StringConversion getQueryStringConversion() {
+		return queryStringConversion;
+	}
+
+	public void setQueryStringConversion(StringConversion queryStringConversion) {
+		this.queryStringConversion = queryStringConversion;
+	}
+
 }

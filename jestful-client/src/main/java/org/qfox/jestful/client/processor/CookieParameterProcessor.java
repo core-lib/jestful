@@ -56,4 +56,12 @@ public class CookieParameterProcessor implements Actor, Initialable {
 		this.cookieStringConversion = beanContainer.get(StringConversion.class);
 	}
 
+	public StringConversion getCookieStringConversion() {
+		return cookieStringConversion;
+	}
+
+	public void setCookieStringConversion(StringConversion cookieStringConversion) {
+		this.cookieStringConversion = cookieStringConversion;
+	}
+
 }

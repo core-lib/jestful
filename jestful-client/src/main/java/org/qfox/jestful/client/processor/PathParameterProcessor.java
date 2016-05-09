@@ -61,4 +61,12 @@ public class PathParameterProcessor implements Actor, Initialable {
 		this.pathStringConversion = beanContainer.get(StringConversion.class);
 	}
 
+	public StringConversion getPathStringConversion() {
+		return pathStringConversion;
+	}
+
+	public void setPathStringConversion(StringConversion pathStringConversion) {
+		this.pathStringConversion = pathStringConversion;
+	}
+
 }

@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jestful="http://www.qfoxtech.com/schema/jestful"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.qfoxtech.com/schema/jestful http://www.qfoxtech.com/schema/jestful/jestful.xsd">
 
 	<bean id="defaultBeanContainer" class="org.qfox.jestful.client.DefaultBeanContainer" />
 
-	<bean id="client" class="org.qfox.jestful.core.Group">
-		<property name="members">
-			<list>
-				<bean class="org.qfox.jestful.client.processor.PathParameterProcessor" />
-				<bean class="org.qfox.jestful.client.handler.QueriesAnnotationHandler" />
-				<bean class="org.qfox.jestful.client.processor.QueryParameterProcessor" />
-				<bean class="org.qfox.jestful.client.HttpURLConnectionBuilder" />
-				<bean class="org.qfox.jestful.client.AcceptContentTypeDecider" />
-				<bean class="org.qfox.jestful.client.handler.HeadersAnnotationHandler" />
-				<bean class="org.qfox.jestful.client.processor.HeaderParameterProcessor" />
-				<bean class="org.qfox.jestful.client.handler.CookiesAnnotationHandler" />
-				<bean class="org.qfox.jestful.client.processor.CookieParameterProcessor" />
-				<bean class="org.qfox.jestful.client.processor.BodyParameterProcessor" />
-			</list>
-		</property>
-	</bean>
+	<jestful:group id="client">
+		<bean class="org.qfox.jestful.client.processor.PathParameterProcessor">
+			<property name="pathStringConversion" ref="defaultStringConversion" />
+		</bean>
+		<bean class="org.qfox.jestful.client.handler.QueriesAnnotationHandler" />
+		<bean class="org.qfox.jestful.client.processor.QueryParameterProcessor" />
+		<bean class="org.qfox.jestful.client.HttpURLConnectionBuilder" />
+		<bean class="org.qfox.jestful.client.AcceptContentTypeDecider" />
+		<bean class="org.qfox.jestful.client.handler.HeadersAnnotationHandler" />
+		<bean class="org.qfox.jestful.client.processor.HeaderParameterProcessor" />
+		<bean class="org.qfox.jestful.client.handler.CookiesAnnotationHandler" />
+		<bean class="org.qfox.jestful.client.processor.CookieParameterProcessor" />
+		<bean class="org.qfox.jestful.client.processor.BodyParameterProcessor" />
+	</jestful:group>
 
 	<bean class="org.qfox.jestful.client.URLEncodedRequestSerializer" />
 	<bean class="org.qfox.jestful.client.MultipartRequestSerializer" />
-	
+
 	<bean class="org.qfox.jestful.client.scheduler.CallbackScheduler" />
 	<bean class="org.qfox.jestful.client.scheduler.FutureScheduler" />
 

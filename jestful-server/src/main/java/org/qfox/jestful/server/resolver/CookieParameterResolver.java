@@ -53,6 +53,10 @@ public class CookieParameterResolver implements Actor, Initialable {
 		return action.execute();
 	}
 
+	public void initialize(BeanContainer beanContainer) {
+		this.cookieStringConversion = beanContainer.get(StringConversion.class);
+	}
+
 	public boolean isCaseInsensitive() {
 		return caseInsensitive;
 	}
@@ -61,8 +65,12 @@ public class CookieParameterResolver implements Actor, Initialable {
 		this.caseInsensitive = caseInsensitive;
 	}
 
-	public void initialize(BeanContainer beanContainer) {
-		this.cookieStringConversion = beanContainer.get(StringConversion.class);
+	public StringConversion getCookieStringConversion() {
+		return cookieStringConversion;
+	}
+
+	public void setCookieStringConversion(StringConversion cookieStringConversion) {
+		this.cookieStringConversion = cookieStringConversion;
 	}
 
 }
