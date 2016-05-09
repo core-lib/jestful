@@ -119,12 +119,16 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			if (scheduler.supports(action)) {
 				Type type = scheduler.certain(this, action);
 				body.setType(type);
-				return scheduler.schedule(this, action);
+				Object value = scheduler.schedule(this, action);
+				result.setValue(value);
+				return value;
 			}
 		}
 		Type type = result.getType();
 		body.setType(type);
-		return action.execute();
+		Object value = action.execute();
+		result.setValue(value);
+		return value;
 	}
 
 	public Object react(Action action) throws Exception {
