@@ -161,4 +161,12 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 		multipartConversionProvider = beanContainer.get(ConversionProvider.class);
 	}
 
+	public ConversionProvider getMultipartConversionProvider() {
+		return multipartConversionProvider;
+	}
+
+	public void setMultipartConversionProvider(ConversionProvider multipartConversionProvider) {
+		this.multipartConversionProvider = multipartConversionProvider;
+	}
+
 }

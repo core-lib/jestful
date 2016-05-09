@@ -69,4 +69,12 @@ public class HeaderParameterResolver implements Actor, Initialable {
 		headerConversionProvider = beanContainer.get(ConversionProvider.class);
 	}
 
+	public ConversionProvider getHeaderConversionProvider() {
+		return headerConversionProvider;
+	}
+
+	public void setHeaderConversionProvider(ConversionProvider headerConversionProvider) {
+		this.headerConversionProvider = headerConversionProvider;
+	}
+
 }

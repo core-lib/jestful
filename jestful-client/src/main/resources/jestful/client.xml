@@ -6,9 +6,7 @@
 	<bean id="defaultBeanContainer" class="org.qfox.jestful.client.DefaultBeanContainer" />
 
 	<jestful:group id="client">
-		<bean class="org.qfox.jestful.client.processor.PathParameterProcessor">
-			<property name="pathStringConversion" ref="defaultStringConversion" />
-		</bean>
+		<bean class="org.qfox.jestful.client.processor.PathParameterProcessor" />
 		<bean class="org.qfox.jestful.client.handler.QueriesAnnotationHandler" />
 		<bean class="org.qfox.jestful.client.processor.QueryParameterProcessor" />
 		<bean class="org.qfox.jestful.client.HttpURLConnectionBuilder" />

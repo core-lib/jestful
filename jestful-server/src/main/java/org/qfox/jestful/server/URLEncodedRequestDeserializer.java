@@ -69,7 +69,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 					map.put(key, values);
 				}
 			}
-			List<Parameter> parameters = action.getParameters().all( Position.BODY);
+			List<Parameter> parameters = action.getParameters().all(Position.BODY);
 			for (Parameter parameter : parameters) {
 				if (parameter.getValue() != null) {
 					continue;
@@ -96,4 +96,13 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 	public void initialize(BeanContainer beanContainer) {
 		urlConversionProvider = beanContainer.get(ConversionProvider.class);
 	}
+
+	public ConversionProvider getUrlConversionProvider() {
+		return urlConversionProvider;
+	}
+
+	public void setUrlConversionProvider(ConversionProvider urlConversionProvider) {
+		this.urlConversionProvider = urlConversionProvider;
+	}
+
 }

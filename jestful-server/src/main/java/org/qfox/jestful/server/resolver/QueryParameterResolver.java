@@ -76,4 +76,12 @@ public class QueryParameterResolver implements Actor, Initialable {
 		queryConversionProvider = beanContainer.get(ConversionProvider.class);
 	}
 
+	public ConversionProvider getQueryConversionProvider() {
+		return queryConversionProvider;
+	}
+
+	public void setQueryConversionProvider(ConversionProvider queryConversionProvider) {
+		this.queryConversionProvider = queryConversionProvider;
+	}
+
 }
