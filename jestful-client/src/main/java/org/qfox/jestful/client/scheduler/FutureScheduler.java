@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.qfox.jestful.client.Client;
-import org.qfox.jestful.client.exception.UncertainReturnTypeException;
+import org.qfox.jestful.client.exception.UncertainBodyTypeException;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Result;
 
@@ -37,17 +37,17 @@ public class FutureScheduler implements Scheduler {
 		return Future.class.isAssignableFrom(klass);
 	}
 
-	public Type getBodyType(Client client, Action action) throws UncertainReturnTypeException {
+	public Type certain(Client client, Action action) throws UncertainBodyTypeException {
 		Result result = action.getResult();
-		Type type = result.getReturnType();
+		Type type = result.getType();
 		if (type instanceof Class<?>) {
-			throw new UncertainReturnTypeException(type);
+			throw new UncertainBodyTypeException(type);
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = (ParameterizedType) type;
 			Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
 			return actualTypeArgument;
 		} else {
-			throw new UncertainReturnTypeException(type);
+			throw new UncertainBodyTypeException(type);
 		}
 	}
 

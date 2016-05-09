@@ -39,8 +39,8 @@ public class JsonResponseDeserializer extends ObjectMapper implements ResponseDe
 		try {
 			isr = new InputStreamReader(in);
 			Result result = action.getResult();
-			Object value = readValue(isr, constructType(result.getBodyType()));
-			result.setValue(value);
+			Object value = readValue(isr, constructType(result.getBody().getType()));
+			result.getBody().setValue(value);
 		} finally {
 			IOUtils.close(isr);
 		}

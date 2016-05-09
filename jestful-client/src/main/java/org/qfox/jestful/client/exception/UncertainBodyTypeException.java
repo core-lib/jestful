@@ -19,12 +19,12 @@ import org.qfox.jestful.core.exception.JestfulException;
  *
  * @since 1.0.0
  */
-public class UncertainReturnTypeException extends JestfulException {
+public class UncertainBodyTypeException extends JestfulException {
 	private static final long serialVersionUID = 376421971058848789L;
 
 	private final Type type;
 
-	public UncertainReturnTypeException(Type type) {
+	public UncertainBodyTypeException(Type type) {
 		super();
 		this.type = type;
 	}

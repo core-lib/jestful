@@ -37,7 +37,7 @@ public class JavaResponseDeserializer implements ResponseDeserializer {
 			ois = new ObjectInputStream(in);
 			Result result = action.getResult();
 			Object value = ois.readObject();
-			result.setValue(value);
+			result.getBody().setValue(value);
 		} catch (ClassNotFoundException e) {
 			throw new IOException(e);
 		} finally {

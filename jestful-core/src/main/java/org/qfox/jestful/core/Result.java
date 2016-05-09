@@ -24,9 +24,9 @@ public class Result extends Configuration {
 	private final Mapping mapping;
 	private final Object controller;
 	private final Method method;
-	private final Type returnType;
+	private final Type type;
 	private final Class<?> klass;
-	private Type bodyType;
+	private final Body body;
 	private Object value;
 	private boolean rendered = false;
 
@@ -36,19 +36,12 @@ public class Result extends Configuration {
 			this.mapping = mapping;
 			this.controller = mapping.getController();
 			this.method = method;
-			this.returnType = method.getGenericReturnType();
+			this.type = method.getGenericReturnType();
 			this.klass = method.getReturnType();
+			this.body = new Body(type);
 		} catch (Exception e) {
 			throw new IllegalConfigException(e, mapping.getController(), method);
 		}
-	}
-
-	public Type getBodyType() {
-		return bodyType;
-	}
-
-	public void setBodyType(Type bodyType) {
-		this.bodyType = bodyType;
 	}
 
 	public Object getValue() {
@@ -79,12 +72,16 @@ public class Result extends Configuration {
 		return method;
 	}
 
-	public Type getReturnType() {
-		return returnType;
+	public Type getType() {
+		return type;
 	}
 
 	public Class<?> getKlass() {
 		return klass;
+	}
+
+	public Body getBody() {
+		return body;
 	}
 
 }

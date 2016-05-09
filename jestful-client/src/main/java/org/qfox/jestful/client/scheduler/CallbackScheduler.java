@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.qfox.jestful.client.Client;
-import org.qfox.jestful.client.exception.UncertainReturnTypeException;
+import org.qfox.jestful.client.exception.UncertainBodyTypeException;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Parameters;
@@ -37,18 +37,18 @@ public class CallbackScheduler implements Scheduler {
 		return parameters.count(Callback.class) == 1 && result.getKlass() == Void.TYPE;
 	}
 
-	public Type getBodyType(Client client, Action action) throws UncertainReturnTypeException {
+	public Type certain(Client client, Action action) throws UncertainBodyTypeException {
 		Parameters parameters = action.getParameters();
 		Parameter parameter = parameters.unique(Callback.class);
 		Type type = parameter.getType();
 		if (type instanceof Class<?>) {
-			throw new UncertainReturnTypeException(type);
+			throw new UncertainBodyTypeException(type);
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = (ParameterizedType) type;
 			Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
 			return actualTypeArgument;
 		} else {
-			throw new UncertainReturnTypeException(type);
+			throw new UncertainBodyTypeException(type);
 		}
 	}
 

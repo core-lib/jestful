@@ -20,6 +20,7 @@ import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Body;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameters;
@@ -112,15 +113,17 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		action.setConsumes(mapping.getConsumes());
 		action.setProduces(mapping.getProduces());
 
+		Result result = action.getResult();
+		Body body = result.getBody();
 		for (Scheduler scheduler : schedulers.values()) {
 			if (scheduler.supports(action)) {
-				Type bodyType = scheduler.getBodyType(this, action);
-				action.getResult().setBodyType(bodyType);
+				Type type = scheduler.certain(this, action);
+				body.setType(type);
 				return scheduler.schedule(this, action);
 			}
 		}
-		Type bodyType = action.getResult().getReturnType();
-		action.getResult().setBodyType(bodyType);
+		Type type = result.getType();
+		body.setType(type);
 		return action.execute();
 	}
 
@@ -129,7 +132,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		if (response.isResponseSuccess()) {
 			Restful restful = action.getRestful();
 			Result result = action.getResult();
-			if (restful.isReturnBody() == false || result.getBodyType() == Void.TYPE) {
+			if (restful.isReturnBody() == false || result.getBody().getType() == Void.TYPE) {
 				return null;
 			}
 			String contentType = response.getResponseHeader("Content-Type");
@@ -140,7 +143,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 				ResponseDeserializer deserializer = deserializers.get(mediaType);
 				InputStream in = response.getResponseInputStream();
 				deserializer.deserialize(action, mediaType, in);
-				return result.getValue();
+				return result.getBody().getValue();
 			} else {
 				if (produces.isEmpty() == false) {
 					supports.retainAll(produces);
