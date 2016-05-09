@@ -22,6 +22,7 @@ import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Body;
 import org.qfox.jestful.core.Destroyable;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameters;
@@ -136,12 +137,14 @@ public class JestfulFilterSupport implements Filter, Actor {
 
 	public Object react(Action action) throws Exception {
 		Result result = action.getResult();
+		Body body = result.getBody();
 		Object controller = action.getResource().getController();
 		Method method = action.getMapping().getMethod();
 		Parameters parameters = action.getParameters();
 		Object[] arguments = parameters.arguments();
 		Object value = method.invoke(controller, arguments);
 		result.setValue(value);
+		body.setValue(value);
 		return value;
 	}
 

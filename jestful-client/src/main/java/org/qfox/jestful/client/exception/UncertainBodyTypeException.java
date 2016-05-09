@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.exception;
 
-import java.lang.reflect.Type;
-
+import org.qfox.jestful.client.Client;
+import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.exception.JestfulException;
 
 /**
@@ -22,15 +22,21 @@ import org.qfox.jestful.core.exception.JestfulException;
 public class UncertainBodyTypeException extends JestfulException {
 	private static final long serialVersionUID = 376421971058848789L;
 
-	private final Type type;
+	private final Client client;
+	private final Action action;
 
-	public UncertainBodyTypeException(Type type) {
+	public UncertainBodyTypeException(Client client, Action action) {
 		super();
-		this.type = type;
+		this.client = client;
+		this.action = action;
 	}
 
-	public Type getType() {
-		return type;
+	public Client getClient() {
+		return client;
+	}
+
+	public Action getAction() {
+		return action;
 	}
 
 }

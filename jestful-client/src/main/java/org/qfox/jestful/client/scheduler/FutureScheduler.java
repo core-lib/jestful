@@ -34,20 +34,18 @@ public class FutureScheduler implements Scheduler {
 	public boolean supports(Action action) {
 		Result result = action.getResult();
 		Class<?> klass = result.getKlass();
-		return Future.class.isAssignableFrom(klass);
+		return klass == Future.class;
 	}
 
-	public Type certain(Client client, Action action) throws UncertainBodyTypeException {
+	public Type getBodyType(Client client, Action action) throws UncertainBodyTypeException {
 		Result result = action.getResult();
 		Type type = result.getType();
-		if (type instanceof Class<?>) {
-			throw new UncertainBodyTypeException(type);
-		} else if (type instanceof ParameterizedType) {
+		if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = (ParameterizedType) type;
 			Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
 			return actualTypeArgument;
 		} else {
-			throw new UncertainBodyTypeException(type);
+			throw new UncertainBodyTypeException(client, action);
 		}
 	}
 

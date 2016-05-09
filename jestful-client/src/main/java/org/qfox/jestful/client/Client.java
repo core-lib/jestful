@@ -117,7 +117,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		Body body = result.getBody();
 		for (Scheduler scheduler : schedulers.values()) {
 			if (scheduler.supports(action)) {
-				Type type = scheduler.certain(this, action);
+				Type type = scheduler.getBodyType(this, action);
 				body.setType(type);
 				Object value = scheduler.schedule(this, action);
 				result.setValue(value);
