@@ -119,10 +119,26 @@ public class MultipartOutputStream extends OutputStream {
 	}
 
 	/**
-	 * before close this output stream it will append "--specified boundary--" to the end of target output stream
+	 * {@link MultipartOutputStream#close(boolean)} with {@code false}
+	 * 
+	 * @see {@link MultipartOutputStream#close(boolean)}
 	 */
 	@Override
 	public void close() throws IOException {
+		close(false);
+	}
+
+	/**
+	 * before close this output stream it will append "--specified boundary--" to the end of target output stream if
+	 * forcibly if not it will ignore this call {@link MultipartOutputStream#close()} is equals to
+	 * {@link MultipartOutputStream#close(boolean)} with {@code false} parameter
+	 * 
+	 * @see {@link MultipartOutputStream#close()}
+	 */
+	public void close(boolean force) throws IOException {
+		if (force == false) {
+			return;
+		}
 		if (closed) {
 			return;
 		}

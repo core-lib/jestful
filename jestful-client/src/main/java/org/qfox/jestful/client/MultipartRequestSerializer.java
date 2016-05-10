@@ -86,7 +86,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 		} catch (NoSuchSerializerException e) {
 			throw new IOException(e);
 		} finally {
-			mos.close();
+			mos.close(true);
 		}
 	}
 
