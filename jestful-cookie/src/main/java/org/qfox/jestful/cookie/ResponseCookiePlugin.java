@@ -33,8 +33,10 @@ public class ResponseCookiePlugin implements Actor {
 
 	public ResponseCookiePlugin() {
 		super();
+		if (CookieHandler.getDefault() == null) {
+			CookieHandler.setDefault(new CookieManager());
+		}
 		this.cookieHandler = CookieHandler.getDefault();
-		this.cookieHandler = cookieHandler != null ? cookieHandler : new CookieManager();
 	}
 
 	public ResponseCookiePlugin(CookieHandler cookieHandler) {

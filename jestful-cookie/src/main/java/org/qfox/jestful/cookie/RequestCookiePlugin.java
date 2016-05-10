@@ -34,8 +34,10 @@ public class RequestCookiePlugin implements Actor {
 
 	public RequestCookiePlugin() {
 		super();
+		if (CookieHandler.getDefault() == null) {
+			CookieHandler.setDefault(new CookieManager());
+		}
 		this.cookieHandler = CookieHandler.getDefault();
-		this.cookieHandler = cookieHandler != null ? cookieHandler : new CookieManager();
 	}
 
 	public RequestCookiePlugin(CookieHandler cookieHandler) {
