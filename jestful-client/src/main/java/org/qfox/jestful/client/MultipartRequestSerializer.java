@@ -43,9 +43,10 @@ import eu.medsea.mimeutil.MimeUtil;
  */
 public class MultipartRequestSerializer implements RequestSerializer, Initialable {
 	private final Map<MediaType, RequestSerializer> map = new HashMap<MediaType, RequestSerializer>();
+	private final String contentType = "multipart/form-data";
 
 	public String getContentType() {
-		return "multipart/form-data";
+		return contentType;
 	}
 
 	public boolean supports(Action action) {
@@ -69,10 +70,15 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 			nonce += base.charAt(index);
 		}
 		String boundary = "----JestfulFormBoundary" + nonce;
+		action.getRequest().setRequestHeader("Content-Type", contentType + ";boundary=" + boundary);
 		MultipartOutputStream mos = null;
 		try {
 			mos = new MultipartOutputStream(out, boundary);
 			flag: for (Parameter body : bodies) {
+				if (this.supports(body)) {
+					this.serialize(action, body, mos);
+					continue flag;
+				}
 				for (Entry<MediaType, RequestSerializer> entry : map.entrySet()) {
 					MediaType mediaType = entry.getKey();
 					RequestSerializer serializer = entry.getValue();
@@ -83,6 +89,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 				}
 				throw new NoSuchSerializerException(action, body, consumes, map.values());
 			}
+			mos.flush();
 		} catch (NoSuchSerializerException e) {
 			throw new IOException(e);
 		} finally {
