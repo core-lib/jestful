@@ -75,9 +75,13 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 		try {
 			mos = new MultipartOutputStream(out, boundary);
 			flag: for (Parameter body : bodies) {
-				if (this.supports(body)) {
-					this.serialize(action, body, mos);
-					continue flag;
+				{
+					MediaType mediaType = MediaType.valueOf(contentType);
+					RequestSerializer serializer = this;
+					if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(body)) {
+						serializer.serialize(action, body, mos);
+						continue flag;
+					}
 				}
 				for (Entry<MediaType, RequestSerializer> entry : map.entrySet()) {
 					MediaType mediaType = entry.getKey();
