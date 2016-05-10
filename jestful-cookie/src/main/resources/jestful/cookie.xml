@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jestful="http://www.qfox.org/schema/jestful"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jestful="http://www.qfoxtech.com/schema/jestful"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-		http://www.qfox.org/schema/jestful http://www.qfox.org/schema/jestful/jestful-1.0.0.xsd">
+		http://www.qfoxtech.com/schema/jestful http://www.qfoxtech.com/schema/jestful/jestful-1.0.0.xsd">
 
 	<jestful:group id="cookie">
 		<ref bean="request-cookie" />
