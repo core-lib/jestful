@@ -72,12 +72,12 @@ public class JestfulFilterSupport implements Filter, Actor {
 			mappingRegistry = applicationContext.getBean(name, MappingRegistry.class);
 		}
 		{
-			String name = config.getInitParameter("actor");
-			name = name == null || name.isEmpty() ? "jestful" : name;
-			String[] names = name.split("\\s+");
-			this.plugins = new Actor[names.length];
-			for (int i = 0; i < names.length; i++) {
-				this.plugins[i] = beanContainer.get(names[i], Actor.class);
+			String plugin = config.getInitParameter("plugin");
+			plugin = plugin == null || plugin.isEmpty() ? "jestful" : plugin;
+			String[] plugins = plugin.split("\\s+");
+			this.plugins = new Actor[plugins.length];
+			for (int i = 0; i < plugins.length; i++) {
+				this.plugins[i] = beanContainer.get(plugins[i], Actor.class);
 			}
 		}
 		Collection<?> controllers = beanContainer.with(Jestful.class).values();
