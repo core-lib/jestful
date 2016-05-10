@@ -1,6 +1,7 @@
 package org.qfox.jestful.client;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -12,7 +13,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
 import org.qfox.jestful.client.scheduler.Scheduler;
@@ -25,13 +28,18 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Body;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Mapping;
+import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Parameters;
+import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.Request;
+import org.qfox.jestful.core.RequestSerializer;
 import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.ResponseDeserializer;
 import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.Status;
+import org.qfox.jestful.core.io.RequestLazyOutputStream;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 
@@ -51,6 +59,7 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
  * @since 1.0.0
  */
 public class Client implements InvocationHandler, Actor, Initialable {
+	private final Map<MediaType, RequestSerializer> serializers = new HashMap<MediaType, RequestSerializer>();
 	private final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
 	private final Map<String, Scheduler> schedulers = new HashMap<String, Scheduler>();
 
@@ -86,6 +95,13 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	}
 
 	public void initialize(BeanContainer beanContainer) {
+		Collection<RequestSerializer> serializers = beanContainer.find(RequestSerializer.class).values();
+		for (RequestSerializer serializer : serializers) {
+			String contentType = serializer.getContentType();
+			MediaType mediaType = MediaType.valueOf(contentType);
+			this.serializers.put(mediaType, serializer);
+		}
+
 		Collection<ResponseDeserializer> deserializers = beanContainer.find(ResponseDeserializer.class).values();
 		for (ResponseDeserializer deserializer : deserializers) {
 			String contentType = deserializer.getContentType();
@@ -145,13 +161,44 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		return value;
 	}
 
-	public Object react(Action action) throws Exception {
+	private void serialize(Action action) throws Exception {
+		Restful restful = action.getRestful();
+		if (restful.isAcceptBody() == false) {
+			return;
+		}
+		List<Parameter> bodies = action.getParameters().all(Position.BODY);
+		Accepts consumes = action.getConsumes();
+		if (bodies.isEmpty()) {
+			return;
+		} else {
+			for (Entry<MediaType, RequestSerializer> entry : serializers.entrySet()) {
+				MediaType mediaType = entry.getKey();
+				RequestSerializer serializer = entry.getValue();
+				if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(action)) {
+					Request request = action.getRequest();
+					OutputStream out = null;
+					try {
+						out = new RequestLazyOutputStream(request);
+						serializer.serialize(action, out);
+						return;
+					} catch (Exception e) {
+						throw e;
+					} finally {
+						IOUtils.close(out);
+					}
+				}
+			}
+		}
+		throw new NoSuchSerializerException(action, null, consumes, serializers.values());
+	}
+
+	private void deserialize(Action action) throws Exception {
 		Response response = action.getResponse();
 		if (response.isResponseSuccess()) {
 			Restful restful = action.getRestful();
 			Result result = action.getResult();
 			if (restful.isReturnBody() == false || result.getBody().getType() == Void.TYPE) {
-				return null;
+				return;
 			}
 			String contentType = response.getResponseHeader("Content-Type");
 			Accepts produces = action.getProduces();
@@ -161,7 +208,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 				ResponseDeserializer deserializer = deserializers.get(mediaType);
 				InputStream in = response.getResponseInputStream();
 				deserializer.deserialize(action, mediaType, in);
-				return result.getBody().getValue();
+				return;
 			} else {
 				if (produces.isEmpty() == false) {
 					supports.retainAll(produces);
@@ -174,6 +221,12 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			String body = IOUtils.toString(in);
 			throw new UnexpectedStatusException(status, body);
 		}
+	}
+
+	public Object react(Action action) throws Exception {
+		serialize(action);
+		deserialize(action);
+		return action.getResult().getBody().getValue();
 	}
 
 	public <T> T create(Class<T> interfase) {

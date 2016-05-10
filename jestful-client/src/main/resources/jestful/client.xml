@@ -15,7 +15,6 @@
 		<bean class="org.qfox.jestful.client.processor.HeaderParameterProcessor" />
 		<bean class="org.qfox.jestful.client.handler.CookiesAnnotationHandler" />
 		<bean class="org.qfox.jestful.client.processor.CookieParameterProcessor" />
-		<bean class="org.qfox.jestful.client.processor.BodyParameterProcessor" />
 	</jestful:group>
 
 	<bean class="org.qfox.jestful.client.URLEncodedRequestSerializer" />

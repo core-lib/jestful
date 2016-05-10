@@ -1,6 +1,7 @@
 package org.qfox.jestful.cookie;
 
 import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -33,6 +34,7 @@ public class ResponseCookiePlugin implements Actor {
 	public ResponseCookiePlugin() {
 		super();
 		this.cookieHandler = CookieHandler.getDefault();
+		this.cookieHandler = cookieHandler != null ? cookieHandler : new CookieManager();
 	}
 
 	public ResponseCookiePlugin(CookieHandler cookieHandler) {
