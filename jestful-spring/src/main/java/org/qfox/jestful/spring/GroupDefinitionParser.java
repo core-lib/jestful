@@ -31,9 +31,9 @@ public class GroupDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 	}
 
 	@Override
-	protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-		super.doParse(element, parserContext, builder);
-		List<?> members = parserContext.getDelegate().parseListElement(element, builder.getBeanDefinition());
+	protected void doParse(Element element, ParserContext context, BeanDefinitionBuilder builder) {
+		super.doParse(element, context, builder);
+		List<?> members = context.getDelegate().parseListElement(element, builder.getBeanDefinition());
 		builder.addPropertyValue("members", members);
 	}
 
