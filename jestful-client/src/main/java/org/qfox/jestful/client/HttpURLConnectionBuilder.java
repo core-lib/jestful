@@ -35,6 +35,7 @@ public class HttpURLConnectionBuilder implements Actor {
 			String URI = action.getURI();
 			String query = action.getQuery();
 			String url = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "") + URI + (query != null ? "?" + query : "");
+			action.setURL(url);
 			HttpURLConnection httpURLConnection = null;
 			try {
 				httpURLConnection = (HttpURLConnection) new URL(url).openConnection();

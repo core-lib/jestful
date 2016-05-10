@@ -17,6 +17,7 @@
 		<module>jestful-java</module>
 		<module>jestful-spring</module>
     <module>jestful-validation</module>
+    <module>jestful-cookie</module>
   </modules>
 
 	<repositories>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jestful="http://www.qfox.org/schema/jestful"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.qfox.org/schema/jestful http://www.qfox.org/schema/jestful/jestful-1.0.0.xsd">
+
+	<jestful:group id="cookie">
+		<ref bean="request-cookie" />
+		<ref bean="response-cookie" />
+	</jestful:group>
+
+	<bean id="request-cookie" class="org.qfox.jestful.cookie.RequestCookiePlugin" />
+	<bean id="response-cookie" class="org.qfox.jestful.cookie.ResponseCookiePlugin" />
+
+</beans>

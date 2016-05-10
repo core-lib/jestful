@@ -113,6 +113,7 @@ public class JestfulServletSupport implements Servlet, Actor {
 			action.setPattern(mapping.getPattern());
 
 			action.setRestful(mapping.getRestful());
+			action.setURL(httpServletRequest.getRequestURL().toString());
 			action.setURI(URI);
 			action.setQuery(query);
 			action.setProtocol(protocol);

@@ -38,6 +38,7 @@ public class Action {
 	private Pattern pattern;
 
 	private Restful restful;
+	private String URL;
 	private String URI;
 	private String query;
 	private String protocol;
@@ -51,7 +52,7 @@ public class Action {
 
 	private Accepts consumes;
 	private Accepts produces;
-	
+
 	private String charset = Charset.defaultCharset().name();
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
@@ -146,6 +147,14 @@ public class Action {
 
 	public void setRestful(Restful restful) {
 		this.restful = restful;
+	}
+
+	public String getURL() {
+		return URL;
+	}
+
+	public void setURL(String URL) {
+		this.URL = URL;
 	}
 
 	public String getURI() {
