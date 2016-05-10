@@ -19,6 +19,7 @@ import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.RequestSerializer;
 import org.qfox.jestful.core.Restful;
+import org.qfox.jestful.core.io.RequestLazyOutputStream;
 
 /**
  * <p>
@@ -53,7 +54,7 @@ public class BodyParameterProcessor implements Actor, Initialable {
 				RequestSerializer serializer = entry.getValue();
 				if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(action)) {
 					Request request = action.getRequest();
-					OutputStream out = request.getRequestOutputStream();
+					OutputStream out = new RequestLazyOutputStream(request);
 					serializer.serialize(action, out);
 					return action.execute();
 				}
