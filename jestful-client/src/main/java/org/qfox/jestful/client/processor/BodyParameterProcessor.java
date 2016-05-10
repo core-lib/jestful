@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
@@ -54,9 +55,16 @@ public class BodyParameterProcessor implements Actor, Initialable {
 				RequestSerializer serializer = entry.getValue();
 				if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(action)) {
 					Request request = action.getRequest();
-					OutputStream out = new RequestLazyOutputStream(request);
-					serializer.serialize(action, out);
-					return action.execute();
+					OutputStream out = null;
+					try {
+						out = new RequestLazyOutputStream(request);
+						serializer.serialize(action, out);
+						return action.execute();
+					} catch (Exception e) {
+						throw e;
+					} finally {
+						IOUtils.close(out);
+					}
 				}
 			}
 		}
