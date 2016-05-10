@@ -100,6 +100,13 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		Class<?> interfase = proxy.getClass().getInterfaces()[0];
 		Resource resource = resources.get(interfase);
+		if (resource.getMappings().containsKey(method) == false) {
+			if (method.getDeclaringClass() == Object.class) {
+				return method.invoke(resource, args);
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		}
 		Mapping mapping = resource.getMappings().get(method).clone();
 		Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
 		actors.add(this);
