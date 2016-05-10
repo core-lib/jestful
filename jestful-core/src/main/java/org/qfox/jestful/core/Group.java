@@ -21,6 +21,15 @@ import java.util.List;
 public class Group implements Actor {
 	protected List<Actor> members = new ArrayList<Actor>();
 
+	public Group() {
+		super();
+	}
+
+	public Group(List<Actor> members) {
+		super();
+		this.members = members;
+	}
+
 	public Object react(Action action) throws Exception {
 		action.intrude(members != null ? members : new ArrayList<Actor>());
 		return action.execute();

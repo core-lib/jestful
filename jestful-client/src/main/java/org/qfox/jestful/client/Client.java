@@ -6,9 +6,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
@@ -60,9 +62,9 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final Map<Class<?>, Resource> resources;
 	private final String[] configLocations;
 	private final BeanContainer beanContainer;
-	private final Actor actor;
+	private final Actor[] plugins;
 
-	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String[] configLocations, String beanContainer, String actor) {
+	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String[] configLocations, String beanContainer, List<String> plugins) {
 		super();
 		this.protocol = protocol;
 		this.host = host;
@@ -76,7 +78,10 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		reader.setBeanClassLoader(classLoader);
 		reader.loadBeanDefinitions(configLocations);
 		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
-		this.actor = defaultListableBeanFactory.getBean(actor, Actor.class);
+		this.plugins = new Actor[plugins.size()];
+		for (int i = 0; i < plugins.size(); i++) {
+			this.plugins[i] = defaultListableBeanFactory.getBean(plugins.get(i), Actor.class);
+		}
 		this.initialize(this.beanContainer);
 	}
 
@@ -96,7 +101,9 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		Class<?> interfase = proxy.getClass().getInterfaces()[0];
 		Resource resource = resources.get(interfase);
 		Mapping mapping = resource.getMappings().get(method).clone();
-		Action action = new Action(beanContainer, Arrays.asList(actor, this));
+		Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
+		actors.add(this);
+		Action action = new Action(beanContainer, actors);
 		action.setResource(resource);
 		action.setMapping(mapping);
 		Parameters parameters = mapping.getParameters();
@@ -180,11 +187,11 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		private String route = null;
 		private ClassLoader classLoader = this.getClass().getClassLoader();
 		private String beanContainer = "defaultBeanContainer";
-		private String actor = "client";
+		private List<String> plugins = new ArrayList<String>(Arrays.asList("client"));
 		private String[] configLocations = new String[] { "classpath*:/jestful/*.xml" };
 
 		public Client build() {
-			return new Client(protocol, host, port, route, classLoader, configLocations, beanContainer, actor);
+			return new Client(protocol, host, port, route, classLoader, configLocations, beanContainer, plugins);
 		}
 
 		public Builder setEndpoint(URL endpoint) {
@@ -246,11 +253,19 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			return this;
 		}
 
-		public Builder setActor(String actor) {
-			if (actor == null) {
-				throw new IllegalArgumentException("actor is null");
+		public Builder setPlugins(String... plugins) {
+			if (plugins == null || plugins.length == 0) {
+				throw new IllegalArgumentException("plugins is null or empty array");
 			}
-			this.actor = actor;
+			this.plugins = new ArrayList<String>(Arrays.asList(plugins));
+			return this;
+		}
+
+		public Builder addPlugin(String plugin) {
+			if (plugin == null) {
+				throw new IllegalArgumentException("plugin is null");
+			}
+			this.plugins.add(plugin);
 			return this;
 		}
 
@@ -296,8 +311,8 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		return beanContainer;
 	}
 
-	public Actor getActor() {
-		return actor;
+	public Actor[] getPlugins() {
+		return plugins;
 	}
 
 	@Override

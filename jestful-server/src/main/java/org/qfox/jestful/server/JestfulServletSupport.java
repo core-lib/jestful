@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -54,7 +55,7 @@ public class JestfulServletSupport implements Servlet, Actor {
 	private ServletConfig servletConfig;
 	private MappingRegistry mappingRegistry;
 	private BeanContainer beanContainer;
-	private Actor actor;
+	private Actor[] plugins;
 
 	public void init(ServletConfig config) throws ServletException {
 		this.servletConfig = config;
@@ -74,7 +75,11 @@ public class JestfulServletSupport implements Servlet, Actor {
 		{
 			String name = config.getInitParameter("actor");
 			name = name == null || name.isEmpty() ? "jestful" : name;
-			actor = beanContainer.get(name, Actor.class);
+			String[] names = name.split("\\s+");
+			this.plugins = new Actor[names.length];
+			for (int i = 0; i < names.length; i++) {
+				this.plugins[i] = beanContainer.get(names[i], Actor.class);
+			}
 		}
 		Collection<?> controllers = beanContainer.with(Jestful.class).values();
 		for (Object controller : controllers) {
@@ -97,8 +102,9 @@ public class JestfulServletSupport implements Servlet, Actor {
 		String version = httpServletRequest.getProtocol().split("/")[1];
 		try {
 			Mapping mapping = mappingRegistry.lookup(command, URI).clone();
-
-			Action action = new Action(beanContainer, Arrays.asList(actor, this));
+			Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
+			actors.add(this);
+			Action action = new Action(beanContainer, actors);
 
 			action.setResource(mapping.getResource());
 			action.setMapping(mapping);
