@@ -69,11 +69,11 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final String route;
 	private final ClassLoader classLoader;
 	private final Map<Class<?>, Resource> resources;
-	private final String[] configLocations;
 	private final BeanContainer beanContainer;
+	private final String[] configLocations;
 	private final Actor[] plugins;
 
-	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String[] configLocations, String beanContainer, List<String> plugins) {
+	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String beanContainer, String[] configLocations, String[] plugins) {
 		super();
 		this.protocol = protocol;
 		this.host = host;
@@ -87,9 +87,9 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		reader.setBeanClassLoader(classLoader);
 		reader.loadBeanDefinitions(configLocations);
 		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
-		this.plugins = new Actor[plugins.size()];
-		for (int i = 0; i < plugins.size(); i++) {
-			this.plugins[i] = defaultListableBeanFactory.getBean(plugins.get(i), Actor.class);
+		this.plugins = new Actor[plugins.length];
+		for (int i = 0; i < plugins.length; i++) {
+			this.plugins[i] = defaultListableBeanFactory.getBean(plugins[i], Actor.class);
 		}
 		this.initialize(this.beanContainer);
 	}
@@ -248,10 +248,10 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		private ClassLoader classLoader = this.getClass().getClassLoader();
 		private String beanContainer = "defaultBeanContainer";
 		private List<String> plugins = new ArrayList<String>(Arrays.asList("client"));
-		private String[] configLocations = new String[] { "classpath*:/jestful/*.xml" };
+		private List<String> configLocations = new ArrayList<String>(Arrays.asList("classpath*:/jestful/*.xml"));
 
 		public Client build() {
-			return new Client(protocol, host, port, route, classLoader, configLocations, beanContainer, plugins);
+			return new Client(protocol, host, port, route, classLoader, beanContainer, configLocations.toArray(new String[0]), plugins.toArray(new String[0]));
 		}
 
 		public Builder setEndpoint(URL endpoint) {
@@ -321,19 +321,27 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			return this;
 		}
 
-		public Builder addPlugin(String plugin) {
-			if (plugin == null) {
-				throw new IllegalArgumentException("plugin is null");
+		public Builder addPlugins(String... plugins) {
+			if (plugins == null) {
+				throw new IllegalArgumentException("plugins is null");
 			}
-			this.plugins.add(plugin);
+			this.plugins.addAll(Arrays.asList(plugins));
 			return this;
 		}
 
-		public Builder setConfigLocations(String[] configLocations) {
+		public Builder setConfigLocations(String... configLocations) {
 			if (configLocations == null || configLocations.length == 0) {
 				throw new IllegalArgumentException("config locations is null or empty");
 			}
-			this.configLocations = configLocations;
+			this.configLocations = new ArrayList<String>(Arrays.asList(configLocations));
+			return this;
+		}
+
+		public Builder addConfigLocations(String... configLocations) {
+			if (configLocations == null) {
+				throw new IllegalArgumentException("configLocations is null");
+			}
+			this.configLocations.addAll(Arrays.asList(configLocations));
 			return this;
 		}
 
