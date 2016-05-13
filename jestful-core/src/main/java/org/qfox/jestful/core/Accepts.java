@@ -71,10 +71,14 @@ public class Accepts implements Iterable<MediaType> {
 	}
 
 	public String toString() {
+		return toString(null);
+	}
+
+	public String toString(String version) {
 		StringBuilder builder = new StringBuilder();
 		Iterator<MediaType> iterator = iterator();
 		while (iterator.hasNext()) {
-			builder.append(iterator.next().toString());
+			builder.append(iterator.next().toString(version));
 			if (iterator.hasNext()) {
 				builder.append(",");
 			}

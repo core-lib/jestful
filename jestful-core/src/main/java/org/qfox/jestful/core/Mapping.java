@@ -188,9 +188,9 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 			if (version == null && o.version == null) {
 				return 0;
 			} else if (version == null) {
-				return -1;
-			} else if (o.version == null) {
 				return 1;
+			} else if (o.version == null) {
+				return -1;
 			} else {
 				return version.compareTo(o.version);
 			}

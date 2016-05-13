@@ -38,7 +38,8 @@ public class AcceptContentTypeDecider implements Actor, Initialable {
 			supports.retainAll(produces);
 		}
 		Request request = action.getRequest();
-		request.setRequestHeader("Accept", supports.toString());
+		String version = action.getMapping().getVersion();
+		request.setRequestHeader("Accept", supports.toString(version));
 		return action.execute();
 	}
 

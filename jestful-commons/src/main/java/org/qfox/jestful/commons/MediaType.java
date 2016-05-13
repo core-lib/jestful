@@ -172,11 +172,15 @@ public class MediaType implements Comparable<MediaType> {
 
 	@Override
 	public String toString() {
+		return toString(null);
+	}
+
+	public String toString(String version) {
 		StringBuilder builder = new StringBuilder(name);
 		for (Entry<String, String> entry : parameters.entrySet()) {
 			builder.append(";").append(entry.getKey()).append("=").append(entry.getValue());
 		}
-		return builder.toString();
+		return builder.toString() + (version == null || parameters.containsKey("version") ? "" : ";version=" + version);
 	}
 
 }
