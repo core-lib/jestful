@@ -256,7 +256,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 
 	@Override
 	public String toString() {
-		return restful.getMethod() + " : " + method.toGenericString();
+		return (version != null ? "(" + version + ")" + " " : "") + restful.getMethod() + " : " + method.toGenericString();
 	}
 
 }
