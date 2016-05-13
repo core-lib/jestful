@@ -54,6 +54,7 @@ public class JestfulServletSupport implements Servlet, Actor {
 
 	private ServletConfig servletConfig;
 	private MappingRegistry mappingRegistry;
+	private VersionComparator versionComparator;
 	private BeanContainer beanContainer;
 	private Actor[] plugins;
 
@@ -71,6 +72,11 @@ public class JestfulServletSupport implements Servlet, Actor {
 			String name = config.getInitParameter("mappingRegistry");
 			name = name == null || name.isEmpty() ? "jestfulMappingRegistry" : name;
 			mappingRegistry = applicationContext.getBean(name, MappingRegistry.class);
+		}
+		{
+			String name = config.getInitParameter("versionComparator");
+			name = name == null || name.isEmpty() ? "jestfulVersionComparator" : name;
+			versionComparator = applicationContext.getBean(name, VersionComparator.class);
 		}
 		{
 			String plugin = config.getInitParameter("plugin");
@@ -97,11 +103,12 @@ public class JestfulServletSupport implements Servlet, Actor {
 		HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 		String command = httpServletRequest.getMethod();
 		String URI = httpServletRequest.getRequestURI();
+		String accept = httpServletRequest.getHeader("Accept");
 		String query = httpServletRequest.getQueryString();
 		String protocol = httpServletRequest.getProtocol().split("/")[0];
 		String version = httpServletRequest.getProtocol().split("/")[1];
 		try {
-			Mapping mapping = mappingRegistry.lookup(command, URI).clone();
+			Mapping mapping = mappingRegistry.lookup(command, URI, accept, versionComparator).clone();
 			Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
 			actors.add(this);
 			Action action = new Action(beanContainer, actors);

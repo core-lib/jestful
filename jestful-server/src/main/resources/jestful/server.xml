@@ -5,6 +5,7 @@
 
 	<bean id="jestfulBeanContainer" class="org.qfox.jestful.server.JestfulBeanContainer" />
 	<bean id="jestfulMappingRegistry" class="org.qfox.jestful.server.JestfulMappingRegistry" />
+	<bean id="jestfulVersionComparator" class="org.qfox.jestful.server.JestfulVersionComparator" />
 	<bean id="jestfulConversionProvider" class="org.qfox.jestful.server.JestfulConversionProvider" />
 
 	<jestful:group id="jestful">

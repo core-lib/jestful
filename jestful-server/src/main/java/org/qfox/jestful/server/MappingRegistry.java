@@ -1,11 +1,13 @@
 package org.qfox.jestful.server;
 
 import java.util.Collection;
+import java.util.Comparator;
 
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
+import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
 
 /**
@@ -26,17 +28,34 @@ import org.qfox.jestful.server.exception.NotFoundStatusException;
 public interface MappingRegistry {
 
 	/**
-	 * 搜索支持指定匹配指定URI的所有资源
+	 * 搜索支持指定请求方法并且匹配指定URI的资源
 	 * 
 	 * @param URI
 	 *            请求路径
-	 * @return 匹配的资源
+	 * @return 匹配的资源集合
 	 * @throws NotFoundStatusException
 	 *             请求路径不存在
 	 * @throws BadMethodStatusException
 	 *             请求方法不支持
 	 */
-	Collection<Mapping> lookup(String URI) throws NotFoundStatusException;
+	Collection<Mapping> lookup(String URI) throws NotFoundStatusException, BadMethodStatusException;
+
+	/**
+	 * 搜索支持指定请求方法并且匹配指定URI的资源
+	 * 
+	 * @param method
+	 *            请求方法
+	 * @param URI
+	 *            请求路径
+	 * @param accept
+	 *            客户端接收的返回格式
+	 * @return 匹配的资源集合
+	 * @throws NotFoundStatusException
+	 *             请求路径不存在
+	 * @throws BadMethodStatusException
+	 *             请求方法不支持
+	 */
+	Collection<Mapping> lookup(String method, String URI) throws NotFoundStatusException, BadMethodStatusException;
 
 	/**
 	 * 搜索支持指定请求方法并且匹配指定URI的资源
@@ -51,7 +70,7 @@ public interface MappingRegistry {
 	 * @throws BadMethodStatusException
 	 *             请求方法不支持
 	 */
-	Mapping lookup(String method, String URI) throws NotFoundStatusException, BadMethodStatusException;
+	Mapping lookup(String method, String URI, String accept, Comparator<String> comparator) throws NotFoundStatusException, BadMethodStatusException, NotAcceptableStatusException;
 
 	/**
 	 * 注册资源控制器

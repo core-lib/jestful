@@ -30,6 +30,16 @@ public class Accepts implements Iterable<MediaType> {
 		this.mediaTypes = new TreeSet<MediaType>(mediaTypes);
 	}
 
+	public static Accepts valueOf(String accept) {
+		Set<MediaType> mediaTypes = new TreeSet<MediaType>();
+		String[] contentTypes = accept != null && accept.isEmpty() == false ? accept.split(",") : new String[0];
+		for (String contentType : contentTypes) {
+			MediaType mediaType = MediaType.valueOf(contentType);
+			mediaTypes.add(mediaType);
+		}
+		return new Accepts(mediaTypes);
+	}
+
 	public int size() {
 		return mediaTypes.size();
 	}

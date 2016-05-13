@@ -16,10 +16,10 @@
 		<module>jestful-xml</module>
 		<module>jestful-java</module>
 		<module>jestful-spring</module>
-    <module>jestful-validation</module>
-    <module>jestful-cookie</module>
-    <module>jestful-translation</module>
-  </modules>
+		<module>jestful-validation</module>
+		<module>jestful-cookie</module>
+		<module>jestful-translation</module>
+	</modules>
 
 	<repositories>
 		<repository>

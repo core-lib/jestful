@@ -17,6 +17,7 @@ import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.annotation.Version;
 import org.qfox.jestful.core.exception.AmbiguousMappingException;
 import org.qfox.jestful.core.exception.DuplicateParameterException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
@@ -50,6 +51,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 	private final String definition;
 	private final String expression;
 	private final Pattern pattern;
+	private final String version;
 
 	public Mapping(Resource resource, Object controller, Method method, Method configuration) throws IllegalConfigException {
 		super(configuration.getAnnotations());
@@ -85,6 +87,9 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 				this.definition = ("/" + value).replaceAll("\\/+", "/");
 				this.expression = bind(definition);
 				this.pattern = Pattern.compile(expression);
+
+				Version version = this.isAnnotationPresent(Version.class) ? this.getAnnotation(Version.class) : resource.isAnnotationPresent(Version.class) ? resource.getAnnotation(Version.class) : null;
+				this.version = version != null ? version.value() : null;
 			} else {
 				throw new AmbiguousMappingException("Ambiguous mapping " + configuration.toGenericString() + " which has " + commands.length + " http method kind annotations " + Arrays.toString(commands), controller, method, this);
 			}
@@ -152,7 +157,8 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 			if (hierarchy.isEmpty()) {
 				continue;
 			}
-			Node<PathExpression, Mapping> branch = new Node<PathExpression, Mapping>(new PathExpression(hierarchy, iterator.hasNext() ? null : restful.getMethod()));
+			PathExpression expression = new PathExpression(hierarchy, iterator.hasNext() ? null : restful.getMethod(), version);
+			Node<PathExpression, Mapping> branch = new Node<PathExpression, Mapping>(expression);
 			branch.setValue(iterator.hasNext() ? null : this);
 			if (result == null) {
 				result = branch;
@@ -163,16 +169,32 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 			}
 		}
 		if (result == null) {
-			result = new Node<PathExpression, Mapping>(new PathExpression(null, restful.getMethod()));
+			result = new Node<PathExpression, Mapping>(new PathExpression(null, restful.getMethod(), version));
 			result.setValue(this);
 		}
-		parent = new Node<PathExpression, Mapping>(new PathExpression(null, restful.getMethod()));
+		parent = new Node<PathExpression, Mapping>(new PathExpression(null, restful.getMethod(), version));
 		parent.getBranches().add(result);
 		return parent;
 	}
 
 	public int compareTo(Mapping o) {
-		return expression.compareTo(o.expression) != 0 ? expression.compareTo(o.expression) : restful.getMethod().compareTo(o.restful.getMethod());
+		int comparation = 0;
+		if ((comparation = expression.compareTo(o.expression)) != 0) {
+			return comparation;
+		} else if ((comparation = restful.getMethod().compareTo(o.restful.getMethod())) != 0) {
+			return comparation;
+		} else {
+			// 有版本号比没版本号更新
+			if (version == null && o.version == null) {
+				return 0;
+			} else if (version == null) {
+				return -1;
+			} else if (o.version == null) {
+				return 1;
+			} else {
+				return version.compareTo(o.version);
+			}
+		}
 	}
 
 	@Override
@@ -226,6 +248,10 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 
 	public Pattern getPattern() {
 		return pattern;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 
 	@Override

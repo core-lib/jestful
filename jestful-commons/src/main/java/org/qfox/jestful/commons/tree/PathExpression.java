@@ -3,19 +3,21 @@ package org.qfox.jestful.commons.tree;
 public class PathExpression implements Expression<PathExpression> {
 	private final String path;
 	private final String method;
+	private final String version;
 
 	public PathExpression() {
-		this(null, null);
+		this(null, null, null);
 	}
 
 	public PathExpression(String path) {
-		this(path, null);
+		this(path, null, null);
 	}
 
-	public PathExpression(String path, String method) {
+	public PathExpression(String path, String method, String version) {
 		super();
 		this.path = path != null ? path : "";
 		this.method = method != null ? method : "";
+		this.version = version != null ? version : "";
 	}
 
 	public boolean match(String value) {
@@ -27,7 +29,7 @@ public class PathExpression implements Expression<PathExpression> {
 	}
 
 	public int compareTo(PathExpression o) {
-		return path.compareTo(o.path) != 0 ? path.compareTo(o.path) : method.compareTo(o.method);
+		return path.compareTo(o.path) != 0 ? path.compareTo(o.path) : method.compareTo(o.method) != 0 ? method.compareTo(o.method) : version.compareTo(o.version);
 	}
 
 	public String getPath() {
@@ -38,12 +40,17 @@ public class PathExpression implements Expression<PathExpression> {
 		return method;
 	}
 
+	public String getVersion() {
+		return version;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((method == null) ? 0 : method.hashCode());
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
+		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
 	}
 
@@ -65,6 +72,11 @@ public class PathExpression implements Expression<PathExpression> {
 			if (other.path != null)
 				return false;
 		} else if (!path.equals(other.path))
+			return false;
+		if (version == null) {
+			if (other.version != null)
+				return false;
+		} else if (!version.equals(other.version))
 			return false;
 		return true;
 	}

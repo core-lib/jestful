@@ -3,8 +3,6 @@ package org.qfox.jestful.server.render;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Accepts;
@@ -62,14 +60,8 @@ public class DefaultResultRender implements Actor, Initialable {
 	private MediaType getMediaType(Action action) throws NotAcceptableStatusException {
 		Request request = action.getRequest();
 		String accept = request.getRequestHeader("Accept");
-		Set<MediaType> mediaTypes = new TreeSet<MediaType>();
-		String[] contentTypes = accept != null && accept.isEmpty() == false ? accept.split(",") : new String[0];
-		for (String contentType : contentTypes) {
-			MediaType mediaType = MediaType.valueOf(contentType);
-			mediaTypes.add(mediaType);
-		}
 
-		Accepts accepts = new Accepts(mediaTypes.isEmpty() ? map.keySet() : mediaTypes);
+		Accepts accepts = accept == null || accept.isEmpty() ? new Accepts(map.keySet()) : Accepts.valueOf(accept);
 		Accepts produces = action.getProduces();
 		Accepts supports = new Accepts(map.keySet());
 

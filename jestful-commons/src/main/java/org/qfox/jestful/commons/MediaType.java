@@ -31,6 +31,7 @@ public class MediaType implements Comparable<MediaType> {
 	private final Map<String, String> parameters;
 	private final String charset;
 	private final float weight;
+	private final String version;
 
 	private MediaType(String name, Map<String, String> parameters) {
 		super();
@@ -40,6 +41,7 @@ public class MediaType implements Comparable<MediaType> {
 		this.parameters = Collections.unmodifiableMap(parameters);
 		this.charset = parameters.containsKey("charset") ? parameters.get("charset") : Charset.defaultCharset().name();
 		this.weight = parameters.containsKey("q") ? Float.valueOf(parameters.get("q")) : 1.0f;
+		this.version = parameters.containsKey("version") ? parameters.get("version") : null;
 	}
 
 	/**
@@ -121,6 +123,10 @@ public class MediaType implements Comparable<MediaType> {
 
 	public float getWeight() {
 		return weight;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 
 	public boolean isWildcard() {
