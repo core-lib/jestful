@@ -8,6 +8,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -27,6 +29,7 @@ import org.qfox.jestful.core.Body;
 import org.qfox.jestful.core.Destroyable;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameters;
+import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
@@ -57,7 +60,7 @@ public class JestfulFilterSupport implements Filter, Actor {
 	private MappingRegistry mappingRegistry;
 	private BeanContainer beanContainer;
 	private VersionComparator versionComparator;
-	private Actor[] plugins;
+	private Plugin[] plugins;
 
 	public void init(FilterConfig config) throws ServletException {
 		ServletContext servletContext = config.getServletContext();
@@ -80,10 +83,18 @@ public class JestfulFilterSupport implements Filter, Actor {
 		{
 			String plugin = config.getInitParameter("plugin");
 			plugin = plugin == null || plugin.isEmpty() ? "jestful" : plugin;
-			String[] plugins = plugin.split("\\s+");
-			this.plugins = new Actor[plugins.length];
+			String[] plugins = plugin.split("\\s*,\\s*");
+			this.plugins = new Plugin[plugins.length];
 			for (int i = 0; i < plugins.length; i++) {
-				this.plugins[i] = beanContainer.get(plugins[i], Actor.class);
+				String[] segments = plugins[i].split("\\s*;\\s*");
+				this.plugins[i] = beanContainer.get(segments[0], Plugin.class);
+				Map<String, String> arguments = new LinkedHashMap<String, String>();
+				for (int j = 1; j < segments.length; j++) {
+					String segment = segments[j];
+					String[] keyvalue = segment.split("\\s*=\\s*");
+					arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
+				}
+				this.plugins[i].config(arguments);
 			}
 		}
 		Collection<?> controllers = beanContainer.with(Jestful.class).values();
