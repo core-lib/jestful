@@ -1,4 +1,4 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.accept;
 
 import java.util.Collection;
 import java.util.HashMap;

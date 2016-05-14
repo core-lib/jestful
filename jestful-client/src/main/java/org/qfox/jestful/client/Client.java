@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,6 +31,7 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Parameters;
+import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.RequestSerializer;
@@ -71,7 +73,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final Map<Class<?>, Resource> resources;
 	private final BeanContainer beanContainer;
 	private final String[] configLocations;
-	private final Actor[] plugins;
+	private final Plugin[] plugins;
 
 	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String beanContainer, String[] configLocations, String[] plugins) {
 		super();
@@ -87,9 +89,17 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		reader.setBeanClassLoader(classLoader);
 		reader.loadBeanDefinitions(configLocations);
 		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
-		this.plugins = new Actor[plugins.length];
+		this.plugins = new Plugin[plugins.length];
 		for (int i = 0; i < plugins.length; i++) {
-			this.plugins[i] = defaultListableBeanFactory.getBean(plugins[i], Actor.class);
+			String[] segments = plugins[i].split("\\s*;\\s*");
+			this.plugins[i] = defaultListableBeanFactory.getBean(segments[0], Plugin.class);
+			Map<String, String> arguments = new LinkedHashMap<String, String>();
+			for (int j = 1; j < segments.length; j++) {
+				String segment = segments[j];
+				String[] keyvalue = segment.split("\\s*=\\s*");
+				arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
+			}
+			this.plugins[i].config(arguments);
 		}
 		this.initialize(this.beanContainer);
 	}
@@ -249,6 +259,10 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		private String beanContainer = "defaultBeanContainer";
 		private List<String> plugins = new ArrayList<String>(Arrays.asList("client"));
 		private List<String> configLocations = new ArrayList<String>(Arrays.asList("classpath*:/jestful/*.xml"));
+
+		// private List<String> acceptCharsets = new ArrayList<String>();
+		// private List<String> accpetEncodings = new ArrayList<String>();
+		// private List<String> acceptLanguages = new ArrayList<String>();
 
 		public Client build() {
 			return new Client(protocol, host, port, route, classLoader, beanContainer, configLocations.toArray(new String[0]), plugins.toArray(new String[0]));

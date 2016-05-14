@@ -10,8 +10,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Response;
+import org.qfox.jestful.core.exception.PluginConfigException;
 
 /**
  * <p>
@@ -28,7 +29,7 @@ import org.qfox.jestful.core.Response;
  *
  * @since 1.0.0
  */
-public class ResponseCookiePlugin implements Actor {
+public class ResponseCookiePlugin implements Plugin {
 	private CookieHandler cookieHandler;
 
 	public ResponseCookiePlugin() {
@@ -42,6 +43,10 @@ public class ResponseCookiePlugin implements Actor {
 	public ResponseCookiePlugin(CookieHandler cookieHandler) {
 		super();
 		this.cookieHandler = cookieHandler;
+	}
+
+	public void config(Map<String, String> arguments) throws PluginConfigException {
+
 	}
 
 	public Object react(Action action) throws Exception {

@@ -2,8 +2,8 @@ package org.qfox.jestful.spring;
 
 import java.util.List;
 
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Group;
+import org.qfox.jestful.core.Component;
+import org.qfox.jestful.core.Plugin;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
@@ -21,15 +21,15 @@ import org.w3c.dom.Element;
  * 
  * @author Payne 646742615@qq.com
  *
- * @date 2016年5月9日 下午5:36:35
+ * @date 2016年5月14日 上午11:23:36
  *
  * @since 1.0.0
  */
-public class GroupDefinitionParser extends AbstractSimpleBeanDefinitionParser {
+public class ComponentDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 
 	@Override
 	protected String getBeanClassName(Element element) {
-		return Group.class.getName();
+		return Component.class.getName();
 	}
 
 	@Override
@@ -37,8 +37,8 @@ public class GroupDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 		super.doParse(element, context, builder);
 		List<?> members = context.getDelegate().parseListElement(element, builder.getBeanDefinition());
 		for (Object member : members) {
-			if (member instanceof Actor == false) {
-				throw new TypeMismatchException(member, Actor.class);
+			if (member instanceof Plugin == false) {
+				throw new TypeMismatchException(member, Plugin.class);
 			}
 		}
 		builder.addPropertyValue("members", members);

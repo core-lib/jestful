@@ -11,8 +11,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Request;
+import org.qfox.jestful.core.exception.PluginConfigException;
 
 /**
  * <p>
@@ -29,7 +30,7 @@ import org.qfox.jestful.core.Request;
  *
  * @since 1.0.0
  */
-public class RequestCookiePlugin implements Actor {
+public class RequestCookiePlugin implements Plugin {
 	private CookieHandler cookieHandler;
 
 	public RequestCookiePlugin() {
@@ -43,6 +44,10 @@ public class RequestCookiePlugin implements Actor {
 	public RequestCookiePlugin(CookieHandler cookieHandler) {
 		super();
 		this.cookieHandler = cookieHandler;
+	}
+
+	public void config(Map<String, String> arguments) throws PluginConfigException {
+
 	}
 
 	public Object react(Action action) throws Exception {

@@ -1,6 +1,7 @@
 package org.qfox.jestful.validation;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
@@ -10,7 +11,8 @@ import javax.validation.ValidatorFactory;
 import javax.validation.executable.ExecutableValidator;
 
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Plugin;
+import org.qfox.jestful.core.exception.PluginConfigException;
 
 /**
  * <p>
@@ -27,7 +29,7 @@ import org.qfox.jestful.core.Actor;
  *
  * @since 1.0.0
  */
-public class ResultValidationPlugin implements Actor {
+public class ResultValidationPlugin implements Plugin {
 	private ValidatorFactory validatorFactory;
 
 	public ResultValidationPlugin() {
@@ -38,6 +40,10 @@ public class ResultValidationPlugin implements Actor {
 	public ResultValidationPlugin(ValidatorFactory validatorFactory) {
 		super();
 		this.validatorFactory = validatorFactory;
+	}
+
+	public void config(Map<String, String> arguments) throws PluginConfigException {
+
 	}
 
 	public Object react(Action action) throws Exception {

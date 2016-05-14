@@ -21,6 +21,7 @@ public class JestfulNamespaceHandlerSupport extends NamespaceHandlerSupport {
 
 	public void init() {
 		registerBeanDefinitionParser("group", new GroupDefinitionParser());
+		registerBeanDefinitionParser("component", new ComponentDefinitionParser());
 	}
 
 }

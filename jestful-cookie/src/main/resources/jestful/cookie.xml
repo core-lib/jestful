@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 		http://www.qfoxtech.com/schema/jestful http://www.qfoxtech.com/schema/jestful/jestful-1.0.0.xsd">
 
-	<jestful:group id="cookie">
+	<jestful:component id="cookie">
 		<ref bean="request-cookie" />
 		<ref bean="response-cookie" />
-	</jestful:group>
+	</jestful:component>
 
 	<bean id="request-cookie" class="org.qfox.jestful.cookie.RequestCookiePlugin" />
 	<bean id="response-cookie" class="org.qfox.jestful.cookie.ResponseCookiePlugin" />

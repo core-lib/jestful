@@ -3,10 +3,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 		http://www.qfoxtech.com/schema/jestful http://www.qfoxtech.com/schema/jestful/jestful-1.0.0.xsd">
 
-	<jestful:group id="validation">
+	<jestful:component id="validation">
 		<ref bean="parameter-validation" />
 		<ref bean="result-validation" />
-	</jestful:group>
+	</jestful:component>
 
 	<bean id="parameter-validation" class="org.qfox.jestful.validation.ParameterValidationPlugin" />
 	<bean id="result-validation" class="org.qfox.jestful.validation.ResultValidationPlugin" />
