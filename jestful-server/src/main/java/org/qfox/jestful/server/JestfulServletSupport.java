@@ -85,7 +85,7 @@ public class JestfulServletSupport implements Servlet, Actor {
 			String plugin = config.getInitParameter("plugin");
 			plugin = plugin == null || plugin.isEmpty() ? "jestful" : plugin;
 			String[] plugins = plugin.split("\\s*,\\s*");
-			this.plugins = new Plugin[plugins.length];
+			this.plugins = new Actor[plugins.length];
 			for (int i = 0; i < plugins.length; i++) {
 				String[] segments = plugins[i].split("\\s*;\\s*");
 				this.plugins[i] = beanContainer.get(segments[0], Actor.class);

@@ -89,7 +89,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		reader.setBeanClassLoader(classLoader);
 		reader.loadBeanDefinitions(configLocations);
 		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
-		this.plugins = new Plugin[plugins.length];
+		this.plugins = new Actor[plugins.length];
 		for (int i = 0; i < plugins.length; i++) {
 			String[] segments = plugins[i].split("\\s*;\\s*");
 			this.plugins[i] = defaultListableBeanFactory.getBean(segments[0], Actor.class);
