@@ -73,7 +73,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final Map<Class<?>, Resource> resources;
 	private final BeanContainer beanContainer;
 	private final String[] configLocations;
-	private final Plugin[] plugins;
+	private final Actor[] plugins;
 
 	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String beanContainer, String[] configLocations, String[] plugins) {
 		super();
@@ -92,14 +92,17 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		this.plugins = new Plugin[plugins.length];
 		for (int i = 0; i < plugins.length; i++) {
 			String[] segments = plugins[i].split("\\s*;\\s*");
-			this.plugins[i] = defaultListableBeanFactory.getBean(segments[0], Plugin.class);
-			Map<String, String> arguments = new LinkedHashMap<String, String>();
-			for (int j = 1; j < segments.length; j++) {
-				String segment = segments[j];
-				String[] keyvalue = segment.split("\\s*=\\s*");
-				arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
+			this.plugins[i] = defaultListableBeanFactory.getBean(segments[0], Actor.class);
+			if (this.plugins[i] instanceof Plugin) {
+				Map<String, String> arguments = new LinkedHashMap<String, String>();
+				for (int j = 1; j < segments.length; j++) {
+					String segment = segments[j];
+					String[] keyvalue = segment.split("\\s*=\\s*");
+					arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
+				}
+				Plugin plugin = (Plugin) this.plugins[i];
+				plugin.config(arguments);
 			}
-			this.plugins[i].config(arguments);
 		}
 		this.initialize(this.beanContainer);
 	}

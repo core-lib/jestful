@@ -59,7 +59,7 @@ public class JestfulServletSupport implements Servlet, Actor {
 	private MappingRegistry mappingRegistry;
 	private VersionComparator versionComparator;
 	private BeanContainer beanContainer;
-	private Plugin[] plugins;
+	private Actor[] plugins;
 
 	public void init(ServletConfig config) throws ServletException {
 		this.servletConfig = config;
@@ -88,14 +88,16 @@ public class JestfulServletSupport implements Servlet, Actor {
 			this.plugins = new Plugin[plugins.length];
 			for (int i = 0; i < plugins.length; i++) {
 				String[] segments = plugins[i].split("\\s*;\\s*");
-				this.plugins[i] = beanContainer.get(segments[0], Plugin.class);
-				Map<String, String> arguments = new LinkedHashMap<String, String>();
-				for (int j = 1; j < segments.length; j++) {
-					String segment = segments[j];
-					String[] keyvalue = segment.split("\\s*=\\s*");
-					arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
+				this.plugins[i] = beanContainer.get(segments[0], Actor.class);
+				if (this.plugins[i] instanceof Plugin) {
+					Map<String, String> arguments = new LinkedHashMap<String, String>();
+					for (int j = 1; j < segments.length; j++) {
+						String segment = segments[j];
+						String[] keyvalue = segment.split("\\s*=\\s*");
+						arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
+					}
+					((Plugin) this.plugins[i]).config(arguments);
 				}
-				this.plugins[i].config(arguments);
 			}
 		}
 		Collection<?> controllers = beanContainer.with(Jestful.class).values();
