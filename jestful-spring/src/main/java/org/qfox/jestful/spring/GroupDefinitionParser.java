@@ -2,9 +2,7 @@ package org.qfox.jestful.spring;
 
 import java.util.List;
 
-import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Group;
-import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -36,11 +34,6 @@ public class GroupDefinitionParser extends AbstractSimpleBeanDefinitionParser {
 	protected void doParse(Element element, ParserContext context, BeanDefinitionBuilder builder) {
 		super.doParse(element, context, builder);
 		List<?> members = context.getDelegate().parseListElement(element, builder.getBeanDefinition());
-		for (Object member : members) {
-			if (member instanceof Actor == false) {
-				throw new TypeMismatchException(member, Actor.class);
-			}
-		}
 		builder.addPropertyValue("members", members);
 	}
 

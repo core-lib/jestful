@@ -3,8 +3,6 @@ package org.qfox.jestful.spring;
 import java.util.List;
 
 import org.qfox.jestful.core.Component;
-import org.qfox.jestful.core.Plugin;
-import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -36,11 +34,6 @@ public class ComponentDefinitionParser extends AbstractSimpleBeanDefinitionParse
 	protected void doParse(Element element, ParserContext context, BeanDefinitionBuilder builder) {
 		super.doParse(element, context, builder);
 		List<?> members = context.getDelegate().parseListElement(element, builder.getBeanDefinition());
-		for (Object member : members) {
-			if (member instanceof Plugin == false) {
-				throw new TypeMismatchException(member, Plugin.class);
-			}
-		}
 		builder.addPropertyValue("members", members);
 	}
 
