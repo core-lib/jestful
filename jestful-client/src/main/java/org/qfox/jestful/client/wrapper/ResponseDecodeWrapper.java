@@ -10,6 +10,7 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Encoding;
 import org.qfox.jestful.core.Encodings;
 import org.qfox.jestful.core.Initialable;
+import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.codec.ResponseDecoder;
 import org.qfox.jestful.core.exception.NoSuchCodecException;
@@ -52,7 +53,8 @@ public class ResponseDecodeWrapper implements Actor, Initialable {
 			}
 			Response source = action.getResponse();
 			Response target = new DecodedResponse(source, decoders);
-			target.setResponseHeader("Accept-Encoding", encodings.toString());
+			Request request = action.getRequest();
+			request.setRequestHeader("Accept-Encoding", encodings.toString());
 			action.setResponse(target);
 		}
 		return action.execute();
