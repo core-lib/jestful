@@ -12,9 +12,9 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
-import org.qfox.jestful.core.ResponseSerializer;
 import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.Result;
+import org.qfox.jestful.core.formatting.ResponseSerializer;
 import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 
 /**

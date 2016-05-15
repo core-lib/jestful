@@ -1,4 +1,4 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.server.formatting;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

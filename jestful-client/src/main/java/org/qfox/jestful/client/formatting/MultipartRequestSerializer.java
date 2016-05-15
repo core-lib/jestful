@@ -1,4 +1,4 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.formatting;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
-import org.qfox.jestful.core.RequestSerializer;
+import org.qfox.jestful.core.formatting.RequestSerializer;
 
 import eu.medsea.mimeutil.MimeUtil;
 

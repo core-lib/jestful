@@ -11,8 +11,8 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.RequestDeserializer;
 import org.qfox.jestful.core.Restful;
+import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
 
 /**

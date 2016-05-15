@@ -1,4 +1,4 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.server.formatting;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
-import org.qfox.jestful.core.RequestDeserializer;
+import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.IncompatibleConversionException;

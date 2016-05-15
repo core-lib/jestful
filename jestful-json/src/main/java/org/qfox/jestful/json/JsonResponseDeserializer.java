@@ -7,8 +7,8 @@ import java.io.InputStreamReader;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.ResponseDeserializer;
 import org.qfox.jestful.core.Result;
+import org.qfox.jestful.core.formatting.ResponseDeserializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -1,9 +1,10 @@
-package org.qfox.jestful.core;
+package org.qfox.jestful.core.formatting;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.core.Action;
 
 /**
  * <p>
@@ -20,9 +21,7 @@ import org.qfox.jestful.commons.MediaType;
  *
  * @since 1.0.0
  */
-public interface ResponseSerializer {
-
-	String getContentType();
+public interface ResponseSerializer extends Formatting {
 
 	void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException;
 

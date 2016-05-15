@@ -14,7 +14,7 @@ import org.qfox.jestful.commons.io.MultipartOutputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
-import org.qfox.jestful.core.RequestSerializer;
+import org.qfox.jestful.core.formatting.RequestSerializer;
 
 /**
  * <p>

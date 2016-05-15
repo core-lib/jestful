@@ -28,8 +28,8 @@
 		<bean class="org.qfox.jestful.server.render.RedirectResultRender" />
 	</jestful:group>
 
-	<bean class="org.qfox.jestful.server.URLEncodedRequestDeserializer" />
-	<bean class="org.qfox.jestful.server.MultipartRequestDeserializer" />
+	<bean class="org.qfox.jestful.server.formatting.URLEncodedRequestDeserializer" />
+	<bean class="org.qfox.jestful.server.formatting.MultipartRequestDeserializer" />
 
 </beans>
 

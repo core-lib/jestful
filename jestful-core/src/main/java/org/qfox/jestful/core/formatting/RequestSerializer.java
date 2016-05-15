@@ -1,9 +1,11 @@
-package org.qfox.jestful.core;
+package org.qfox.jestful.core.formatting;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 import org.qfox.jestful.commons.io.MultipartOutputStream;
+import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Parameter;
 
 /**
  * <p>
@@ -20,9 +22,7 @@ import org.qfox.jestful.commons.io.MultipartOutputStream;
  *
  * @since 1.0.0
  */
-public interface RequestSerializer {
-
-	String getContentType();
+public interface RequestSerializer extends Formatting {
 
 	boolean supports(Action action);
 

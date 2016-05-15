@@ -7,7 +7,7 @@ import java.io.OutputStream;
 import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.ResponseSerializer;
+import org.qfox.jestful.core.formatting.ResponseSerializer;
 
 /**
  * <p>

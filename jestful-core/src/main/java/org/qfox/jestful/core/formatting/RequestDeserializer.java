@@ -1,9 +1,12 @@
-package org.qfox.jestful.core;
+package org.qfox.jestful.core.formatting;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.qfox.jestful.commons.MediaType;
+import org.qfox.jestful.commons.Multihead;
+import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Parameter;
 
 /**
  * <p>
@@ -20,10 +23,10 @@ import org.qfox.jestful.commons.MediaType;
  *
  * @since 1.0.0
  */
-public interface ResponseDeserializer {
-
-	String getContentType();
+public interface RequestDeserializer extends Formatting {
 
 	void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException;
+
+	void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException;
 
 }

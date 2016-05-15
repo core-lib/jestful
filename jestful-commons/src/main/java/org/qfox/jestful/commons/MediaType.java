@@ -24,7 +24,7 @@ import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
  *
  * @since 1.0.0
  */
-public class MediaType implements Comparable<MediaType> {
+public class MediaType implements Weighted<MediaType> {
 	private final String name;
 	private final String type;
 	private final String subtype;

@@ -11,7 +11,7 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.ResponseDeserializer;
+import org.qfox.jestful.core.formatting.ResponseDeserializer;
 
 /**
  * <p>

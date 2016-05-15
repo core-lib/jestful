@@ -20,8 +20,8 @@
 		<bean class="org.qfox.jestful.client.processor.CookieParameterProcessor" />
 	</jestful:group>
 
-	<bean class="org.qfox.jestful.client.URLEncodedRequestSerializer" />
-	<bean class="org.qfox.jestful.client.MultipartRequestSerializer" />
+	<bean class="org.qfox.jestful.client.formatting.URLEncodedRequestSerializer" />
+	<bean class="org.qfox.jestful.client.formatting.MultipartRequestSerializer" />
 
 	<bean class="org.qfox.jestful.client.scheduler.CallbackScheduler" />
 	<bean class="org.qfox.jestful.client.scheduler.FutureScheduler" />

@@ -55,6 +55,17 @@ public class Action {
 
 	private String charset = Charset.defaultCharset().name();
 
+	private List<String> acceptCharsets;
+	private List<String> acceptEncodings;
+	private List<String> acceptLanguages;
+
+	private List<String> contentCharsets;
+	private List<String> contentEncodings;
+	private List<String> contentLanguages;
+
+	private boolean acceptEncode;
+	private boolean allowEncode;
+
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
 	public Action(BeanContainer beanContainer, Collection<Actor> actors) {
@@ -251,6 +262,70 @@ public class Action {
 
 	public void setCharset(String charset) {
 		this.charset = charset;
+	}
+
+	public List<String> getAcceptCharsets() {
+		return acceptCharsets;
+	}
+
+	public void setAcceptCharsets(List<String> acceptCharsets) {
+		this.acceptCharsets = acceptCharsets;
+	}
+
+	public List<String> getAcceptEncodings() {
+		return acceptEncodings;
+	}
+
+	public void setAcceptEncodings(List<String> acceptEncodings) {
+		this.acceptEncodings = acceptEncodings;
+	}
+
+	public List<String> getAcceptLanguages() {
+		return acceptLanguages;
+	}
+
+	public void setAcceptLanguages(List<String> acceptLanguages) {
+		this.acceptLanguages = acceptLanguages;
+	}
+
+	public List<String> getContentCharsets() {
+		return contentCharsets;
+	}
+
+	public void setContentCharsets(List<String> contentCharsets) {
+		this.contentCharsets = contentCharsets;
+	}
+
+	public List<String> getContentEncodings() {
+		return contentEncodings;
+	}
+
+	public void setContentEncodings(List<String> contentEncodings) {
+		this.contentEncodings = contentEncodings;
+	}
+
+	public List<String> getContentLanguages() {
+		return contentLanguages;
+	}
+
+	public void setContentLanguages(List<String> contentLanguages) {
+		this.contentLanguages = contentLanguages;
+	}
+
+	public boolean isAcceptEncode() {
+		return acceptEncode;
+	}
+
+	public void setAcceptEncode(boolean acceptEncode) {
+		this.acceptEncode = acceptEncode;
+	}
+
+	public boolean isAllowEncode() {
+		return allowEncode;
+	}
+
+	public void setAllowEncode(boolean allowEncode) {
+		this.allowEncode = allowEncode;
 	}
 
 	public Map<Object, Object> getExtra() {

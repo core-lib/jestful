@@ -5,8 +5,8 @@ import java.util.Collection;
 import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.RequestSerializer;
 import org.qfox.jestful.core.exception.JestfulException;
+import org.qfox.jestful.core.formatting.RequestSerializer;
 
 public class NoSuchSerializerException extends JestfulException {
 	private static final long serialVersionUID = 9075042655898294114L;

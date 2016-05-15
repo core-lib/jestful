@@ -34,13 +34,13 @@ import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.RequestSerializer;
 import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.Response;
-import org.qfox.jestful.core.ResponseDeserializer;
 import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.Status;
+import org.qfox.jestful.core.formatting.RequestSerializer;
+import org.qfox.jestful.core.formatting.ResponseDeserializer;
 import org.qfox.jestful.core.io.RequestLazyOutputStream;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -75,20 +75,32 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final String[] configLocations;
 	private final Actor[] plugins;
 
-	private Client(String protocol, String host, Integer port, String route, ClassLoader classLoader, String beanContainer, String[] configLocations, String[] plugins) {
+	private final String[] acceptCharsets;
+	private final String[] acceptEncodings;
+	private final String[] acceptLanguages;
+
+	private final String[] contentCharsets;
+	private final String[] contentEncodings;
+	private final String[] contentLanguages;
+
+	private final boolean acceptEncode;
+	private final boolean allowEncode;
+
+	private Client(Builder builder) {
 		super();
-		this.protocol = protocol;
-		this.host = host;
-		this.port = port;
-		this.route = route;
-		this.classLoader = classLoader;
+		this.protocol = builder.protocol;
+		this.host = builder.host;
+		this.port = builder.port;
+		this.route = builder.route;
+		this.classLoader = builder.classLoader;
 		this.resources = new HashMap<Class<?>, Resource>();
-		this.configLocations = configLocations;
+		this.configLocations = builder.configLocations.toArray(new String[0]);
 		DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
 		reader.setBeanClassLoader(classLoader);
 		reader.loadBeanDefinitions(configLocations);
-		this.beanContainer = defaultListableBeanFactory.getBean(beanContainer, BeanContainer.class);
+		this.beanContainer = defaultListableBeanFactory.getBean(builder.beanContainer, BeanContainer.class);
+		String[] plugins = builder.plugins.toArray(new String[0]);
 		this.plugins = new Actor[plugins.length];
 		for (int i = 0; i < plugins.length; i++) {
 			String[] segments = plugins[i].split("\\s*;\\s*");
@@ -104,6 +116,17 @@ public class Client implements InvocationHandler, Actor, Initialable {
 				plugin.config(arguments);
 			}
 		}
+		this.acceptCharsets = builder.acceptCharsets.toArray(new String[0]);
+		this.acceptEncodings = builder.acceptEncodings.toArray(new String[0]);
+		this.acceptLanguages = builder.acceptLanguages.toArray(new String[0]);
+
+		this.contentCharsets = builder.contentCharsets.toArray(new String[0]);
+		this.contentEncodings = builder.contentEncodings.toArray(new String[0]);
+		this.contentLanguages = builder.contentLanguages.toArray(new String[0]);
+
+		this.acceptEncode = builder.acceptEncode;
+		this.allowEncode = builder.allowEncode;
+
 		this.initialize(this.beanContainer);
 	}
 
@@ -155,6 +178,16 @@ public class Client implements InvocationHandler, Actor, Initialable {
 
 		action.setConsumes(mapping.getConsumes());
 		action.setProduces(mapping.getProduces());
+
+		action.setAcceptCharsets(Arrays.asList(acceptCharsets));
+		action.setAcceptEncodings(Arrays.asList(acceptEncodings));
+		action.setAcceptLanguages(Arrays.asList(acceptLanguages));
+		action.setContentCharsets(Arrays.asList(contentCharsets));
+		action.setContentEncodings(Arrays.asList(contentEncodings));
+		action.setContentLanguages(Arrays.asList(contentLanguages));
+		
+		action.setAcceptEncode(acceptEncode);
+		action.setAllowEncode(allowEncode);
 
 		Result result = action.getResult();
 		Body body = result.getBody();
@@ -263,12 +296,19 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		private List<String> plugins = new ArrayList<String>(Arrays.asList("client"));
 		private List<String> configLocations = new ArrayList<String>(Arrays.asList("classpath*:/jestful/*.xml"));
 
-		// private List<String> acceptCharsets = new ArrayList<String>();
-		// private List<String> accpetEncodings = new ArrayList<String>();
-		// private List<String> acceptLanguages = new ArrayList<String>();
+		private List<String> acceptCharsets = new ArrayList<String>();
+		private List<String> acceptEncodings = new ArrayList<String>();
+		private List<String> acceptLanguages = new ArrayList<String>();
+
+		private List<String> contentCharsets = new ArrayList<String>();
+		private List<String> contentEncodings = new ArrayList<String>();
+		private List<String> contentLanguages = new ArrayList<String>();
+
+		private boolean acceptEncode = true;
+		private boolean allowEncode = true;
 
 		public Client build() {
-			return new Client(protocol, host, port, route, classLoader, beanContainer, configLocations.toArray(new String[0]), plugins.toArray(new String[0]));
+			return new Client(this);
 		}
 
 		public Builder setEndpoint(URL endpoint) {
@@ -356,9 +396,115 @@ public class Client implements InvocationHandler, Actor, Initialable {
 
 		public Builder addConfigLocations(String... configLocations) {
 			if (configLocations == null) {
-				throw new IllegalArgumentException("configLocations is null");
+				throw new IllegalArgumentException("config locations is null");
 			}
 			this.configLocations.addAll(Arrays.asList(configLocations));
+			return this;
+		}
+
+		public Builder setAcceptCharsets(String... acceptCharsets) {
+			if (acceptCharsets == null || acceptCharsets.length == 0) {
+				throw new IllegalArgumentException("accept charsets is null or empty");
+			}
+			this.acceptCharsets = new ArrayList<String>(Arrays.asList(acceptCharsets));
+			return this;
+		}
+
+		public Builder addAcceptCharsets(String... acceptCharsets) {
+			if (acceptCharsets == null) {
+				throw new IllegalArgumentException("accept charsets is null");
+			}
+			this.acceptCharsets.addAll(Arrays.asList(acceptCharsets));
+			return this;
+		}
+
+		public Builder setAcceptEncodings(String... acceptEncodings) {
+			if (acceptEncodings == null || acceptEncodings.length == 0) {
+				throw new IllegalArgumentException("accept encodings is null or empty");
+			}
+			this.acceptEncodings = new ArrayList<String>(Arrays.asList(acceptEncodings));
+			return this;
+		}
+
+		public Builder addAcceptEncodings(String... acceptEncodings) {
+			if (acceptEncodings == null) {
+				throw new IllegalArgumentException("accept encodings is null");
+			}
+			this.acceptEncodings.addAll(Arrays.asList(acceptEncodings));
+			return this;
+		}
+
+		public Builder setAcceptLanguages(String... acceptLanguages) {
+			if (acceptLanguages == null || acceptLanguages.length == 0) {
+				throw new IllegalArgumentException("accept languages is null or empty");
+			}
+			this.acceptLanguages = new ArrayList<String>(Arrays.asList(acceptLanguages));
+			return this;
+		}
+
+		public Builder addAcceptLanguages(String... acceptLanguages) {
+			if (acceptLanguages == null) {
+				throw new IllegalArgumentException("accept languages is null");
+			}
+			this.acceptLanguages.addAll(Arrays.asList(acceptLanguages));
+			return this;
+		}
+
+		public Builder setContentCharsets(String... contentCharsets) {
+			if (contentCharsets == null || contentCharsets.length == 0) {
+				throw new IllegalArgumentException("content charsets is null or empty");
+			}
+			this.contentCharsets = new ArrayList<String>(Arrays.asList(contentCharsets));
+			return this;
+		}
+
+		public Builder addContentCharsets(String... contentCharsets) {
+			if (contentCharsets == null) {
+				throw new IllegalArgumentException("content charsets is null");
+			}
+			this.contentCharsets.addAll(Arrays.asList(contentCharsets));
+			return this;
+		}
+
+		public Builder setContentEncodings(String... contentEncodings) {
+			if (contentEncodings == null || contentEncodings.length == 0) {
+				throw new IllegalArgumentException("content encodings is null or empty");
+			}
+			this.contentEncodings = new ArrayList<String>(Arrays.asList(contentEncodings));
+			return this;
+		}
+
+		public Builder addContentEncodings(String... contentEncodings) {
+			if (contentEncodings == null) {
+				throw new IllegalArgumentException("content encodings is null");
+			}
+			this.contentEncodings.addAll(Arrays.asList(contentEncodings));
+			return this;
+		}
+
+		public Builder setContentLanguages(String... contentLanguages) {
+			if (contentLanguages == null || contentLanguages.length == 0) {
+				throw new IllegalArgumentException("content languages is null or empty");
+			}
+			this.contentLanguages = new ArrayList<String>(Arrays.asList(contentLanguages));
+			return this;
+		}
+
+		public Builder addContentLanguages(String... contentLanguages) {
+			if (contentLanguages == null) {
+				throw new IllegalArgumentException("content languages is null");
+			}
+			this.contentLanguages.addAll(Arrays.asList(contentLanguages));
+			return this;
+		}
+
+		public Builder setAcceptEncode(boolean acceptEncode) {
+			this.acceptEncode = acceptEncode;
+			return this;
+		}
+
+		public Builder setAllowEncode(boolean allowEncode) {
+			this.allowEncode = allowEncode;
 			return this;
 		}
 
@@ -398,6 +544,42 @@ public class Client implements InvocationHandler, Actor, Initialable {
 
 	public Actor[] getPlugins() {
 		return plugins;
+	}
+
+	public Map<MediaType, RequestSerializer> getSerializers() {
+		return serializers;
+	}
+
+	public Map<MediaType, ResponseDeserializer> getDeserializers() {
+		return deserializers;
+	}
+
+	public Map<String, Scheduler> getSchedulers() {
+		return schedulers;
+	}
+
+	public String[] getAcceptCharsets() {
+		return acceptCharsets;
+	}
+
+	public String[] getAcceptEncodings() {
+		return acceptEncodings;
+	}
+
+	public String[] getAcceptLanguages() {
+		return acceptLanguages;
+	}
+
+	public String[] getContentCharsets() {
+		return contentCharsets;
+	}
+
+	public String[] getContentEncodings() {
+		return contentEncodings;
+	}
+
+	public String[] getContentLanguages() {
+		return contentLanguages;
 	}
 
 	@Override
