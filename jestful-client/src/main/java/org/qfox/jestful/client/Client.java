@@ -308,7 +308,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		private List<String> contentLanguages = new ArrayList<String>();
 
 		private boolean acceptEncode = true;
-		private boolean allowEncode = true;
+		private boolean allowEncode = false;
 
 		public Client build() {
 			return new Client(this);

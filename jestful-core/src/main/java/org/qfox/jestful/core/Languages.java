@@ -20,7 +20,7 @@ import java.util.TreeSet;
  *
  * @since 1.0.0
  */
-public class Languages implements Iterable<Language> {
+public class Languages implements Iterable<Language>, Cloneable {
 	private final Set<Language> languages;
 
 	public Languages(String[] languages) {
@@ -42,6 +42,25 @@ public class Languages implements Iterable<Language> {
 			languages.add(mediaType);
 		}
 		return new Languages(languages);
+	}
+
+	public Language first() {
+		if (isEmpty()) {
+			throw new IllegalStateException("empty");
+		}
+		return iterator().next();
+	}
+
+	public Language last() {
+		if (isEmpty()) {
+			throw new IllegalStateException("empty");
+		}
+		Iterator<Language> iterator = iterator();
+		Language last = iterator.next();
+		while (iterator.hasNext()) {
+			last = iterator.next();
+		}
+		return last;
 	}
 
 	public int size() {
@@ -71,6 +90,11 @@ public class Languages implements Iterable<Language> {
 
 	public Iterator<Language> iterator() {
 		return languages.iterator();
+	}
+
+	@Override
+	public Object clone() {
+		return new Languages(languages);
 	}
 
 	public String toString() {

@@ -20,7 +20,7 @@ import java.util.TreeSet;
  *
  * @since 1.0.0
  */
-public class Charsets implements Iterable<Charset> {
+public class Charsets implements Iterable<Charset>, Cloneable {
 	private final Set<Charset> charsets;
 
 	public Charsets(String[] charsets) {
@@ -42,6 +42,25 @@ public class Charsets implements Iterable<Charset> {
 			charsets.add(mediaType);
 		}
 		return new Charsets(charsets);
+	}
+
+	public Charset first() {
+		if (isEmpty()) {
+			throw new IllegalStateException("empty");
+		}
+		return iterator().next();
+	}
+
+	public Charset last() {
+		if (isEmpty()) {
+			throw new IllegalStateException("empty");
+		}
+		Iterator<Charset> iterator = iterator();
+		Charset last = iterator.next();
+		while (iterator.hasNext()) {
+			last = iterator.next();
+		}
+		return last;
 	}
 
 	public int size() {
@@ -71,6 +90,11 @@ public class Charsets implements Iterable<Charset> {
 
 	public Iterator<Charset> iterator() {
 		return charsets.iterator();
+	}
+
+	@Override
+	public Object clone() {
+		return new Charsets(charsets);
 	}
 
 	public String toString() {

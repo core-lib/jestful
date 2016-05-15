@@ -1,6 +1,9 @@
 package org.qfox.jestful.core.codec;
 
 import java.io.Closeable;
+import java.io.IOException;
+
+import org.qfox.jestful.core.Encoding;
 
 /**
  * <p>
@@ -21,6 +24,6 @@ public interface Codec<T extends Closeable> {
 
 	String getContentEncoding();
 
-	T wrap(T source);
+	T wrap(T source, Encoding encoding) throws IOException;
 
 }

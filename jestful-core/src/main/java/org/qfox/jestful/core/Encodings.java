@@ -20,7 +20,7 @@ import java.util.TreeSet;
  *
  * @since 1.0.0
  */
-public class Encodings implements Iterable<Encoding> {
+public class Encodings implements Iterable<Encoding>, Cloneable {
 	private final Set<Encoding> encodings;
 
 	public Encodings(String[] encodings) {
@@ -42,6 +42,25 @@ public class Encodings implements Iterable<Encoding> {
 			encodings.add(mediaType);
 		}
 		return new Encodings(encodings);
+	}
+
+	public Encoding first() {
+		if (isEmpty()) {
+			throw new IllegalStateException("empty");
+		}
+		return iterator().next();
+	}
+
+	public Encoding last() {
+		if (isEmpty()) {
+			throw new IllegalStateException("empty");
+		}
+		Iterator<Encoding> iterator = iterator();
+		Encoding last = iterator.next();
+		while (iterator.hasNext()) {
+			last = iterator.next();
+		}
+		return last;
 	}
 
 	public int size() {
@@ -71,6 +90,11 @@ public class Encodings implements Iterable<Encoding> {
 
 	public Iterator<Encoding> iterator() {
 		return encodings.iterator();
+	}
+
+	@Override
+	public Encodings clone() {
+		return new Encodings(encodings);
 	}
 
 	public String toString() {

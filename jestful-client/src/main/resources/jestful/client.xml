@@ -18,10 +18,17 @@
 		<bean class="org.qfox.jestful.client.processor.HeaderParameterProcessor" />
 		<bean class="org.qfox.jestful.client.handler.CookiesAnnotationHandler" />
 		<bean class="org.qfox.jestful.client.processor.CookieParameterProcessor" />
+		<bean class="org.qfox.jestful.client.wrapper.RequestEncodeWrapper" />
+		<bean class="org.qfox.jestful.client.wrapper.ResponseDecodeWrapper" />
 	</jestful:group>
 
 	<bean class="org.qfox.jestful.client.formatting.URLEncodedRequestSerializer" />
 	<bean class="org.qfox.jestful.client.formatting.MultipartRequestSerializer" />
+
+	<bean class="org.qfox.jestful.client.codec.DeflateRequestEncoder" />
+	<bean class="org.qfox.jestful.client.codec.DeflateResponseDecoder" />
+	<bean class="org.qfox.jestful.client.codec.GzipRequestEncoder" />
+	<bean class="org.qfox.jestful.client.codec.GzipResponseDecoder" />
 
 	<bean class="org.qfox.jestful.client.scheduler.CallbackScheduler" />
 	<bean class="org.qfox.jestful.client.scheduler.FutureScheduler" />

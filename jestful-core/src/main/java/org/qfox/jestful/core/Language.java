@@ -97,10 +97,16 @@ public class Language implements Weighted<Language> {
 		return true;
 	}
 
-	@Override
 	public String toString() {
+		return toString(true);
+	}
+
+	public String toString(boolean weighted) {
 		StringBuilder builder = new StringBuilder(name);
 		for (Entry<String, String> entry : parameters.entrySet()) {
+			if (weighted == false && "q".equalsIgnoreCase(entry.getKey())) {
+				continue;
+			}
 			builder.append(";").append(entry.getKey()).append("=").append(entry.getValue());
 		}
 		return builder.toString();
