@@ -55,13 +55,13 @@ public class Action {
 
 	private String charset = Charset.defaultCharset().name();
 
-	private List<String> acceptCharsets;
-	private List<String> acceptEncodings;
-	private List<String> acceptLanguages;
+	private Charsets acceptCharsets;
+	private Encodings acceptEncodings;
+	private Languages acceptLanguages;
 
-	private List<String> contentCharsets;
-	private List<String> contentEncodings;
-	private List<String> contentLanguages;
+	private Charsets contentCharsets;
+	private Encodings contentEncodings;
+	private Languages contentLanguages;
 
 	private boolean acceptEncode;
 	private boolean allowEncode;
@@ -264,51 +264,51 @@ public class Action {
 		this.charset = charset;
 	}
 
-	public List<String> getAcceptCharsets() {
+	public Charsets getAcceptCharsets() {
 		return acceptCharsets;
 	}
 
-	public void setAcceptCharsets(List<String> acceptCharsets) {
+	public void setAcceptCharsets(Charsets acceptCharsets) {
 		this.acceptCharsets = acceptCharsets;
 	}
 
-	public List<String> getAcceptEncodings() {
+	public Encodings getAcceptEncodings() {
 		return acceptEncodings;
 	}
 
-	public void setAcceptEncodings(List<String> acceptEncodings) {
+	public void setAcceptEncodings(Encodings acceptEncodings) {
 		this.acceptEncodings = acceptEncodings;
 	}
 
-	public List<String> getAcceptLanguages() {
+	public Languages getAcceptLanguages() {
 		return acceptLanguages;
 	}
 
-	public void setAcceptLanguages(List<String> acceptLanguages) {
+	public void setAcceptLanguages(Languages acceptLanguages) {
 		this.acceptLanguages = acceptLanguages;
 	}
 
-	public List<String> getContentCharsets() {
+	public Charsets getContentCharsets() {
 		return contentCharsets;
 	}
 
-	public void setContentCharsets(List<String> contentCharsets) {
+	public void setContentCharsets(Charsets contentCharsets) {
 		this.contentCharsets = contentCharsets;
 	}
 
-	public List<String> getContentEncodings() {
+	public Encodings getContentEncodings() {
 		return contentEncodings;
 	}
 
-	public void setContentEncodings(List<String> contentEncodings) {
+	public void setContentEncodings(Encodings contentEncodings) {
 		this.contentEncodings = contentEncodings;
 	}
 
-	public List<String> getContentLanguages() {
+	public Languages getContentLanguages() {
 		return contentLanguages;
 	}
 
-	public void setContentLanguages(List<String> contentLanguages) {
+	public void setContentLanguages(Languages contentLanguages) {
 		this.contentLanguages = contentLanguages;
 	}
 

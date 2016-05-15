@@ -52,10 +52,6 @@ public class MediaType implements Weighted<MediaType> {
 	 *            the content type
 	 * @return
 	 */
-	public boolean matches(String contentType) {
-		return matches(MediaType.valueOf(contentType));
-	}
-
 	public boolean matches(MediaType mediaType) {
 		if (this.equals(mediaType)) {
 			return true;

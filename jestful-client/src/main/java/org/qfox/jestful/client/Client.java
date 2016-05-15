@@ -27,7 +27,10 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Body;
+import org.qfox.jestful.core.Charsets;
+import org.qfox.jestful.core.Encodings;
 import org.qfox.jestful.core.Initialable;
+import org.qfox.jestful.core.Languages;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Parameters;
@@ -179,13 +182,13 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		action.setConsumes(mapping.getConsumes());
 		action.setProduces(mapping.getProduces());
 
-		action.setAcceptCharsets(Arrays.asList(acceptCharsets));
-		action.setAcceptEncodings(Arrays.asList(acceptEncodings));
-		action.setAcceptLanguages(Arrays.asList(acceptLanguages));
-		action.setContentCharsets(Arrays.asList(contentCharsets));
-		action.setContentEncodings(Arrays.asList(contentEncodings));
-		action.setContentLanguages(Arrays.asList(contentLanguages));
-		
+		action.setAcceptCharsets(new Charsets(acceptCharsets));
+		action.setAcceptEncodings(new Encodings(acceptEncodings));
+		action.setAcceptLanguages(new Languages(acceptLanguages));
+		action.setContentCharsets(new Charsets(contentCharsets));
+		action.setContentEncodings(new Encodings(contentEncodings));
+		action.setContentLanguages(new Languages(contentLanguages));
+
 		action.setAcceptEncode(acceptEncode);
 		action.setAllowEncode(allowEncode);
 

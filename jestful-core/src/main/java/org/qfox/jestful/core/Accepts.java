@@ -45,12 +45,7 @@ public class Accepts implements Iterable<MediaType> {
 	}
 
 	public boolean contains(String contentType) {
-		for (MediaType mediaType : mediaTypes) {
-			if (mediaType.matches(contentType)) {
-				return true;
-			}
-		}
-		return false;
+		return contains(MediaType.valueOf(contentType));
 	}
 
 	public boolean contains(MediaType mediaType) {
@@ -70,6 +65,10 @@ public class Accepts implements Iterable<MediaType> {
 		return mediaTypes.iterator();
 	}
 
+	public boolean retainAll(Accepts accepts) {
+		return this.mediaTypes.retainAll(accepts.mediaTypes);
+	}
+
 	public String toString() {
 		return toString(null);
 	}
@@ -84,10 +83,6 @@ public class Accepts implements Iterable<MediaType> {
 			}
 		}
 		return builder.toString();
-	}
-
-	public boolean retainAll(Accepts accepts) {
-		return this.mediaTypes.retainAll(accepts.mediaTypes);
 	}
 
 }
