@@ -26,7 +26,10 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Body;
+import org.qfox.jestful.core.Charsets;
 import org.qfox.jestful.core.Destroyable;
+import org.qfox.jestful.core.Encodings;
+import org.qfox.jestful.core.Languages;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Plugin;
@@ -61,6 +64,17 @@ public class JestfulFilterSupport implements Filter, Actor {
 	private BeanContainer beanContainer;
 	private VersionComparator versionComparator;
 	private Actor[] plugins;
+
+	private Charsets acceptCharsets;
+	private Encodings acceptEncodings;
+	private Languages acceptLanguages;
+
+	private Charsets contentCharsets;
+	private Encodings contentEncodings;
+	private Languages contentLanguages;
+
+	private boolean acceptEncode;
+	private boolean allowEncode;
 
 	public void init(FilterConfig config) throws ServletException {
 		ServletContext servletContext = config.getServletContext();
@@ -98,6 +112,42 @@ public class JestfulFilterSupport implements Filter, Actor {
 					((Plugin) this.plugins[i]).config(arguments);
 				}
 			}
+		}
+		{
+			String value = config.getInitParameter("acceptCharset");
+			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			this.acceptCharsets = new Charsets(values);
+		}
+		{
+			String value = config.getInitParameter("acceptEncoding");
+			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			this.acceptEncodings = new Encodings(values);
+		}
+		{
+			String value = config.getInitParameter("contentLanguage");
+			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			this.acceptLanguages = new Languages(values);
+		}
+		{
+			String value = config.getInitParameter("contentCharset");
+			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			this.contentCharsets = new Charsets(values);
+		}
+		{
+			String value = config.getInitParameter("contentEncoding");
+			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			this.contentEncodings = new Encodings(values);
+		}
+		{
+			String value = config.getInitParameter("contentLanguage");
+			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			this.contentLanguages = new Languages(values);
+		}
+		{
+			String allowEncode = config.getInitParameter("allowEncode");
+			this.allowEncode = allowEncode == null || allowEncode.isEmpty() ? true : Boolean.valueOf(allowEncode);
+			String acceptEncode = config.getInitParameter("acceptEncode");
+			this.acceptEncode = acceptEncode == null || acceptEncode.isEmpty() ? true : Boolean.valueOf(acceptEncode);
 		}
 		Collection<?> controllers = beanContainer.with(Jestful.class).values();
 		for (Object controller : controllers) {
@@ -138,6 +188,16 @@ public class JestfulFilterSupport implements Filter, Actor {
 
 			action.setConsumes(mapping.getConsumes());
 			action.setProduces(mapping.getProduces());
+
+			action.setAcceptCharsets(acceptCharsets.clone());
+			action.setAcceptEncodings(acceptEncodings.clone());
+			action.setAcceptLanguages(acceptLanguages.clone());
+			action.setContentCharsets(contentCharsets.clone());
+			action.setContentEncodings(contentEncodings.clone());
+			action.setContentLanguages(contentLanguages.clone());
+
+			action.setAcceptEncode(acceptEncode);
+			action.setAllowEncode(allowEncode);
 
 			action.execute();
 		} catch (NotFoundStatusException e) {

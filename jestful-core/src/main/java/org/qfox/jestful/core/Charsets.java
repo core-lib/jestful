@@ -93,7 +93,7 @@ public class Charsets implements Iterable<Charset>, Cloneable {
 	}
 
 	@Override
-	public Object clone() {
+	public Charsets clone() {
 		return new Charsets(charsets);
 	}
 

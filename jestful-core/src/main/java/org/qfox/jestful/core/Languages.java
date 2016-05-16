@@ -93,7 +93,7 @@ public class Languages implements Iterable<Language>, Cloneable {
 	}
 
 	@Override
-	public Object clone() {
+	public Languages clone() {
 		return new Languages(languages);
 	}
 

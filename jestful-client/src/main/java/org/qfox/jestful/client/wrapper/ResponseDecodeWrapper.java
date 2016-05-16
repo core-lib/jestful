@@ -61,8 +61,8 @@ public class ResponseDecodeWrapper implements Actor, Initialable {
 	}
 
 	public void initialize(BeanContainer beanContainer) {
-		Collection<ResponseDecoder> encoders = beanContainer.find(ResponseDecoder.class).values();
-		for (ResponseDecoder decoder : encoders) {
+		Collection<ResponseDecoder> decoders = beanContainer.find(ResponseDecoder.class).values();
+		for (ResponseDecoder decoder : decoders) {
 			String contentEncoding = decoder.getContentEncoding();
 			Encoding encoding = Encoding.valueOf(contentEncoding);
 			map.put(encoding, decoder);
