@@ -16,6 +16,7 @@
 	
 	<jestful:group id="wrapper">
 	    <bean class="org.qfox.jestful.server.wrapper.RequestDecodeWrapper" />
+	    <bean class="org.qfox.jestful.server.wrapper.ResponseEncodeWrapper" />
 	</jestful:group>
 
 	<jestful:group id="resolver">
