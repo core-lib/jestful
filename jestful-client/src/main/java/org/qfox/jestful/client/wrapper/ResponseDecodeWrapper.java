@@ -13,7 +13,6 @@ import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.codec.ResponseDecoder;
-import org.qfox.jestful.core.exception.NoSuchCodecException;
 
 /**
  * <p>
@@ -35,26 +34,15 @@ public class ResponseDecodeWrapper implements Actor, Initialable {
 
 	public Object react(Action action) throws Exception {
 		if (action.isAcceptEncode()) {
-			Encodings encodings = action.getAcceptEncodings().clone();
-			Encodings availables = new Encodings(map.keySet());
-			if (encodings.isEmpty() == false) {
-				encodings.retainAll(availables);
-			} else {
-				encodings = availables;
-			}
-			if (encodings.isEmpty()) {
-				Encodings expects = action.getAcceptEncodings();
-				Encodings actuals = availables;
-				throw new NoSuchCodecException(expects, actuals);
-			}
+			Request request = action.getRequest();
+			String acceptEncoding = request.getRequestHeader("Accept-Encoding");
+			Encodings encodings = Encodings.valueOf(acceptEncoding);
 			Map<Encoding, ResponseDecoder> decoders = new HashMap<Encoding, ResponseDecoder>();
 			for (Encoding encoding : encodings) {
 				decoders.put(encoding, map.get(encoding));
 			}
 			Response source = action.getResponse();
 			Response target = new DecodedResponse(source, decoders);
-			Request request = action.getRequest();
-			request.setRequestHeader("Accept-Encoding", encodings.toString());
 			action.setResponse(target);
 		}
 		return action.execute();
