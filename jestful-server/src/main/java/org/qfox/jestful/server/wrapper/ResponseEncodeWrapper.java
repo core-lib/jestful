@@ -39,7 +39,7 @@ public class ResponseEncodeWrapper implements Actor, Initialable {
 			target.setResponseHeader("Content-Encoding", encoding.toString(false));
 			action.setResponse(target);
 		}
-		return null;
+		return action.execute();
 	}
 
 	public void initialize(BeanContainer beanContainer) {
