@@ -31,7 +31,7 @@ public class CookiesAnnotationHandler implements Actor {
 		Request request = action.getRequest();
 		String cookie = request.getRequestHeader("Cookie");
 		cookie = cookie != null ? cookie : "";
-		String charset = action.getCharset();
+		String charset = action.getHeaderEncoding();
 		Resource resource = action.getResource();
 		if (resource.isAnnotationPresent(Cookies.class)) {
 			Cookies queries = resource.getAnnotation(Cookies.class);

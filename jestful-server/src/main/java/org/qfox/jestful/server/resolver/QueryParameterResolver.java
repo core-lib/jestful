@@ -40,7 +40,7 @@ public class QueryParameterResolver implements Actor, Initialable {
 		if (query == null || query.isEmpty()) {
 			return action.execute();
 		}
-		String charset = action.getCharset();
+		String charset = action.getQueryEncoding();
 		String[] pairs = query.split("&+");
 		Map<String, String[]> map = new HashMap<String, String[]>();
 		for (String pair : pairs) {

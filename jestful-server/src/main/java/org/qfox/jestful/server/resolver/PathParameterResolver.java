@@ -1,5 +1,6 @@
 package org.qfox.jestful.server.resolver;
 
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +33,7 @@ public class PathParameterResolver implements Actor, Initialable {
 
 	public Object react(Action action) throws Exception {
 		String URI = action.getURI();
+		String charset = action.getPathEncoding();
 		List<Parameter> parameters = action.getParameters().all(Position.PATH);
 		Pattern pattern = action.getPattern();
 		Matcher matcher = pattern.matcher(URI);
@@ -41,7 +43,7 @@ public class PathParameterResolver implements Actor, Initialable {
 			if (group <= 0) {
 				continue;
 			}
-			String source = matcher.group(group);
+			String source = URLDecoder.decode(matcher.group(group), charset);
 			pathStringConversion.convert(parameter, source);
 		}
 		return action.execute();

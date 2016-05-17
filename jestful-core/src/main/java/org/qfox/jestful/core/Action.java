@@ -53,8 +53,6 @@ public class Action {
 	private Accepts consumes;
 	private Accepts produces;
 
-	private String charset = Charset.defaultCharset().name();
-
 	private Charsets acceptCharsets;
 	private Encodings acceptEncodings;
 	private Languages acceptLanguages;
@@ -65,6 +63,10 @@ public class Action {
 
 	private boolean acceptEncode;
 	private boolean allowEncode;
+
+	private String pathEncoding;
+	private String queryEncoding;
+	private String headerEncoding;
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
@@ -256,14 +258,6 @@ public class Action {
 		this.produces = produces;
 	}
 
-	public String getCharset() {
-		return charset;
-	}
-
-	public void setCharset(String charset) {
-		this.charset = charset;
-	}
-
 	public Charsets getAcceptCharsets() {
 		return acceptCharsets;
 	}
@@ -326,6 +320,30 @@ public class Action {
 
 	public void setAllowEncode(boolean allowEncode) {
 		this.allowEncode = allowEncode;
+	}
+
+	public String getPathEncoding() {
+		return pathEncoding;
+	}
+
+	public void setPathEncoding(String pathEncoding) {
+		this.pathEncoding = pathEncoding;
+	}
+
+	public String getQueryEncoding() {
+		return queryEncoding;
+	}
+
+	public void setQueryEncoding(String queryEncoding) {
+		this.queryEncoding = queryEncoding;
+	}
+
+	public String getHeaderEncoding() {
+		return headerEncoding;
+	}
+
+	public void setHeaderEncoding(String headerEncoding) {
+		this.headerEncoding = headerEncoding;
 	}
 
 	public Map<Object, Object> getExtra() {

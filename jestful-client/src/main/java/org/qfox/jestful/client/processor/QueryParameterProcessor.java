@@ -32,7 +32,7 @@ public class QueryParameterProcessor implements Actor, Initialable {
 	public Object react(Action action) throws Exception {
 		String query = action.getQuery();
 		query = query != null ? query : "";
-		String charset = action.getCharset();
+		String charset = action.getQueryEncoding();
 		List<Parameter> parameters = action.getParameters().all(Position.QUERY);
 		for (Parameter parameter : parameters) {
 			String[] values = queryStringConversion.convert(parameter);

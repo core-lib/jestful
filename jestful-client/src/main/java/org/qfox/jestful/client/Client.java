@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -89,6 +91,10 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final boolean acceptEncode;
 	private final boolean allowEncode;
 
+	private final String pathEncoding;
+	private final String queryEncoding;
+	private final String headerEncoding;
+
 	private Client(Builder builder) {
 		super();
 		this.protocol = builder.protocol;
@@ -129,6 +135,10 @@ public class Client implements InvocationHandler, Actor, Initialable {
 
 		this.acceptEncode = builder.acceptEncode;
 		this.allowEncode = builder.allowEncode;
+
+		this.pathEncoding = builder.pathEncoding;
+		this.queryEncoding = builder.queryEncoding;
+		this.headerEncoding = builder.headerEncoding;
 
 		this.initialize(this.beanContainer);
 	}
@@ -191,6 +201,10 @@ public class Client implements InvocationHandler, Actor, Initialable {
 
 		action.setAcceptEncode(acceptEncode);
 		action.setAllowEncode(allowEncode);
+
+		action.setPathEncoding(pathEncoding);
+		action.setQueryEncoding(queryEncoding);
+		action.setHeaderEncoding(headerEncoding);
 
 		Result result = action.getResult();
 		Body body = result.getBody();
@@ -309,6 +323,10 @@ public class Client implements InvocationHandler, Actor, Initialable {
 
 		private boolean acceptEncode = true;
 		private boolean allowEncode = false;
+
+		private String pathEncoding = "UTF-8";
+		private String queryEncoding = "UTF-8";
+		private String headerEncoding = "UTF-8";
 
 		public Client build() {
 			return new Client(this);
@@ -511,6 +529,30 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			return this;
 		}
 
+		public Builder setPathEncoding(String pathEncoding) {
+			if (Charset.isSupported(pathEncoding) == false) {
+				throw new UnsupportedCharsetException(pathEncoding);
+			}
+			this.pathEncoding = pathEncoding;
+			return this;
+		}
+
+		public Builder setQueryEncoding(String queryEncoding) {
+			if (Charset.isSupported(queryEncoding) == false) {
+				throw new UnsupportedCharsetException(queryEncoding);
+			}
+			this.queryEncoding = queryEncoding;
+			return this;
+		}
+
+		public Builder setHeaderEncoding(String headerEncoding) {
+			if (Charset.isSupported(headerEncoding) == false) {
+				throw new UnsupportedCharsetException(headerEncoding);
+			}
+			this.headerEncoding = headerEncoding;
+			return this;
+		}
+
 	}
 
 	public String getProtocol() {
@@ -583,6 +625,26 @@ public class Client implements InvocationHandler, Actor, Initialable {
 
 	public String[] getContentLanguages() {
 		return contentLanguages;
+	}
+
+	public boolean isAcceptEncode() {
+		return acceptEncode;
+	}
+
+	public boolean isAllowEncode() {
+		return allowEncode;
+	}
+
+	public String getPathEncoding() {
+		return pathEncoding;
+	}
+
+	public String getQueryEncoding() {
+		return queryEncoding;
+	}
+
+	public String getHeaderEncoding() {
+		return headerEncoding;
 	}
 
 	@Override

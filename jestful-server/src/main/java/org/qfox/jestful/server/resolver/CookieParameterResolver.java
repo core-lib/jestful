@@ -1,5 +1,6 @@
 package org.qfox.jestful.server.resolver;
 
+import java.net.URLDecoder;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -38,6 +39,7 @@ public class CookieParameterResolver implements Actor, Initialable {
 		if (request instanceof HttpServletRequest == false) {
 			return action.execute();
 		}
+		String charset = action.getHeaderEncoding();
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		List<Parameter> parameters = action.getParameters().all(Position.COOKIE);
 		for (Parameter parameter : parameters) {
@@ -46,7 +48,7 @@ public class CookieParameterResolver implements Actor, Initialable {
 				if (caseInsensitive ? cookie.getName().equalsIgnoreCase(parameter.getName()) == false : cookie.getName().equals(parameter.getName()) == false) {
 					continue;
 				}
-				String source = cookie.getValue();
+				String source = URLDecoder.decode(cookie.getValue(), charset);
 				cookieStringConversion.convert(parameter, source);
 			}
 		}

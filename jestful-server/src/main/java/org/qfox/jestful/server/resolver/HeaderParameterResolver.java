@@ -38,7 +38,7 @@ public class HeaderParameterResolver implements Actor, Initialable {
 	public Object react(Action action) throws Exception {
 		Map<String, String[]> map = new CaseInsensitiveMap<String, String[]>();
 		Request request = action.getRequest();
-		String charset = action.getCharset();
+		String charset = action.getHeaderEncoding();
 		String[] keys = request.getHeaderKeys();
 		for (String key : keys) {
 			String[] values = request.getRequestHeaders(key);

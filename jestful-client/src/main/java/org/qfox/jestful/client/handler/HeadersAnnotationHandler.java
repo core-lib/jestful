@@ -29,7 +29,7 @@ public class HeadersAnnotationHandler implements Actor {
 
 	public Object react(Action action) throws Exception {
 		Request request = action.getRequest();
-		String charset = action.getCharset();
+		String charset = action.getHeaderEncoding();
 
 		Resource resource = action.getResource();
 		if (resource.isAnnotationPresent(Headers.class)) {

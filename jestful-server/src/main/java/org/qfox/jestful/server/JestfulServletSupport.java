@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -74,6 +75,10 @@ public class JestfulServletSupport implements Servlet, Actor {
 
 	private boolean acceptEncode;
 	private boolean allowEncode;
+
+	private String pathEncoding;
+	private String queryEncoding;
+	private String headerEncoding;
 
 	public void init(ServletConfig config) throws ServletException {
 		this.servletConfig = config;
@@ -150,6 +155,27 @@ public class JestfulServletSupport implements Servlet, Actor {
 			String acceptEncode = config.getInitParameter("acceptEncode");
 			this.acceptEncode = acceptEncode == null || acceptEncode.isEmpty() ? true : Boolean.valueOf(acceptEncode);
 		}
+		{
+			String pathEncoding = config.getInitParameter("pathEncoding");
+			this.pathEncoding = pathEncoding == null || pathEncoding.isEmpty() ? "UTF-8" : pathEncoding;
+			if (Charset.isSupported(this.pathEncoding) == false) {
+				throw new UnsupportedCharsetException(this.pathEncoding);
+			}
+		}
+		{
+			String queryEncoding = config.getInitParameter("queryEncoding");
+			this.queryEncoding = queryEncoding == null || queryEncoding.isEmpty() ? "UTF-8" : queryEncoding;
+			if (Charset.isSupported(this.queryEncoding) == false) {
+				throw new UnsupportedCharsetException(this.queryEncoding);
+			}
+		}
+		{
+			String headerEncoding = config.getInitParameter("headerEncoding");
+			this.headerEncoding = headerEncoding == null || headerEncoding.isEmpty() ? "UTF-8" : headerEncoding;
+			if (Charset.isSupported(this.headerEncoding) == false) {
+				throw new UnsupportedCharsetException(this.headerEncoding);
+			}
+		}
 
 		Collection<?> controllers = beanContainer.with(Jestful.class).values();
 		for (Object controller : controllers) {
@@ -205,6 +231,10 @@ public class JestfulServletSupport implements Servlet, Actor {
 
 			action.setAcceptEncode(acceptEncode);
 			action.setAllowEncode(allowEncode);
+
+			action.setPathEncoding(pathEncoding);
+			action.setQueryEncoding(queryEncoding);
+			action.setHeaderEncoding(headerEncoding);
 
 			action.execute();
 		} catch (StatusException e) {

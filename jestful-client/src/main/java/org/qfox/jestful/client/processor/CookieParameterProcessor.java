@@ -34,7 +34,7 @@ public class CookieParameterProcessor implements Actor, Initialable {
 		Request request = action.getRequest();
 		String cookie = request.getRequestHeader("Cookie");
 		cookie = cookie != null ? cookie : "";
-		String charset = action.getCharset();
+		String charset = action.getHeaderEncoding();
 		List<Parameter> parameters = action.getParameters().all(Position.COOKIE);
 		for (Parameter parameter : parameters) {
 			String[] values = cookieStringConversion.convert(parameter);

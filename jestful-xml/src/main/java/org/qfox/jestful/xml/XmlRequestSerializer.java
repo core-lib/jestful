@@ -54,9 +54,8 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 		for (Parameter parameter : parameters) {
 			OutputStreamWriter osw = null;
 			try {
-				String charset = action.getCharset();
-				action.getRequest().setRequestHeader("Content-Type", contentType + ";charset=" + charset);
-				osw = new OutputStreamWriter(out, charset);
+				action.getRequest().setRequestHeader("Content-Type", contentType);
+				osw = new OutputStreamWriter(out);
 				writeValue(osw, parameter.getValue());
 				break;
 			} finally {
@@ -68,12 +67,11 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 	public void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException {
 		OutputStreamWriter osw = null;
 		try {
-			String charset = action.getCharset();
 			Disposition disposition = Disposition.valueOf("form-data; name=\"" + parameter.getName() + "\"");
-			MediaType type = MediaType.valueOf(contentType + ";charset=" + charset);
+			MediaType type = MediaType.valueOf(contentType);
 			Multihead multihead = new Multihead(disposition, type);
 			out.setNextMultihead(multihead);
-			osw = new OutputStreamWriter(out, charset);
+			osw = new OutputStreamWriter(out);
 			writeValue(osw, parameter.getValue());
 		} finally {
 			IOUtils.close(osw);
