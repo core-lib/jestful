@@ -60,12 +60,12 @@ public class Action {
 	private Encodings contentEncodings;
 	private Languages contentLanguages;
 
-	private boolean acceptEncode;
 	private boolean allowEncode;
+	private boolean acceptEncode;
 
-	private String pathEncoding;
-	private String queryEncoding;
-	private String headerEncoding;
+	private String pathEncodeCharset;
+	private String queryEncodeCharset;
+	private String headerEncodeCharset;
 
 	private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
@@ -305,14 +305,6 @@ public class Action {
 		this.contentLanguages = contentLanguages;
 	}
 
-	public boolean isAcceptEncode() {
-		return acceptEncode;
-	}
-
-	public void setAcceptEncode(boolean acceptEncode) {
-		this.acceptEncode = acceptEncode;
-	}
-
 	public boolean isAllowEncode() {
 		return allowEncode;
 	}
@@ -321,28 +313,36 @@ public class Action {
 		this.allowEncode = allowEncode;
 	}
 
-	public String getPathEncoding() {
-		return pathEncoding;
+	public boolean isAcceptEncode() {
+		return acceptEncode;
 	}
 
-	public void setPathEncoding(String pathEncoding) {
-		this.pathEncoding = pathEncoding;
+	public void setAcceptEncode(boolean acceptEncode) {
+		this.acceptEncode = acceptEncode;
 	}
 
-	public String getQueryEncoding() {
-		return queryEncoding;
+	public String getPathEncodeCharset() {
+		return pathEncodeCharset;
 	}
 
-	public void setQueryEncoding(String queryEncoding) {
-		this.queryEncoding = queryEncoding;
+	public void setPathEncodeCharset(String pathEncodeCharset) {
+		this.pathEncodeCharset = pathEncodeCharset;
 	}
 
-	public String getHeaderEncoding() {
-		return headerEncoding;
+	public String getQueryEncodeCharset() {
+		return queryEncodeCharset;
 	}
 
-	public void setHeaderEncoding(String headerEncoding) {
-		this.headerEncoding = headerEncoding;
+	public void setQueryEncodeCharset(String queryEncodeCharset) {
+		this.queryEncodeCharset = queryEncodeCharset;
+	}
+
+	public String getHeaderEncodeCharset() {
+		return headerEncodeCharset;
+	}
+
+	public void setHeaderEncodeCharset(String headerEncodeCharset) {
+		this.headerEncodeCharset = headerEncodeCharset;
 	}
 
 	public Map<Object, Object> getExtra() {

@@ -39,7 +39,7 @@ public class CookieParameterResolver implements Actor, Initialable {
 		if (request instanceof HttpServletRequest == false) {
 			return action.execute();
 		}
-		String charset = action.getHeaderEncoding();
+		String charset = action.getHeaderEncodeCharset();
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		List<Parameter> parameters = action.getParameters().all(Position.COOKIE);
 		for (Parameter parameter : parameters) {

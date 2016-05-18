@@ -29,7 +29,7 @@ public class QueriesAnnotationHandler implements Actor {
 	public Object react(Action action) throws Exception {
 		String query = action.getQuery();
 		query = query != null ? query : "";
-		String charset = action.getQueryEncoding();
+		String charset = action.getQueryEncodeCharset();
 
 		Resource resource = action.getResource();
 		if (resource.isAnnotationPresent(Queries.class)) {

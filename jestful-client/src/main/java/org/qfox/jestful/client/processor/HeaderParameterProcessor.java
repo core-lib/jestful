@@ -32,7 +32,7 @@ public class HeaderParameterProcessor implements Actor, Initialable {
 
 	public Object react(Action action) throws Exception {
 		Request request = action.getRequest();
-		String charset = action.getHeaderEncoding();
+		String charset = action.getHeaderEncodeCharset();
 		List<Parameter> parameters = action.getParameters().all(Position.HEADER);
 		for (Parameter parameter : parameters) {
 			String name = parameter.getName();

@@ -88,12 +88,12 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	private final String[] contentEncodings;
 	private final String[] contentLanguages;
 
-	private final boolean acceptEncode;
 	private final boolean allowEncode;
+	private final boolean acceptEncode;
 
-	private final String pathEncoding;
-	private final String queryEncoding;
-	private final String headerEncoding;
+	private final String pathEncodeCharset;
+	private final String queryEncodeCharset;
+	private final String headerEncodeCharset;
 
 	private Client(Builder builder) {
 		super();
@@ -136,9 +136,9 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		this.acceptEncode = builder.acceptEncode;
 		this.allowEncode = builder.allowEncode;
 
-		this.pathEncoding = builder.pathEncoding;
-		this.queryEncoding = builder.queryEncoding;
-		this.headerEncoding = builder.headerEncoding;
+		this.pathEncodeCharset = builder.pathEncodeCharset;
+		this.queryEncodeCharset = builder.queryEncodeCharset;
+		this.headerEncodeCharset = builder.headerEncodeCharset;
 
 		this.initialize(this.beanContainer);
 	}
@@ -199,12 +199,12 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		action.setContentEncodings(new Encodings(contentEncodings));
 		action.setContentLanguages(new Languages(contentLanguages));
 
-		action.setAcceptEncode(acceptEncode);
 		action.setAllowEncode(allowEncode);
+		action.setAcceptEncode(acceptEncode);
 
-		action.setPathEncoding(pathEncoding);
-		action.setQueryEncoding(queryEncoding);
-		action.setHeaderEncoding(headerEncoding);
+		action.setPathEncodeCharset(pathEncodeCharset);
+		action.setQueryEncodeCharset(queryEncodeCharset);
+		action.setHeaderEncodeCharset(headerEncodeCharset);
 
 		Result result = action.getResult();
 		Body body = result.getBody();
@@ -321,12 +321,12 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		private List<String> contentEncodings = new ArrayList<String>();
 		private List<String> contentLanguages = new ArrayList<String>();
 
-		private boolean acceptEncode = true;
 		private boolean allowEncode = false;
+		private boolean acceptEncode = true;
 
-		private String pathEncoding = "UTF-8";
-		private String queryEncoding = "UTF-8";
-		private String headerEncoding = "UTF-8";
+		private String pathEncodeCharset = "UTF-8";
+		private String queryEncodeCharset = "UTF-8";
+		private String headerEncodeCharset = "UTF-8";
 
 		public Client build() {
 			return new Client(this);
@@ -519,37 +519,37 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			return this;
 		}
 
-		public Builder setAcceptEncode(boolean acceptEncode) {
-			this.acceptEncode = acceptEncode;
-			return this;
-		}
-
 		public Builder setAllowEncode(boolean allowEncode) {
 			this.allowEncode = allowEncode;
 			return this;
 		}
 
-		public Builder setPathEncoding(String pathEncoding) {
-			if (Charset.isSupported(pathEncoding) == false) {
-				throw new UnsupportedCharsetException(pathEncoding);
-			}
-			this.pathEncoding = pathEncoding;
+		public Builder setAcceptEncode(boolean acceptEncode) {
+			this.acceptEncode = acceptEncode;
 			return this;
 		}
 
-		public Builder setQueryEncoding(String queryEncoding) {
-			if (Charset.isSupported(queryEncoding) == false) {
-				throw new UnsupportedCharsetException(queryEncoding);
+		public Builder setPathEncodeCharset(String pathEncodeCharset) {
+			if (Charset.isSupported(pathEncodeCharset) == false) {
+				throw new UnsupportedCharsetException(pathEncodeCharset);
 			}
-			this.queryEncoding = queryEncoding;
+			this.pathEncodeCharset = pathEncodeCharset;
 			return this;
 		}
 
-		public Builder setHeaderEncoding(String headerEncoding) {
-			if (Charset.isSupported(headerEncoding) == false) {
-				throw new UnsupportedCharsetException(headerEncoding);
+		public Builder setQueryEncodeCharset(String queryEncodeCharset) {
+			if (Charset.isSupported(queryEncodeCharset) == false) {
+				throw new UnsupportedCharsetException(queryEncodeCharset);
 			}
-			this.headerEncoding = headerEncoding;
+			this.queryEncodeCharset = queryEncodeCharset;
+			return this;
+		}
+
+		public Builder setHeaderEncodeCharset(String headerEncodeCharset) {
+			if (Charset.isSupported(headerEncodeCharset) == false) {
+				throw new UnsupportedCharsetException(headerEncodeCharset);
+			}
+			this.headerEncodeCharset = headerEncodeCharset;
 			return this;
 		}
 
@@ -627,24 +627,24 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		return contentLanguages;
 	}
 
-	public boolean isAcceptEncode() {
-		return acceptEncode;
-	}
-
 	public boolean isAllowEncode() {
 		return allowEncode;
 	}
 
-	public String getPathEncoding() {
-		return pathEncoding;
+	public boolean isAcceptEncode() {
+		return acceptEncode;
 	}
 
-	public String getQueryEncoding() {
-		return queryEncoding;
+	public String getPathEncodeCharset() {
+		return pathEncodeCharset;
 	}
 
-	public String getHeaderEncoding() {
-		return headerEncoding;
+	public String getQueryEncodeCharset() {
+		return queryEncodeCharset;
+	}
+
+	public String getHeaderEncodeCharset() {
+		return headerEncodeCharset;
 	}
 
 	@Override

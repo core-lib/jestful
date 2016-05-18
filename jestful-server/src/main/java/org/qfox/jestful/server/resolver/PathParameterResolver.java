@@ -33,7 +33,7 @@ public class PathParameterResolver implements Actor, Initialable {
 
 	public Object react(Action action) throws Exception {
 		String URI = action.getURI();
-		String charset = action.getPathEncoding();
+		String charset = action.getPathEncodeCharset();
 		List<Parameter> parameters = action.getParameters().all(Position.PATH);
 		Pattern pattern = action.getPattern();
 		Matcher matcher = pattern.matcher(URI);

@@ -73,12 +73,12 @@ public class JestfulServletSupport implements Servlet, Actor {
 	private Encodings contentEncodings;
 	private Languages contentLanguages;
 
-	private boolean acceptEncode;
 	private boolean allowEncode;
+	private boolean acceptEncode;
 
-	private String pathEncoding;
-	private String queryEncoding;
-	private String headerEncoding;
+	private String pathEncodeCharset;
+	private String queryEncodeCharset;
+	private String headerEncodeCharset;
 
 	public void init(ServletConfig config) throws ServletException {
 		this.servletConfig = config;
@@ -156,24 +156,24 @@ public class JestfulServletSupport implements Servlet, Actor {
 			this.acceptEncode = acceptEncode == null || acceptEncode.isEmpty() ? true : Boolean.valueOf(acceptEncode);
 		}
 		{
-			String pathEncoding = config.getInitParameter("pathEncoding");
-			this.pathEncoding = pathEncoding == null || pathEncoding.isEmpty() ? "UTF-8" : pathEncoding;
-			if (Charset.isSupported(this.pathEncoding) == false) {
-				throw new UnsupportedCharsetException(this.pathEncoding);
+			String pathEncodeCharset = config.getInitParameter("pathEncodeCharset");
+			this.pathEncodeCharset = pathEncodeCharset == null || pathEncodeCharset.isEmpty() ? "UTF-8" : pathEncodeCharset;
+			if (Charset.isSupported(this.pathEncodeCharset) == false) {
+				throw new UnsupportedCharsetException(this.pathEncodeCharset);
 			}
 		}
 		{
-			String queryEncoding = config.getInitParameter("queryEncoding");
-			this.queryEncoding = queryEncoding == null || queryEncoding.isEmpty() ? "UTF-8" : queryEncoding;
-			if (Charset.isSupported(this.queryEncoding) == false) {
-				throw new UnsupportedCharsetException(this.queryEncoding);
+			String queryEncodeCharset = config.getInitParameter("queryEncodeCharset");
+			this.queryEncodeCharset = queryEncodeCharset == null || queryEncodeCharset.isEmpty() ? "UTF-8" : queryEncodeCharset;
+			if (Charset.isSupported(this.queryEncodeCharset) == false) {
+				throw new UnsupportedCharsetException(this.queryEncodeCharset);
 			}
 		}
 		{
-			String headerEncoding = config.getInitParameter("headerEncoding");
-			this.headerEncoding = headerEncoding == null || headerEncoding.isEmpty() ? "UTF-8" : headerEncoding;
-			if (Charset.isSupported(this.headerEncoding) == false) {
-				throw new UnsupportedCharsetException(this.headerEncoding);
+			String headerEncodeCharset = config.getInitParameter("headerEncodeCharset");
+			this.headerEncodeCharset = headerEncodeCharset == null || headerEncodeCharset.isEmpty() ? "UTF-8" : headerEncodeCharset;
+			if (Charset.isSupported(this.headerEncodeCharset) == false) {
+				throw new UnsupportedCharsetException(this.headerEncodeCharset);
 			}
 		}
 
@@ -229,12 +229,12 @@ public class JestfulServletSupport implements Servlet, Actor {
 			action.setContentEncodings(contentEncodings.clone());
 			action.setContentLanguages(contentLanguages.clone());
 
-			action.setAcceptEncode(acceptEncode);
 			action.setAllowEncode(allowEncode);
+			action.setAcceptEncode(acceptEncode);
 
-			action.setPathEncoding(pathEncoding);
-			action.setQueryEncoding(queryEncoding);
-			action.setHeaderEncoding(headerEncoding);
+			action.setPathEncodeCharset(pathEncodeCharset);
+			action.setQueryEncodeCharset(queryEncodeCharset);
+			action.setHeaderEncodeCharset(headerEncodeCharset);
 
 			action.execute();
 		} catch (StatusException e) {
