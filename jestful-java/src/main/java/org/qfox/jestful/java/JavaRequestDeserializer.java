@@ -34,7 +34,7 @@ public class JavaRequestDeserializer implements RequestDeserializer {
 		return "application/x-java-serialized-object";
 	}
 
-	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
+	public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
 		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
 			ObjectInputStream ois = null;
@@ -51,7 +51,7 @@ public class JavaRequestDeserializer implements RequestDeserializer {
 		}
 	}
 
-	public void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException {
+	public void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException {
 		ObjectInputStream ois = null;
 		try {
 			ois = new ObjectInputStream(in);

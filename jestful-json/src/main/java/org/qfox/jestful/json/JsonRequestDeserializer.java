@@ -38,12 +38,12 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
 		return "application/json";
 	}
 
-	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
+	public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
 		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
 			InputStreamReader isr = null;
 			try {
-				isr = new InputStreamReader(in, mediaType.getCharset());
+				isr = new InputStreamReader(in, charset);
 				Type type = parameter.getType();
 				Object value = readValue(isr, constructType(type));
 				parameter.setValue(value);
@@ -54,11 +54,10 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
 		}
 	}
 
-	public void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException {
+	public void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException {
 		InputStreamReader isr = null;
 		try {
-			MediaType mediaType = multihead.getType();
-			isr = new InputStreamReader(in, mediaType.getCharset());
+			isr = new InputStreamReader(in, charset);
 			Type type = parameter.getType();
 			Object value = readValue(isr, constructType(type));
 			parameter.setValue(value);

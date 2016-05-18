@@ -48,7 +48,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 		return "multipart/form-data";
 	}
 
-	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
+	public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
 		String boundary = mediaType.getParameters().get("boundary");
 		List<Multipart> multiparts = new ArrayList<Multipart>();
 		Map<String, String[]> fields = new HashMap<String, String[]>();
@@ -58,6 +58,10 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 		while ((multihead = mis.getNextMultihead()) != null) {
 			Disposition disposition = multihead.getDisposition();
 			MediaType type = multihead.getType();
+			String enc = charset;
+			if (type != null && type.getCharset() != null) {
+				enc = type.getCharset();
+			}
 			String name = disposition.getName();
 			if (disposition.getFilename() != null) {
 				Multibody multibody = new Multibody(mis);
@@ -68,12 +72,12 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 						continue;
 					}
 					if (type == null) {
-						deserialize(action, parameter, multihead, mis);
+						deserialize(action, parameter, multihead, enc, mis);
 						break;
 					}
 					if (map.containsKey(type)) {
 						RequestDeserializer deserializer = map.get(type);
-						deserializer.deserialize(action, parameter, multihead, mis);
+						deserializer.deserialize(action, parameter, multihead, enc, mis);
 						break;
 					}
 					if (parameter.getKlass().isInstance(multihead)) {
@@ -97,7 +101,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 					}
 					if (map.containsKey(type)) {
 						RequestDeserializer deserializer = map.get(type);
-						deserializer.deserialize(action, parameter, multihead, mis);
+						deserializer.deserialize(action, parameter, multihead, enc, mis);
 						break;
 					}
 					if (parameter.getKlass().isInstance(multihead)) {
@@ -148,7 +152,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 		mis.close();
 	}
 
-	public void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException {
+	public void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException {
 
 	}
 

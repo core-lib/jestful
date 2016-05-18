@@ -33,10 +33,10 @@ public class XmlResponseSerializer extends XmlMapper implements ResponseSerializ
 		return "application/xml";
 	}
 
-	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
+	public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {
 		OutputStreamWriter osw = null;
 		try {
-			osw = new OutputStreamWriter(out);
+			osw = new OutputStreamWriter(out, charset);
 			writeValue(osw, action.getResult().getValue());
 		} finally {
 			IOUtils.close(osw);

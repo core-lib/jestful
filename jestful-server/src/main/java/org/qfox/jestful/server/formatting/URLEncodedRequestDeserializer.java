@@ -45,12 +45,11 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 		return "application/x-www-form-urlencoded";
 	}
 
-	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
+	public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
 		InputStreamReader isr = null;
 		BufferedReader br = null;
 		try {
 			Map<String, String[]> map = new HashMap<String, String[]>();
-			String charset = mediaType.getCharset();
 			isr = new InputStreamReader(in);
 			br = new BufferedReader(isr);
 			String line = null;
@@ -89,7 +88,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 		}
 	}
 
-	public void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException {
+	public void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 

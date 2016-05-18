@@ -1,5 +1,6 @@
 package org.qfox.jestful.server.resolver;
 
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,11 +45,18 @@ public class BodyParameterResolver implements Actor, Initialable {
 			return action.execute();
 		}
 		MediaType mediaType = MediaType.valueOf(contentType);
+		String charset = mediaType.getCharset();
+		if (charset == null || charset.isEmpty()) {
+			charset = request.getRequestHeader("Content-Charset");
+		}
+		if (charset == null || charset.isEmpty()) {
+			charset = Charset.defaultCharset().name();
+		}
 		Accepts consumes = action.getConsumes();
 		Accepts supports = new Accepts(map.keySet());
 		if (supports.contains(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
 			RequestDeserializer deserializer = map.get(mediaType);
-			deserializer.deserialize(action, mediaType, request.getRequestInputStream());
+			deserializer.deserialize(action, mediaType, charset, request.getRequestInputStream());
 		} else {
 			String URI = action.getURI();
 			String method = action.getRestful().getMethod();

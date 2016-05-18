@@ -25,8 +25,8 @@ import org.qfox.jestful.core.Parameter;
  */
 public interface RequestDeserializer extends Formatting {
 
-	void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException;
+	void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException;
 
-	void deserialize(Action action, Parameter parameter, Multihead multihead, InputStream in) throws IOException;
+	void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException;
 
 }

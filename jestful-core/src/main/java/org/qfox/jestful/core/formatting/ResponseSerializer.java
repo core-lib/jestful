@@ -23,6 +23,6 @@ import org.qfox.jestful.core.Action;
  */
 public interface ResponseSerializer extends Formatting {
 
-	void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException;
+	void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException;
 
 }

@@ -30,7 +30,7 @@ public class JavaResponseSerializer implements ResponseSerializer {
 		return "application/x-java-serialized-object";
 	}
 
-	public void serialize(Action action, MediaType mediaType, OutputStream out) throws IOException {
+	public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {
 		ObjectOutputStream oos = null;
 		try {
 			oos = new ObjectOutputStream(out);
