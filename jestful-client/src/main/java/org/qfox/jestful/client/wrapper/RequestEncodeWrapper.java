@@ -42,7 +42,7 @@ public class RequestEncodeWrapper implements Actor, Initialable {
 				encodings = availables;
 			}
 			if (encodings.isEmpty()) {
-				Encodings expects = action.getContentEncodings();
+				Encodings expects = action.getContentEncodings().clone();
 				Encodings actuals = availables;
 				throw new NoSuchCodecException(expects, actuals);
 			}
