@@ -41,7 +41,6 @@ public class XmlResponseSerializer extends XmlMapper implements ResponseSerializ
 		} finally {
 			IOUtils.close(osw);
 		}
-
 	}
 
 }

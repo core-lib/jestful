@@ -41,7 +41,6 @@ public class JsonResponseSerializer extends ObjectMapper implements ResponseSeri
 		} finally {
 			IOUtils.close(osw);
 		}
-
 	}
 
 }
