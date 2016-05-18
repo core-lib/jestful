@@ -28,14 +28,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JsonResponseSerializer extends ObjectMapper implements ResponseSerializer {
 	private static final long serialVersionUID = 1842993874881568207L;
+	private final String contentType = "application/json";
 
 	public String getContentType() {
-		return "application/json";
+		return contentType;
 	}
 
 	public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {
 		OutputStreamWriter osw = null;
 		try {
+			action.getRequest().setRequestHeader("Content-Type", contentType + ";charset=" + charset);
 			osw = new OutputStreamWriter(out, charset);
 			writeValue(osw, action.getResult().getValue());
 		} finally {
