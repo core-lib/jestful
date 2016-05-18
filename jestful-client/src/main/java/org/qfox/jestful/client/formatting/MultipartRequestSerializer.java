@@ -58,7 +58,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 		return File.class.isAssignableFrom(parameter.getKlass());
 	}
 
-	public void serialize(Action action, OutputStream out) throws IOException {
+	public void serialize(Action action, String charset, OutputStream out) throws IOException {
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
 		Accepts consumes = action.getConsumes();
 		String base = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -79,7 +79,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 					MediaType mediaType = MediaType.valueOf(contentType);
 					RequestSerializer serializer = this;
 					if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(body)) {
-						serializer.serialize(action, body, mos);
+						serializer.serialize(action, body, charset, mos);
 						continue flag;
 					}
 				}
@@ -87,7 +87,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 					MediaType mediaType = entry.getKey();
 					RequestSerializer serializer = entry.getValue();
 					if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(body)) {
-						serializer.serialize(action, body, mos);
+						serializer.serialize(action, body, charset, mos);
 						continue flag;
 					}
 				}
@@ -101,7 +101,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 		}
 	}
 
-	public void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException {
+	public void serialize(Action action, Parameter parameter, String charset, MultipartOutputStream out) throws IOException {
 		File file = (File) parameter.getValue();
 		String name = parameter.getName();
 		if (file == null) {

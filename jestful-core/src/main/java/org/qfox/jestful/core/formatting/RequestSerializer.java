@@ -28,8 +28,8 @@ public interface RequestSerializer extends Formatting {
 
 	boolean supports(Parameter parameter);
 
-	void serialize(Action action, OutputStream out) throws IOException;
+	void serialize(Action action, String charset, OutputStream out) throws IOException;
 
-	void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException;
+	void serialize(Action action, Parameter parameter, String charset, MultipartOutputStream out) throws IOException;
 
 }

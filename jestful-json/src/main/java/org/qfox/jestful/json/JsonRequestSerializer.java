@@ -49,13 +49,13 @@ public class JsonRequestSerializer extends ObjectMapper implements RequestSerial
 		return parameter.getValue() != null ? canSerialize(parameter.getValue().getClass()) : true;
 	}
 
-	public void serialize(Action action, OutputStream out) throws IOException {
+	public void serialize(Action action, String charset, OutputStream out) throws IOException {
 		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
 			OutputStreamWriter osw = null;
 			try {
-				action.getRequest().setRequestHeader("Content-Type", contentType);
-				osw = new OutputStreamWriter(out);
+				action.getRequest().setRequestHeader("Content-Type", contentType + ";charset=" + charset);
+				osw = new OutputStreamWriter(out, charset);
 				writeValue(osw, parameter.getValue());
 				break;
 			} finally {
@@ -64,14 +64,14 @@ public class JsonRequestSerializer extends ObjectMapper implements RequestSerial
 		}
 	}
 
-	public void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException {
+	public void serialize(Action action, Parameter parameter, String charset, MultipartOutputStream out) throws IOException {
 		OutputStreamWriter osw = null;
 		try {
 			Disposition disposition = Disposition.valueOf("form-data; name=\"" + parameter.getName() + "\"");
-			MediaType type = MediaType.valueOf(contentType);
+			MediaType type = MediaType.valueOf(contentType + ";charset=" + charset);
 			Multihead multihead = new Multihead(disposition, type);
 			out.setNextMultihead(multihead);
-			osw = new OutputStreamWriter(out);
+			osw = new OutputStreamWriter(out, charset);
 			writeValue(osw, parameter.getValue());
 		} finally {
 			IOUtils.close(osw);

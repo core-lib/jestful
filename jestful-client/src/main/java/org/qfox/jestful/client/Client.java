@@ -44,6 +44,7 @@ import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.Status;
+import org.qfox.jestful.core.exception.NoSuchCharsetException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
 import org.qfox.jestful.core.io.RequestLazyOutputStream;
@@ -66,6 +67,7 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
  * @since 1.0.0
  */
 public class Client implements InvocationHandler, Actor, Initialable {
+	private final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
 	private final Map<MediaType, RequestSerializer> serializers = new HashMap<MediaType, RequestSerializer>();
 	private final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
 	private final Map<String, Scheduler> schedulers = new HashMap<String, Scheduler>();
@@ -234,6 +236,17 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		if (bodies.isEmpty()) {
 			return;
 		} else {
+			String charset = null;
+			Charsets options = action.getContentCharsets().clone();
+			if (options.isEmpty() == false) {
+				options.retainAll(charsets);
+				if (options.isEmpty()) {
+					throw new NoSuchCharsetException(action.getContentCharsets().clone(), charsets.clone());
+				}
+				charset = options.first().getName();
+			} else {
+				charset = Charset.defaultCharset().name();
+			}
 			for (Entry<MediaType, RequestSerializer> entry : serializers.entrySet()) {
 				MediaType mediaType = entry.getKey();
 				RequestSerializer serializer = entry.getValue();
@@ -242,7 +255,7 @@ public class Client implements InvocationHandler, Actor, Initialable {
 					OutputStream out = null;
 					try {
 						out = new RequestLazyOutputStream(request);
-						serializer.serialize(action, out);
+						serializer.serialize(action, charset, out);
 						return;
 					} catch (Exception e) {
 						throw e;
@@ -268,9 +281,16 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			Accepts supports = new Accepts(deserializers.keySet());
 			MediaType mediaType = MediaType.valueOf(contentType);
 			if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
+				String charset = mediaType.getCharset();
+				if (charset == null || charset.isEmpty()) {
+					charset = response.getResponseHeader("Content-Charset");
+				}
+				if (charset == null || charset.isEmpty()) {
+					charset = Charset.defaultCharset().name();
+				}
 				ResponseDeserializer deserializer = deserializers.get(mediaType);
 				InputStream in = response.getResponseInputStream();
-				deserializer.deserialize(action, mediaType, in);
+				deserializer.deserialize(action, mediaType, charset, in);
 				return;
 			} else {
 				if (produces.isEmpty() == false) {

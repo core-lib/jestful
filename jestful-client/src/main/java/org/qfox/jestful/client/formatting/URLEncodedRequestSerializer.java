@@ -53,8 +53,7 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 		return urlStringConversion.supports(parameter);
 	}
 
-	public void serialize(Action action, OutputStream out) throws IOException {
-		String charset = action.getQueryEncodeCharset();
+	public void serialize(Action action, String charset, OutputStream out) throws IOException {
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
 		StringBuilder builder = new StringBuilder();
 		for (Parameter body : bodies) {
@@ -79,11 +78,10 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 		}
 	}
 
-	public void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException {
+	public void serialize(Action action, Parameter parameter, String charset, MultipartOutputStream out) throws IOException {
 		if (parameter.getValue() == null) {
 			return;
 		}
-		String charset = action.getQueryEncodeCharset();
 		String name = parameter.getName();
 		String[] values = urlStringConversion.convert(parameter);
 		for (int i = 0; values != null && i < values.length; i++) {

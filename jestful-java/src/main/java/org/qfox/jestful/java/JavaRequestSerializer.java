@@ -47,7 +47,7 @@ public class JavaRequestSerializer implements RequestSerializer {
 		return parameter.getValue() != null ? parameter.getValue() instanceof Serializable : true;
 	}
 
-	public void serialize(Action action, OutputStream out) throws IOException {
+	public void serialize(Action action, String charset, OutputStream out) throws IOException {
 		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		for (Parameter parameter : parameters) {
 			ObjectOutputStream oos = null;
@@ -62,7 +62,7 @@ public class JavaRequestSerializer implements RequestSerializer {
 		}
 	}
 
-	public void serialize(Action action, Parameter parameter, MultipartOutputStream out) throws IOException {
+	public void serialize(Action action, Parameter parameter, String charset, MultipartOutputStream out) throws IOException {
 		ObjectOutputStream oos = null;
 		try {
 			Disposition disposition = Disposition.valueOf("form-data; name=\"" + parameter.getName() + "\"");

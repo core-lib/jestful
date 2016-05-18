@@ -1,6 +1,5 @@
 package org.qfox.jestful.commons;
 
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,14 +38,16 @@ public class MediaType implements Weighted<MediaType> {
 		this.type = name.contains("/") ? name.split("/")[0] : name;
 		this.subtype = name.contains("/") ? name.split("/")[1] : "*";
 		this.parameters = Collections.unmodifiableMap(parameters);
-		this.charset = parameters.containsKey("charset") ? parameters.get("charset") : Charset.defaultCharset().name();
+		this.charset = parameters.containsKey("charset") ? parameters.get("charset") : null;
 		this.weight = parameters.containsKey("q") ? Float.valueOf(parameters.get("q")) : 1.0f;
 		this.version = parameters.containsKey("version") ? parameters.get("version") : null;
 	}
 
 	/**
-	 * judge this media type is matches the specified content type, such as {@link MediaType} {@code application/json}
-	 * matches content type {@link application/json} {@link application/*} matches {@code application/json}
+	 * judge this media type is matches the specified content type, such as
+	 * {@link MediaType} {@code application/json} matches content type
+	 * {@link application/json} {@link application/*} matches
+	 * {@code application/json}
 	 * 
 	 * @param contentType
 	 *            the content type

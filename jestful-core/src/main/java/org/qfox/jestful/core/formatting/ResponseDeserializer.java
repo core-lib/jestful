@@ -23,6 +23,6 @@ import org.qfox.jestful.core.Action;
  */
 public interface ResponseDeserializer extends Formatting {
 
-	void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException;
+	void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException;
 
 }

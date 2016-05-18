@@ -34,10 +34,10 @@ public class XmlResponseDeserializer extends XmlMapper implements ResponseDeseri
 		return "application/xml";
 	}
 
-	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
+	public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
 		InputStreamReader isr = null;
 		try {
-			isr = new InputStreamReader(in);
+			isr = new InputStreamReader(in, charset);
 			Result result = action.getResult();
 			Object value = readValue(isr, constructType(result.getBody().getType()));
 			result.getBody().setValue(value);

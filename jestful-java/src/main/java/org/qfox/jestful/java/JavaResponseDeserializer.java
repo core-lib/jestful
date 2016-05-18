@@ -31,7 +31,7 @@ public class JavaResponseDeserializer implements ResponseDeserializer {
 		return "application/x-java-serialized-object";
 	}
 
-	public void deserialize(Action action, MediaType mediaType, InputStream in) throws IOException {
+	public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
 		ObjectInputStream ois = null;
 		try {
 			ois = new ObjectInputStream(in);
