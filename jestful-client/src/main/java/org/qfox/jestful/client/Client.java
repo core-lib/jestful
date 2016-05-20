@@ -262,7 +262,6 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 	private void serialize(Action action) throws Exception {
 		Request request = action.getRequest();
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
-		Accepts consumes = action.getConsumes();
 		if (bodies.isEmpty()) {
 			return;
 		} else {
@@ -277,6 +276,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 			} else {
 				charset = Charset.defaultCharset().name();
 			}
+			Accepts consumes = action.getConsumes();
 			for (Entry<MediaType, RequestSerializer> entry : serializers.entrySet()) {
 				MediaType mediaType = entry.getKey();
 				RequestSerializer serializer = entry.getValue();
@@ -293,8 +293,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 					}
 				}
 			}
+			throw new NoSuchSerializerException(action, null, consumes, serializers.values());
 		}
-		throw new NoSuchSerializerException(action, null, consumes, serializers.values());
 	}
 
 	private void deserialize(Action action) throws Exception {
