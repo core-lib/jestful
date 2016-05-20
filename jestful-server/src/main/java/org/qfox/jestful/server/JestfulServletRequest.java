@@ -93,6 +93,10 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 	public OutputStream getRequestOutputStream() throws IOException {
 		throw new UnsupportedOperationException();
 	}
+	
+	public void connect(int timeout) throws IOException {
+		throw new UnsupportedOperationException();
+	}
 
 	public Iterator<String> getFileNames() {
 		Set<String> names = new LinkedHashSet<String>();

@@ -1,5 +1,6 @@
 package org.qfox.jestful.client;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationHandler;
@@ -66,11 +67,12 @@ import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
  *
  * @since 1.0.0
  */
-public class Client implements InvocationHandler, Actor, Initialable {
+public class Client implements InvocationHandler, Actor, Connector, Initialable {
 	private final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
 	private final Map<MediaType, RequestSerializer> serializers = new HashMap<MediaType, RequestSerializer>();
 	private final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
 	private final Map<String, Scheduler> schedulers = new HashMap<String, Scheduler>();
+	private final Map<String, Connector> connectors = new HashMap<String, Connector>();
 
 	private final String protocol;
 	private final String host;
@@ -160,8 +162,36 @@ public class Client implements InvocationHandler, Actor, Initialable {
 			this.deserializers.put(mediaType, deserializer);
 		}
 
+		Map<String, Connector> connectors = beanContainer.find(Connector.class);
+		this.connectors.putAll(connectors);
+
 		Map<String, Scheduler> schedulers = beanContainer.find(Scheduler.class);
 		this.schedulers.putAll(schedulers);
+	}
+
+	public boolean supports(Action action) {
+		for (Connector connector : connectors.values()) {
+			if (connector.supports(action)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public Connection connect(Action action) throws IOException {
+		String key = "org.qfox.jestful.connection";
+		Connection connection = (Connection) action.getExtra().get(key);
+		if (connection != null) {
+			return connection;
+		}
+		for (Connector connector : connectors.values()) {
+			if (connector.supports(action)) {
+				connection = connector.connect(action);
+				action.getExtra().put(key, connection);
+				return connection;
+			}
+		}
+		throw new IOException("unsupported protocol " + action.getProtocol());
 	}
 
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -190,6 +220,9 @@ public class Client implements InvocationHandler, Actor, Initialable {
 		action.setHost(host);
 		action.setPort(port);
 		action.setRoute(route);
+
+		action.setRequest(new JestfulClientRequest(action, this));
+		action.setResponse(new JestfulClientResponse(action, this));
 
 		action.setConsumes(mapping.getConsumes());
 		action.setProduces(mapping.getProduces());
@@ -227,6 +260,8 @@ public class Client implements InvocationHandler, Actor, Initialable {
 	}
 
 	private void serialize(Action action) throws Exception {
+		Request request = action.getRequest();
+		request.connect(1000 * 5);
 		Restful restful = action.getRestful();
 		if (restful.isAcceptBody() == false) {
 			return;
@@ -251,7 +286,6 @@ public class Client implements InvocationHandler, Actor, Initialable {
 				MediaType mediaType = entry.getKey();
 				RequestSerializer serializer = entry.getValue();
 				if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(action)) {
-					Request request = action.getRequest();
 					OutputStream out = null;
 					try {
 						out = new RequestLazyOutputStream(request);

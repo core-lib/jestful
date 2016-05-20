@@ -66,4 +66,9 @@ public class HttpRequest implements Request {
 		return httpURLConnection.getOutputStream();
 	}
 
+	public void connect(int timeout) throws IOException {
+		httpURLConnection.setConnectTimeout(timeout);
+		httpURLConnection.connect();
+	}
+
 }

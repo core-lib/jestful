@@ -39,5 +39,9 @@ public class RequestWrapper implements Request {
 	public OutputStream getRequestOutputStream() throws IOException {
 		return request.getRequestOutputStream();
 	}
+	
+	public void connect(int timeout) throws IOException {
+		request.connect(timeout);
+	}
 
 }

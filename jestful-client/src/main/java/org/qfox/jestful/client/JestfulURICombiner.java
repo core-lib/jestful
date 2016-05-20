@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.processor;
+package org.qfox.jestful.client;
 
 import java.net.URLEncoder;
 import java.util.List;
@@ -28,7 +28,7 @@ import org.qfox.jestful.core.converter.StringConversion;
  *
  * @since 1.0.0
  */
-public class PathParameterProcessor implements Actor, Initialable {
+public class JestfulURICombiner implements Actor, Initialable {
 	private final Pattern pattern = Pattern.compile("\\{[^{}]+?\\}");
 	private StringConversion pathStringConversion;
 
