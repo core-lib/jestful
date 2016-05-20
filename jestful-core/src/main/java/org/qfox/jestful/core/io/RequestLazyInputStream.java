@@ -31,6 +31,7 @@ public class RequestLazyInputStream extends LazyInputStream {
 
 	@Override
 	protected InputStream getInputStream() throws IOException {
+		request.connect();
 		return request.getRequestInputStream();
 	}
 
