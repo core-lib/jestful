@@ -24,7 +24,7 @@ public @interface Timeout {
 	 * 
 	 * @return
 	 */
-	long value();
+	int value();
 
 	/**
 	 * 超时时间单位, 默认为秒
