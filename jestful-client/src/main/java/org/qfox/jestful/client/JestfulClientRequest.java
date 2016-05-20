@@ -15,6 +15,8 @@ public class JestfulClientRequest implements Request {
 	private final Connector connector;
 	private final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
 	private Request request;
+	private int connectTimeout;
+	private int transferTimeout;
 
 	JestfulClientRequest(Action action, Connector connector) {
 		super();
@@ -58,6 +60,22 @@ public class JestfulClientRequest implements Request {
 		header.put(name, values.clone());
 	}
 
+	public int getConnectTimeout() {
+		return connectTimeout;
+	}
+
+	public void setConnectTimeout(int connectTimeout) {
+		this.connectTimeout = connectTimeout;
+	}
+
+	public int getTransferTimeout() {
+		return transferTimeout;
+	}
+
+	public void setTransferTimeout(int transferTimeout) {
+		this.transferTimeout = transferTimeout;
+	}
+
 	public InputStream getRequestInputStream() throws IOException {
 		return getRequest().getRequestInputStream();
 	}
@@ -66,8 +84,8 @@ public class JestfulClientRequest implements Request {
 		return getRequest().getRequestOutputStream();
 	}
 
-	public void connect(int timeout) throws IOException {
-		getRequest().connect(timeout);
+	public void connect() throws IOException {
+		getRequest().connect();
 	}
 
 	private synchronized Request getRequest() throws IOException {
@@ -79,6 +97,8 @@ public class JestfulClientRequest implements Request {
 		for (Entry<String, String[]> entry : header.entrySet()) {
 			request.setRequestHeaders(entry.getKey(), entry.getValue());
 		}
+		request.setConnectTimeout(connectTimeout);
+		request.setTransferTimeout(transferTimeout);
 		return request;
 	}
 

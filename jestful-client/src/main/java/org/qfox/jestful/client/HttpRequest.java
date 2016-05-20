@@ -58,17 +58,32 @@ public class HttpRequest implements Request {
 		}
 	}
 
+	public int getConnectTimeout() {
+		return httpURLConnection.getConnectTimeout();
+	}
+
+	public void setConnectTimeout(int timeout) {
+		httpURLConnection.setConnectTimeout(timeout);
+	}
+
+	public int getTransferTimeout() {
+		return httpURLConnection.getReadTimeout();
+	}
+
+	public void setTransferTimeout(int timeout) {
+		httpURLConnection.setReadTimeout(timeout);
+	}
+
+	public void connect() throws IOException {
+		httpURLConnection.connect();
+	}
+
 	public InputStream getRequestInputStream() throws IOException {
 		throw new UnsupportedOperationException();
 	}
 
 	public OutputStream getRequestOutputStream() throws IOException {
 		return httpURLConnection.getOutputStream();
-	}
-
-	public void connect(int timeout) throws IOException {
-		httpURLConnection.setConnectTimeout(timeout);
-		httpURLConnection.connect();
 	}
 
 }

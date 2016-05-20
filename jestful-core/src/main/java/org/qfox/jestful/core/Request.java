@@ -31,10 +31,18 @@ public interface Request {
 
 	void setRequestHeaders(String name, String[] values);
 
+	int getConnectTimeout();
+
+	void setConnectTimeout(int timeout);
+
+	int getTransferTimeout();
+
+	void setTransferTimeout(int timeout);
+
+	void connect() throws IOException;
+
 	InputStream getRequestInputStream() throws IOException;
 
 	OutputStream getRequestOutputStream() throws IOException;
-
-	void connect(int timeout) throws IOException;
 
 }

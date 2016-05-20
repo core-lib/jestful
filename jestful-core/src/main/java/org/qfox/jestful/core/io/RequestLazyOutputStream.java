@@ -31,6 +31,7 @@ public class RequestLazyOutputStream extends LazyOutputStream {
 
 	@Override
 	protected OutputStream getOutputStream() throws IOException {
+		request.connect();
 		return request.getRequestOutputStream();
 	}
 

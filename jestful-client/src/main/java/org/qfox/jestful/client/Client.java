@@ -261,9 +261,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 
 	private void serialize(Action action) throws Exception {
 		Request request = action.getRequest();
-		request.connect(1000 * 5);
 		Restful restful = action.getRestful();
 		if (restful.isAcceptBody() == false) {
+			request.connect();
 			return;
 		}
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);

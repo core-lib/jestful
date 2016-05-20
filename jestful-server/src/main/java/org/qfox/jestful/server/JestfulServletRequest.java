@@ -86,6 +86,26 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 		throw new UnsupportedOperationException();
 	}
 
+	public int getConnectTimeout() {
+		return 0;
+	}
+
+	public void setConnectTimeout(int timeout) {
+		throw new UnsupportedOperationException();
+	}
+
+	public int getTransferTimeout() {
+		throw new UnsupportedOperationException();
+	}
+
+	public void setTransferTimeout(int timeout) {
+		throw new UnsupportedOperationException();
+	}
+
+	public void connect() throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
 	public InputStream getRequestInputStream() throws IOException {
 		return request.getInputStream();
 	}
@@ -93,7 +113,7 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 	public OutputStream getRequestOutputStream() throws IOException {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public void connect(int timeout) throws IOException {
 		throw new UnsupportedOperationException();
 	}
