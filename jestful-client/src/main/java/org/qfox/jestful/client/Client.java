@@ -261,11 +261,6 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 
 	private void serialize(Action action) throws Exception {
 		Request request = action.getRequest();
-		Restful restful = action.getRestful();
-		if (restful.isAcceptBody() == false) {
-			request.connect();
-			return;
-		}
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
 		Accepts consumes = action.getConsumes();
 		if (bodies.isEmpty()) {
@@ -304,12 +299,10 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 
 	private void deserialize(Action action) throws Exception {
 		Response response = action.getResponse();
-		if (response.isResponseSuccess()) {
-			Restful restful = action.getRestful();
-			Result result = action.getResult();
-			if (restful.isReturnBody() == false || result.getBody().getType() == Void.TYPE) {
-				return;
-			}
+		Body body = action.getResult().getBody();
+		if (body.getType() == Void.TYPE) {
+			return;
+		} else {
 			String contentType = response.getResponseHeader("Content-Type");
 			Accepts produces = action.getProduces();
 			Accepts supports = new Accepts(deserializers.keySet());
@@ -332,17 +325,37 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 				}
 				throw new UnexpectedTypeException(mediaType, supports);
 			}
+		}
+	}
+
+	public Object react(Action action) throws Exception {
+		Restful restful = action.getRestful();
+
+		// 请求
+		Request request = action.getRequest();
+		if (restful.isAcceptBody() == false) {
+			request.connect();
 		} else {
+			serialize(action);
+		}
+
+		// 检查
+		Response response = action.getResponse();
+		if (response.isResponseSuccess() == false) {
 			Status status = response.getResponseStatus();
 			InputStream in = response.getResponseInputStream();
 			String body = IOUtils.toString(in);
 			throw new UnexpectedStatusException(status, body);
 		}
-	}
 
-	public Object react(Action action) throws Exception {
-		serialize(action);
-		deserialize(action);
+		// 回应
+		if (restful.isReturnBody() == false) {
+			return null;
+		} else {
+			deserialize(action);
+		}
+
+		// 返回
 		return action.getResult().getBody().getValue();
 	}
 
