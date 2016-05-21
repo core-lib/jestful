@@ -335,34 +335,39 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 	}
 
 	public Object react(Action action) throws Exception {
-		Restful restful = action.getRestful();
-
-		// 请求
 		Request request = action.getRequest();
-		if (restful.isAcceptBody() == false) {
-			request.connect();
-		} else {
-			serialize(action);
-		}
-
-		// 检查
 		Response response = action.getResponse();
-		if (response.isResponseSuccess() == false) {
-			Status status = response.getResponseStatus();
-			InputStream in = response.getResponseInputStream();
-			String body = IOUtils.toString(in);
-			throw new UnexpectedStatusException(status, body);
-		}
+		try {
+			Restful restful = action.getRestful();
 
-		// 回应
-		if (restful.isReturnBody() == false) {
-			return null;
-		} else {
-			deserialize(action);
-		}
+			if (restful.isAcceptBody() == false) {
+				request.connect();
+			} else {
+				serialize(action);
+			}
 
-		// 返回
-		return action.getResult().getBody().getValue();
+			if (response.isResponseSuccess() == false) {
+				Status status = response.getResponseStatus();
+				InputStream in = response.getResponseInputStream();
+				String body = IOUtils.toString(in);
+				throw new UnexpectedStatusException(status, body);
+			}
+
+			// 回应
+			if (restful.isReturnBody() == false) {
+				return null;
+			} else {
+				deserialize(action);
+			}
+
+			// 返回
+			return action.getResult().getBody().getValue();
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			request.close();
+			response.close();
+		}
 	}
 
 	public <T> T create(Class<T> interfase) {
