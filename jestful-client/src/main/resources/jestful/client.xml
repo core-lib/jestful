@@ -11,6 +11,8 @@
 		<bean class="org.qfox.jestful.client.processor.QueryParameterProcessor" />
 		<bean class="org.qfox.jestful.client.JestfulURICombiner" />
 		<bean class="org.qfox.jestful.client.JestfulURLCombiner" />
+		<bean class="org.qfox.jestful.client.ResourceTimeoutController" />
+		<bean class="org.qfox.jestful.client.MappingTimeoutController" />
 		<bean class="org.qfox.jestful.client.accept.AcceptContentCharsetDecider" />
 		<bean class="org.qfox.jestful.client.accept.AcceptContentEncodingDecider" />
 		<bean class="org.qfox.jestful.client.accept.AcceptContentLanguageDecider" />
