@@ -32,13 +32,13 @@ public interface Request extends Closeable {
 
 	void setRequestHeaders(String name, String[] values);
 
-	int getConnectTimeout();
+	int getConnTimeout();
 
-	void setConnectTimeout(int timeout);
+	void setConnTimeout(int timeout);
 
-	int getTransferTimeout();
+	int getReadTimeout();
 
-	void setTransferTimeout(int timeout);
+	void setReadTimeout(int timeout);
 
 	void connect() throws IOException;
 

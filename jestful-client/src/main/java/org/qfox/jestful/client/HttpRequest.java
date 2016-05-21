@@ -58,19 +58,19 @@ public class HttpRequest implements Request {
 		}
 	}
 
-	public int getConnectTimeout() {
+	public int getConnTimeout() {
 		return httpURLConnection.getConnectTimeout();
 	}
 
-	public void setConnectTimeout(int timeout) {
+	public void setConnTimeout(int timeout) {
 		httpURLConnection.setConnectTimeout(timeout);
 	}
 
-	public int getTransferTimeout() {
+	public int getReadTimeout() {
 		return httpURLConnection.getReadTimeout();
 	}
 
-	public void setTransferTimeout(int timeout) {
+	public void setReadTimeout(int timeout) {
 		httpURLConnection.setReadTimeout(timeout);
 	}
 

@@ -15,13 +15,15 @@ public class JestfulClientRequest implements Request {
 	private final Connector connector;
 	private final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
 	private Request request;
-	private int connectTimeout;
-	private int transferTimeout;
+	private int connTimeout;
+	private int readTimeout;
 
-	JestfulClientRequest(Action action, Connector connector) {
+	JestfulClientRequest(Action action, Connector connector, int connTimeout, int readTimeout) {
 		super();
 		this.action = action;
 		this.connector = connector;
+		this.connTimeout = connTimeout;
+		this.readTimeout = readTimeout;
 	}
 
 	public String[] getHeaderKeys() {
@@ -60,20 +62,20 @@ public class JestfulClientRequest implements Request {
 		header.put(name, values.clone());
 	}
 
-	public int getConnectTimeout() {
-		return connectTimeout;
+	public int getConnTimeout() {
+		return connTimeout;
 	}
 
-	public void setConnectTimeout(int connectTimeout) {
-		this.connectTimeout = connectTimeout;
+	public void setConnTimeout(int timeout) {
+		this.connTimeout = timeout;
 	}
 
-	public int getTransferTimeout() {
-		return transferTimeout;
+	public int getReadTimeout() {
+		return readTimeout;
 	}
 
-	public void setTransferTimeout(int transferTimeout) {
-		this.transferTimeout = transferTimeout;
+	public void setReadTimeout(int timeout) {
+		this.readTimeout = timeout;
 	}
 
 	public InputStream getRequestInputStream() throws IOException {
@@ -103,8 +105,8 @@ public class JestfulClientRequest implements Request {
 		for (Entry<String, String[]> entry : header.entrySet()) {
 			request.setRequestHeaders(entry.getKey(), entry.getValue());
 		}
-		request.setConnectTimeout(connectTimeout);
-		request.setTransferTimeout(transferTimeout);
+		request.setConnTimeout(connTimeout);
+		request.setReadTimeout(readTimeout);
 		return request;
 	}
 

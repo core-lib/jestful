@@ -86,19 +86,19 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 		throw new UnsupportedOperationException();
 	}
 
-	public int getConnectTimeout() {
+	public int getConnTimeout() {
 		return 0;
 	}
 
-	public void setConnectTimeout(int timeout) {
+	public void setConnTimeout(int timeout) {
 		throw new UnsupportedOperationException();
 	}
 
-	public int getTransferTimeout() {
+	public int getReadTimeout() {
 		throw new UnsupportedOperationException();
 	}
 
-	public void setTransferTimeout(int timeout) {
+	public void setReadTimeout(int timeout) {
 		throw new UnsupportedOperationException();
 	}
 

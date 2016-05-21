@@ -99,6 +99,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 	private final String queryEncodeCharset;
 	private final String headerEncodeCharset;
 
+	private final int connTimeout;
+	private final int readTimeout;
+
 	private Client(Builder builder) {
 		super();
 		this.protocol = builder.protocol;
@@ -143,6 +146,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		this.pathEncodeCharset = builder.pathEncodeCharset;
 		this.queryEncodeCharset = builder.queryEncodeCharset;
 		this.headerEncodeCharset = builder.headerEncodeCharset;
+
+		this.connTimeout = builder.connTimeout;
+		this.readTimeout = builder.readTimeout;
 
 		this.initialize(this.beanContainer);
 	}
@@ -221,7 +227,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		action.setPort(port);
 		action.setRoute(route);
 
-		action.setRequest(new JestfulClientRequest(action, this));
+		action.setRequest(new JestfulClientRequest(action, this, connTimeout, readTimeout));
 		action.setResponse(new JestfulClientResponse(action, this));
 
 		action.setConsumes(mapping.getConsumes());
@@ -394,6 +400,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		private String pathEncodeCharset = "UTF-8";
 		private String queryEncodeCharset = "UTF-8";
 		private String headerEncodeCharset = "UTF-8";
+
+		private int connTimeout = 0;
+		private int readTimeout = 0;
 
 		public Client build() {
 			return new Client(this);
@@ -620,6 +629,42 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 			return this;
 		}
 
+		public Builder setConnTimeout(int connTimeout) {
+			if (connTimeout < 0) {
+				throw new IllegalArgumentException("connect timeout is negative");
+			}
+			this.connTimeout = connTimeout;
+			return this;
+		}
+
+		public Builder setReadTimeout(int readTimeout) {
+			if (connTimeout < 0) {
+				throw new IllegalArgumentException("reading timeout is negative");
+			}
+			this.readTimeout = readTimeout;
+			return this;
+		}
+
+	}
+
+	public Charsets getCharsets() {
+		return charsets;
+	}
+
+	public Map<MediaType, RequestSerializer> getSerializers() {
+		return serializers;
+	}
+
+	public Map<MediaType, ResponseDeserializer> getDeserializers() {
+		return deserializers;
+	}
+
+	public Map<String, Scheduler> getSchedulers() {
+		return schedulers;
+	}
+
+	public Map<String, Connector> getConnectors() {
+		return connectors;
 	}
 
 	public String getProtocol() {
@@ -646,28 +691,16 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		return resources;
 	}
 
-	public String[] getConfigLocations() {
-		return configLocations;
-	}
-
 	public BeanContainer getBeanContainer() {
 		return beanContainer;
 	}
 
+	public String[] getConfigLocations() {
+		return configLocations;
+	}
+
 	public Actor[] getPlugins() {
 		return plugins;
-	}
-
-	public Map<MediaType, RequestSerializer> getSerializers() {
-		return serializers;
-	}
-
-	public Map<MediaType, ResponseDeserializer> getDeserializers() {
-		return deserializers;
-	}
-
-	public Map<String, Scheduler> getSchedulers() {
-		return schedulers;
 	}
 
 	public String[] getAcceptCharsets() {
@@ -712,6 +745,14 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 
 	public String getHeaderEncodeCharset() {
 		return headerEncodeCharset;
+	}
+
+	public int getConnTimeout() {
+		return connTimeout;
+	}
+
+	public int getReadTimeout() {
+		return readTimeout;
 	}
 
 	@Override

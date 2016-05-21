@@ -40,20 +40,20 @@ public class RequestWrapper implements Request {
 		return request.getRequestOutputStream();
 	}
 
-	public int getConnectTimeout() {
-		return request.getConnectTimeout();
+	public int getConnTimeout() {
+		return request.getConnTimeout();
 	}
 
-	public void setConnectTimeout(int timeout) {
-		request.setConnectTimeout(timeout);
+	public void setConnTimeout(int timeout) {
+		request.setConnTimeout(timeout);
 	}
 
-	public int getTransferTimeout() {
-		return request.getTransferTimeout();
+	public int getReadTimeout() {
+		return request.getReadTimeout();
 	}
 
-	public void setTransferTimeout(int timeout) {
-		request.setTransferTimeout(timeout);
+	public void setReadTimeout(int timeout) {
+		request.setReadTimeout(timeout);
 	}
 
 	public void connect() throws IOException {
