@@ -52,4 +52,8 @@ public class ResponseWrapper implements Response {
 		return response.isResponseSuccess();
 	}
 
+	public void close() throws IOException {
+		response.close();
+	}
+
 }

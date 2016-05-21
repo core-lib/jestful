@@ -88,6 +88,12 @@ public class JestfulClientRequest implements Request {
 		getRequest().connect();
 	}
 
+	public void close() throws IOException {
+		if (request != null) {
+			request.close();
+		}
+	}
+
 	private synchronized Request getRequest() throws IOException {
 		if (request != null) {
 			return request;

@@ -78,6 +78,10 @@ public class HttpRequest implements Request {
 		httpURLConnection.connect();
 	}
 
+	public void close() throws IOException {
+		httpURLConnection.disconnect();
+	}
+
 	public InputStream getRequestInputStream() throws IOException {
 		throw new UnsupportedOperationException();
 	}

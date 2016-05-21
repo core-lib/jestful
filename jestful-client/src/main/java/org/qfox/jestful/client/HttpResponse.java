@@ -80,5 +80,9 @@ public class HttpResponse implements Response {
 		int code = status.getCode();
 		return code >= 200 && code < 300;
 	}
+	
+	public void close() throws IOException {
+		httpURLConnection.disconnect();
+	}
 
 }

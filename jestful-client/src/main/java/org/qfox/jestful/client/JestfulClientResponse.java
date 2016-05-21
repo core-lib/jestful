@@ -78,6 +78,12 @@ public class JestfulClientResponse implements Response {
 	public boolean isResponseSuccess() throws IOException {
 		return getResponse().isResponseSuccess();
 	}
+	
+	public void close() throws IOException {
+		if (response != null) {
+			response.close();
+		}
+	}
 
 	private synchronized Response getResponse() throws IOException {
 		if (response != null) {

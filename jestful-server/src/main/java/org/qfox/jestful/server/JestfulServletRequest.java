@@ -105,6 +105,10 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 	public void connect() throws IOException {
 		throw new UnsupportedOperationException();
 	}
+	
+	public void close() throws IOException {
+		
+	}
 
 	public InputStream getRequestInputStream() throws IOException {
 		return request.getInputStream();

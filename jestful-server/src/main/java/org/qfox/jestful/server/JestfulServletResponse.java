@@ -89,5 +89,9 @@ public class JestfulServletResponse extends HttpServletResponseWrapper implement
 	public OutputStream getResponseOutputStream() throws IOException {
 		return response.getOutputStream();
 	}
+	
+	public void close() throws IOException {
+		
+	}
 
 }

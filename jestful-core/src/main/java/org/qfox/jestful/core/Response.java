@@ -1,5 +1,6 @@
 package org.qfox.jestful.core;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,7 +20,7 @@ import java.io.OutputStream;
  *
  * @since 1.0.0
  */
-public interface Response {
+public interface Response extends Closeable {
 
 	String[] getHeaderKeys();
 

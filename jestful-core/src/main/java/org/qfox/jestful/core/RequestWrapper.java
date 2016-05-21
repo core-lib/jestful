@@ -59,5 +59,9 @@ public class RequestWrapper implements Request {
 	public void connect() throws IOException {
 		request.connect();
 	}
+	
+	public void close() throws IOException {
+		request.close();
+	}
 
 }
