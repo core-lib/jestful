@@ -1,4 +1,4 @@
-package org.qfox.jestful.commons;
+package org.qfox.jestful.core;
 
 /**
  * <p>

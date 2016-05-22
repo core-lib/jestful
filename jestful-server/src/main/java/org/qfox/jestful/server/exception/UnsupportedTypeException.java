@@ -1,7 +1,7 @@
 package org.qfox.jestful.server.exception;
 
-import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.core.Accepts;
+import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.exception.StatusException;
 
 /**

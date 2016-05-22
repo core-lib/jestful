@@ -3,9 +3,9 @@ package org.qfox.jestful.core.formatting;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multihead;
 import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.MediaType;
+import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 
 /**

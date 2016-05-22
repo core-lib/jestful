@@ -11,18 +11,18 @@ import java.util.Map.Entry;
 import java.util.Random;
 
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
-import org.qfox.jestful.commons.Disposition;
-import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multihead;
-import org.qfox.jestful.commons.io.IOUtils;
-import org.qfox.jestful.commons.io.MultipartOutputStream;
 import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Disposition;
 import org.qfox.jestful.core.Initialable;
+import org.qfox.jestful.core.MediaType;
+import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestSerializer;
+import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import eu.medsea.mimeutil.MimeUtil;
 

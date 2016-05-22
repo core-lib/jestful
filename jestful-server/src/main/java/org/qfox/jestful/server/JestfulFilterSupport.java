@@ -22,7 +22,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
@@ -37,6 +36,7 @@ import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
+import org.qfox.jestful.core.io.IOUtils;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

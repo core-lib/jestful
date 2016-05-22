@@ -5,13 +5,13 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.List;
 
-import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.Multihead;
-import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.MediaType;
+import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
+import org.qfox.jestful.core.io.IOUtils;
 
 /**
  * <p>

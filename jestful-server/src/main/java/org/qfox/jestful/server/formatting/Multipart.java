@@ -6,9 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.qfox.jestful.commons.Multibody;
-import org.qfox.jestful.commons.Multihead;
-import org.qfox.jestful.commons.io.IOUtils;
+import org.qfox.jestful.core.Multibody;
+import org.qfox.jestful.core.Multihead;
+import org.qfox.jestful.core.io.IOUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 /**

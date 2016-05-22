@@ -5,16 +5,16 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.List;
 
-import org.qfox.jestful.commons.Disposition;
-import org.qfox.jestful.commons.Multihead;
-import org.qfox.jestful.commons.io.MultipartOutputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Disposition;
 import org.qfox.jestful.core.Initialable;
+import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.converter.StringConversion;
 import org.qfox.jestful.core.formatting.RequestSerializer;
+import org.qfox.jestful.core.io.MultipartOutputStream;
 
 /**
  * <p>

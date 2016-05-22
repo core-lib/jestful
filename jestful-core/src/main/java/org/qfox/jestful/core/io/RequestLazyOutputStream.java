@@ -3,7 +3,6 @@ package org.qfox.jestful.core.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.qfox.jestful.commons.io.LazyOutputStream;
 import org.qfox.jestful.core.Request;
 
 /**

@@ -1,10 +1,10 @@
-package org.qfox.jestful.commons.io;
+package org.qfox.jestful.core.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-import org.qfox.jestful.commons.Multihead;
+import org.qfox.jestful.core.Multihead;
 
 /**
  * <p>

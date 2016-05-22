@@ -1,4 +1,4 @@
-package org.qfox.jestful.commons;
+package org.qfox.jestful.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import org.qfox.jestful.commons.io.IOUtils;
+import org.qfox.jestful.core.io.IOUtils;
 
 import eu.medsea.mimeutil.MimeUtil;
 

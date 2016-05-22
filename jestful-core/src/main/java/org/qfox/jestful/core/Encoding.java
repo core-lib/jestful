@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.qfox.jestful.commons.Weighted;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 
 /**

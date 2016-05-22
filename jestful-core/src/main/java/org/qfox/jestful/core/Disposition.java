@@ -1,4 +1,4 @@
-package org.qfox.jestful.commons;
+package org.qfox.jestful.core;
 
 import java.util.Collections;
 import java.util.Map;

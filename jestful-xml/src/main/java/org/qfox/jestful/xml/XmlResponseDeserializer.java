@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.qfox.jestful.commons.MediaType;
-import org.qfox.jestful.commons.io.IOUtils;
 import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
+import org.qfox.jestful.core.io.IOUtils;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 

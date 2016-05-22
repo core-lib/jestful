@@ -5,8 +5,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.qfox.jestful.commons.MediaType;
-
 /**
  * <p>
  * Description:

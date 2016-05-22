@@ -1,4 +1,4 @@
-package org.qfox.jestful.commons;
+package org.qfox.jestful.core;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
-import org.qfox.jestful.commons.io.IOUtils;
+import org.qfox.jestful.core.io.IOUtils;
 
 /**
  * <p>

@@ -3,9 +3,9 @@ package org.qfox.jestful.core.formatting;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.qfox.jestful.commons.io.MultipartOutputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.io.MultipartOutputStream;
 
 /**
  * <p>

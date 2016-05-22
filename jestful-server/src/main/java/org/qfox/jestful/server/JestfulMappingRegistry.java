@@ -9,7 +9,6 @@ import java.util.Map;
 
 import javax.servlet.ServletContext;
 
-import org.qfox.jestful.commons.MediaType;
 import org.qfox.jestful.commons.tree.AlreadyValuedException;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
@@ -17,6 +16,7 @@ import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Mapping;
+import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.exception.DuplicateMappingException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
