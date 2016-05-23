@@ -20,7 +20,8 @@
 		<module>jestful-cookie</module>
 		<module>jestful-translation</module>
 		<module>jestful-cache</module>
-	</modules>
+    <module>jestful-android</module>
+  </modules>
 
 	<repositories>
 		<repository>
