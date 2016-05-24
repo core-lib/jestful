@@ -420,7 +420,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 			setProtocol(endpoint.getProtocol());
 			setHost(endpoint.getHost());
 			setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
-			setRoute(endpoint.getFile());
+			setRoute(endpoint.getFile().isEmpty() ? null : endpoint.getFile());
 			return this;
 		}
 
