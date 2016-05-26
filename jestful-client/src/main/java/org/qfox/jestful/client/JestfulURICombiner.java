@@ -9,8 +9,10 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
+import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.converter.StringConversion;
 
 /**
@@ -33,9 +35,9 @@ public class JestfulURICombiner implements Actor, Initialable {
 	private StringConversion pathStringConversion;
 
 	public Object react(Action action) throws Exception {
-		String expression = action.getResource().getExpression();
-		String definition = action.getMapping().getDefinition();
-		String URI = expression + definition;
+		Resource resource = action.getResource();
+		Mapping mapping = action.getMapping();
+		String URI = resource.getExpression() + mapping.getExpression();
 		String charset = action.getPathEncodeCharset();
 		List<Parameter> parameters = action.getParameters().all(Position.PATH);
 		for (Parameter parameter : parameters) {
@@ -45,7 +47,7 @@ public class JestfulURICombiner implements Actor, Initialable {
 			if (regex != null && value.matches(regex) == false) {
 				throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
 			}
-			Matcher matcher = pattern.matcher(definition);
+			Matcher matcher = pattern.matcher(mapping.getExpression());
 			int group = parameter.getGroup();
 			for (int i = 0; i < group; i++) {
 				matcher.find();

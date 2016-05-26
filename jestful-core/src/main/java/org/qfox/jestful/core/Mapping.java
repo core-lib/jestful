@@ -47,8 +47,8 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 	private final Restful restful;
 	private final Accepts consumes;
 	private final Accepts produces;
-	private final String definition;
 	private final String expression;
+	private final String regex;
 	private final Pattern pattern;
 	private final String version;
 
@@ -83,9 +83,9 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 					this.produces = new Accepts(mediaTypes);
 				}
 				String value = restful.annotationType().getMethod("value").invoke(restful).toString();
-				this.definition = ("/" + value).replaceAll("\\/+", "/");
-				this.expression = bind(definition);
-				this.pattern = Pattern.compile((resource.getExpression() + this.expression).replaceAll("\\/+", "/"));
+				this.expression = ("/" + value).replaceAll("\\/+", "/");
+				this.regex = bind(expression);
+				this.pattern = Pattern.compile((resource.getExpression() + this.regex).replaceAll("\\/+", "/"));
 
 				Version version = this.isAnnotationPresent(Version.class) ? this.getAnnotation(Version.class) : resource.isAnnotationPresent(Version.class) ? resource.getAnnotation(Version.class) : null;
 				this.version = version != null ? version.value() : null;
@@ -147,7 +147,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 	}
 
 	public Node<PathExpression, Mapping> toNode() {
-		String[] hierarchies = expression.split("\\/+");
+		String[] hierarchies = regex.split("\\/+");
 		Iterator<String> iterator = Arrays.asList(hierarchies).iterator();
 		Node<PathExpression, Mapping> result = null;
 		Node<PathExpression, Mapping> parent = null;
@@ -178,7 +178,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 
 	public int compareTo(Mapping o) {
 		int comparation = 0;
-		if ((comparation = expression.compareTo(o.expression)) != 0) {
+		if ((comparation = regex.compareTo(o.regex)) != 0) {
 			return comparation;
 		} else if ((comparation = restful.getMethod().compareTo(o.restful.getMethod())) != 0) {
 			return comparation;
@@ -237,12 +237,12 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 		return produces;
 	}
 
-	public String getDefinition() {
-		return definition;
-	}
-
 	public String getExpression() {
 		return expression;
+	}
+
+	public String getRegex() {
+		return regex;
 	}
 
 	public Pattern getPattern() {
