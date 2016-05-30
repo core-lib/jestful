@@ -1,37 +1,65 @@
 package org.qfox.jestful.cache;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ResponseCache;
 import java.util.Map;
 
-import org.qfox.jestful.cache.annotation.Cache;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Plugin;
-import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.exception.PluginConfigException;
 
+import com.integralblue.httpresponsecache.HttpResponseCache;
+
 public class JestfulCachePlugin implements Plugin {
-	private String directory = System.getProperty("java.io.tmpdir") + "jestful" + File.separator + "cache";
+	private String directory = System.getProperty("java.io.tmpdir") + "jestful-cache";
+	private long maxSize = 20l * 1024l * 1024l;
+	private ResponseCache responseCache;
 
 	public void config(Map<String, String> arguments) throws PluginConfigException {
-		directory = arguments.containsKey("directory") ? arguments.get("directory") : directory;
+		try {
+			this.directory = arguments.containsKey("directory") ? arguments.get("directory") : this.directory;
+			this.maxSize = arguments.containsKey("maxSize") ? Long.valueOf(arguments.get("maxSize")) : this.maxSize;
+			File directory = new File(this.directory);
+			if (directory.exists() == false) {
+				directory.mkdirs();
+			}
+			this.responseCache = HttpResponseCache.install(directory, this.maxSize);
+		} catch (IOException e) {
+			throw new PluginConfigException(e);
+		}
 	}
 
 	public Object react(Action action) throws Exception {
-		Restful restful = action.getRestful();
-		String method = restful.getMethod();
-		Mapping mapping = action.getMapping();
-		if ("GET".equalsIgnoreCase(method) && mapping.isAnnotationPresent(Cache.class)) {
-			String protocol = action.getProtocol();
-			String host = action.getHost();
-			Integer port = action.getPort();
-			String route = action.getRoute();
-			String URI = action.getURI();
-			String query = action.getQuery();
-			String subpath = "/" + protocol + "/" + (port != null ? host + ":" + port : host) + (route != null ? "/" + route : "") + URI + (query != null ? "/" + query : "");
-			String abspath = directory + subpath.replace("/", File.separator);
-			System.out.println(abspath);
+		try {
+			return action.execute();
+		} catch (Exception e) {
+			throw e;
 		}
-		return action.execute();
 	}
+
+	public String getDirectory() {
+		return directory;
+	}
+
+	public void setDirectory(String directory) {
+		this.directory = directory;
+	}
+
+	public long getMaxSize() {
+		return maxSize;
+	}
+
+	public void setMaxSize(long maxSize) {
+		this.maxSize = maxSize;
+	}
+
+	public ResponseCache getResponseCache() {
+		return responseCache;
+	}
+
+	public void setResponseCache(ResponseCache responseCache) {
+		this.responseCache = responseCache;
+	}
+
 }
