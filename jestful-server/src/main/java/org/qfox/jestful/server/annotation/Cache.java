@@ -36,7 +36,7 @@ public @interface Cache {
 	String[] value();
 
 	/**
-	 * 内容协商所使用的请求头, 可以使用多个, 例如 Accept-Language, Accept-Charset ...
+	 * 缓存内容协商获取所需要考虑的请求头, 可以使用多个, 例如 Accept-Language, Accept-Charset, User-Agent ...
 	 * 
 	 * @return
 	 */
