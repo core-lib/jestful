@@ -19,8 +19,7 @@
 		<module>jestful-validation</module>
 		<module>jestful-cookie</module>
 		<module>jestful-translation</module>
-		<module>jestful-cache</module>
-    <module>jestful-android</module>
+    	<module>jestful-android</module>
   </modules>
 
 	<repositories>
