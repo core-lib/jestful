@@ -1,5 +1,6 @@
 package org.qfox.jestful.server.render;
 
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,8 +59,10 @@ public class DefaultResultRender implements Actor, Initialable {
 		response.setResponseHeader("Content-Charset", charset);
 		response.setResponseHeader("Content-Type", mediaType.getName());
 		ResponseSerializer serializer = map.get(mediaType);
-		serializer.serialize(action, mediaType, charset, response.getResponseOutputStream());
-
+		OutputStream out = response.getResponseOutputStream();
+		serializer.serialize(action, mediaType, charset, out);
+		out.flush();
+		
 		return value;
 	}
 

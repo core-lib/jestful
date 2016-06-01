@@ -39,15 +39,18 @@ public class IOUtils {
 	}
 
 	/**
-	 * close an {@link Closeable} I/O stream quietly or not quietly by parameter quietly
+	 * close an {@link Closeable} I/O stream quietly or not quietly by parameter
+	 * quietly
 	 * 
 	 * @param closeable
 	 *            I/O stream
 	 * @param quietly
 	 *            if true : catch and ignore all exceptions <br/>
-	 *            if false : throw a runtime exception to wrap the exception caught
+	 *            if false : throw a runtime exception to wrap the exception
+	 *            caught
 	 * @throws RuntimeException
-	 *             exception thrown only quietly is true and {@link IOException} thrown when closing the I/O stream
+	 *             exception thrown only quietly is true and {@link IOException}
+	 *             thrown when closing the I/O stream
 	 */
 	public static void close(Closeable closeable, boolean quietly) throws RuntimeException {
 		if (closeable == null) {
@@ -114,7 +117,7 @@ public class IOUtils {
 			out = new FileOutputStream(target);
 			return transfer(in, out);
 		} finally {
-			out.close();
+			close(out);
 		}
 	}
 
@@ -124,7 +127,7 @@ public class IOUtils {
 			in = new FileInputStream(source);
 			return transfer(in, out);
 		} finally {
-			in.close();
+			close(in);
 		}
 	}
 
@@ -136,8 +139,8 @@ public class IOUtils {
 			out = new FileOutputStream(target);
 			return transfer(in, out);
 		} finally {
-			in.close();
-			out.close();
+			close(in);
+			close(out);
 		}
 	}
 

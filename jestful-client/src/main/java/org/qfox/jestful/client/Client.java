@@ -291,6 +291,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 					try {
 						out = new RequestLazyOutputStream(request);
 						serializer.serialize(action, charset, out);
+						out.flush();
 						return;
 					} catch (Exception e) {
 						throw e;
