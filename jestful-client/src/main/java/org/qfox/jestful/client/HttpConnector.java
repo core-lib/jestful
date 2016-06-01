@@ -23,8 +23,9 @@ public class HttpConnector implements Connector {
 			String url = action.getURL();
 			httpURLConnection = (HttpURLConnection) new URL(url).openConnection();
 			Restful restful = action.getRestful();
+			httpURLConnection.setRequestMethod(restful.getMethod());
 			httpURLConnection.setDoOutput(restful.isAcceptBody());
-			httpURLConnection.setDoInput(restful.isReturnBody());
+			httpURLConnection.setDoInput(true);
 			Request request = new HttpRequest(httpURLConnection);
 			Response response = new HttpResponse(httpURLConnection);
 			return new Connection(request, response);

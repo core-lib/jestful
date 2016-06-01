@@ -1,7 +1,6 @@
 package org.qfox.jestful.server;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -27,16 +26,20 @@ import javax.servlet.http.HttpServletResponseWrapper;
  * @since 1.0.0
  */
 public class JestfulHeadResponse extends HttpServletResponseWrapper {
-	private final OutputStream out = new JestfulHeadResponseServletOutputStream();
+	private final JestfulHeadResponseServletOutputStream out = new JestfulHeadResponseServletOutputStream();
 	private PrintWriter writer;
 
 	public JestfulHeadResponse(HttpServletResponse response) {
 		super(response);
 	}
 
+	public void finish() {
+		super.setContentLength(out.size);
+	}
+
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
-		return new JestfulHeadResponseServletOutputStream();
+		return out;
 	}
 
 	@Override
@@ -48,12 +51,8 @@ public class JestfulHeadResponse extends HttpServletResponseWrapper {
 		return writer;
 	}
 
-	public static class JestfulHeadResponseServletOutputStream extends ServletOutputStream {
+	private static class JestfulHeadResponseServletOutputStream extends ServletOutputStream {
 		private int size = 0;
-
-		public int size() {
-			return size;
-		}
 
 		@Override
 		public void write(int b) {

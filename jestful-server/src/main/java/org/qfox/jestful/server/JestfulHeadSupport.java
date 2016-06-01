@@ -8,6 +8,8 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * <p>
@@ -31,7 +33,20 @@ public class JestfulHeadSupport implements Filter {
 	}
 
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		
+		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
+			HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+			HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+			if (httpServletRequest.getMethod().equalsIgnoreCase("HEAD")) {
+				JestfulHeadRequest jestfulHeadRequest = new JestfulHeadRequest(httpServletRequest);
+				JestfulHeadResponse jestfulHeadResponse = new JestfulHeadResponse(httpServletResponse);
+				chain.doFilter(jestfulHeadRequest, jestfulHeadResponse);
+				jestfulHeadResponse.finish();
+			} else {
+				chain.doFilter(request, response);
+			}
+		} else {
+			chain.doFilter(request, response);
+		}
 	}
 
 	public void destroy() {
