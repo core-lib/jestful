@@ -10,6 +10,7 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Encoding;
 import org.qfox.jestful.core.Encodings;
 import org.qfox.jestful.core.Initialable;
+import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.codec.ResponseEncoder;
 import org.qfox.jestful.core.exception.NoSuchCodecException;
@@ -32,7 +33,20 @@ public class ResponseEncodeWrapper implements Actor, Initialable {
 				Encodings actuals = availables;
 				throw new NoSuchCodecException(expects, actuals);
 			}
-			Encoding encoding = encodings.first();
+			Request request = action.getRequest();
+			String acceptEncoding = request.getRequestHeader("Accept-Encoding");
+			if (acceptEncoding == null || acceptEncoding.isEmpty()) {
+				return action.execute();
+			}
+			Encodings remains = encodings.clone();
+			Encodings accepts = Encodings.valueOf(acceptEncoding);
+			remains.retainAll(accepts);
+			if (remains.isEmpty()) {
+				Encodings expects = accepts;
+				Encodings actuals = availables;
+				throw new NoSuchCodecException(expects, actuals);
+			}
+			Encoding encoding = remains.first();
 			ResponseEncoder encoder = map.get(encoding);
 			Response source = action.getResponse();
 			Response target = new EncodedServletResponse((JestfulServletResponse) source, encoding, encoder);
