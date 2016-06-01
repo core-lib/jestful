@@ -354,10 +354,6 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 				throw new UnexpectedStatusException(status, body);
 			}
 
-			for (String key : response.getHeaderKeys()) {
-				System.out.println(key + ": " + response.getResponseHeader(key));
-			}
-
 			// 回应
 			if (restful.isReturnBody() == false) {
 				return null;
