@@ -1,9 +1,9 @@
-package org.qfox.jestful.cache;
+package org.qfox.jestful.android;
 
 import java.io.File;
 import java.util.Map;
 
-import org.qfox.jestful.cache.annotation.Refresh;
+import org.qfox.jestful.android.annotation.Refresh;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameter;
@@ -13,7 +13,7 @@ import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.exception.PluginConfigException;
 
-import com.integralblue.httpresponsecache.HttpResponseCache;
+import android.net.http.HttpResponseCache;
 
 /**
  * <p>
@@ -30,7 +30,7 @@ import com.integralblue.httpresponsecache.HttpResponseCache;
  *
  * @since 1.0.0
  */
-public class JestfulCachePlugin implements Plugin {
+public class AndroidCachePlugin implements Plugin {
 	private String directory = System.getProperty("java.io.tmpdir") + "jestful-cache";
 	private String capacity = "10MB";
 

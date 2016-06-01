@@ -1,4 +1,4 @@
-package org.qfox.jestful.cache.annotation;
+package org.qfox.jestful.android.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
