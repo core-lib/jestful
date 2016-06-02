@@ -21,7 +21,9 @@
 		<module>jestful-translation</module>
 		<module>jestful-android</module>
 		<module>jestful-cache</module>
-	</modules>
+    	<module>jestful-RxJava</module>
+    	<module>jestful-RxAndroid</module>
+  </modules>
 
 	<repositories>
 		<repository>
