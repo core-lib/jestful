@@ -105,7 +105,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
 				Mapping latest = null;
 				for (Mapping mapping : mappings) {
 					Accepts produces = mapping.getProduces();
-					if (supports.contains(mediaType) && (produces.isEmpty() || produces.contains(mediaType))) {
+					if ((mediaType.isWildcard() || supports.contains(mediaType)) && (produces.isEmpty() || produces.contains(mediaType))) {
 						if (latest == null) {
 							latest = mapping;
 						} else if (comparator.compare(latest.getVersion(), mapping.getVersion()) < 0) {
@@ -123,7 +123,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
 					String ver = mapping.getVersion();
 					if (version.equals(ver)) {
 						Accepts produces = mapping.getProduces();
-						if (supports.contains(mediaType) && (produces.isEmpty() || produces.contains(mediaType))) {
+						if ((mediaType.isWildcard() || supports.contains(mediaType)) && (produces.isEmpty() || produces.contains(mediaType))) {
 							return mapping;
 						} else {
 							continue;
