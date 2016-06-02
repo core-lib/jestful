@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 
@@ -20,9 +20,8 @@ import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.exception.DuplicateMappingException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
-import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
-import org.qfox.jestful.server.exception.NotAcceptableStatusException;
+import org.qfox.jestful.server.exception.ConflictStatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
 
 /**
@@ -41,7 +40,6 @@ import org.qfox.jestful.server.exception.NotFoundStatusException;
  * @since 1.0.0
  */
 public class JestfulMappingRegistry implements MappingRegistry, Initialable {
-	private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
 	private Node<PathExpression, Mapping> tree;
 
 	public void initialize(BeanContainer beanContainer) {
@@ -49,19 +47,12 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
 		String ctxpath = servletContext.getContextPath();
 		ctxpath = ctxpath == null || ctxpath.trim().isEmpty() || ctxpath.trim().equals("/") ? "" : ctxpath.trim();
 		this.tree = new Node<PathExpression, Mapping>(new PathExpression(ctxpath));
-
-		Collection<RequestDeserializer> deserializers = beanContainer.find(RequestDeserializer.class).values();
-		for (RequestDeserializer deserializer : deserializers) {
-			String contentType = deserializer.getContentType();
-			MediaType mediaType = MediaType.valueOf(contentType);
-			map.put(mediaType, deserializer);
-		}
 	}
 
 	public Collection<Mapping> lookup(String URI) throws NotFoundStatusException {
 		Collection<Mapping> mappings = tree.match(URI);
 		if (mappings.isEmpty()) {
-			throw new NotFoundStatusException(URI, null);
+			throw new NotFoundStatusException(URI, null, null);
 		} else {
 			return mappings;
 		}
@@ -82,12 +73,19 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
 		}
 	}
 
-	public Mapping lookup(String method, String URI, String accept, Comparator<String> comparator) throws NotFoundStatusException, BadMethodStatusException, NotAcceptableStatusException {
-		Collection<Mapping> mappings = lookup(method, URI);
+	public Mapping lookup(String method, String URI, String accept, Comparator<String> comparator) throws NotFoundStatusException, BadMethodStatusException, ConflictStatusException {
 		Accepts accepts = Accepts.valueOf(accept);
-		Accepts supports = new Accepts(map.keySet());
-		// 如果没有Accept请求头 拿最新的
-		if (accepts.isEmpty()) {
+		Set<String> versions = new LinkedHashSet<String>();
+		for (MediaType mediaType : accepts) {
+			versions.add(mediaType.getVersion());
+		}
+		if (versions.size() > 1) {
+			throw new ConflictStatusException(URI, method, versions);
+		}
+		String version = versions.isEmpty() ? null : versions.toArray(new String[1])[0];
+
+		Collection<Mapping> mappings = lookup(method, URI);
+		if (version == null) {
 			Mapping latest = null;
 			for (Mapping mapping : mappings) {
 				if (latest == null) {
@@ -97,42 +95,14 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
 				}
 			}
 			return latest;
-		}
-		for (MediaType mediaType : accepts) {
-			String version = mediaType.getVersion();
-			if (version == null) {
-				// 有版本号比没版本号更新, 请求没带版本号默认拿最新的也就是有版本号的而且版本号最大的
-				Mapping latest = null;
-				for (Mapping mapping : mappings) {
-					Accepts produces = mapping.getProduces();
-					if ((mediaType.isWildcard() || supports.contains(mediaType)) && (produces.isEmpty() || produces.contains(mediaType))) {
-						if (latest == null) {
-							latest = mapping;
-						} else if (comparator.compare(latest.getVersion(), mapping.getVersion()) < 0) {
-							latest = mapping;
-						}
-					} else {
-						continue;
-					}
-				}
-				if (latest != null) {
-					return latest;
-				}
-			} else {
-				for (Mapping mapping : mappings) {
-					String ver = mapping.getVersion();
-					if (version.equals(ver)) {
-						Accepts produces = mapping.getProduces();
-						if ((mediaType.isWildcard() || supports.contains(mediaType)) && (produces.isEmpty() || produces.contains(mediaType))) {
-							return mapping;
-						} else {
-							continue;
-						}
-					}
+		} else {
+			for (Mapping mapping : mappings) {
+				if (version.equals(mapping.getVersion())) {
+					return mapping;
 				}
 			}
+			throw new NotFoundStatusException(URI, method, version);
 		}
-		throw new NotAcceptableStatusException(URI, method, accepts, null);
 	}
 
 	public Resource register(Object controller) throws IllegalConfigException {

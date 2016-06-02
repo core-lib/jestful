@@ -41,7 +41,6 @@ public class Action {
 	private String URI;
 	private String query;
 	private String protocol;
-	private String version;
 	private String host;
 	private Integer port;
 	private String route;
@@ -191,14 +190,6 @@ public class Action {
 
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
-	}
-
-	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
 	}
 
 	public String getHost() {

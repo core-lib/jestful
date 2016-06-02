@@ -20,15 +20,19 @@ import org.qfox.jestful.core.exception.StatusException;
 public class NotFoundStatusException extends StatusException {
 	private static final long serialVersionUID = 7507138827736751227L;
 
-	private final String uri;
+	private final String version;
 
-	public NotFoundStatusException(String uri, String method) {
+	public NotFoundStatusException(String uri, String method, String version) {
 		super(uri, method, 404, "Not Found");
-		this.uri = uri;
+		this.version = version;
 	}
 
 	public String getUri() {
 		return uri;
+	}
+
+	public String getVersion() {
+		return version;
 	}
 
 }

@@ -195,8 +195,7 @@ public class JestfulServletSupport implements Servlet, Actor {
 		String URI = httpServletRequest.getRequestURI();
 		String accept = httpServletRequest.getHeader("Accept");
 		String query = httpServletRequest.getQueryString();
-		String protocol = httpServletRequest.getProtocol().split("/")[0];
-		String version = httpServletRequest.getProtocol().split("/")[1];
+		String protocol = httpServletRequest.getProtocol();
 		try {
 			Mapping mapping = mappingRegistry.lookup(command, URI, accept, versionComparator).clone();
 			Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
@@ -214,7 +213,6 @@ public class JestfulServletSupport implements Servlet, Actor {
 			action.setURI(URI);
 			action.setQuery(query);
 			action.setProtocol(protocol);
-			action.setVersion(version);
 
 			action.setRequest(new JestfulServletRequest(httpServletRequest));
 			action.setResponse(new JestfulServletResponse(httpServletResponse));

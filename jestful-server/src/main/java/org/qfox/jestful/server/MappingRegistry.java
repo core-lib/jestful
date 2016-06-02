@@ -7,7 +7,7 @@ import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Resource;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
-import org.qfox.jestful.server.exception.NotAcceptableStatusException;
+import org.qfox.jestful.server.exception.ConflictStatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
 
 /**
@@ -64,13 +64,19 @@ public interface MappingRegistry {
 	 *            请求方法
 	 * @param URI
 	 *            请求路径
+	 * @param accept
+	 *            请求内容协商的内容类型和版本信息
+	 * @param comparator
+	 *            版本对比器
 	 * @return 匹配的资源
 	 * @throws NotFoundStatusException
 	 *             请求路径不存在
 	 * @throws BadMethodStatusException
 	 *             请求方法不支持
+	 * @throws ConflictStatusException
+	 *             版本冲突异常, 当accept中包含多个Content-Type而且存在不一样的版本时抛出
 	 */
-	Mapping lookup(String method, String URI, String accept, Comparator<String> comparator) throws NotFoundStatusException, BadMethodStatusException, NotAcceptableStatusException;
+	Mapping lookup(String method, String URI, String accept, Comparator<String> comparator) throws NotFoundStatusException, BadMethodStatusException, ConflictStatusException;
 
 	/**
 	 * 注册资源控制器
