@@ -5,8 +5,6 @@ import javax.servlet.ServletResponse;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Result;
 
 /**
@@ -36,16 +34,12 @@ public class ForwardResultRender implements Actor {
 		if (value instanceof String == false) {
 			return value;
 		}
-		Request request = action.getRequest();
-		Response response = action.getResponse();
-		if (request instanceof ServletRequest == false || response instanceof ServletResponse == false) {
-			return value;
-		}
 		String string = (String) value;
 		if (string.startsWith(prefix)) {
 			String path = string.substring(prefix.length());
-			ServletRequest servletRequest = (ServletRequest) request;
-			ServletResponse servletResponse = (ServletResponse) response;
+			ServletRequest servletRequest = (ServletRequest) action.getExtra().get(ServletRequest.class);
+			ServletResponse servletResponse = (ServletResponse) action.getExtra().get(ServletResponse.class);
+			servletResponse.reset();
 			servletRequest.getRequestDispatcher(path).forward(servletRequest, servletResponse);
 			result.setRendered(true);
 		}

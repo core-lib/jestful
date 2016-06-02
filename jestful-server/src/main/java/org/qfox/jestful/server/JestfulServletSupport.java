@@ -234,6 +234,11 @@ public class JestfulServletSupport implements Servlet, Actor {
 			action.setQueryEncodeCharset(queryEncodeCharset);
 			action.setHeaderEncodeCharset(headerEncodeCharset);
 
+			action.getExtra().put(ServletRequest.class, request);
+			action.getExtra().put(ServletResponse.class, response);
+			action.getExtra().put(HttpServletRequest.class, httpServletRequest);
+			action.getExtra().put(HttpServletResponse.class, httpServletResponse);
+
 			action.execute();
 		} catch (StatusException e) {
 			httpServletResponse.setStatus(e.getStatus());
