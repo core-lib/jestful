@@ -21,15 +21,13 @@
 		<module>jestful-translation</module>
 		<module>jestful-android</module>
 		<module>jestful-cache</module>
-    	<module>jestful-RxJava</module>
-    	<module>jestful-RxAndroid</module>
-  </modules>
-
+	</modules>
+	
 	<repositories>
 		<repository>
 			<id>jitpack.io</id>
-			<url>https://www.jitpack.io</url>
+			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
-
+	
 </project>
