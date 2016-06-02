@@ -19,7 +19,7 @@ import java.nio.charset.Charset;
  *
  * @since 1.0.0
  */
-public class StatusException extends JestfulException {
+public class StatusException extends JestfulIOException {
 	private static final long serialVersionUID = 6260672121780209011L;
 
 	protected final String uri;
