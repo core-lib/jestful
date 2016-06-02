@@ -23,6 +23,7 @@ import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
 import org.qfox.jestful.client.scheduler.Scheduler;
+import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Accepts;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
@@ -350,13 +351,19 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 			if (response.isResponseSuccess() == false) {
 				Status status = response.getResponseStatus();
 				InputStream in = response.getResponseInputStream();
-				String body = IOUtils.toString(in);
+				String body = in != null ? IOUtils.toString(in) : "";
 				throw new UnexpectedStatusException(status, body);
 			}
 
 			// 回应
 			if (restful.isReturnBody() == false) {
-				return null;
+				Map<String, String> header = new CaseInsensitiveMap<String, String>();
+				for (String key : response.getHeaderKeys()) {
+					String name = key != null ? key : "";
+					String value = response.getResponseHeader(key);
+					header.put(name, value);
+				}
+				return header;
 			} else {
 				deserialize(action);
 			}

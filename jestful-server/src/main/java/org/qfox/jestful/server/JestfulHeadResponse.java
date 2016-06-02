@@ -46,7 +46,7 @@ public class JestfulHeadResponse extends HttpServletResponseWrapper {
 	public PrintWriter getWriter() throws UnsupportedEncodingException {
 		if (writer == null) {
 			String charset = getCharacterEncoding();
-			writer = new PrintWriter(new OutputStreamWriter(out, charset));
+			writer = new PrintWriter(new OutputStreamWriter(out, charset), true);
 		}
 		return writer;
 	}
