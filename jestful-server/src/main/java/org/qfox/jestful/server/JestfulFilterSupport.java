@@ -226,7 +226,7 @@ public class JestfulFilterSupport implements Filter, Actor {
 			action.setPathEncodeCharset(pathEncodeCharset);
 			action.setQueryEncodeCharset(queryEncodeCharset);
 			action.setHeaderEncodeCharset(headerEncodeCharset);
-			
+
 			action.getExtra().put(ServletRequest.class, request);
 			action.getExtra().put(ServletResponse.class, response);
 			action.getExtra().put(HttpServletRequest.class, httpServletRequest);
@@ -251,6 +251,10 @@ public class JestfulFilterSupport implements Filter, Actor {
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);
+		} finally {
+			if (response.isCommitted() == false) {
+				response.reset();
+			}
 		}
 	}
 

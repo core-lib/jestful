@@ -256,6 +256,10 @@ public class JestfulServletSupport implements Servlet, Actor {
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);
+		} finally {
+			if (response.isCommitted() == false) {
+				response.reset();
+			}
 		}
 	}
 
