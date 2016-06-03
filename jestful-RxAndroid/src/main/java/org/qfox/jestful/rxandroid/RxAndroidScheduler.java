@@ -10,10 +10,10 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Result;
 
 import rx.Observable;
-import rx.Subscriber;
 import rx.Observable.OnSubscribe;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.Subscriber;
 
 /**
  * <p>
@@ -31,7 +31,7 @@ import rx.schedulers.Schedulers;
  * @since 1.0.0
  */
 public class RxAndroidScheduler implements Scheduler {
-	
+
 	public boolean supports(Action action) {
 		Result result = action.getResult();
 		Class<?> klass = result.getKlass();
@@ -65,7 +65,7 @@ public class RxAndroidScheduler implements Scheduler {
 			}
 
 		});
-		return observable.observeOn(Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread());
+		return observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
 	}
 
 }
