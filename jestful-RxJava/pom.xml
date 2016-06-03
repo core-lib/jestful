@@ -6,8 +6,8 @@
 		<artifactId>jestful</artifactId>
 		<version>1.0.0</version>
 	</parent>
-	<artifactId>jestful-android</artifactId>
-	<name>jestful-android</name>
+	<artifactId>jestful-RxJava</artifactId>
+	<name>jestful-RxJava</name>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,22 +25,9 @@
 			<version>1.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.android</groupId>
-			<artifactId>android</artifactId>
-			<version>4.1.1.4</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.6.2</version>
-			<scope>provided</scope>
+			<groupId>io.reactivex</groupId>
+			<artifactId>rxjava</artifactId>
+			<version>1.1.5</version>
 		</dependency>
 	</dependencies>
 </project>
