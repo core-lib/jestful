@@ -251,10 +251,6 @@ public class JestfulFilterSupport implements Filter, Actor {
 			}
 		} catch (Exception e) {
 			throw new ServletException(e);
-		} finally {
-			if (response.isCommitted() == false) {
-				response.reset();
-			}
 		}
 	}
 

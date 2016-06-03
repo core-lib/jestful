@@ -39,7 +39,6 @@ public class ForwardResultRender implements Actor {
 			String path = string.substring(prefix.length());
 			ServletRequest servletRequest = (ServletRequest) action.getExtra().get(ServletRequest.class);
 			ServletResponse servletResponse = (ServletResponse) action.getExtra().get(ServletResponse.class);
-			servletResponse.reset();
 			servletRequest.getRequestDispatcher(path).forward(servletRequest, servletResponse);
 			result.setRendered(true);
 		}
