@@ -1,10 +1,13 @@
 package org.qfox.jestful.server.render;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Result;
 
 /**
@@ -22,8 +25,14 @@ import org.qfox.jestful.core.Result;
  *
  * @since 1.0.0
  */
-public class ForwardResultRender implements Actor {
+public class ForwardResultRender implements Actor, Initialable {
+	private String ctxpath = "";
 	private String prefix = "forward:";
+
+	public void initialize(BeanContainer beanContainer) {
+		ServletContext servletContext = beanContainer.get(ServletContext.class);
+		this.ctxpath = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
+	}
 
 	public Object react(Action action) throws Exception {
 		Object value = action.execute();
@@ -36,7 +45,7 @@ public class ForwardResultRender implements Actor {
 		}
 		String string = (String) value;
 		if (string.startsWith(prefix)) {
-			String path = string.substring(prefix.length());
+			String path = ctxpath + string.substring(prefix.length());
 			ServletRequest servletRequest = (ServletRequest) action.getExtra().get(ServletRequest.class);
 			ServletResponse servletResponse = (ServletResponse) action.getExtra().get(ServletResponse.class);
 			servletRequest.getRequestDispatcher(path).forward(servletRequest, servletResponse);

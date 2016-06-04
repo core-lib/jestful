@@ -40,12 +40,12 @@ import org.qfox.jestful.server.exception.NotFoundStatusException;
  * @since 1.0.0
  */
 public class JestfulMappingRegistry implements MappingRegistry, Initialable {
-	private String ctxpath;
+	private String ctxpath = "";
 	private Node<PathExpression, Mapping> tree;
 
 	public void initialize(BeanContainer beanContainer) {
 		ServletContext servletContext = beanContainer.get(ServletContext.class);
-		this.ctxpath = servletContext.getContextPath();
+		this.ctxpath = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
 		this.tree = new Node<PathExpression, Mapping>(new PathExpression(null));
 	}
 
