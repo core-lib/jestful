@@ -3,6 +3,7 @@ package org.qfox.jestful.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 public class RequestWrapper implements Request {
 	private final Request request;
@@ -56,10 +57,18 @@ public class RequestWrapper implements Request {
 		request.setReadTimeout(timeout);
 	}
 
+	public String getCharacterEncoding() {
+		return request.getCharacterEncoding();
+	}
+
+	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+		request.setCharacterEncoding(env);
+	}
+
 	public void connect() throws IOException {
 		request.connect();
 	}
-	
+
 	public void close() throws IOException {
 		request.close();
 	}

@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 /**
  * <p>
@@ -41,6 +42,10 @@ public interface Request extends Closeable {
 	void setReadTimeout(int timeout);
 
 	void connect() throws IOException;
+
+	String getCharacterEncoding();
+
+	void setCharacterEncoding(String env) throws UnsupportedEncodingException;
 
 	InputStream getRequestInputStream() throws IOException;
 

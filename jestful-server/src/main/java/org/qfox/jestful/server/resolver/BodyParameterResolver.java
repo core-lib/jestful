@@ -50,6 +50,9 @@ public class BodyParameterResolver implements Actor, Initialable {
 			charset = request.getRequestHeader("Content-Charset");
 		}
 		if (charset == null || charset.isEmpty()) {
+			charset = request.getCharacterEncoding();
+		}
+		if (charset == null || charset.isEmpty()) {
 			charset = Charset.defaultCharset().name();
 		}
 		Accepts consumes = action.getConsumes();

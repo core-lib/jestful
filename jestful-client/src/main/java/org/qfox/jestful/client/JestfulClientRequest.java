@@ -3,6 +3,8 @@ package org.qfox.jestful.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -17,6 +19,7 @@ public class JestfulClientRequest implements Request {
 	private Request request;
 	private int connTimeout;
 	private int readTimeout;
+	private String characterEncoding;
 
 	JestfulClientRequest(Action action, Connector connector, int connTimeout, int readTimeout) {
 		super();
@@ -78,6 +81,18 @@ public class JestfulClientRequest implements Request {
 		this.readTimeout = timeout;
 	}
 
+	public String getCharacterEncoding() {
+		return characterEncoding;
+	}
+
+	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+		if (Charset.isSupported(env)) {
+			characterEncoding = env;
+		} else {
+			throw new UnsupportedEncodingException(env);
+		}
+	}
+
 	public InputStream getRequestInputStream() throws IOException {
 		return getRequest().getRequestInputStream();
 	}
@@ -107,6 +122,9 @@ public class JestfulClientRequest implements Request {
 		}
 		request.setConnTimeout(connTimeout);
 		request.setReadTimeout(readTimeout);
+		if (characterEncoding != null) {
+			request.setCharacterEncoding(characterEncoding);
+		}
 		return request;
 	}
 
