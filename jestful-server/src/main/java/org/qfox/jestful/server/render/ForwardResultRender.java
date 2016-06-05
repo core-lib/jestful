@@ -1,5 +1,6 @@
 package org.qfox.jestful.server.render;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -9,6 +10,8 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Result;
+import org.qfox.jestful.server.exception.UnknownContextException;
+import org.qfox.jestful.server.exception.UnsupportedForwardException;
 
 /**
  * <p>
@@ -26,11 +29,12 @@ import org.qfox.jestful.core.Result;
  * @since 1.0.0
  */
 public class ForwardResultRender implements Actor, Initialable {
+	private ServletContext servletContext;
 	private String ctxpath = "";
 	private String prefix = "forward:";
 
 	public void initialize(BeanContainer beanContainer) {
-		ServletContext servletContext = beanContainer.get(ServletContext.class);
+		servletContext = beanContainer.get(ServletContext.class);
 		this.ctxpath = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
 	}
 
@@ -45,10 +49,28 @@ public class ForwardResultRender implements Actor, Initialable {
 		}
 		String string = (String) value;
 		if (string.startsWith(prefix)) {
-			String path = ctxpath + string.substring(prefix.length());
+			String expression = string.substring(prefix.length());
+			int index = expression.indexOf(':');
+			String ctx = null;
+			String path = null;
+			if (index < 0) {
+				ctx = ctxpath;
+				path = expression;
+			} else {
+				ctx = expression.substring(0, index);
+				path = expression.substring(index + 1);
+			}
 			ServletRequest servletRequest = (ServletRequest) action.getExtra().get(ServletRequest.class);
 			ServletResponse servletResponse = (ServletResponse) action.getExtra().get(ServletResponse.class);
-			servletRequest.getRequestDispatcher(path).forward(servletRequest, servletResponse);
+			ServletContext context = this.servletContext.getContext(ctx);
+			if (context == null) {
+				throw new UnknownContextException(ctx);
+			}
+			RequestDispatcher dispatcher = context.getRequestDispatcher(path);
+			if (dispatcher == null) {
+				throw new UnsupportedForwardException(context);
+			}
+			dispatcher.forward(servletRequest, servletResponse);
 			result.setRendered(true);
 		}
 		return value;
