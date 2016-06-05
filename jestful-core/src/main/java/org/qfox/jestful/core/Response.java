@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 /**
  * <p>
@@ -41,5 +42,9 @@ public interface Response extends Closeable {
 	void setResponseStatus(Status status) throws IOException;
 
 	boolean isResponseSuccess() throws IOException;
+
+	String getCharacterEncoding();
+
+	void setCharacterEncoding(String env) throws UnsupportedEncodingException;
 
 }

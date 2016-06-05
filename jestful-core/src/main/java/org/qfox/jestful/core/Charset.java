@@ -56,7 +56,7 @@ public class Charset implements Weighted<Charset> {
 	}
 
 	public int compareTo(Charset o) {
-		return weight > o.weight ? -1 : weight < o.weight ? 1 : name.compareTo(o.name);
+		return weight > o.weight ? -1 : weight < o.weight ? 1 : name.toLowerCase().compareTo(o.name.toLowerCase());
 	}
 
 	public String getName() {

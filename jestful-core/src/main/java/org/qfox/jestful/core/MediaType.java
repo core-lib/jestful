@@ -139,7 +139,7 @@ public class MediaType implements Weighted<MediaType> {
 	}
 
 	public int compareTo(MediaType o) {
-		return weight > o.weight ? -1 : weight < o.weight ? 1 : name.compareTo(o.name);
+		return weight > o.weight ? -1 : weight < o.weight ? 1 : name.toLowerCase().compareTo(o.name.toLowerCase());
 	}
 
 	@Override

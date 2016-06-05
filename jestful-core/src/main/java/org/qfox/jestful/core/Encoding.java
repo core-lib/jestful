@@ -56,7 +56,7 @@ public class Encoding implements Weighted<Encoding> {
 	}
 
 	public int compareTo(Encoding o) {
-		return weight > o.weight ? -1 : weight < o.weight ? 1 : name.compareTo(o.name);
+		return weight > o.weight ? -1 : weight < o.weight ? 1 : name.toLowerCase().compareTo(o.name.toLowerCase());
 	}
 
 	public String getName() {

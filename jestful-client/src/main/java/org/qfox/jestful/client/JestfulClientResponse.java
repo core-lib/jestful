@@ -3,6 +3,8 @@ package org.qfox.jestful.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -16,6 +18,7 @@ public class JestfulClientResponse implements Response {
 	private final Connector connector;
 	private final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
 	private Response response;
+	private String characterEncoding;
 
 	JestfulClientResponse(Action action, Connector connector) {
 		super();
@@ -78,7 +81,19 @@ public class JestfulClientResponse implements Response {
 	public boolean isResponseSuccess() throws IOException {
 		return getResponse().isResponseSuccess();
 	}
-	
+
+	public String getCharacterEncoding() {
+		return characterEncoding;
+	}
+
+	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+		if (Charset.isSupported(env)) {
+			characterEncoding = env;
+		} else {
+			throw new UnsupportedEncodingException(env);
+		}
+	}
+
 	public void close() throws IOException {
 		if (response != null) {
 			response.close();
@@ -93,6 +108,9 @@ public class JestfulClientResponse implements Response {
 		response = connection.getResponse();
 		for (Entry<String, String[]> entry : header.entrySet()) {
 			response.setResponseHeaders(entry.getKey(), entry.getValue());
+		}
+		if (characterEncoding != null) {
+			response.setCharacterEncoding(characterEncoding);
 		}
 		return response;
 	}

@@ -62,19 +62,20 @@ public class DefaultResultRender implements Actor, Initialable {
 		OutputStream out = response.getResponseOutputStream();
 		serializer.serialize(action, mediaType, charset, out);
 		out.flush();
-		
+
 		return value;
 	}
 
 	private String getContentCharset(Action action) throws NoSuchCharsetException {
 		String charset = null;
 		Request request = action.getRequest();
+		Response response = action.getResponse();
 		String accept = request.getRequestHeader("Accept-Charset");
 		Charsets accepts = accept == null || accept.isEmpty() ? charsets.clone() : Charsets.valueOf(accept);
 		Charsets options = action.getContentCharsets().clone();
 		Charsets supports = charsets.clone();
 		if ((accept == null || accept.isEmpty()) && options.isEmpty()) {
-			charset = Charset.defaultCharset().name();
+			charset = response.getCharacterEncoding() != null ? response.getCharacterEncoding() : Charset.defaultCharset().name();
 		} else if (options.isEmpty()) {
 			accepts.retainAll(supports);
 			if (accepts.isEmpty()) {

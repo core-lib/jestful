@@ -3,7 +3,9 @@ package org.qfox.jestful.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import org.qfox.jestful.core.Response;
@@ -26,6 +28,7 @@ import org.qfox.jestful.core.Status;
  */
 public class HttpResponse implements Response {
 	private final HttpURLConnection httpURLConnection;
+	private String characterEncoding;
 
 	public HttpResponse(HttpURLConnection httpURLConnection) {
 		super();
@@ -80,7 +83,19 @@ public class HttpResponse implements Response {
 		int code = status.getCode();
 		return code >= 200 && code < 300;
 	}
-	
+
+	public String getCharacterEncoding() {
+		return characterEncoding;
+	}
+
+	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+		if (Charset.isSupported(env)) {
+			characterEncoding = env;
+		} else {
+			throw new UnsupportedEncodingException(env);
+		}
+	}
+
 	public void close() throws IOException {
 		httpURLConnection.disconnect();
 	}

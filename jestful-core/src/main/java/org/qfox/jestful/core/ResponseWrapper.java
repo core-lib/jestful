@@ -3,6 +3,7 @@ package org.qfox.jestful.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 public class ResponseWrapper implements Response {
 	private final Response response;
@@ -50,6 +51,14 @@ public class ResponseWrapper implements Response {
 
 	public boolean isResponseSuccess() throws IOException {
 		return response.isResponseSuccess();
+	}
+
+	public String getCharacterEncoding() {
+		return response.getCharacterEncoding();
+	}
+
+	public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+		response.setCharacterEncoding(env);
 	}
 
 	public void close() throws IOException {
