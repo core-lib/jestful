@@ -22,7 +22,7 @@
 		<module>jestful-android</module>
 		<module>jestful-cache</module>
 		<module>jestful-RxJava</module>
-		<!-- <module>jestful-RxAndroid</module> -->
+		<module>jestful-RxAndroid</module>
 	</modules>
 	
 </project>
