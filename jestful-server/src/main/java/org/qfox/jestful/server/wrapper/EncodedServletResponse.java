@@ -20,6 +20,7 @@ public class EncodedServletResponse extends JestfulServletResponseWrapper {
 
 	@Override
 	public OutputStream getResponseOutputStream() throws IOException {
+		this.setResponseHeader("Content-Encoding", encoding.toString(false));
 		OutputStream out = super.getResponseOutputStream();
 		return encoder.wrap(out, encoding);
 	}

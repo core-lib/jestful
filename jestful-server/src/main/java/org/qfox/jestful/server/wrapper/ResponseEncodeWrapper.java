@@ -50,7 +50,6 @@ public class ResponseEncodeWrapper implements Actor, Initialable {
 			ResponseEncoder encoder = map.get(encoding);
 			Response source = action.getResponse();
 			Response target = new EncodedServletResponse((JestfulServletResponse) source, encoding, encoder);
-			target.setResponseHeader("Content-Encoding", encoding.toString(false));
 			action.setResponse(target);
 		}
 		return action.execute();
