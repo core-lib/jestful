@@ -50,7 +50,6 @@ public class RequestEncodeWrapper implements Actor, Initialable {
 			RequestEncoder encoder = map.get(encoding);
 			Request source = action.getRequest();
 			Request target = new EncodedRequest(source, encoding, encoder);
-			target.setRequestHeader("Content-Encoding", encoding.toString(false));
 			action.setRequest(target);
 		}
 		return action.execute();

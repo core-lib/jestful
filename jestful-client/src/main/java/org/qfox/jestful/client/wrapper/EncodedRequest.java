@@ -20,6 +20,7 @@ public class EncodedRequest extends RequestWrapper {
 
 	@Override
 	public OutputStream getRequestOutputStream() throws IOException {
+		this.setRequestHeader("Content-Encoding", encoding.toString(false));
 		OutputStream out = super.getRequestOutputStream();
 		return encoder.wrap(out, encoding);
 	}
