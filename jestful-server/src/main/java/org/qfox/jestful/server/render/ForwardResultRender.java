@@ -36,6 +36,7 @@ public class ForwardResultRender implements Actor, Initialable {
 	public void initialize(BeanContainer beanContainer) {
 		servletContext = beanContainer.get(ServletContext.class);
 		this.ctxpath = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
+		this.ctxpath = this.ctxpath.startsWith("/") ? this.ctxpath : "/" + this.ctxpath;
 	}
 
 	public Object react(Action action) throws Exception {
