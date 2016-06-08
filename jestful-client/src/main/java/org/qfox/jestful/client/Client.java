@@ -3,8 +3,10 @@ package org.qfox.jestful.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.net.URL;
@@ -205,9 +207,25 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		Class<?> interfase = proxy.getClass().getInterfaces()[0];
 		Resource resource = resources.get(interfase);
 		if (resource.getMappings().containsKey(method) == false) {
+			// Object 方法
 			if (method.getDeclaringClass() == Object.class) {
 				return method.invoke(resource, args);
-			} else {
+			}
+			// JDK 1.8 default 方法
+			else if (Modifier.isAbstract(method.getModifiers()) == false) {
+				Class<?> klass = classLoader.loadClass("java.lang.invoke.MethodHandles$Lookup");
+				Constructor<?> constructor = klass.getDeclaredConstructor(Class.class, int.class);
+				constructor.setAccessible(true);
+				Object lookup = constructor.newInstance(interfase, -1);
+				Method unreflect = klass.getMethod("unreflectSpecial", Method.class, Class.class);
+				Object handle = unreflect.invoke(lookup, method, interfase);
+				Method bind = handle.getClass().getMethod("bindTo", Object.class);
+				Object receiver = bind.invoke(handle, proxy);
+				Method invoke = receiver.getClass().getMethod("invokeWithArguments", Object[].class);
+				return invoke.invoke(receiver, new Object[] { args });
+			}
+			// 没有标注http方法注解的方法
+			else {
 				throw new UnsupportedOperationException();
 			}
 		}
