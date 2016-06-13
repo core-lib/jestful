@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -24,6 +23,7 @@ import java.util.Map.Entry;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
+import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Accepts;
@@ -105,6 +105,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 	private final int connTimeout;
 	private final int readTimeout;
 
+	private final Gateway gateway;
+
 	private Client(Builder builder) {
 		super();
 		this.protocol = builder.protocol;
@@ -153,6 +155,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		this.connTimeout = builder.connTimeout;
 		this.readTimeout = builder.readTimeout;
 
+		this.gateway = builder.gateway;
+
 		this.initialize(this.beanContainer);
 	}
 
@@ -187,7 +191,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		return false;
 	}
 
-	public Connection connect(Action action) throws IOException {
+	public Connection connect(Action action, Gateway gateway) throws IOException {
 		String key = "org.qfox.jestful.connection";
 		Connection connection = (Connection) action.getExtra().get(key);
 		if (connection != null) {
@@ -195,7 +199,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		}
 		for (Connector connector : connectors.values()) {
 			if (connector.supports(action)) {
-				connection = connector.connect(action);
+				connection = connector.connect(action, gateway);
 				action.getExtra().put(key, connection);
 				return connection;
 			}
@@ -203,8 +207,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		throw new IOException("unsupported protocol " + action.getProtocol());
 	}
 
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		Class<?> interfase = proxy.getClass().getInterfaces()[0];
+	public Object invoke(Object target, Method method, Object[] args) throws Throwable {
+		Class<?> interfase = target.getClass().getInterfaces()[0];
 		Resource resource = resources.get(interfase);
 		if (resource.getMappings().containsKey(method) == false) {
 			// Object 方法
@@ -220,7 +224,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 				Method unreflect = klass.getMethod("unreflectSpecial", Method.class, Class.class);
 				Object handle = unreflect.invoke(lookup, method, interfase);
 				Method bind = handle.getClass().getMethod("bindTo", Object.class);
-				Object receiver = bind.invoke(handle, proxy);
+				Object receiver = bind.invoke(handle, target);
 				Method invoke = receiver.getClass().getMethod("invokeWithArguments", Object[].class);
 				return invoke.invoke(receiver, new Object[] { args });
 			}
@@ -246,8 +250,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		action.setPort(port);
 		action.setRoute(route);
 
-		action.setRequest(new JestfulClientRequest(action, this, connTimeout, readTimeout));
-		action.setResponse(new JestfulClientResponse(action, this));
+		action.setRequest(new JestfulClientRequest(action, this, gateway, connTimeout, readTimeout));
+		action.setResponse(new JestfulClientResponse(action, this, gateway));
 
 		action.setConsumes(mapping.getConsumes());
 		action.setProduces(mapping.getProduces());
@@ -397,7 +401,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 	}
 
 	public <T> T create(Class<T> interfase) {
-		Object proxy = Proxy.newProxyInstance(classLoader, new Class<?>[] { interfase }, this);
+		Object proxy = java.lang.reflect.Proxy.newProxyInstance(classLoader, new Class<?>[] { interfase }, this);
 		Resource resource = new Resource(proxy, interfase);
 		resources.put(interfase, resource);
 		return interfase.cast(proxy);
@@ -434,6 +438,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 
 		private int connTimeout = 0;
 		private int readTimeout = 0;
+
+		private Gateway gateway = Gateway.NULL;
 
 		public Client build() {
 			return new Client(this);
@@ -669,10 +675,18 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		}
 
 		public Builder setReadTimeout(int readTimeout) {
-			if (connTimeout < 0) {
+			if (readTimeout < 0) {
 				throw new IllegalArgumentException("reading timeout is negative");
 			}
 			this.readTimeout = readTimeout;
+			return this;
+		}
+
+		public Builder setGateway(Gateway gateway) {
+			if (gateway == null) {
+				throw new IllegalArgumentException("can not set null gateway");
+			}
+			this.gateway = gateway;
 			return this;
 		}
 
@@ -784,6 +798,10 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 
 	public int getReadTimeout() {
 		return readTimeout;
+	}
+
+	public Gateway getGateway() {
+		return gateway;
 	}
 
 	@Override

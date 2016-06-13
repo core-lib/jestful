@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Request;
@@ -15,16 +16,18 @@ import org.qfox.jestful.core.Request;
 public class JestfulClientRequest implements Request {
 	private final Action action;
 	private final Connector connector;
+	private final Gateway gateway;
 	private final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
 	private Request request;
 	private int connTimeout;
 	private int readTimeout;
 	private String characterEncoding;
 
-	JestfulClientRequest(Action action, Connector connector, int connTimeout, int readTimeout) {
+	JestfulClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout) {
 		super();
 		this.action = action;
 		this.connector = connector;
+		this.gateway = gateway;
 		this.connTimeout = connTimeout;
 		this.readTimeout = readTimeout;
 	}
@@ -115,7 +118,7 @@ public class JestfulClientRequest implements Request {
 		if (request != null) {
 			return request;
 		}
-		Connection connection = connector.connect(action);
+		Connection connection = connector.connect(action, gateway);
 		request = connection.getRequest();
 		for (Entry<String, String[]> entry : header.entrySet()) {
 			request.setRequestHeaders(entry.getKey(), entry.getValue());
