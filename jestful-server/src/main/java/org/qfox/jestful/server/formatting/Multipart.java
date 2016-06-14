@@ -5,6 +5,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
+
+import javax.servlet.http.Part;
 
 import org.qfox.jestful.core.Multibody;
 import org.qfox.jestful.core.Multihead;
@@ -26,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
  *
  * @since 1.0.0
  */
-public class Multipart implements MultipartFile, Cloneable {
+public class Multipart implements MultipartFile, Part, Cloneable {
 	private final Multihead multihead;
 	private final Multibody multibody;
 	private InputStream inputStream;
@@ -86,6 +90,30 @@ public class Multipart implements MultipartFile, Cloneable {
 	@Override
 	public Multipart clone() {
 		return new Multipart(multihead.clone(), multibody.clone());
+	}
+
+	public String getSubmittedFileName() {
+		return getOriginalFilename();
+	}
+
+	public void write(String fileName) throws IOException {
+		transferTo(new File(fileName));
+	}
+
+	public void delete() throws IOException {
+		multibody.getFile().delete();
+	}
+
+	public String getHeader(String name) {
+		return multihead.getHeader().get(name);
+	}
+
+	public Collection<String> getHeaders(String name) {
+		return Arrays.asList(getHeader(name));
+	}
+
+	public Collection<String> getHeaderNames() {
+		return multihead.getHeader().keySet();
 	}
 
 }

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -14,8 +15,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.Part;
 
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.server.formatting.Multipart;
@@ -44,6 +47,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 public class JestfulServletRequest extends HttpServletRequestWrapper implements Request, MultipartHttpServletRequest {
 	private final HttpServletRequest request;
 	private List<Multipart> multiparts = new ArrayList<Multipart>();
+	private List<Part> parts = new ArrayList<Part>();
 
 	public JestfulServletRequest(HttpServletRequest request) {
 		super(request);
@@ -105,9 +109,9 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 	public void connect() throws IOException {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public void close() throws IOException {
-		
+
 	}
 
 	public InputStream getRequestInputStream() throws IOException {
@@ -205,7 +209,23 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 	}
 
 	public void setMultiparts(List<Multipart> multiparts) {
-		this.multiparts = multiparts;
+		this.multiparts.addAll(multiparts);
+		this.parts.addAll(multiparts);
+	}
+
+	@Override
+	public Collection<Part> getParts() throws IOException, ServletException {
+		return parts;
+	}
+
+	@Override
+	public Part getPart(String name) throws IOException, ServletException {
+		for (Part part : parts) {
+			if (name == null ? part.getName() == null : name.equals(part.getName())) {
+				return part;
+			}
+		}
+		return null;
 	}
 
 }
