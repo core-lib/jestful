@@ -11,6 +11,8 @@ import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.MediaType;
+import org.qfox.jestful.core.Parameters;
+import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
@@ -39,6 +41,12 @@ public class BodyParameterResolver implements Actor, Initialable {
 		if (restful.isAcceptBody() == false) {
 			return action.execute();
 		}
+
+		Parameters parameters = action.getParameters();
+		if (parameters.count(Position.BODY) == 0) {
+			return action.execute();
+		}
+
 		Request request = action.getRequest();
 		String contentType = request.getRequestHeader("Content-Type");
 		if (contentType == null || contentType.isEmpty()) {
