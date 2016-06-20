@@ -18,7 +18,7 @@ public class HttpConnector implements Connector {
 		return "http".equalsIgnoreCase(protocol);
 	}
 
-	public Connection connect(Action action, Gateway gateway) throws IOException {
+	public Connection connect(Action action, Gateway gateway, Client client) throws IOException {
 		boolean error = false;
 		HttpURLConnection httpURLConnection = null;
 		try {

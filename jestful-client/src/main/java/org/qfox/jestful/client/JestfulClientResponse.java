@@ -107,7 +107,7 @@ public class JestfulClientResponse implements Response {
 		if (response != null) {
 			return response;
 		}
-		Connection connection = connector.connect(action, gateway);
+		Connection connection = connector.connect(action, gateway, null);
 		response = connection.getResponse();
 		for (Entry<String, String[]> entry : header.entrySet()) {
 			response.setResponseHeaders(entry.getKey(), entry.getValue());

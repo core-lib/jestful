@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSocketFactory;
+
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
@@ -106,6 +109,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 	private final int readTimeout;
 
 	private final Gateway gateway;
+	private final HostnameVerifier hostnameVerifier;
+	private final SSLSocketFactory SSLSocketFactory;
 
 	private Client(Builder builder) {
 		super();
@@ -156,6 +161,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		this.readTimeout = builder.readTimeout;
 
 		this.gateway = builder.gateway;
+		this.hostnameVerifier = builder.hostnameVerifier;
+		this.SSLSocketFactory = builder.SSLSocketFactory;
 
 		this.initialize(this.beanContainer);
 	}
@@ -191,7 +198,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		return false;
 	}
 
-	public Connection connect(Action action, Gateway gateway) throws IOException {
+	public Connection connect(Action action, Gateway gateway, Client client) throws IOException {
 		String key = "org.qfox.jestful.connection";
 		Connection connection = (Connection) action.getExtra().get(key);
 		if (connection != null) {
@@ -199,7 +206,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		}
 		for (Connector connector : connectors.values()) {
 			if (connector.supports(action)) {
-				connection = connector.connect(action, gateway);
+				connection = connector.connect(action, gateway, this);
 				action.getExtra().put(key, connection);
 				return connection;
 			}
@@ -440,6 +447,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		private int readTimeout = 0;
 
 		private Gateway gateway = Gateway.NULL;
+
+		private HostnameVerifier hostnameVerifier;
+		private SSLSocketFactory SSLSocketFactory;
 
 		public Client build() {
 			return new Client(this);
@@ -690,6 +700,22 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 			return this;
 		}
 
+		public Builder setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+			if (hostnameVerifier == null) {
+				throw new IllegalArgumentException("can not set null hostnameVerifier");
+			}
+			this.hostnameVerifier = hostnameVerifier;
+			return this;
+		}
+
+		public Builder setSSLSocketFactory(SSLSocketFactory SSLSocketFactory) {
+			if (SSLSocketFactory == null) {
+				throw new IllegalArgumentException("can not set null SSLSocketFactory");
+			}
+			this.SSLSocketFactory = SSLSocketFactory;
+			return this;
+		}
+
 	}
 
 	public Charsets getCharsets() {
@@ -802,6 +828,14 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 
 	public Gateway getGateway() {
 		return gateway;
+	}
+
+	public HostnameVerifier getHostnameVerifier() {
+		return hostnameVerifier;
+	}
+
+	public SSLSocketFactory getSSLSocketFactory() {
+		return SSLSocketFactory;
 	}
 
 	@Override

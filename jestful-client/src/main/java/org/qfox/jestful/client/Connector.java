@@ -9,6 +9,6 @@ public interface Connector {
 
 	boolean supports(Action action);
 
-	Connection connect(Action action, Gateway gateway) throws IOException;
+	Connection connect(Action action, Gateway gateway, Client client) throws IOException;
 
 }

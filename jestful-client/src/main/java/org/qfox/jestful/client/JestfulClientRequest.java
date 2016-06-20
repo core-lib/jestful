@@ -118,7 +118,7 @@ public class JestfulClientRequest implements Request {
 		if (request != null) {
 			return request;
 		}
-		Connection connection = connector.connect(action, gateway);
+		Connection connection = connector.connect(action, gateway, null);
 		request = connection.getRequest();
 		for (Entry<String, String[]> entry : header.entrySet()) {
 			request.setRequestHeaders(entry.getKey(), entry.getValue());
