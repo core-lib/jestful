@@ -356,6 +356,10 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 				InputStream in = response.getResponseInputStream();
 				deserializer.deserialize(action, mediaType, charset, in);
 				return;
+			} else if (body.getType() == String.class) {
+				InputStream in = response.getResponseInputStream();
+				String value = IOUtils.toString(in);
+				body.setValue(value);
 			} else {
 				if (produces.isEmpty() == false) {
 					supports.retainAll(produces);

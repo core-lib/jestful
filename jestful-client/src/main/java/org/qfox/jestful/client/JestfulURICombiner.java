@@ -55,7 +55,7 @@ public class JestfulURICombiner implements Actor, Initialable {
 			String variable = matcher.group();
 			URI = URI.replace(variable, URLEncoder.encode(value, charset));
 		}
-		action.setURI(URI);
+		action.setURI(URI.replaceAll("\\/+", "/"));
 		return action.execute();
 	}
 
