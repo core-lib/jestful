@@ -11,8 +11,6 @@ import org.qfox.jestful.core.Result;
 
 import rx.Observable;
 import rx.Observable.OnSubscribe;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 import rx.Subscriber;
 
 /**
@@ -65,7 +63,7 @@ public class RxAndroidScheduler implements Scheduler {
 			}
 
 		});
-		return observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+		return observable;
 	}
 
 }
