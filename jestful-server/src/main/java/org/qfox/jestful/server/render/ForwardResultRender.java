@@ -71,6 +71,7 @@ public class ForwardResultRender implements Actor, Initialable {
 			if (dispatcher == null) {
 				throw new UnsupportedForwardException(context);
 			}
+			servletResponse.setContentType("text/html");
 			dispatcher.forward(servletRequest, servletResponse);
 			result.setRendered(true);
 		}
