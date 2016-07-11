@@ -37,6 +37,10 @@ public enum Position {
 	/**
 	 * Cookie
 	 */
-	COOKIE;
+	COOKIE,
+	/**
+	 * 会话
+	 */
+	SESSION;
 
 }

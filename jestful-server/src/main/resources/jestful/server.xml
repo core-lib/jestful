@@ -32,6 +32,7 @@
 		<bean class="org.qfox.jestful.server.resolver.PathParameterResolver" />
 		<bean class="org.qfox.jestful.server.resolver.BodyParameterResolver" />
 		<bean class="org.qfox.jestful.server.resolver.CookieParameterResolver" />
+		<bean class="org.qfox.jestful.server.resolver.SessionParameterResolver" />
 		<bean class="org.qfox.jestful.server.resolver.ExtraParameterResolver" />
 	</jestful:group>
 
