@@ -4,17 +4,12 @@ import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.NavigableMap;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class MapConverter implements Converter {
 	private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
 
 	{
 		implementations.put(Map.class, HashMap.class);
-		implementations.put(SortedMap.class, NavigableMap.class);
-		implementations.put(NavigableMap.class, TreeMap.class);
 	}
 
 	public boolean supports(Class<?> clazz) {

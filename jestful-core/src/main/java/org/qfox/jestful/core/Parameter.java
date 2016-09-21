@@ -51,7 +51,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 			if (variables.length == 1) {
 				Annotation annotation = getAnnotationWith(Variable.class);
 				String name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
-				this.name = name.isEmpty() ? String.valueOf(index) : name;
+				this.name = name.length() == 0 ? String.valueOf(index) : name;
 				Variable variable = annotation.annotationType().getAnnotation(Variable.class);
 				this.position = variable.position();
 			} else if (variables.length == 0) {

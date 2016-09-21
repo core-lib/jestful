@@ -28,7 +28,7 @@ public class BooleanStringConverter implements StringConverter<Boolean> {
 	}
 
 	public Boolean convert(Class<?> klass, String source) {
-		return source != null && source.isEmpty() == false ? Boolean.valueOf(source) : null;
+		return source != null && source.length() == 0 == false ? Boolean.valueOf(source) : null;
 	}
 
 }

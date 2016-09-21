@@ -153,7 +153,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 		Node<PathExpression, Mapping> parent = null;
 		while (iterator.hasNext()) {
 			String hierarchy = iterator.next();
-			if (hierarchy.isEmpty()) {
+			if (hierarchy.length() == 0) {
 				continue;
 			}
 			PathExpression expression = new PathExpression(hierarchy, iterator.hasNext() ? null : restful.getMethod(), version);

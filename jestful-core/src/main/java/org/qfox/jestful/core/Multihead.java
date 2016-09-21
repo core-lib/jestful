@@ -52,7 +52,7 @@ public class Multihead implements Cloneable {
 	public Multihead(InputStream inputStream) throws IOException {
 		this.header = new CaseInsensitiveMap<String, String>();
 		String line = null;
-		while ((line = IOUtils.readln(inputStream)) != null && line.isEmpty() == false) {
+		while ((line = IOUtils.readln(inputStream)) != null && line.length() == 0 == false) {
 			int index = line.indexOf(':');
 			if (index < 0) {
 				throw new IllegalArgumentException(line);

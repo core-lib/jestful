@@ -1,7 +1,11 @@
 package org.qfox.jestful.cookie;
 
+import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Plugin;
+import org.qfox.jestful.core.Request;
+import org.qfox.jestful.core.exception.PluginConfigException;
+
 import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -9,11 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Plugin;
-import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.exception.PluginConfigException;
 
 /**
  * <p>
@@ -36,7 +35,16 @@ public class RequestCookiePlugin implements Plugin {
 	public RequestCookiePlugin() {
 		super();
 		if (CookieHandler.getDefault() == null) {
-			CookieHandler.setDefault(new CookieManager());
+			try {
+				Class<?> clazz = Class.forName("java.net.CookieManager");
+				this.cookieHandler = (CookieHandler) clazz.newInstance();
+				CookieHandler.setDefault(cookieHandler);
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException("please use JVM with version 1.6 at least");
+			} catch (Exception e) {
+				// impossible
+				throw new RuntimeException(e);
+			}
 		}
 		this.cookieHandler = CookieHandler.getDefault();
 	}

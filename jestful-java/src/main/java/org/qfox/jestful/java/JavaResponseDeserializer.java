@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Result;
+import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
 import org.qfox.jestful.core.io.IOUtils;
 
@@ -39,7 +40,7 @@ public class JavaResponseDeserializer implements ResponseDeserializer {
 			Object value = ois.readObject();
 			result.getBody().setValue(value);
 		} catch (ClassNotFoundException e) {
-			throw new IOException(e);
+			throw new JestfulIOException(e);
 		} finally {
 			IOUtils.close(ois);
 		}

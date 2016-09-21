@@ -22,7 +22,7 @@ public class DecodedResponse extends ResponseWrapper {
 	public InputStream getResponseInputStream() throws IOException {
 		InputStream in = super.getResponseInputStream();
 		String contentEncoding = getResponseHeader("Content-Encoding");
-		if (contentEncoding == null || contentEncoding.isEmpty()) {
+		if (contentEncoding == null || contentEncoding.length() == 0) {
 			return in;
 		}
 		Encoding encoding = Encoding.valueOf(contentEncoding);

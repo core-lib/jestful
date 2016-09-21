@@ -41,7 +41,7 @@ public class CookiesAnnotationHandler implements Actor {
 				if (keyvalue.length != 2) {
 					throw new IllegalCookieException(value + " is not a key-value pair like key=value", value);
 				}
-				cookie += (cookie.isEmpty() ? "" : "; ") + URLEncoder.encode(keyvalue[0], charset) + "=" + URLEncoder.encode(keyvalue[1], charset);
+				cookie += (cookie.length() == 0 ? "" : "; ") + URLEncoder.encode(keyvalue[0], charset) + "=" + URLEncoder.encode(keyvalue[1], charset);
 			}
 		}
 
@@ -54,11 +54,11 @@ public class CookiesAnnotationHandler implements Actor {
 				if (keyvalue.length != 2) {
 					throw new IllegalCookieException(value + " is not a key-value pair like key=value", value);
 				}
-				cookie += (cookie.isEmpty() ? "" : "; ") + URLEncoder.encode(keyvalue[0], charset) + "=" + URLEncoder.encode(keyvalue[1], charset);
+				cookie += (cookie.length() == 0 ? "" : "; ") + URLEncoder.encode(keyvalue[0], charset) + "=" + URLEncoder.encode(keyvalue[1], charset);
 			}
 		}
 
-		request.setRequestHeader("Cookie", cookie.isEmpty() ? null : cookie);
+		request.setRequestHeader("Cookie", cookie.length() == 0 ? null : cookie);
 		return action.execute();
 	}
 

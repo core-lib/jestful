@@ -31,25 +31,25 @@ public class ResourceCacheHandler implements Actor {
 			String[] values = cache.value();
 			String control = "";
 			for (String value : values) {
-				if (control.isEmpty()) {
+				if (control.length() == 0) {
 					control = value.trim();
 				} else {
 					control += ", " + value.trim();
 				}
 			}
-			if (control.isEmpty() == false) {
+			if (control.length() == 0 == false) {
 				response.setResponseHeader("Cache-Control", control);
 			}
 			String[] varies = cache.vary();
 			String vary = "";
 			for (String v : varies) {
-				if (vary.isEmpty()) {
+				if (vary.length() == 0) {
 					vary = v.trim();
 				} else {
 					vary += ", " + v.trim();
 				}
 			}
-			if (vary.isEmpty() == false) {
+			if (vary.length() == 0 == false) {
 				response.setResponseHeader("Vary", vary);
 			}
 		}

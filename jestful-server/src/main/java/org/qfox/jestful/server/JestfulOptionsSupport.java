@@ -41,7 +41,7 @@ public class JestfulOptionsSupport implements Filter {
 		ServletContext servletContext = config.getServletContext();
 		ApplicationContext applicationContext = (ApplicationContext) servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		String name = config.getInitParameter("mappingRegistry");
-		name = name == null || name.isEmpty() ? "jestfulMappingRegistry" : name;
+		name = name == null || name.length() == 0 ? "jestfulMappingRegistry" : name;
 		mappingRegistry = applicationContext.getBean(name, MappingRegistry.class);
 	}
 
@@ -60,7 +60,7 @@ public class JestfulOptionsSupport implements Filter {
 				for (Mapping mapping : mappings) {
 					String method = mapping.getRestful().getMethod();
 					if (methods.add(method)) {
-						allow += (allow.isEmpty() ? "" : ", ") + method;
+						allow += (allow.length() == 0 ? "" : ", ") + method;
 					}
 				}
 				httpServletResponse.setHeader("Allow", allow);

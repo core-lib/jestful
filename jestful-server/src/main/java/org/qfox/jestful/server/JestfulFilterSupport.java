@@ -86,22 +86,22 @@ public class JestfulFilterSupport implements Filter, Actor {
 		ApplicationContext applicationContext = (ApplicationContext) servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 		{
 			String name = config.getInitParameter("beanContainer");
-			name = name == null || name.isEmpty() ? "jestfulBeanContainer" : name;
+			name = name == null || name.length() == 0 ? "jestfulBeanContainer" : name;
 			beanContainer = applicationContext.getBean(name, BeanContainer.class);
 		}
 		{
 			String name = config.getInitParameter("mappingRegistry");
-			name = name == null || name.isEmpty() ? "jestfulMappingRegistry" : name;
+			name = name == null || name.length() == 0 ? "jestfulMappingRegistry" : name;
 			mappingRegistry = applicationContext.getBean(name, MappingRegistry.class);
 		}
 		{
 			String name = config.getInitParameter("versionComparator");
-			name = name == null || name.isEmpty() ? "jestfulVersionComparator" : name;
+			name = name == null || name.length() == 0 ? "jestfulVersionComparator" : name;
 			versionComparator = applicationContext.getBean(name, VersionComparator.class);
 		}
 		{
 			String plugin = config.getInitParameter("plugin");
-			plugin = plugin == null || plugin.isEmpty() ? "jestful" : plugin;
+			plugin = plugin == null || plugin.length() == 0 ? "jestful" : plugin;
 			String[] plugins = plugin.split("\\s*,\\s*");
 			this.plugins = new Actor[plugins.length];
 			for (int i = 0; i < plugins.length; i++) {
@@ -120,57 +120,57 @@ public class JestfulFilterSupport implements Filter, Actor {
 		}
 		{
 			String value = config.getInitParameter("acceptCharset");
-			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			String[] values = value == null || value.length() == 0 ? new String[0] : value.split("\\s*,\\s*");
 			this.acceptCharsets = new Charsets(values);
 		}
 		{
 			String value = config.getInitParameter("acceptEncoding");
-			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			String[] values = value == null || value.length() == 0 ? new String[0] : value.split("\\s*,\\s*");
 			this.acceptEncodings = new Encodings(values);
 		}
 		{
 			String value = config.getInitParameter("contentLanguage");
-			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			String[] values = value == null || value.length() == 0 ? new String[0] : value.split("\\s*,\\s*");
 			this.acceptLanguages = new Languages(values);
 		}
 		{
 			String value = config.getInitParameter("contentCharset");
-			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			String[] values = value == null || value.length() == 0 ? new String[0] : value.split("\\s*,\\s*");
 			this.contentCharsets = new Charsets(values);
 		}
 		{
 			String value = config.getInitParameter("contentEncoding");
-			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			String[] values = value == null || value.length() == 0 ? new String[0] : value.split("\\s*,\\s*");
 			this.contentEncodings = new Encodings(values);
 		}
 		{
 			String value = config.getInitParameter("contentLanguage");
-			String[] values = value == null || value.isEmpty() ? new String[0] : value.split("\\s*,\\s*");
+			String[] values = value == null || value.length() == 0 ? new String[0] : value.split("\\s*,\\s*");
 			this.contentLanguages = new Languages(values);
 		}
 		{
 			String allowEncode = config.getInitParameter("allowEncode");
-			this.allowEncode = allowEncode == null || allowEncode.isEmpty() ? true : Boolean.valueOf(allowEncode);
+			this.allowEncode = allowEncode == null || allowEncode.length() == 0 ? true : Boolean.valueOf(allowEncode);
 			String acceptEncode = config.getInitParameter("acceptEncode");
-			this.acceptEncode = acceptEncode == null || acceptEncode.isEmpty() ? true : Boolean.valueOf(acceptEncode);
+			this.acceptEncode = acceptEncode == null || acceptEncode.length() == 0 ? true : Boolean.valueOf(acceptEncode);
 		}
 		{
 			String pathEncodeCharset = config.getInitParameter("pathEncodeCharset");
-			this.pathEncodeCharset = pathEncodeCharset == null || pathEncodeCharset.isEmpty() ? "UTF-8" : pathEncodeCharset;
+			this.pathEncodeCharset = pathEncodeCharset == null || pathEncodeCharset.length() == 0 ? "UTF-8" : pathEncodeCharset;
 			if (Charset.isSupported(this.pathEncodeCharset) == false) {
 				throw new UnsupportedCharsetException(this.pathEncodeCharset);
 			}
 		}
 		{
 			String queryEncodeCharset = config.getInitParameter("queryEncodeCharset");
-			this.queryEncodeCharset = queryEncodeCharset == null || queryEncodeCharset.isEmpty() ? "UTF-8" : queryEncodeCharset;
+			this.queryEncodeCharset = queryEncodeCharset == null || queryEncodeCharset.length() == 0 ? "UTF-8" : queryEncodeCharset;
 			if (Charset.isSupported(this.queryEncodeCharset) == false) {
 				throw new UnsupportedCharsetException(this.queryEncodeCharset);
 			}
 		}
 		{
 			String headerEncodeCharset = config.getInitParameter("headerEncodeCharset");
-			this.headerEncodeCharset = headerEncodeCharset == null || headerEncodeCharset.isEmpty() ? "UTF-8" : headerEncodeCharset;
+			this.headerEncodeCharset = headerEncodeCharset == null || headerEncodeCharset.length() == 0 ? "UTF-8" : headerEncodeCharset;
 			if (Charset.isSupported(this.headerEncodeCharset) == false) {
 				throw new UnsupportedCharsetException(this.headerEncodeCharset);
 			}

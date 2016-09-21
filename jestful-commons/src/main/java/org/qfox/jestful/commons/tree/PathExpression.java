@@ -25,7 +25,7 @@ public class PathExpression implements Expression<PathExpression> {
 	}
 
 	public boolean isEmpty() {
-		return path.isEmpty();
+		return path.length() == 0;
 	}
 
 	public int compareTo(PathExpression o) {

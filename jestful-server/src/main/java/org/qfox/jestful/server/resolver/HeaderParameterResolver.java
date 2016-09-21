@@ -1,31 +1,25 @@
 package org.qfox.jestful.server.resolver;
 
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.util.List;
-import java.util.Map;
-
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Initialable;
-import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Position;
-import org.qfox.jestful.core.Request;
+import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.IncompatibleConversionException;
+
+import java.net.URLDecoder;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
  * Description:
  * </p>
- * 
+ *
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
  *
  * @date 2016年4月8日 下午12:08:44
@@ -57,7 +51,7 @@ public class HeaderParameterResolver implements Actor, Initialable {
 				Object value = headerConversionProvider.convert(parameter.getName(), parameter.getType(), map);
 				parameter.setValue(value);
 			} catch (IncompatibleConversionException e) {
-				throw new IOException(e);
+				throw new JestfulIOException(e);
 			} catch (ConversionException e) {
 				continue;
 			}

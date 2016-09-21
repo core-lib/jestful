@@ -46,11 +46,9 @@ public class MediaType implements Weighted<MediaType> {
 	/**
 	 * judge this media type is matches the specified content type, such as
 	 * {@link MediaType} {@code application/json} matches content type
-	 * {@link application/json} {@link application/*} matches
+	 * {@code application/json} {@code application/*} matches
 	 * {@code application/json}
 	 * 
-	 * @param contentType
-	 *            the content type
 	 * @return
 	 */
 	public boolean matches(MediaType mediaType) {
@@ -75,8 +73,6 @@ public class MediaType implements Weighted<MediaType> {
 	 * @param mediaType
 	 *            http Content-Type such as application/json;charset=UTF-8;q=0.9
 	 * @return
-	 * @throws MediaTypeFormatException
-	 *             wrong format of Content-Type
 	 */
 	public static MediaType valueOf(String mediaType) {
 		if (mediaType == null) {

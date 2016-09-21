@@ -1,21 +1,7 @@
 package org.qfox.jestful.server.converter;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.NavigableSet;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class CollectionConverter implements Converter {
 	private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
@@ -24,10 +10,8 @@ public class CollectionConverter implements Converter {
 		implementations.put(Collection.class, List.class);
 		implementations.put(List.class, ArrayList.class);
 		implementations.put(Set.class, HashSet.class);
-		implementations.put(SortedSet.class, NavigableSet.class);
-		implementations.put(NavigableSet.class, TreeSet.class);
+		implementations.put(SortedSet.class, TreeSet.class);
 		implementations.put(Queue.class, PriorityQueue.class);
-		implementations.put(Deque.class, ArrayDeque.class);
 	}
 
 	public boolean supports(Class<?> clazz) {

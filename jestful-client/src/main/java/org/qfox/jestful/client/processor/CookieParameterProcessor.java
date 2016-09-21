@@ -45,10 +45,10 @@ public class CookieParameterProcessor implements Actor, Initialable {
 					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
 				}
 				String name = parameter.getName();
-				cookie += (cookie.isEmpty() ? "" : "; ") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
+				cookie += (cookie.length() == 0 ? "" : "; ") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
 			}
 		}
-		request.setRequestHeader("Cookie", cookie.isEmpty() ? null : cookie);
+		request.setRequestHeader("Cookie", cookie.length() == 0 ? null : cookie);
 		return action.execute();
 	}
 

@@ -28,7 +28,7 @@ public class ByteStringConverter implements StringConverter<Byte> {
 	}
 
 	public Byte convert(Class<?> klass, String source) {
-		return source != null && source.isEmpty() == false ? Byte.valueOf(source) : 0;
+		return source != null && source.length() == 0 == false ? Byte.valueOf(source) : 0;
 	}
 
 }

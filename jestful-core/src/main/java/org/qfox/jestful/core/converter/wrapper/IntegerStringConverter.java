@@ -28,7 +28,7 @@ public class IntegerStringConverter implements StringConverter<Integer> {
 	}
 
 	public Integer convert(Class<?> klass, String source) {
-		return source != null && source.isEmpty() == false ? Integer.valueOf(source) : null;
+		return source != null && source.length() == 0 == false ? Integer.valueOf(source) : null;
 	}
 
 }

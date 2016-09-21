@@ -10,6 +10,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Restful;
+import org.qfox.jestful.core.exception.JestfulIOException;
 
 public class HttpConnector implements Connector {
 
@@ -33,7 +34,7 @@ public class HttpConnector implements Connector {
 			return new Connection(request, response);
 		} catch (Exception e) {
 			error = true;
-			throw new IOException(e);
+			throw new JestfulIOException(e);
 		} finally {
 			if (error != false && httpURLConnection != null) {
 				httpURLConnection.disconnect();

@@ -135,7 +135,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 		Node<PathExpression, Mapping> parent = null;
 		while (iterator.hasNext()) {
 			String hierarchy = iterator.next();
-			if (hierarchy.trim().isEmpty()) {
+			if (hierarchy.trim().length() == 0) {
 				continue;
 			}
 			Node<PathExpression, Mapping> child = new Node<PathExpression, Mapping>(new PathExpression(hierarchy));

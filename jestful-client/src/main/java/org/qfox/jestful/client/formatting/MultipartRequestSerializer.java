@@ -20,6 +20,7 @@ import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
 import org.qfox.jestful.core.io.IOUtils;
 import org.qfox.jestful.core.io.MultipartOutputStream;
@@ -95,7 +96,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 			}
 			mos.flush();
 		} catch (NoSuchSerializerException e) {
-			throw new IOException(e);
+			throw new JestfulIOException(e);
 		} finally {
 			mos.close(true);
 		}

@@ -10,6 +10,7 @@ import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.core.io.IOUtils;
 
@@ -44,7 +45,7 @@ public class JavaRequestDeserializer implements RequestDeserializer {
 				parameter.setValue(value);
 				break;
 			} catch (ClassNotFoundException e) {
-				throw new IOException(e);
+				throw new JestfulIOException(e);
 			} finally {
 				IOUtils.close(ois);
 			}
@@ -58,7 +59,7 @@ public class JavaRequestDeserializer implements RequestDeserializer {
 			Object value = ois.readObject();
 			parameter.setValue(value);
 		} catch (ClassNotFoundException e) {
-			throw new IOException(e);
+			throw new JestfulIOException(e);
 		} finally {
 			IOUtils.close(ois);
 		}

@@ -28,7 +28,7 @@ public class FloatStringConverter implements StringConverter<Float> {
 	}
 
 	public Float convert(Class<?> klass, String source) {
-		return source != null && source.isEmpty() == false ? Float.valueOf(source) : 0;
+		return source != null && source.length() == 0 == false ? Float.valueOf(source) : 0;
 	}
 
 }

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.qfox.jestful.commons.Utils;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
@@ -17,6 +18,7 @@ import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.core.io.IOUtils;
 import org.qfox.jestful.server.converter.ConversionException;
@@ -63,7 +65,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 						map.put(key, new String[0]);
 					}
 					String[] values = map.get(key);
-					values = Arrays.copyOf(values, values.length + 1);
+					values = Utils.copyOf(values, values.length + 1);
 					values[values.length - 1] = value;
 					map.put(key, values);
 				}
@@ -77,7 +79,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 					Object value = urlConversionProvider.convert(parameter.getName(), parameter.getType(), map);
 					parameter.setValue(value);
 				} catch (IncompatibleConversionException e) {
-					throw new IOException(e);
+					throw new JestfulIOException(e);
 				} catch (ConversionException e) {
 					continue;
 				}

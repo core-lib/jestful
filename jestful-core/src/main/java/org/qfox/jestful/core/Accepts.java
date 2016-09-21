@@ -30,7 +30,7 @@ public class Accepts implements Iterable<MediaType> {
 
 	public static Accepts valueOf(String accept) {
 		Set<MediaType> mediaTypes = new TreeSet<MediaType>();
-		String[] contentTypes = accept != null && accept.isEmpty() == false ? accept.split(",") : new String[0];
+		String[] contentTypes = accept != null && accept.length() == 0 == false ? accept.split(",") : new String[0];
 		for (String contentType : contentTypes) {
 			MediaType mediaType = MediaType.valueOf(contentType);
 			mediaTypes.add(mediaType);

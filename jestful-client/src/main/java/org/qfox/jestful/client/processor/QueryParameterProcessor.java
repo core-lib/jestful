@@ -43,10 +43,10 @@ public class QueryParameterProcessor implements Actor, Initialable {
 					throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
 				}
 				String name = parameter.getName();
-				query += (query.isEmpty() ? "" : "&") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
+				query += (query.length() == 0 ? "" : "&") + URLEncoder.encode(name, charset) + "=" + URLEncoder.encode(value, charset);
 			}
 		}
-		action.setQuery(query == null || query.isEmpty() ? null : query);
+		action.setQuery(query == null || query.length() == 0 ? null : query);
 		return action.execute();
 	}
 

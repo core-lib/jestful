@@ -49,18 +49,18 @@ public class BodyParameterResolver implements Actor, Initialable {
 
 		Request request = action.getRequest();
 		String contentType = request.getRequestHeader("Content-Type");
-		if (contentType == null || contentType.isEmpty()) {
+		if (contentType == null || contentType.length() == 0) {
 			return action.execute();
 		}
 		MediaType mediaType = MediaType.valueOf(contentType);
 		String charset = mediaType.getCharset();
-		if (charset == null || charset.isEmpty()) {
+		if (charset == null || charset.length() == 0) {
 			charset = request.getRequestHeader("Content-Charset");
 		}
-		if (charset == null || charset.isEmpty()) {
+		if (charset == null || charset.length() == 0) {
 			charset = request.getCharacterEncoding();
 		}
-		if (charset == null || charset.isEmpty()) {
+		if (charset == null || charset.length() == 0) {
 			charset = Charset.defaultCharset().name();
 		}
 		Accepts consumes = action.getConsumes();

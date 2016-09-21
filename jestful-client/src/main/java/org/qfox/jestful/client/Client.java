@@ -346,10 +346,10 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 			MediaType mediaType = MediaType.valueOf(contentType);
 			if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
 				String charset = mediaType.getCharset();
-				if (charset == null || charset.isEmpty()) {
+				if (charset == null || charset.length() == 0) {
 					charset = response.getResponseHeader("Content-Charset");
 				}
-				if (charset == null || charset.isEmpty()) {
+				if (charset == null || charset.length() == 0) {
 					charset = Charset.defaultCharset().name();
 				}
 				ResponseDeserializer deserializer = deserializers.get(mediaType);
@@ -466,7 +466,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 			setProtocol(endpoint.getProtocol());
 			setHost(endpoint.getHost());
 			setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
-			setRoute(endpoint.getFile().isEmpty() ? null : endpoint.getFile());
+			setRoute(endpoint.getFile().length() == 0 ? null : endpoint.getFile());
 			return this;
 		}
 
@@ -495,7 +495,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		}
 
 		public Builder setRoute(String route) {
-			if (route != null && route.isEmpty() == false && route.startsWith("/") == false) {
+			if (route != null && route.length() == 0 == false && route.startsWith("/") == false) {
 				throw new IllegalArgumentException("route should starts with /");
 			}
 			this.route = route;

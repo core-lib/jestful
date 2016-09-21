@@ -33,10 +33,10 @@ public class ContentCharsetDecider implements Actor {
 		String charset = response.getCharacterEncoding();
 		if (charset == null) {
 			String accept = request.getRequestHeader("Accept-Charset");
-			Charsets accepts = accept == null || accept.isEmpty() ? charsets.clone() : Charsets.valueOf(accept);
+			Charsets accepts = accept == null || accept.length() == 0 ? charsets.clone() : Charsets.valueOf(accept);
 			Charsets options = action.getContentCharsets().clone();
 			Charsets supports = charsets.clone();
-			if ((accept == null || accept.isEmpty()) && options.isEmpty()) {
+			if ((accept == null || accept.length() == 0) && options.isEmpty()) {
 				charset = Charset.defaultCharset().name();
 			} else if (options.isEmpty()) {
 				accepts.retainAll(supports);

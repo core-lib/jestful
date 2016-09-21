@@ -28,7 +28,7 @@ public class DoubleStringConverter implements StringConverter<Double> {
 	}
 
 	public Double convert(Class<?> klass, String source) {
-		return source != null && source.isEmpty() == false ? Double.valueOf(source) : 0;
+		return source != null && source.length() == 0 == false ? Double.valueOf(source) : 0;
 	}
 
 }

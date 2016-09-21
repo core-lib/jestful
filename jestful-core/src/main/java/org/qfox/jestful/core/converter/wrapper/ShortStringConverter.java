@@ -28,7 +28,7 @@ public class ShortStringConverter implements StringConverter<Short> {
 	}
 
 	public Short convert(Class<?> klass, String source) {
-		return source != null && source.isEmpty() == false ? Short.valueOf(source) : null;
+		return source != null && source.length() == 0 == false ? Short.valueOf(source) : null;
 	}
 
 }

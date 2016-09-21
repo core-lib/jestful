@@ -22,7 +22,7 @@ public class RequestDecodeWrapper implements Actor, Initialable {
 	public Object react(Action action) throws Exception {
 		Request source = action.getRequest();
 		String contentEncoding = source.getRequestHeader("Content-Encoding");
-		if (contentEncoding == null || contentEncoding.isEmpty()) {
+		if (contentEncoding == null || contentEncoding.length() == 0) {
 			return action.execute();
 		}
 		if (action.isAcceptEncode()) {

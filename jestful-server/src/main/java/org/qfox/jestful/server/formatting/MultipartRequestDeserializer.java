@@ -17,6 +17,7 @@ import org.qfox.jestful.core.Multibody;
 import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.core.io.IOUtils;
 import org.qfox.jestful.core.io.MultipartInputStream;
@@ -142,7 +143,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 				Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), fields);
 				parameter.setValue(value);
 			} catch (IncompatibleConversionException e) {
-				throw new IOException(e);
+				throw new JestfulIOException(e);
 			} catch (ConversionException e) {
 				continue;
 			}

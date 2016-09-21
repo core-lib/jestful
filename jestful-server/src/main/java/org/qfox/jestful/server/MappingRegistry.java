@@ -47,8 +47,6 @@ public interface MappingRegistry {
 	 *            请求方法
 	 * @param URI
 	 *            请求路径
-	 * @param accept
-	 *            客户端接收的返回格式
 	 * @return 匹配的资源集合
 	 * @throws NotFoundStatusException
 	 *             请求路径不存在

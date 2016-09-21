@@ -38,7 +38,7 @@ public class ContentTypeDecider implements Actor, Initialable {
 		Response response = action.getResponse();
 		String accept = request.getRequestHeader("Accept");
 
-		Accepts accepts = accept == null || accept.isEmpty() ? new Accepts(map.keySet()) : Accepts.valueOf(accept);
+		Accepts accepts = accept == null || accept.length() == 0 ? new Accepts(map.keySet()) : Accepts.valueOf(accept);
 		Accepts produces = action.getProduces();
 		Accepts supports = new Accepts(map.keySet());
 

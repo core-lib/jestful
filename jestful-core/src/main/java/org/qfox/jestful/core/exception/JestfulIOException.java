@@ -25,7 +25,8 @@ public class JestfulIOException extends IOException {
 	}
 
 	public JestfulIOException(String message, Throwable cause) {
-		super(message, cause);
+		super(message);
+		this.initCause(cause);
 	}
 
 	public JestfulIOException(String message) {
@@ -33,7 +34,8 @@ public class JestfulIOException extends IOException {
 	}
 
 	public JestfulIOException(Throwable cause) {
-		super(cause);
+		super();
+		this.initCause(cause);
 	}
 
 }

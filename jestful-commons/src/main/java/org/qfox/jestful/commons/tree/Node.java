@@ -52,11 +52,11 @@ public class Node<K extends Expression<K>, V extends Comparable<V>> implements C
 		Iterator<String> iterator = Arrays.asList(paths).iterator();
 
 		String path = "";
-		while (path.isEmpty() && iterator.hasNext()) {
+		while (path.length() == 0 && iterator.hasNext()) {
 			path = iterator.next();
 		}
 
-		if (path.isEmpty()) {
+		if (path.length() == 0) {
 			if (key.isEmpty()) {
 				if (this.isLeaf()) {
 					result.add(value);

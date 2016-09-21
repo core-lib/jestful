@@ -28,7 +28,7 @@ public class LongStringConverter implements StringConverter<Long> {
 	}
 
 	public Long convert(Class<?> klass, String source) {
-		return source != null && source.isEmpty() == false ? Long.valueOf(source) : 0;
+		return source != null && source.length() == 0 == false ? Long.valueOf(source) : 0;
 	}
 
 }

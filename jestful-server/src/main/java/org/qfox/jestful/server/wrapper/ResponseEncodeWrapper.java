@@ -35,7 +35,7 @@ public class ResponseEncodeWrapper implements Actor, Initialable {
 			}
 			Request request = action.getRequest();
 			String acceptEncoding = request.getRequestHeader("Accept-Encoding");
-			if (acceptEncoding == null || acceptEncoding.isEmpty()) {
+			if (acceptEncoding == null || acceptEncoding.length() == 0) {
 				return action.execute();
 			}
 			Encodings remains = encodings.clone();

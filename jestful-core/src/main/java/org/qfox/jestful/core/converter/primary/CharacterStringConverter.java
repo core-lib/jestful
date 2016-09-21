@@ -28,7 +28,7 @@ public class CharacterStringConverter implements StringConverter<Character> {
 	}
 
 	public Character convert(Class<?> klass, String source) {
-		if (source == null || source.isEmpty()) {
+		if (source == null || source.length() == 0) {
 			return 0;
 		}
 		if (source.length() != 1) {
