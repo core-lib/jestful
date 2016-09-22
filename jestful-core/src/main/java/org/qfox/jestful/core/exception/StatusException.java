@@ -51,29 +51,4 @@ public class StatusException extends JestfulIOException {
 		return message;
 	}
 
-	public void responseTo(Writer writer) throws IOException {
-		writer.append("<html>");
-		writer.append("<head>");
-		writer.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=" + Charset.defaultCharset().name() + "\"/>");
-		writer.append("<title>Error " + status + " " + message + "</title>");
-		writer.append("</head>");
-		writer.append("<body><h2>HTTP ERROR " + status + "</h2>");
-		writer.append("<p>Problem accessing " + uri + ". Reason:<pre>" + message + "</pre></p>");
-		writer.append("<hr />");
-		writer.append("<i><small>Powered by Jestful://</small></i>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("<br/>");
-		writer.append("</body>");
-		writer.append("</html>");
-	}
-
 }
