@@ -18,7 +18,7 @@ package org.qfox.jestful.core;
 public interface Actor {
 
 	/**
-	 * do myself job for this action
+	 * do itself job for this action
 	 * 
 	 * @param action
 	 *            the action to execute
