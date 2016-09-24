@@ -1,8 +1,6 @@
 package org.qfox.jestful.server;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
@@ -36,7 +34,6 @@ import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
-import org.qfox.jestful.core.io.IOUtils;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
