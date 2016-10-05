@@ -1,61 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jestful="http://www.qfoxtech.com/schema/jestful"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jestful="http://www.qfoxtech.com/schema/jestful"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 		http://www.qfoxtech.com/schema/jestful http://www.qfoxtech.com/schema/jestful/jestful-1.0.0.xsd">
 
-	<bean id="jestfulBeanContainer" class="org.qfox.jestful.server.JestfulBeanContainer" />
-	<bean id="jestfulMappingRegistry" class="org.qfox.jestful.server.JestfulMappingRegistry" />
-	<bean id="jestfulVersionComparator" class="org.qfox.jestful.server.JestfulVersionComparator" />
-	<bean id="jestfulConversionProvider" class="org.qfox.jestful.server.JestfulConversionProvider" />
+    <bean id="jestfulBeanContainer" class="org.qfox.jestful.server.JestfulBeanContainer"/>
+    <bean id="jestfulMappingRegistry" class="org.qfox.jestful.server.JestfulMappingRegistry"/>
+    <bean id="jestfulVersionComparator" class="org.qfox.jestful.server.JestfulVersionComparator"/>
+    <bean id="jestfulConversionProvider" class="org.qfox.jestful.server.JestfulConversionProvider"/>
 
-	<jestful:group id="jestful">
-		<ref bean="decider" />
-		<ref bean="wrapper" />
-		<ref bean="resolver" />
-		<ref bean="handler" />
-		<ref bean="render" />
-	</jestful:group>
+    <jestful:group id="jestful">
+        <ref bean="decider"/>
+        <ref bean="wrapper"/>
+        <ref bean="resolver"/>
+        <ref bean="handler"/>
+        <ref bean="render"/>
+    </jestful:group>
 
-	<jestful:group id="decider">
-		<bean class="org.qfox.jestful.server.decider.ContentTypeDecider" />
-		<bean class="org.qfox.jestful.server.decider.ContentCharsetDecider" />
-	</jestful:group>
+    <jestful:group id="decider">
+        <bean class="org.qfox.jestful.server.decider.ContentTypeDecider"/>
+        <bean class="org.qfox.jestful.server.decider.ContentCharsetDecider"/>
+    </jestful:group>
 
-	<jestful:group id="wrapper">
-		<bean class="org.qfox.jestful.server.wrapper.RequestDecodeWrapper" />
-		<bean class="org.qfox.jestful.server.wrapper.ResponseEncodeWrapper" />
-	</jestful:group>
+    <jestful:group id="wrapper">
+        <bean class="org.qfox.jestful.server.wrapper.RequestDecodeWrapper"/>
+        <bean class="org.qfox.jestful.server.wrapper.ResponseEncodeWrapper"/>
+    </jestful:group>
 
-	<jestful:group id="resolver">
-		<bean class="org.qfox.jestful.server.resolver.HeaderParameterResolver" />
-		<bean class="org.qfox.jestful.server.resolver.QueryParameterResolver" />
-		<bean class="org.qfox.jestful.server.resolver.PathParameterResolver" />
-		<bean class="org.qfox.jestful.server.resolver.BodyParameterResolver" />
-		<bean class="org.qfox.jestful.server.resolver.CookieParameterResolver" />
-		<bean class="org.qfox.jestful.server.resolver.SessionParameterResolver" />
-		<bean class="org.qfox.jestful.server.resolver.ExtraParameterResolver" />
-		<bean class="org.qfox.jestful.server.resolver.DefaultParameterResolver" />
-	</jestful:group>
+    <jestful:group id="resolver">
+        <bean class="org.qfox.jestful.server.resolver.HeaderParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.QueryParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.PathParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.BodyParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.CookieParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.SessionParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.ExtraParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.DefaultParameterResolver"/>
+    </jestful:group>
 
-	<jestful:group id="handler">
-		<bean class="org.qfox.jestful.server.handler.ResourceCacheHandler" />
-		<bean class="org.qfox.jestful.server.handler.MappingCacheHandler" />
-	</jestful:group>
+    <jestful:group id="handler">
+        <bean class="org.qfox.jestful.server.handler.ResourceCacheHandler"/>
+        <bean class="org.qfox.jestful.server.handler.MappingCacheHandler"/>
+    </jestful:group>
 
-	<jestful:group id="render">
-		<bean class="org.qfox.jestful.server.render.DefaultResultRender" />
-		<bean class="org.qfox.jestful.server.render.TextResultRender" />
-		<bean class="org.qfox.jestful.server.render.ForwardResultRender" />
-		<bean class="org.qfox.jestful.server.render.RedirectResultRender" />
-	</jestful:group>
+    <jestful:group id="render">
+        <bean class="org.qfox.jestful.server.render.DefaultResultRender"/>
+        <bean class="org.qfox.jestful.server.render.TextResultRender"/>
+        <bean class="org.qfox.jestful.server.render.ForwardResultRender"/>
+        <bean class="org.qfox.jestful.server.render.RedirectResultRender"/>
+    </jestful:group>
 
-	<bean class="org.qfox.jestful.server.formatting.URLEncodedRequestDeserializer" />
-	<bean class="org.qfox.jestful.server.formatting.MultipartRequestDeserializer" />
+    <bean class="org.qfox.jestful.server.formatting.URLEncodedRequestDeserializer"/>
+    <bean class="org.qfox.jestful.server.formatting.MultipartRequestDeserializer"/>
 
-	<bean class="org.qfox.jestful.server.codec.DeflateRequestDecoder" />
-	<bean class="org.qfox.jestful.server.codec.DeflateResponseEncoder" />
-	<bean class="org.qfox.jestful.server.codec.GzipRequestDecoder" />
-	<bean class="org.qfox.jestful.server.codec.GzipResponseEncoder" />
+    <bean class="org.qfox.jestful.server.codec.DeflateRequestDecoder"/>
+    <bean class="org.qfox.jestful.server.codec.DeflateResponseEncoder"/>
+    <bean class="org.qfox.jestful.server.codec.GzipRequestDecoder"/>
+    <bean class="org.qfox.jestful.server.codec.GzipResponseEncoder"/>
 
 </beans>
 
