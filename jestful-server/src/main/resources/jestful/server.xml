@@ -34,6 +34,7 @@
 		<bean class="org.qfox.jestful.server.resolver.CookieParameterResolver" />
 		<bean class="org.qfox.jestful.server.resolver.SessionParameterResolver" />
 		<bean class="org.qfox.jestful.server.resolver.ExtraParameterResolver" />
+		<bean class="org.qfox.jestful.server.resolver.DefaultParameterResolver" />
 	</jestful:group>
 
 	<jestful:group id="handler">
