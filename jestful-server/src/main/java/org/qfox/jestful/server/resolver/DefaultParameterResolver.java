@@ -12,6 +12,7 @@ import java.util.Map;
  * Created by yangchangpei on 16/10/5.
  */
 public class DefaultParameterResolver implements Actor {
+
     private final Map<Class<?>, Object> defaults = new HashMap<Class<?>, Object>();
 
     {
