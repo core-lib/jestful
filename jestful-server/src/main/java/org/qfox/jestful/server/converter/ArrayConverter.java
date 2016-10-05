@@ -1,12 +1,11 @@
 package org.qfox.jestful.server.converter;
 
-import org.qfox.jestful.commons.Utils;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.qfox.jestful.commons.Utils;
 
 public class ArrayConverter implements Converter {
 
