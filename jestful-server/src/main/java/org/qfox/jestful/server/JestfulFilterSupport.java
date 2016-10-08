@@ -1,44 +1,24 @@
 package org.qfox.jestful.server;
 
+import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.annotation.Jestful;
+import org.qfox.jestful.core.exception.StatusException;
+import org.qfox.jestful.server.exception.NotFoundStatusException;
+import org.qfox.jestful.server.exception.UnsupportedDispatchException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cglib.proxy.Dispatcher;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Body;
-import org.qfox.jestful.core.Charsets;
-import org.qfox.jestful.core.Destroyable;
-import org.qfox.jestful.core.Encodings;
-import org.qfox.jestful.core.Languages;
-import org.qfox.jestful.core.Mapping;
-import org.qfox.jestful.core.Parameters;
-import org.qfox.jestful.core.Plugin;
-import org.qfox.jestful.core.Result;
-import org.qfox.jestful.core.annotation.Jestful;
-import org.qfox.jestful.core.exception.StatusException;
-import org.qfox.jestful.server.exception.NotFoundStatusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
+import java.util.*;
 
 /**
  * <p>
@@ -180,12 +160,32 @@ public class JestfulFilterSupport implements Filter, Actor {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        String command = httpServletRequest.getMethod();
-        String URI = httpServletRequest.getRequestURI();
-        String accept = httpServletRequest.getHeader("Accept");
-        String query = httpServletRequest.getQueryString();
-        String protocol = httpServletRequest.getProtocol();
+
         try {
+            String command = httpServletRequest.getMethod();
+            String URI = null;
+            String query = null;
+            DispatcherType type = request.getDispatcherType();
+            switch (type) {
+                case REQUEST:
+                    URI = httpServletRequest.getRequestURI();
+                    query = httpServletRequest.getQueryString();
+                    break;
+                case FORWARD:
+                    URI = (String) httpServletRequest.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
+                    query = (String) httpServletRequest.getAttribute(RequestDispatcher.FORWARD_QUERY_STRING);
+                    break;
+                case INCLUDE:
+                    URI = (String) httpServletRequest.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI);
+                    query = (String) httpServletRequest.getAttribute(RequestDispatcher.INCLUDE_QUERY_STRING);
+                    break;
+                default:
+                    throw new UnsupportedDispatchException(type);
+            }
+
+            String accept = httpServletRequest.getHeader("Accept");
+            String protocol = httpServletRequest.getProtocol();
+
             Mapping mapping = mappingRegistry.lookup(command, URI, accept, versionComparator).clone();
             Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
             actors.add(this);
