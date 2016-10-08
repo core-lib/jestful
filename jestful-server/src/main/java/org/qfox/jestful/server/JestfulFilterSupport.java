@@ -7,7 +7,6 @@ import org.qfox.jestful.server.exception.NotFoundStatusException;
 import org.qfox.jestful.server.exception.UnsupportedDispatchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.proxy.Dispatcher;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -172,8 +171,8 @@ public class JestfulFilterSupport implements Filter, Actor {
                     query = httpServletRequest.getQueryString();
                     break;
                 case FORWARD:
-                    URI = (String) httpServletRequest.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
-                    query = (String) httpServletRequest.getAttribute(RequestDispatcher.FORWARD_QUERY_STRING);
+                    URI = httpServletRequest.getRequestURI();
+                    query = httpServletRequest.getQueryString();
                     break;
                 case INCLUDE:
                     URI = (String) httpServletRequest.getAttribute(RequestDispatcher.INCLUDE_REQUEST_URI);
