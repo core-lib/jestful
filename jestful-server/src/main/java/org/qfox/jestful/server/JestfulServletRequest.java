@@ -106,6 +106,14 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 		throw new UnsupportedOperationException();
 	}
 
+	public String getContentType() {
+		return super.getContentType();
+	}
+
+	public void setContentType(String type) {
+
+	}
+
 	public void connect() throws IOException {
 		throw new UnsupportedOperationException();
 	}
