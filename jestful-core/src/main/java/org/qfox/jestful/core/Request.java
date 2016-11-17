@@ -43,6 +43,10 @@ public interface Request extends Closeable {
 
 	void connect() throws IOException;
 
+	String getContentType();
+
+	void setContentType(String type);
+
 	String getCharacterEncoding();
 
 	void setCharacterEncoding(String env) throws UnsupportedEncodingException;

@@ -47,7 +47,7 @@ public class DefaultResultRender implements Actor, Initialable {
 
 		Response response = action.getResponse();
 		String charset = response.getResponseHeader("Content-Charset");
-		String contentType = response.getResponseHeader("Content-Type");
+		String contentType = response.getContentType();
 		MediaType mediaType = MediaType.valueOf(contentType);
 		ResponseSerializer serializer = map.get(mediaType);
 		OutputStream out = response.getResponseOutputStream();
