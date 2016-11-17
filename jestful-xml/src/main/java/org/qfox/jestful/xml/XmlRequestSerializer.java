@@ -54,7 +54,7 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 		for (Parameter parameter : parameters) {
 			OutputStreamWriter osw = null;
 			try {
-				action.getRequest().setRequestHeader("Content-Type", contentType + ";charset=" + charset);
+				action.getRequest().setContentType(contentType + ";charset=" + charset);
 				osw = new OutputStreamWriter(out, charset);
 				writeValue(osw, parameter.getValue());
 				break;

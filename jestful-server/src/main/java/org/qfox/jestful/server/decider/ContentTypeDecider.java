@@ -69,7 +69,7 @@ public class ContentTypeDecider implements Actor, Initialable {
 		}
 
 		if (contentType != null) {
-			response.setResponseHeader("Content-Type", contentType.getName());
+			response.setContentType(contentType.getName());
 		} else {
 			String URI = action.getURI();
 			String method = action.getRestful().getMethod();

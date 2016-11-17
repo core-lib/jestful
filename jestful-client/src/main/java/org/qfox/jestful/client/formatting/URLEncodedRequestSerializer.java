@@ -73,7 +73,7 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 			}
 		}
 		if (builder.length() > 0) {
-			action.getRequest().setRequestHeader("Content-Type", contentType);
+			action.getRequest().setContentType(contentType);
 			out.write(builder.toString().getBytes());
 		}
 	}

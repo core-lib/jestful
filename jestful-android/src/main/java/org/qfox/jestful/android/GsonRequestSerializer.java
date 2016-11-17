@@ -39,7 +39,7 @@ public class GsonRequestSerializer implements RequestSerializer {
 		for (Parameter parameter : parameters) {
 			OutputStreamWriter osw = null;
 			try {
-				action.getRequest().setRequestHeader("Content-Type", contentType + ";charset=" + charset);
+				action.getRequest().setContentType(contentType + ";charset=" + charset);
 				osw = new OutputStreamWriter(out, charset);
 				gson.toJson(parameter.getValue(), osw);
 				break;

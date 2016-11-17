@@ -52,7 +52,7 @@ public class JavaRequestSerializer implements RequestSerializer {
 		for (Parameter parameter : parameters) {
 			ObjectOutputStream oos = null;
 			try {
-				action.getRequest().setRequestHeader("Content-Type", contentType);
+				action.getRequest().setContentType(contentType);
 				oos = new ObjectOutputStream(out);
 				oos.writeObject(parameter.getValue());
 				break;

@@ -83,11 +83,11 @@ public class HttpResponse implements Response {
     }
 
     public String getContentType() {
-        return getResponseHeader("Content-Type");
+        return httpURLConnection.getContentType();
     }
 
     public void setContentType(String type) {
-        setResponseHeader("Content-Type", type);
+        throw new UnsupportedOperationException();
     }
 
     public String getCharacterEncoding() {

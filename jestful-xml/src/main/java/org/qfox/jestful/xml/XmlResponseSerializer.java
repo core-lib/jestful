@@ -37,7 +37,7 @@ public class XmlResponseSerializer extends XmlMapper implements ResponseSerializ
 	public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {
 		OutputStreamWriter osw = null;
 		try {
-			action.getResponse().setResponseHeader("Content-Type", contentType + ";charset=" + charset);
+			action.getResponse().setContentType(contentType + ";charset=" + charset);
 			osw = new OutputStreamWriter(out, charset);
 			writeValue(osw, action.getResult().getValue());
 		} finally {

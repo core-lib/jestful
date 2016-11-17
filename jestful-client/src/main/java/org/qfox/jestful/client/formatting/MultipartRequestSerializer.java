@@ -71,7 +71,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 			nonce += base.charAt(index);
 		}
 		String boundary = "----JestfulFormBoundary" + nonce;
-		action.getRequest().setRequestHeader("Content-Type", contentType + ";boundary=" + boundary);
+		action.getRequest().setContentType(contentType + ";boundary=" + boundary);
 		MultipartOutputStream mos = null;
 		try {
 			mos = new MultipartOutputStream(out, boundary);

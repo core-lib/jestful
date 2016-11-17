@@ -48,7 +48,7 @@ public class TextResultRender implements Actor {
 			try {
 				Response response = action.getResponse();
 				String charset = response.getResponseHeader("Content-Charset");
-				response.setResponseHeader("Content-Type", type + "; charset=" + charset);
+				response.setContentType(type + "; charset=" + charset);
 				OutputStream out = response.getResponseOutputStream();
 				osw = new OutputStreamWriter(out, charset);
 				osw.write(content);
