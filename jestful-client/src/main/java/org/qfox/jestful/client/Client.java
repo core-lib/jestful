@@ -340,7 +340,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 		if (body.getType() == Void.TYPE) {
 			return;
 		} else {
-			String contentType = response.getResponseHeader("Content-Type");
+			String contentType = response.getContentType();
 			Accepts produces = action.getProduces();
 			Accepts supports = new Accepts(deserializers.keySet());
 			MediaType mediaType = MediaType.valueOf(contentType);

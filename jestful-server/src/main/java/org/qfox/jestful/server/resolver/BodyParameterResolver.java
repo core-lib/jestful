@@ -48,7 +48,7 @@ public class BodyParameterResolver implements Actor, Initialable {
 		}
 
 		Request request = action.getRequest();
-		String contentType = request.getRequestHeader("Content-Type");
+		String contentType = request.getContentType();
 		if (contentType == null || contentType.length() == 0) {
 			return action.execute();
 		}
