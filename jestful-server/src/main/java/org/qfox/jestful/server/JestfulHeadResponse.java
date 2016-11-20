@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -67,16 +66,6 @@ public class JestfulHeadResponse extends HttpServletResponseWrapper {
 		@Override
 		public void write(byte buf[], int offset, int len) throws IOException {
 			size += len;
-		}
-
-		@Override
-		public boolean isReady() {
-			return true;
-		}
-
-		@Override
-		public void setWriteListener(WriteListener writeListener) {
-
 		}
 
 	}

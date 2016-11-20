@@ -1,10 +1,10 @@
 package org.qfox.jestful.server;
 
+import java.util.Enumeration;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
-
-import java.util.Enumeration;
 
 /**
  * Created by yangchangpei on 16/11/20.
