@@ -6,6 +6,7 @@ import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.exception.PluginConfigException;
 
 import java.net.CookieHandler;
+import java.net.CookieManager;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
@@ -32,16 +33,8 @@ public class ResponseCookiePlugin implements Plugin {
     public ResponseCookiePlugin() {
         super();
         if (CookieHandler.getDefault() == null) {
-            try {
-                Class<?> clazz = Class.forName("java.net.CookieManager");
-                this.cookieHandler = (CookieHandler) clazz.newInstance();
-                CookieHandler.setDefault(cookieHandler);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("please use JVM with version 1.6 at least");
-            } catch (Exception e) {
-                // impossible
-                throw new RuntimeException(e);
-            }
+            this.cookieHandler = new CookieManager();
+            CookieHandler.setDefault(cookieHandler);
         }
     }
 
