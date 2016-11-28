@@ -36,7 +36,6 @@ import java.util.Map.Entry;
 public class JestfulServletRequest extends HttpServletRequestWrapper implements Request, MultipartHttpServletRequest {
     private final HttpServletRequest request;
     private List<Multipart> multiparts = new ArrayList<Multipart>();
-    private List<Part> parts = new ArrayList<Part>();
     private HttpSession session;
 
     public JestfulServletRequest(HttpServletRequest request) {
@@ -216,18 +215,17 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
     }
 
     public void setMultiparts(List<Multipart> multiparts) {
-        this.multiparts.addAll(multiparts);
-        this.parts.addAll(multiparts);
+        this.multiparts = multiparts;
     }
 
     @Override
     public Collection<Part> getParts() throws IOException, ServletException {
-        return parts;
+        return new ArrayList<Part>(multiparts);
     }
 
     @Override
     public Part getPart(String name) throws IOException, ServletException {
-        for (Part part : parts) {
+        for (Part part : multiparts) {
             if (name == null ? part.getName() == null : name.equals(part.getName())) {
                 return part;
             }

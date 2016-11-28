@@ -1,119 +1,112 @@
 package org.qfox.jestful.server.formatting;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
-
-import javax.servlet.http.Part;
-
 import org.qfox.jestful.core.Multibody;
 import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.io.IOUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Part;
+import java.io.*;
+import java.util.Arrays;
+import java.util.Collection;
+
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月22日 上午10:55:49
- *
  * @since 1.0.0
  */
 public class Multipart implements MultipartFile, Part, Cloneable {
-	private final Multihead multihead;
-	private final Multibody multibody;
-	private InputStream inputStream;
+    private final Multihead multihead;
+    private final Multibody multibody;
+    private InputStream inputStream;
 
-	public Multipart(Multihead multihead, Multibody multibody) {
-		super();
-		this.multihead = multihead;
-		this.multibody = multibody;
-	}
+    public Multipart(Multihead multihead, Multibody multibody) {
+        super();
+        this.multihead = multihead;
+        this.multibody = multibody;
+    }
 
-	public Multihead getMultihead() {
-		return multihead;
-	}
+    public Multihead getMultihead() {
+        return multihead;
+    }
 
-	public Multibody getMultibody() {
-		return multibody;
-	}
+    public Multibody getMultibody() {
+        return multibody;
+    }
 
-	public String getName() {
-		return multihead.getDisposition().getName();
-	}
+    public String getName() {
+        return multihead.getDisposition().getName();
+    }
 
-	public String getOriginalFilename() {
-		return multihead.getDisposition().getFilename();
-	}
+    public String getOriginalFilename() {
+        return multihead.getDisposition().getFilename();
+    }
 
-	public String getContentType() {
-		return multihead.getType().getName();
-	}
+    public String getContentType() {
+        return multihead.getType().getName();
+    }
 
-	public boolean isEmpty() {
-		return getSize() == 0l;
-	}
+    public boolean isEmpty() {
+        return getSize() == 0l;
+    }
 
-	public long getSize() {
-		return multibody.getSize();
-	}
+    public long getSize() {
+        return multibody.getSize();
+    }
 
-	public byte[] getBytes() throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		IOUtils.transfer(getInputStream(), baos);
-		return baos.toByteArray();
-	}
+    public byte[] getBytes() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        IOUtils.transfer(getInputStream(), baos);
+        return baos.toByteArray();
+    }
 
-	public synchronized InputStream getInputStream() throws IOException {
-		if (inputStream == null) {
-			return inputStream;
-		} else {
-			return inputStream = new FileInputStream(multibody.getFile());
-		}
-	}
+    public synchronized InputStream getInputStream() throws IOException {
+        if (inputStream == null) {
+            return inputStream;
+        } else {
+            return inputStream = new FileInputStream(multibody.getFile());
+        }
+    }
 
-	public void transferTo(File dest) throws IOException, IllegalStateException {
-		IOUtils.transfer(getInputStream(), dest);
-	}
+    public void transferTo(File dest) throws IOException, IllegalStateException {
+        IOUtils.transfer(getInputStream(), dest);
+    }
 
-	@Override
-	public Multipart clone() {
-		return new Multipart(multihead.clone(), multibody.clone());
-	}
+    @Override
+    public Multipart clone() {
+        return new Multipart(multihead.clone(), multibody.clone());
+    }
 
-	public String getSubmittedFileName() {
-		return getOriginalFilename();
-	}
+    public String getSubmittedFileName() {
+        return getOriginalFilename();
+    }
 
-	public void write(String fileName) throws IOException {
-		transferTo(new File(fileName));
-	}
+    public void write(String fileName) throws IOException {
+        transferTo(new File(fileName));
+    }
 
-	public void delete() throws IOException {
-		multibody.getFile().delete();
-	}
+    public void delete() throws IOException {
+        multibody.getFile().delete();
+    }
 
-	public String getHeader(String name) {
-		return multihead.getHeader().get(name);
-	}
+    public String getHeader(String name) {
+        return multihead.getHeader().get(name);
+    }
 
-	public Collection<String> getHeaders(String name) {
-		return Arrays.asList(getHeader(name));
-	}
+    public Collection<String> getHeaders(String name) {
+        return Arrays.asList(getHeader(name));
+    }
 
-	public Collection<String> getHeaderNames() {
-		return multihead.getHeader().keySet();
-	}
+    public Collection<String> getHeaderNames() {
+        return multihead.getHeader().keySet();
+    }
 
 }
