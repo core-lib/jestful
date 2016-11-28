@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 
 /**
  * <p>
@@ -22,7 +21,7 @@ import java.io.UnsupportedEncodingException;
  * @since 1.0.0
  */
 public class JestfulHeadResponse extends HttpServletResponseWrapper {
-    private final JestfulHeadResponseServletOutputStream out = new JestfulHeadResponseServletOutputStream();
+    private JestfulHeadResponseServletOutputStream out;
     private PrintWriter writer;
 
     public JestfulHeadResponse(HttpServletResponse response) {
@@ -30,19 +29,23 @@ public class JestfulHeadResponse extends HttpServletResponseWrapper {
     }
 
     public void finish() {
-        super.setContentLength(out.size);
+        super.setContentLength(out != null ? out.size : 0);
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
+        if (out == null) {
+            out = new JestfulHeadResponseServletOutputStream();
+        }
         return out;
     }
 
     @Override
-    public PrintWriter getWriter() throws UnsupportedEncodingException {
+    public PrintWriter getWriter() throws IOException {
         if (writer == null) {
             String charset = getCharacterEncoding();
-            OutputStreamWriter osw = new OutputStreamWriter(out, charset);
+            ServletOutputStream sos = getOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(sos, charset);
             writer = new PrintWriter(osw, true);
         }
         return writer;
