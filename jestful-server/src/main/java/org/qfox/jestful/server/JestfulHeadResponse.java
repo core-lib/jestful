@@ -1,7 +1,8 @@
 package org.qfox.jestful.server;
 
 import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.InvocationHandler;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +25,7 @@ import java.lang.reflect.Method;
  * @date 2016年6月1日 下午10:03:56
  * @since 1.0.0
  */
-public class JestfulHeadResponse extends HttpServletResponseWrapper implements InvocationHandler {
+public class JestfulHeadResponse extends HttpServletResponseWrapper implements MethodInterceptor {
     private ServletOutputStream servletOutputStream;
     private ServletOutputStream enhanceOutputStream;
     private PrintWriter printWriter;
@@ -42,7 +43,10 @@ public class JestfulHeadResponse extends HttpServletResponseWrapper implements I
     public ServletOutputStream getOutputStream() throws IOException {
         if (enhanceOutputStream == null) {
             servletOutputStream = super.getOutputStream();
-            enhanceOutputStream = (ServletOutputStream) Enhancer.create(ServletOutputStream.class, new Class<?>[0], this);
+            Enhancer enhancer = new Enhancer();
+            enhancer.setSuperclass(ServletOutputStream.class);
+            enhancer.setCallback(this);
+            enhanceOutputStream = (ServletOutputStream) enhancer.create();
         }
         return enhanceOutputStream;
     }
@@ -58,8 +62,7 @@ public class JestfulHeadResponse extends HttpServletResponseWrapper implements I
         return printWriter;
     }
 
-    @Override
-    public Object invoke(Object o, Method method, Object[] args) throws Throwable {
+    public Object intercept(Object o, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         if ("write".equals(method.getName()) && method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == int.class) {
             contentLength++;
             return null;
