@@ -1,11 +1,15 @@
 package org.qfox.jestful.server;
 
+import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.cglib.proxy.InvocationHandler;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 
 /**
  * <p>
@@ -20,55 +24,57 @@ import java.io.PrintWriter;
  * @date 2016年6月1日 下午10:03:56
  * @since 1.0.0
  */
-public class JestfulHeadResponse extends HttpServletResponseWrapper {
-    private JestfulHeadResponseServletOutputStream out;
-    private PrintWriter writer;
+public class JestfulHeadResponse extends HttpServletResponseWrapper implements InvocationHandler {
+    private ServletOutputStream servletOutputStream;
+    private ServletOutputStream enhanceOutputStream;
+    private PrintWriter printWriter;
+    private int contentLength = 0;
 
     public JestfulHeadResponse(HttpServletResponse response) {
         super(response);
     }
 
     public void finish() {
-        super.setContentLength(out != null ? out.size : 0);
+        super.setContentLength(contentLength);
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        if (out == null) {
-            out = new JestfulHeadResponseServletOutputStream();
+        if (enhanceOutputStream == null) {
+            servletOutputStream = super.getOutputStream();
+            enhanceOutputStream = (ServletOutputStream) Enhancer.create(ServletOutputStream.class, new Class<?>[0], this);
         }
-        return out;
+        return enhanceOutputStream;
     }
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        if (writer == null) {
+        if (printWriter == null) {
             String charset = getCharacterEncoding();
             ServletOutputStream sos = getOutputStream();
             OutputStreamWriter osw = new OutputStreamWriter(sos, charset);
-            writer = new PrintWriter(osw, true);
+            printWriter = new PrintWriter(osw, true);
         }
-        return writer;
+        return printWriter;
     }
 
-    private static class JestfulHeadResponseServletOutputStream extends ServletOutputStream {
-        private int size = 0;
-
-        @Override
-        public void write(int b) {
-            size++;
+    @Override
+    public Object invoke(Object o, Method method, Object[] args) throws Throwable {
+        if ("write".equals(method.getName()) && method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == int.class) {
+            contentLength++;
+            return null;
         }
-
-        @Override
-        public void write(byte[] b) throws IOException {
-            size += b.length;
+        if ("write".equals(method.getName()) && method.getParameterTypes().length == 1 && method.getParameterTypes()[0] == byte[].class) {
+            byte[] b = (byte[]) args[0];
+            contentLength += b.length;
+            return null;
         }
-
-        @Override
-        public void write(byte buf[], int offset, int len) throws IOException {
-            size += len;
+        if ("write".equals(method.getName()) && method.getParameterTypes().length == 3 && method.getParameterTypes()[2] == int.class) {
+            Integer len = (Integer) args[2];
+            contentLength += len;
+            return null;
         }
-
+        return method.invoke(servletOutputStream, args);
     }
 
 }
