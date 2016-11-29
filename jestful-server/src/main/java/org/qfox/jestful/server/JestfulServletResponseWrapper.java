@@ -1,8 +1,6 @@
 package org.qfox.jestful.server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 import org.qfox.jestful.core.Status;
 
@@ -62,6 +60,16 @@ public class JestfulServletResponseWrapper extends JestfulServletResponse {
 	@Override
 	public OutputStream getResponseOutputStream() throws IOException {
 		return response.getResponseOutputStream();
+	}
+
+	@Override
+	public Reader getResponseReader() throws IOException {
+		return response.getResponseReader();
+	}
+
+	@Override
+	public Writer getResponseWriter() throws IOException {
+		return response.getResponseWriter();
 	}
 
 }

@@ -1,8 +1,6 @@
 package org.qfox.jestful.server;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Collection;
 
 import javax.servlet.http.HttpServletResponse;
@@ -89,7 +87,17 @@ public class JestfulServletResponse extends HttpServletResponseWrapper implement
 	public OutputStream getResponseOutputStream() throws IOException {
 		return response.getOutputStream();
 	}
-	
+
+	@Override
+	public Reader getResponseReader() throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Writer getResponseWriter() throws IOException {
+		return response.getWriter();
+	}
+
 	public void close() throws IOException {
 		
 	}

@@ -1,58 +1,52 @@
 package org.qfox.jestful.core;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月12日 下午8:54:46
- *
  * @since 1.0.0
  */
 public interface Request extends Closeable {
 
-	String[] getHeaderKeys();
+    String[] getHeaderKeys();
 
-	String getRequestHeader(String name);
+    String getRequestHeader(String name);
 
-	void setRequestHeader(String name, String value);
+    void setRequestHeader(String name, String value);
 
-	String[] getRequestHeaders(String name);
+    String[] getRequestHeaders(String name);
 
-	void setRequestHeaders(String name, String[] values);
+    void setRequestHeaders(String name, String[] values);
 
-	int getConnTimeout();
+    int getConnTimeout();
 
-	void setConnTimeout(int timeout);
+    void setConnTimeout(int timeout);
 
-	int getReadTimeout();
+    int getReadTimeout();
 
-	void setReadTimeout(int timeout);
+    void setReadTimeout(int timeout);
 
-	void connect() throws IOException;
+    void connect() throws IOException;
 
-	String getContentType();
+    String getContentType();
 
-	void setContentType(String type);
+    void setContentType(String type);
 
-	String getCharacterEncoding();
+    String getCharacterEncoding();
 
-	void setCharacterEncoding(String env) throws UnsupportedEncodingException;
+    void setCharacterEncoding(String env) throws UnsupportedEncodingException;
 
-	InputStream getRequestInputStream() throws IOException;
+    InputStream getRequestInputStream() throws IOException;
 
-	OutputStream getRequestOutputStream() throws IOException;
+    OutputStream getRequestOutputStream() throws IOException;
 
 }

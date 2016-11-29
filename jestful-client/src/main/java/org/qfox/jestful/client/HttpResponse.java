@@ -3,10 +3,7 @@ package org.qfox.jestful.client;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -27,6 +24,8 @@ import java.util.List;
 public class HttpResponse implements Response {
     private final HttpURLConnection httpURLConnection;
     private String characterEncoding;
+    private InputStream inputStream;
+    private Reader reader;
 
     public HttpResponse(HttpURLConnection httpURLConnection) {
         super();
@@ -55,14 +54,31 @@ public class HttpResponse implements Response {
     }
 
     public InputStream getResponseInputStream() throws IOException {
+        if (inputStream != null) {
+            return inputStream;
+        }
         if (isResponseSuccess()) {
-            return httpURLConnection.getInputStream();
+            return inputStream = httpURLConnection.getInputStream();
         } else {
-            return httpURLConnection.getErrorStream();
+            return inputStream = httpURLConnection.getErrorStream();
         }
     }
 
     public OutputStream getResponseOutputStream() throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Reader getResponseReader() throws IOException {
+        if (reader != null) {
+            return reader;
+        }
+        InputStream in = getResponseInputStream();
+        return reader = new InputStreamReader(in);
+    }
+
+    @Override
+    public Writer getResponseWriter() throws IOException {
         throw new UnsupportedOperationException();
     }
 

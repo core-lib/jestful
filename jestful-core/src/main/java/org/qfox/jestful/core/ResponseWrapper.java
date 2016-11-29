@@ -1,9 +1,6 @@
 package org.qfox.jestful.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 
 public class ResponseWrapper implements Response {
     private final Response response;
@@ -39,6 +36,16 @@ public class ResponseWrapper implements Response {
 
     public OutputStream getResponseOutputStream() throws IOException {
         return response.getResponseOutputStream();
+    }
+
+    @Override
+    public Reader getResponseReader() throws IOException {
+        return response.getResponseReader();
+    }
+
+    @Override
+    public Writer getResponseWriter() throws IOException {
+        return response.getResponseWriter();
     }
 
     public Status getResponseStatus() throws IOException {

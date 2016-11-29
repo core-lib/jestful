@@ -6,10 +6,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -71,6 +68,16 @@ public class JestfulClientResponse implements Response {
 
     public OutputStream getResponseOutputStream() throws IOException {
         return getResponse().getResponseOutputStream();
+    }
+
+    @Override
+    public Reader getResponseReader() throws IOException {
+        return getResponse().getResponseReader();
+    }
+
+    @Override
+    public Writer getResponseWriter() throws IOException {
+        return getResponse().getResponseWriter();
     }
 
     public Status getResponseStatus() throws IOException {

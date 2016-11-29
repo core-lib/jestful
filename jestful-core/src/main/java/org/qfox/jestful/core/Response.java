@@ -31,7 +31,9 @@ public interface Response extends Closeable {
 
     OutputStream getResponseOutputStream() throws IOException;
 
+    Reader getResponseReader() throws IOException;
 
+    Writer getResponseWriter() throws IOException;
 
     Status getResponseStatus() throws IOException;
 
