@@ -70,7 +70,6 @@ public class ForwardResultRender implements Actor, Initialable {
                     dispatcher.include(servletRequest, servletResponse);
                     break;
                 default:
-                    servletResponse.setContentType("text/html");
                     dispatcher.forward(servletRequest, servletResponse);
                     break;
             }

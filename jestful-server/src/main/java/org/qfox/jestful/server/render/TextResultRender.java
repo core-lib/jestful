@@ -4,7 +4,10 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Result;
+import org.qfox.jestful.core.io.IOUtils;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,18 +43,28 @@ public class TextResultRender implements Actor {
             matcher.find();
             String type = matcher.group(2) != null ? matcher.group(2) : "text/plain";
             String content = matcher.group(3) != null ? matcher.group(3) : "";
+            Writer writer = null;
             try {
                 Response response = action.getResponse();
                 String charset = response.getResponseHeader("Content-Charset");
                 charset = charset != null ? charset : response.getCharacterEncoding();
                 response.setContentType(type + (charset != null ? "; charset=" + charset : ""));
-                Writer writer = response.getResponseWriter();
+                switch (action.getDispatcher()) {
+                    case INCLUDE:
+                        writer = response.getResponseWriter();
+                        break;
+                    default:
+                        OutputStream out = response.getResponseOutputStream();
+                        writer = new OutputStreamWriter(out, charset);
+                        break;
+                }
                 writer.write(content);
                 writer.flush();
             } catch (Exception e) {
                 throw e;
             } finally {
                 result.setRendered(true);
+                IOUtils.close(writer);
             }
         }
         return value;

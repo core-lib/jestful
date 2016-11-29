@@ -19,18 +19,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Body;
-import org.qfox.jestful.core.Charsets;
-import org.qfox.jestful.core.Destroyable;
-import org.qfox.jestful.core.Encodings;
-import org.qfox.jestful.core.Languages;
-import org.qfox.jestful.core.Mapping;
-import org.qfox.jestful.core.Parameters;
-import org.qfox.jestful.core.Plugin;
-import org.qfox.jestful.core.Result;
+import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.StatusException;
 import org.slf4j.Logger;
@@ -211,6 +200,7 @@ public class JestfulServletSupport implements Servlet, Actor {
 			action.setURI(URI);
 			action.setQuery(query);
 			action.setProtocol(protocol);
+			action.setDispatcher(Dispatcher.valueOf(description.getDispatcherType().name()));
 
 			action.setRequest(new JestfulServletRequest(httpServletRequest));
 			action.setResponse(new JestfulServletResponse(httpServletResponse));
