@@ -1,9 +1,12 @@
-package javax.servlet.http;
+package org.qfox.jestful.server;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 
 /**
  * <p>
@@ -19,23 +22,30 @@ import java.io.PrintWriter;
  * @since 1.0.0
  */
 public class JestfulHeadResponse extends HttpServletResponseWrapper {
-    private NoBodyOutputStream noBodyOutputStream;
+    private ServletOutputStream servletOutputStream;
     private PrintWriter printWriter;
 
     public JestfulHeadResponse(HttpServletResponse response) {
         super(response);
     }
 
-    public void finish() {
-        this.setContentLength(noBodyOutputStream.getContentLength());
+    public void finish() throws Exception {
+        Method method = servletOutputStream.getClass().getMethod("getContentLength");
+        method.setAccessible(true);
+        Integer contentLength = (Integer) method.invoke(servletOutputStream);
+        this.setContentLength(contentLength);
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        if (noBodyOutputStream == null) {
-            noBodyOutputStream = new NoBodyOutputStream();
+        if (servletOutputStream == null) {
+            try {
+                servletOutputStream = (ServletOutputStream) Class.forName("javax.servlet.http.NoBodyOutputStream").newInstance();
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
-        return noBodyOutputStream;
+        return servletOutputStream;
     }
 
     @Override
