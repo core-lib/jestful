@@ -40,10 +40,5 @@
 			<artifactId>spring-web</artifactId>
 			<version>4.2.6.RELEASE</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>jasper</artifactId>
-			<version>6.0.29</version>
-		</dependency>
 	</dependencies>
 </project>
