@@ -40,8 +40,7 @@ public class DefaultResultRender implements Actor, Initialable {
         switch (action.getDispatcher()) {
             case INCLUDE: {
                 Response response = action.getResponse();
-                String contentType = response.getContentType();
-                MediaType mediaType = MediaType.valueOf(contentType);
+                MediaType mediaType = (MediaType) action.getExtra().get(MediaType.class);
                 ResponseSerializer serializer = map.get(mediaType);
                 Writer writer = response.getResponseWriter();
                 serializer.serialize(action, mediaType, writer);
@@ -60,6 +59,8 @@ public class DefaultResultRender implements Actor, Initialable {
             }
             break;
         }
+
+        result.setRendered(true);
 
         return value;
     }
