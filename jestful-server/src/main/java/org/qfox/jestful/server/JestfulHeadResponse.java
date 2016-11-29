@@ -29,12 +29,16 @@ public class JestfulHeadResponse extends HttpServletResponseWrapper {
         super(response);
     }
 
-    public void finish() throws Exception {
+    public void finish() throws IOException {
         Integer contentLength = 0;
         if (servletOutputStream != null) {
-            Method method = servletOutputStream.getClass().getDeclaredMethod("getContentLength");
-            method.setAccessible(true);
-            contentLength = (Integer) method.invoke(servletOutputStream);
+            try {
+                Method method = servletOutputStream.getClass().getDeclaredMethod("getContentLength");
+                method.setAccessible(true);
+                contentLength = (Integer) method.invoke(servletOutputStream);
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
         this.setContentLength(contentLength);
     }
