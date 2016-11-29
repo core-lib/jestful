@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
 
 /**
  * <p>
@@ -22,7 +21,7 @@ import java.lang.reflect.Method;
  * @since 1.0.0
  */
 public class JestfulHeadResponse extends HttpServletResponseWrapper {
-    private ServletOutputStream servletOutputStream;
+    private NoBodyServletOutputStream noBodyServletOutputStream;
     private PrintWriter printWriter;
 
     public JestfulHeadResponse(HttpServletResponse response) {
@@ -30,29 +29,19 @@ public class JestfulHeadResponse extends HttpServletResponseWrapper {
     }
 
     public void finish() throws IOException {
-        Integer contentLength = 0;
-        if (servletOutputStream != null) {
-            try {
-                Method method = servletOutputStream.getClass().getDeclaredMethod("getContentLength");
-                method.setAccessible(true);
-                contentLength = (Integer) method.invoke(servletOutputStream);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+        if (noBodyServletOutputStream != null) {
+            this.setContentLength(noBodyServletOutputStream.getContentLength());
+        } else {
+            this.setContentLength(0);
         }
-        this.setContentLength(contentLength);
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        if (servletOutputStream == null) {
-            try {
-                servletOutputStream = (ServletOutputStream) Class.forName("javax.servlet.http.NoBodyOutputStream").newInstance();
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+        if (noBodyServletOutputStream == null) {
+            noBodyServletOutputStream = new NoBodyServletOutputStream();
         }
-        return servletOutputStream;
+        return noBodyServletOutputStream;
     }
 
     @Override
