@@ -43,28 +43,31 @@ public class TextResultRender implements Actor {
             matcher.find();
             String type = matcher.group(2) != null ? matcher.group(2) : "text/plain";
             String content = matcher.group(3) != null ? matcher.group(3) : "";
-            Writer writer = null;
             try {
                 Response response = action.getResponse();
-                String charset = response.getResponseHeader("Content-Charset");
-                charset = charset != null ? charset : response.getCharacterEncoding();
-                response.setContentType(type + (charset != null ? "; charset=" + charset : ""));
                 switch (action.getDispatcher()) {
-                    case INCLUDE:
-                        writer = response.getResponseWriter();
-                        break;
-                    default:
+                    case INCLUDE: {
+                        Writer writer = response.getResponseWriter();
+                        writer.write(content);
+                        writer.flush();
+                    }
+                    break;
+                    default: {
+                        String charset = response.getResponseHeader("Content-Charset");
+                        charset = charset != null ? charset : response.getCharacterEncoding();
+                        response.setContentType(type + (charset != null ? "; charset=" + charset : ""));
                         OutputStream out = response.getResponseOutputStream();
-                        writer = new OutputStreamWriter(out, charset);
-                        break;
+                        Writer writer = new OutputStreamWriter(out, charset);
+                        writer.write(content);
+                        writer.flush();
+                        IOUtils.close(writer);
+                    }
+                    break;
                 }
-                writer.write(content);
-                writer.flush();
             } catch (Exception e) {
                 throw e;
             } finally {
                 result.setRendered(true);
-                IOUtils.close(writer);
             }
         }
         return value;
