@@ -181,11 +181,11 @@ public class JestfulFilterSupport implements Filter, Actor {
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 		try {
-			ServletInformation information = new ServletInformation(httpServletRequest);
-			String protocol = information.getProtocol();
-			String method = information.getMethod();
-			String URI = information.getRequestURI();
-			String query = information.getQuery();
+			RequestDescription description = new RequestDescription(httpServletRequest);
+			String protocol = description.getProtocol();
+			String method = description.getMethod();
+			String URI = description.getRequestURI();
+			String query = description.getQuery();
 			String accept = httpServletRequest.getHeader("Accept");
 
 			Mapping mapping = mappingRegistry.lookup(method, URI, accept, versionComparator).clone();

@@ -1,4 +1,4 @@
-package org.qfox.jestful.server;
+package javax.servlet.http;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
