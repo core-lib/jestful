@@ -49,4 +49,8 @@ public interface Request extends Closeable {
 
     OutputStream getRequestOutputStream() throws IOException;
 
+    Reader getRequestReader() throws IOException;
+
+    Writer getRequestWriter() throws IOException;
+
 }

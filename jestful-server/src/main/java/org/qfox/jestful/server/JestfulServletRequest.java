@@ -14,9 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -125,6 +123,16 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
     }
 
     public OutputStream getRequestOutputStream() throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Reader getRequestReader() throws IOException {
+        return request.getReader();
+    }
+
+    @Override
+    public Writer getRequestWriter() throws IOException {
         throw new UnsupportedOperationException();
     }
 

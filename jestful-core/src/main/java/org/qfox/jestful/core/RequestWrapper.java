@@ -1,9 +1,6 @@
 package org.qfox.jestful.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 
 public class RequestWrapper implements Request {
     private final Request request;
@@ -39,6 +36,16 @@ public class RequestWrapper implements Request {
 
     public OutputStream getRequestOutputStream() throws IOException {
         return request.getRequestOutputStream();
+    }
+
+    @Override
+    public Reader getRequestReader() throws IOException {
+        return request.getRequestReader();
+    }
+
+    @Override
+    public Writer getRequestWriter() throws IOException {
+        return request.getRequestWriter();
     }
 
     public int getConnTimeout() {

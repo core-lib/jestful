@@ -5,10 +5,7 @@ import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Request;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -110,6 +107,16 @@ public class JestfulClientRequest implements Request {
 
     public OutputStream getRequestOutputStream() throws IOException {
         return getRequest().getRequestOutputStream();
+    }
+
+    @Override
+    public Reader getRequestReader() throws IOException {
+        return getRequest().getRequestReader();
+    }
+
+    @Override
+    public Writer getRequestWriter() throws IOException {
+        return getRequest().getRequestWriter();
     }
 
     public void connect() throws IOException {

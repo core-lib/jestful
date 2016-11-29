@@ -74,7 +74,7 @@ public class HttpResponse implements Response {
             return reader;
         }
         InputStream in = getResponseInputStream();
-        return reader = new InputStreamReader(in);
+        return reader = characterEncoding != null ? new InputStreamReader(in, characterEncoding) : new InputStreamReader(in);
     }
 
     @Override
