@@ -31,6 +31,8 @@ public interface Response extends Closeable {
 
     OutputStream getResponseOutputStream() throws IOException;
 
+
+
     Status getResponseStatus() throws IOException;
 
     void setResponseStatus(Status status) throws IOException;
