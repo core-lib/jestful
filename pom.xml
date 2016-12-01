@@ -22,7 +22,8 @@
 		<module>jestful-android</module>
 		<module>jestful-RxJava</module>
 		<module>jestful-RxAndroid</module>
-	</modules>
+        <module>jestful-tutorial</module>
+    </modules>
 
 	<build>
 		<plugins>
