@@ -2,6 +2,7 @@ package org.qfox.jestful.server.render;
 
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
+import org.qfox.jestful.server.NoClosePrintWriter;
 
 import java.io.OutputStream;
 import java.io.Writer;
@@ -42,7 +43,7 @@ public class DefaultResultRender implements Actor, Initialable {
                 Response response = action.getResponse();
                 MediaType mediaType = (MediaType) action.getExtra().get(MediaType.class);
                 ResponseSerializer serializer = map.get(mediaType);
-                Writer writer = response.getResponseWriter();
+                Writer writer = new NoClosePrintWriter(response.getResponseWriter(), true);
                 serializer.serialize(action, mediaType, writer);
                 writer.flush();
             }

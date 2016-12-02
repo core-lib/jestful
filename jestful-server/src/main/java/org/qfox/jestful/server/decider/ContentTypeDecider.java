@@ -2,7 +2,6 @@ package org.qfox.jestful.server.decider;
 
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
-import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -59,14 +58,8 @@ public class ContentTypeDecider implements Actor, Initialable {
             }
         }
 
-        if (contentType != null) {
-            response.setContentType(contentType.getName());
-            action.getExtra().put(MediaType.class, contentType);
-        } else {
-            String URI = action.getURI();
-            String method = action.getRestful().getMethod();
-            throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? supports : produces);
-        }
+        response.setContentType(contentType.getName());
+        action.getExtra().put(MediaType.class, contentType);
 
         return action.execute();
     }
