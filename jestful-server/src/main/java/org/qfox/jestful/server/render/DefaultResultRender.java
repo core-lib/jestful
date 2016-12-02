@@ -3,6 +3,7 @@ package org.qfox.jestful.server.render;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
 import org.qfox.jestful.server.NoClosePrintWriter;
+import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 
 import java.io.OutputStream;
 import java.io.Writer;
@@ -43,9 +44,20 @@ public class DefaultResultRender implements Actor, Initialable {
                 Response response = action.getResponse();
                 MediaType mediaType = (MediaType) action.getExtra().get(MediaType.class);
                 ResponseSerializer serializer = map.get(mediaType);
-                Writer writer = new NoClosePrintWriter(response.getResponseWriter(), true);
-                serializer.serialize(action, mediaType, writer);
-                writer.flush();
+                if (serializer != null) {
+                    Writer writer = new NoClosePrintWriter(response.getResponseWriter(), true);
+                    serializer.serialize(action, mediaType, writer);
+                    writer.flush();
+                } else {
+                    Request request = action.getRequest();
+                    String accept = request.getRequestHeader("Accept");
+                    Accepts accepts = accept == null || accept.length() == 0 ? new Accepts(map.keySet()) : Accepts.valueOf(accept);
+                    Accepts produces = action.getProduces();
+                    Accepts supports = new Accepts(map.keySet());
+                    String URI = action.getURI();
+                    String method = action.getRestful().getMethod();
+                    throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? supports : produces);
+                }
             }
             break;
             default: {
@@ -54,9 +66,20 @@ public class DefaultResultRender implements Actor, Initialable {
                 String contentType = response.getContentType();
                 MediaType mediaType = MediaType.valueOf(contentType);
                 ResponseSerializer serializer = map.get(mediaType);
-                OutputStream out = response.getResponseOutputStream();
-                serializer.serialize(action, mediaType, charset, out);
-                out.flush();
+                if (serializer != null) {
+                    OutputStream out = response.getResponseOutputStream();
+                    serializer.serialize(action, mediaType, charset, out);
+                    out.flush();
+                } else {
+                    Request request = action.getRequest();
+                    String accept = request.getRequestHeader("Accept");
+                    Accepts accepts = accept == null || accept.length() == 0 ? new Accepts(map.keySet()) : Accepts.valueOf(accept);
+                    Accepts produces = action.getProduces();
+                    Accepts supports = new Accepts(map.keySet());
+                    String URI = action.getURI();
+                    String method = action.getRestful().getMethod();
+                    throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? supports : produces);
+                }
             }
             break;
         }
