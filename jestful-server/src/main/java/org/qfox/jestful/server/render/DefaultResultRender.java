@@ -43,8 +43,8 @@ public class DefaultResultRender implements Actor, Initialable {
             case INCLUDE: {
                 Response response = action.getResponse();
                 MediaType mediaType = (MediaType) action.getExtra().get(MediaType.class);
-                ResponseSerializer serializer = map.get(mediaType);
-                if (serializer != null) {
+                if (mediaType != null) {
+                    ResponseSerializer serializer = map.get(mediaType);
                     Writer writer = new NoClosePrintWriter(response.getResponseWriter(), true);
                     serializer.serialize(action, mediaType, writer);
                     writer.flush();
@@ -64,9 +64,9 @@ public class DefaultResultRender implements Actor, Initialable {
                 Response response = action.getResponse();
                 String charset = response.getResponseHeader("Content-Charset");
                 String contentType = response.getContentType();
-                MediaType mediaType = MediaType.valueOf(contentType);
-                ResponseSerializer serializer = map.get(mediaType);
-                if (serializer != null) {
+                if (contentType != null) {
+                    MediaType mediaType = MediaType.valueOf(contentType);
+                    ResponseSerializer serializer = map.get(mediaType);
                     OutputStream out = response.getResponseOutputStream();
                     serializer.serialize(action, mediaType, charset, out);
                     out.flush();

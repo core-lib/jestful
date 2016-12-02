@@ -58,8 +58,10 @@ public class ContentTypeDecider implements Actor, Initialable {
             }
         }
 
-        response.setContentType(contentType.getName());
-        action.getExtra().put(MediaType.class, contentType);
+        if (contentType != null) {
+            response.setContentType(contentType.getName());
+            action.getExtra().put(MediaType.class, contentType);
+        }
 
         return action.execute();
     }
