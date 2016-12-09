@@ -69,7 +69,7 @@ public class Multipart implements MultipartFile, Part, Cloneable {
     }
 
     public synchronized InputStream getInputStream() throws IOException {
-        if (inputStream == null) {
+        if (inputStream != null) {
             return inputStream;
         } else {
             return inputStream = new FileInputStream(multibody.getFile());
