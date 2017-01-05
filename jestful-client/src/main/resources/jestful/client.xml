@@ -35,6 +35,10 @@
 	<bean class="org.qfox.jestful.client.codec.DeflateResponseDecoder" />
 	<bean class="org.qfox.jestful.client.codec.GzipRequestEncoder" />
 	<bean class="org.qfox.jestful.client.codec.GzipResponseDecoder" />
+	<bean class="org.qfox.jestful.client.codec.IdentityRequestEncoder" />
+	<bean class="org.qfox.jestful.client.codec.IdentityResponseDecoder" />
+	<bean class="org.qfox.jestful.client.codec.NoneRequestEncoder" />
+	<bean class="org.qfox.jestful.client.codec.NoneResponseDecoder" />
 
 	<bean class="org.qfox.jestful.client.scheduler.CallbackScheduler" />
 	<bean class="org.qfox.jestful.client.scheduler.FutureScheduler" />

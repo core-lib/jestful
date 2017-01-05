@@ -57,6 +57,10 @@
     <bean class="org.qfox.jestful.server.codec.DeflateResponseEncoder"/>
     <bean class="org.qfox.jestful.server.codec.GzipRequestDecoder"/>
     <bean class="org.qfox.jestful.server.codec.GzipResponseEncoder"/>
+    <bean class="org.qfox.jestful.server.codec.IdentityRequestDecoder"/>
+    <bean class="org.qfox.jestful.server.codec.IdentityResponseEncoder"/>
+    <bean class="org.qfox.jestful.server.codec.NoneRequestDecoder"/>
+    <bean class="org.qfox.jestful.server.codec.NoneResponseEncoder"/>
 
 </beans>
 
