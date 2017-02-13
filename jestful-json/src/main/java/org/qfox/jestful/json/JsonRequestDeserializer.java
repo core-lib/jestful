@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Multihead;
@@ -33,6 +34,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JsonRequestDeserializer extends ObjectMapper implements RequestDeserializer {
 	private static final long serialVersionUID = 5796735653228955284L;
+
+	public JsonRequestDeserializer() {
+		this.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+		this.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
+		this.configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false);
+		this.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+		this.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, false);
+		this.configure(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY, false);
+		this.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		this.configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false);
+	}
 
 	public String getContentType() {
 		return "application/json";

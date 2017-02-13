@@ -1,5 +1,6 @@
 package org.qfox.jestful.xml;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
@@ -27,6 +28,17 @@ import java.io.Reader;
  */
 public class XmlResponseDeserializer extends XmlMapper implements ResponseDeserializer {
     private static final long serialVersionUID = -7199443473873561462L;
+
+    public XmlResponseDeserializer() {
+        this.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+        this.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
+        this.configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false);
+        this.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, false);
+        this.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, false);
+        this.configure(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY, false);
+        this.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false);
+    }
 
     public String getContentType() {
         return "application/xml";
