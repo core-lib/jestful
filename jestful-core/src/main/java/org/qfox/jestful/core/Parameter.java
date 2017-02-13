@@ -57,8 +57,8 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
                 Variable variable = annotation.annotationType().getAnnotation(Variable.class);
                 this.position = variable.position();
                 this.coding = variable.coding();
-                this.encoded = (Boolean) annotation.annotationType().getMethod("encoded").invoke(annotation);
-                this.decoded = (Boolean) annotation.annotationType().getMethod("decoded").invoke(annotation);
+                this.encoded = variable.coding() ? (Boolean) annotation.annotationType().getMethod("encoded").invoke(annotation) : false;
+                this.decoded = variable.coding() ? (Boolean) annotation.annotationType().getMethod("decoded").invoke(annotation) : false;
             } else if (variables.length == 0) {
                 this.name = String.valueOf(index);
                 this.position = null;
