@@ -26,7 +26,7 @@ import org.qfox.jestful.core.Position;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@Variable(position = Position.PATH)
+@Variable(position = Position.PATH, coding = true)
 public @interface Path {
 
 	/**
@@ -35,5 +35,9 @@ public @interface Path {
 	 * @return
 	 */
 	String value();
+
+	boolean encoded() default false;
+
+	boolean decoded() default false;
 
 }

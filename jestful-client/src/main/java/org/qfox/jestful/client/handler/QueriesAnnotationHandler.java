@@ -40,7 +40,13 @@ public class QueriesAnnotationHandler implements Actor {
 				if (keyvalue.length != 2) {
 					throw new IllegalQueryException(value + " is not a key-value pair like key=value", value);
 				}
-				query += (query.length() == 0 ? "" : "&") + URLEncoder.encode(keyvalue[0], charset) + "=" + URLEncoder.encode(keyvalue[1], charset);
+				String k = keyvalue[0];
+				String v = keyvalue[1];
+				if (queries.encoded() == false) {
+					k = URLEncoder.encode(k, charset);
+					v = URLEncoder.encode(v, charset);
+				}
+				query += (query.length() == 0 ? "" : "&") + k + "=" + v;
 			}
 		}
 
@@ -53,7 +59,13 @@ public class QueriesAnnotationHandler implements Actor {
 				if (keyvalue.length != 2) {
 					throw new IllegalQueryException(value + " is not a key-value pair like key=value", value);
 				}
-				query += (query.length() == 0 ? "" : "&") + URLEncoder.encode(keyvalue[0], charset) + "=" + URLEncoder.encode(keyvalue[1], charset);
+				String k = keyvalue[0];
+				String v = keyvalue[1];
+				if (queries.encoded() == false) {
+					k = URLEncoder.encode(k, charset);
+					v = URLEncoder.encode(v, charset);
+				}
+				query += (query.length() == 0 ? "" : "&") + k + "=" + v;
 			}
 		}
 

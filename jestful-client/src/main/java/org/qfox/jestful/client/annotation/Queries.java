@@ -28,4 +28,6 @@ public @interface Queries {
 
 	String[] value();
 
+	boolean encoded() default false;
+
 }

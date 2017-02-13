@@ -28,4 +28,6 @@ public @interface Cookies {
 
 	String[] value();
 
+	boolean encoded() default false;
+
 }

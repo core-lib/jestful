@@ -27,7 +27,7 @@ import org.qfox.jestful.core.annotation.Variable;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@Variable(position = Position.SESSION)
+@Variable(position = Position.SESSION, coding = false)
 public @interface Session {
 
 	/**

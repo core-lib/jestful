@@ -28,4 +28,6 @@ public @interface Headers {
 
 	String[] value();
 
+	boolean encoded() default false;
+
 }

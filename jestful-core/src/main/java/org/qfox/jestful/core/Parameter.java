@@ -1,166 +1,186 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.core.annotation.Variable;
+import org.qfox.jestful.core.exception.AmbiguousParameterException;
+import org.qfox.jestful.core.exception.IllegalConfigException;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
-import org.qfox.jestful.core.annotation.Variable;
-import org.qfox.jestful.core.exception.AmbiguousParameterException;
-import org.qfox.jestful.core.exception.IllegalConfigException;
-
 /**
  * <p>
  * Description: 形参
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月7日 下午3:56:59
- *
  * @since 1.0.0
  */
 public class Parameter extends Configuration implements Comparable<Parameter> {
-	private final Mapping mapping;
-	private final Object controller;
-	private final Method method;
-	private final Type type;
-	private final Class<?> klass;
-	private final int index;
-	private final String name;
-	private final Position position;
-	private Object value;
-	private int group;
-	private String regex;
-	private boolean resolved;
+    private final Mapping mapping;
+    private final Object controller;
+    private final Method method;
+    private final Type type;
+    private final Class<?> klass;
+    private final int index;
+    private final String name;
+    private final Position position;
+    private Object value;
+    private int group;
+    private String regex;
+    private boolean resolved;
 
-	public Parameter(Mapping mapping, Method method, int index) throws IllegalConfigException {
-		super(method.getParameterAnnotations()[index]);
-		try {
-			this.mapping = mapping;
-			this.controller = mapping.getController();
-			this.method = method;
-			this.type = method.getGenericParameterTypes()[index];
-			this.klass = method.getParameterTypes()[index];
-			this.index = index;
-			Annotation[] variables = getAnnotationsWith(Variable.class);
-			if (variables.length == 1) {
-				Annotation annotation = getAnnotationWith(Variable.class);
-				String name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
-				this.name = name.length() == 0 ? String.valueOf(index) : name;
-				Variable variable = annotation.annotationType().getAnnotation(Variable.class);
-				this.position = variable.position();
-			} else if (variables.length == 0) {
-				this.name = String.valueOf(index);
-				this.position = null;
-			} else {
-				throw new AmbiguousParameterException("Ambiguous parameter at index " + index + " in " + method + " which has more than one variable kind annotations " + Arrays.toString(variables), controller, method, this);
-			}
-		} catch (Exception e) {
-			throw new IllegalConfigException(e, mapping.getController(), method);
-		}
-	}
+    private final boolean coding;
+    private final boolean encoded;
+    private final boolean decoded;
 
-	public int compareTo(Parameter o) {
-		return index > o.index ? 1 : index < o.index ? -1 : 0;
-	}
+    public Parameter(Mapping mapping, Method method, int index) throws IllegalConfigException {
+        super(method.getParameterAnnotations()[index]);
+        try {
+            this.mapping = mapping;
+            this.controller = mapping.getController();
+            this.method = method;
+            this.type = method.getGenericParameterTypes()[index];
+            this.klass = method.getParameterTypes()[index];
+            this.index = index;
+            Annotation[] variables = getAnnotationsWith(Variable.class);
+            if (variables.length == 1) {
+                Annotation annotation = getAnnotationWith(Variable.class);
+                String name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
+                this.name = name.length() == 0 ? String.valueOf(index) : name;
+                Variable variable = annotation.annotationType().getAnnotation(Variable.class);
+                this.position = variable.position();
+                this.coding = variable.coding();
+                this.encoded = (Boolean) annotation.annotationType().getMethod("encoded").invoke(annotation);
+                this.decoded = (Boolean) annotation.annotationType().getMethod("decoded").invoke(annotation);
+            } else if (variables.length == 0) {
+                this.name = String.valueOf(index);
+                this.position = null;
+                this.coding = false;
+                this.encoded = false;
+                this.decoded = false;
+            } else {
+                throw new AmbiguousParameterException("Ambiguous parameter at index " + index + " in " + method + " which has more than one variable kind annotations " + Arrays.toString(variables), controller, method, this);
+            }
+        } catch (Exception e) {
+            throw new IllegalConfigException(e, mapping.getController(), method);
+        }
+    }
 
-	public Object getValue() {
-		return value;
-	}
+    public int compareTo(Parameter o) {
+        return index > o.index ? 1 : index < o.index ? -1 : 0;
+    }
 
-	public void setValue(Object value) {
-		this.value = value;
-	}
+    public Object getValue() {
+        return value;
+    }
 
-	public int getGroup() {
-		return group;
-	}
+    public void setValue(Object value) {
+        this.value = value;
+    }
 
-	public void setGroup(int group) {
-		this.group = group;
-	}
+    public int getGroup() {
+        return group;
+    }
 
-	public String getRegex() {
-		return regex;
-	}
+    public void setGroup(int group) {
+        this.group = group;
+    }
 
-	public void setRegex(String regex) {
-		this.regex = regex;
-	}
+    public String getRegex() {
+        return regex;
+    }
 
-	public boolean isResolved() {
-		return resolved;
-	}
+    public void setRegex(String regex) {
+        this.regex = regex;
+    }
 
-	public void setResolved(boolean resolved) {
-		this.resolved = resolved;
-	}
+    public boolean isResolved() {
+        return resolved;
+    }
 
-	public Mapping getMapping() {
-		return mapping;
-	}
+    public void setResolved(boolean resolved) {
+        this.resolved = resolved;
+    }
 
-	public Object getController() {
-		return controller;
-	}
+    public boolean isCoding() {
+        return coding;
+    }
 
-	public Method getMethod() {
-		return method;
-	}
+    public boolean isEncoded() {
+        return encoded;
+    }
 
-	public Type getType() {
-		return type;
-	}
+    public boolean isDecoded() {
+        return decoded;
+    }
 
-	public Class<?> getKlass() {
-		return klass;
-	}
+    public Mapping getMapping() {
+        return mapping;
+    }
 
-	public int getIndex() {
-		return index;
-	}
+    public Object getController() {
+        return controller;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public Method getMethod() {
+        return method;
+    }
 
-	public Position getPosition() {
-		return position;
-	}
+    public Type getType() {
+        return type;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
+    public Class<?> getKlass() {
+        return klass;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Parameter other = (Parameter) obj;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
+    public int getIndex() {
+        return index;
+    }
 
-	@Override
-	public String toString() {
-		return type.toString();
-	}
+    public String getName() {
+        return name;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Parameter other = (Parameter) obj;
+        if (name == null) {
+            if (other.name != null)
+                return false;
+        } else if (!name.equals(other.name))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return type.toString();
+    }
 
 }

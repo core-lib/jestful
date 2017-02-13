@@ -26,9 +26,13 @@ import org.qfox.jestful.core.Position;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@Variable(position = Position.QUERY)
+@Variable(position = Position.QUERY, coding = true)
 public @interface Query {
 
 	String value();
+
+	boolean encoded() default false;
+
+	boolean decoded() default false;
 
 }

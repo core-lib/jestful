@@ -27,7 +27,7 @@ import org.qfox.jestful.core.Position;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER })
-@Variable(position = Position.COOKIE)
+@Variable(position = Position.COOKIE, coding = true)
 public @interface Cookie {
 
 	/**
@@ -36,5 +36,9 @@ public @interface Cookie {
 	 * @return
 	 */
 	String value();
+
+	boolean encoded() default false;
+
+	boolean decoded() default false;
 
 }

@@ -40,7 +40,13 @@ public class HeadersAnnotationHandler implements Actor {
 				if (keyvalue.length != 2) {
 					throw new IllegalHeaderException(value + " is not a key-value pair like key: value", value);
 				}
-				request.setRequestHeader(URLEncoder.encode(keyvalue[0], charset), URLEncoder.encode(keyvalue[1], charset));
+				String k = keyvalue[0];
+				String v = keyvalue[1];
+				if (headers.encoded() == false) {
+					k = URLEncoder.encode(k, charset);
+					v = URLEncoder.encode(v, charset);
+				}
+				request.setRequestHeader(k, v);
 			}
 		}
 
@@ -53,7 +59,13 @@ public class HeadersAnnotationHandler implements Actor {
 				if (keyvalue.length != 2) {
 					throw new IllegalHeaderException(value + " is not a key-value pair like key: value", value);
 				}
-				request.setRequestHeader(URLEncoder.encode(keyvalue[0], charset), URLEncoder.encode(keyvalue[1], charset));
+				String k = keyvalue[0];
+				String v = keyvalue[1];
+				if (headers.encoded() == false) {
+					k = URLEncoder.encode(k, charset);
+					v = URLEncoder.encode(v, charset);
+				}
+				request.setRequestHeader(k, v);
 			}
 		}
 
