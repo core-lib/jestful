@@ -1,6 +1,8 @@
 package org.qfox.jestful.server.converter;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +25,14 @@ public class WrapperConverter implements Converter {
 		return wrappers.contains(clazz);
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
+	public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
 		String[] values = map.get(name);
 		String value = values != null && values.length > 0 ? values[0] : null;
 		if (value == null) {
 			return null;
+		}
+		if (decoded == false) {
+			value = URLDecoder.decode(value, charset);
 		}
 		Object result = null;
 		try {
@@ -67,7 +72,7 @@ public class WrapperConverter implements Converter {
 		return false;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
+	public Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
 		throw new UnsupportedOperationException("converter of " + this.getClass() + " do not supported parameterized type");
 	}
 

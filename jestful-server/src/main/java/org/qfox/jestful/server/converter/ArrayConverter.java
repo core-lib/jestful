@@ -1,5 +1,6 @@
 package org.qfox.jestful.server.converter;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ public class ArrayConverter implements Converter {
 		return clazz.isArray();
 	}
 
-	public <T> T convert(String name, Class<T> clazz, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
+	public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
 		Object array = Array.newInstance(clazz.getComponentType(), 0);
 		for (String key : map.keySet()) {
 			if (key.equals(name) || key.startsWith(name + ".")) {
@@ -21,7 +22,7 @@ public class ArrayConverter implements Converter {
 				for (int i = 0; i < values.length; i++) {
 					Map<String, String[]> _map = new HashMap<String, String[]>();
 					_map.put(name, Utils.copyOfRange(values, i, i + 1));
-					Object object = provider.convert(name, clazz.getComponentType(), _map);
+					Object object = provider.convert(name, clazz.getComponentType(), decoded, charset, _map);
 					int index = Array.getLength(array);
 					Object _array = Array.newInstance(clazz.getComponentType(), index + 1);
 					System.arraycopy(array, 0, _array, 0, index);
@@ -37,7 +38,7 @@ public class ArrayConverter implements Converter {
 		return false;
 	}
 
-	public Object convert(String name, ParameterizedType type, Map<String, String[]> map, ConversionProvider provider) throws ConversionException {
+	public Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
 		throw new UnsupportedOperationException("converter of " + this.getClass() + " do not supported parameterized type");
 	}
 }
