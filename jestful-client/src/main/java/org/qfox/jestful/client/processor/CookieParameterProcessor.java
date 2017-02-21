@@ -37,7 +37,7 @@ public class CookieParameterProcessor implements Actor, Initialable {
                     throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
                 }
                 String name = parameter.getName();
-                if (parameter.isCoding() && parameter.isEncoded() == false) {
+                if (parameter.isCoding() && !parameter.isEncoded()) {
                     name = URLEncoder.encode(name, charset);
                     value = URLEncoder.encode(value, charset);
                 }

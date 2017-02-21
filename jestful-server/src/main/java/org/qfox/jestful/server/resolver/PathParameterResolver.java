@@ -1,17 +1,12 @@
 package org.qfox.jestful.server.resolver;
 
+import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.converter.StringConversion;
+
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Initialable;
-import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Position;
-import org.qfox.jestful.core.converter.StringConversion;
 
 /**
  * <p>
@@ -43,7 +38,7 @@ public class PathParameterResolver implements Actor, Initialable {
 			if (group <= 0) {
 				continue;
 			}
-			String source = URLDecoder.decode(matcher.group(group), charset);
+			String source = parameter.isDecoded() ? matcher.group(group) : URLDecoder.decode(matcher.group(group), charset);
 			pathStringConversion.convert(parameter, source);
 		}
 		return action.execute();

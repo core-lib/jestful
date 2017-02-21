@@ -38,11 +38,11 @@ public class HeaderParameterProcessor implements Actor, Initialable {
                 if (regex != null && value.matches(regex) == false) {
                     throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
                 }
-                if (parameter.isCoding() && parameter.isEncoded() == false) {
+                if (parameter.isCoding() && !parameter.isEncoded()) {
                     values[i] = URLEncoder.encode(values[i], charset);
                 }
             }
-            request.setRequestHeaders(parameter.isCoding() && parameter.isEncoded() == false ? URLEncoder.encode(name, charset) : name, values);
+            request.setRequestHeaders(parameter.isCoding() && !parameter.isEncoded() ? URLEncoder.encode(name, charset) : name, values);
         }
         return action.execute();
     }
