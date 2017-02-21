@@ -42,8 +42,8 @@ public class HeadersAnnotationHandler implements Actor {
 				}
 				String k = keyvalue[0];
 				String v = keyvalue[1];
+				k = URLEncoder.encode(k, charset);
 				if (headers.encoded() == false) {
-					k = URLEncoder.encode(k, charset);
 					v = URLEncoder.encode(v, charset);
 				}
 				request.setRequestHeader(k, v);
