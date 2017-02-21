@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@Variable(position = Position.BODY, coding = false)
+@Variable(position = Position.BODY, coding = true)
 public @interface Body {
 
     /**
@@ -29,5 +29,9 @@ public @interface Body {
      * @return
      */
     String value() default "";
+
+    boolean encoded() default false;
+
+    boolean decoded() default false;
 
 }
