@@ -59,7 +59,7 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
                 if (builder.length() > 0) {
                     builder.append("&");
                 }
-                builder.append(body.isCoding() && body.isEncoded() == false ? URLEncoder.encode(name, charset) : name);
+                builder.append(URLEncoder.encode(name, charset));
                 builder.append("=");
                 builder.append(body.isCoding() && body.isEncoded() == false ? URLEncoder.encode(value, charset) : value);
             }

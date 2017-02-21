@@ -42,7 +42,7 @@ public class HeaderParameterProcessor implements Actor, Initialable {
                     values[i] = URLEncoder.encode(values[i], charset);
                 }
             }
-            request.setRequestHeaders(parameter.isCoding() && !parameter.isEncoded() ? URLEncoder.encode(name, charset) : name, values);
+            request.setRequestHeaders(URLEncoder.encode(name, charset), values);
         }
         return action.execute();
     }

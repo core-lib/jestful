@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 public class EncodeController {
 
     @GET("/test")
-    public String test(@Query(value = "decoded", decoded = true) String decoded, @Query(value = "notDecoded", decoded = false) String notDecoded,@Query(value = "名字", decoded = false) String name) {
+    public String test(@Query(value = "decoded", decoded = true) String decoded, @Query(value = "notDecoded", decoded = false) String notDecoded,@Query(value = "名字", decoded = true) String name) {
         System.out.println(decoded);
         System.out.println(notDecoded);
         System.out.println(name);

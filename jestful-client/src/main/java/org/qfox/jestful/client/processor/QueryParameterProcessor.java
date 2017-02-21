@@ -36,8 +36,8 @@ public class QueryParameterProcessor implements Actor, Initialable {
                     throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
                 }
                 String name = parameter.getName();
+                name = URLEncoder.encode(name, charset);
                 if (parameter.isCoding() && !parameter.isEncoded()) {
-                    name = URLEncoder.encode(name, charset);
                     value = URLEncoder.encode(value, charset);
                 }
                 query += (query.length() == 0 ? "" : "&") + name + "=" + value;
