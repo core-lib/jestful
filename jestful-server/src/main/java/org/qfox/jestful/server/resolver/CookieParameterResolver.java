@@ -37,7 +37,9 @@ public class CookieParameterResolver implements Actor, Initialable {
             Cookie[] cookies = httpServletRequest.getCookies();
             for (int i = 0; cookies != null && i < cookies.length; i++) {
                 Cookie cookie = cookies[i];
-                if (caseInsensitive ? cookie.getName().equalsIgnoreCase(parameter.getName()) == false : cookie.getName().equals(parameter.getName()) == false) {
+                String cookieName = URLDecoder.decode(cookie.getName(), charset);
+                String parameterName = parameter.getName();
+                if (caseInsensitive ? cookieName.equalsIgnoreCase(parameterName) == false : cookieName.equals(parameterName) == false) {
                     continue;
                 }
                 String source = parameter.isCoding() && !parameter.isDecoded() ? URLDecoder.decode(cookie.getValue(), charset) : cookie.getValue();
