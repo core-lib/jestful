@@ -17,6 +17,17 @@ public class EncodeControllerAPITest {
     @Test
     public void testHeader() throws Exception {
         api.testHeader("杨昌沛", "杨昌沛", "杨昌沛");
+        api.testHeader2();
+    }
+
+    @Test
+    public void testCookie() throws Exception {
+        api.testCookie("杨昌沛", "杨昌沛", "杨昌沛");
+    }
+
+    @Test
+    public void testBody() throws Exception {
+        api.testBody("杨昌沛");
     }
 
 }
