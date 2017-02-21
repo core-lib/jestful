@@ -14,7 +14,7 @@ public class StringConverter implements Converter {
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         String[] values = map.get(name) != null ? map.get(name).clone() : null;
         String value = values != null && values.length > 0 ? values[0] : null;
-        return decoded ? clazz.cast(value) : clazz.cast(URLDecoder.decode(value, charset));
+        return decoded ? clazz.cast(value) : clazz.cast(value == null ? null : URLDecoder.decode(value, charset));
     }
 
     public boolean supports(ParameterizedType type) {
