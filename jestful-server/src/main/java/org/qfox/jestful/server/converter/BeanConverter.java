@@ -28,7 +28,7 @@ public class BeanConverter implements Converter {
             if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
                 int index = key.indexOf('.');
                 String property = key.substring(index + 1);
-                String[] values = map.get(key) != null ? map.get(key) : new String[0];
+                String[] values = map.get(key) != null ? map.get(key).clone() : new String[0];
                 Map<String, String[]> _map = new HashMap<String, String[]>();
                 _map.put(property, values);
                 try {
@@ -62,7 +62,7 @@ public class BeanConverter implements Converter {
             if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
                 int index = key.indexOf('.');
                 String property = key.substring(index + 1);
-                String[] values = map.get(key) != null ? map.get(key) : new String[0];
+                String[] values = map.get(key) != null ? map.get(key).clone() : new String[0];
                 Map<String, String[]> _map = new HashMap<String, String[]>();
                 _map.put(property, values);
                 try {

@@ -24,7 +24,7 @@ public class MapConverter implements Converter {
             if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
                 int index = key.indexOf('.');
                 String _key = key.substring(index + 1);
-                String[] values = map.get(key);
+                String[] values = map.get(key).clone();
                 if (decoded == false) {
                     _key = URLDecoder.decode(_key, charset);
                     for (int i = 0; values != null && i < values.length; i++) {
@@ -56,7 +56,7 @@ public class MapConverter implements Converter {
             if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
                 int index = key.indexOf('.');
                 String _key = key.substring(index + 1);
-                String[] values = map.get(key);
+                String[] values = map.get(key).clone();
 
                 String __key = _key.split("\\.")[0];
 

@@ -26,7 +26,7 @@ public class WrapperConverter implements Converter {
 	}
 
 	public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
-		String[] values = map.get(name);
+		String[] values = map.get(name).clone();
 		String value = values != null && values.length > 0 ? values[0] : null;
 		if (value == null) {
 			return null;

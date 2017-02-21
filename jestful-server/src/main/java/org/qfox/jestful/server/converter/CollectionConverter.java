@@ -21,7 +21,7 @@ public class CollectionConverter implements Converter {
     }
 
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
-        String[] values = map.get(name) != null ? map.get(name) : new String[0];
+        String[] values = map.get(name) != null ? map.get(name).clone() : new String[0];
         for (int i = 0; decoded == false && values != null && i < values.length; i++) {
             values[i] = URLDecoder.decode(values[i], charset);
         }
@@ -49,7 +49,7 @@ public class CollectionConverter implements Converter {
         Collection<Object> collection = new ArrayList<Object>();
         for (String key : map.keySet()) {
             if (key.equals(name)) {
-                String[] values = map.get(key);
+                String[] values = map.get(key).clone();
                 Map<String, String[]> _map = new HashMap<String, String[]>();
                 String[] _values = new String[1];
                 for (String value : values) {
@@ -60,7 +60,7 @@ public class CollectionConverter implements Converter {
                 }
             }
             if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
-                String[] values = map.get(key);
+                String[] values = map.get(key).clone();
                 Map<String, String[]> _map = new HashMap<String, String[]>();
                 String[] _values = new String[1];
                 for (String value : values) {
