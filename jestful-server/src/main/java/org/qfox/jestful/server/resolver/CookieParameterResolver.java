@@ -40,7 +40,7 @@ public class CookieParameterResolver implements Actor, Initialable {
                 if (caseInsensitive ? cookie.getName().equalsIgnoreCase(parameter.getName()) == false : cookie.getName().equals(parameter.getName()) == false) {
                     continue;
                 }
-                String source = parameter.isDecoded() ? cookie.getValue() : URLDecoder.decode(cookie.getValue(), charset);
+                String source = parameter.isCoding() && !parameter.isDecoded() ? URLDecoder.decode(cookie.getValue(), charset) : cookie.getValue();
                 cookieStringConversion.convert(parameter, source);
             }
         }
