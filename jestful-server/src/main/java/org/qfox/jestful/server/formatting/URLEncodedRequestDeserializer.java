@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
                 String[] pairs = line.split("&+");
                 for (String pair : pairs) {
                     String[] keyvalue = pair.split("=+");
-                    String key = keyvalue[0];
+                    String key = URLDecoder.decode(keyvalue[0], charset);
                     String value = keyvalue.length > 1 ? keyvalue[1] : "";
                     if (map.containsKey(key) == false) {
                         map.put(key, new String[0]);

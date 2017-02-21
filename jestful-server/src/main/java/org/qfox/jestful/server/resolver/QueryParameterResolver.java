@@ -7,6 +7,7 @@ import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.IncompatibleConversionException;
 
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class QueryParameterResolver implements Actor, Initialable {
         Map<String, String[]> map = new HashMap<String, String[]>();
         for (String pair : pairs) {
             String[] keyvalue = pair.split("=+");
-            String key = keyvalue[0];
+            String key = URLDecoder.decode(keyvalue[0], charset);
             String value = keyvalue.length > 1 ? keyvalue[1] : "";
             if (map.containsKey(key) == false) {
                 map.put(key, new String[0]);
