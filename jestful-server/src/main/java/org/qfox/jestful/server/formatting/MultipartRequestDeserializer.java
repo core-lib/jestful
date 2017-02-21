@@ -140,7 +140,8 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 				continue;
 			}
 			try {
-				Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), fields);
+				boolean decoded = parameter.isCoding() == false || (parameter.isCoding() && parameter.isDecoded());
+				Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, fields);
 				parameter.setValue(value);
 			} catch (IncompatibleConversionException e) {
 				throw new JestfulIOException(e);

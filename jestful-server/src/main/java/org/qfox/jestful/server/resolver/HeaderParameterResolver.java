@@ -42,10 +42,6 @@ public class HeaderParameterResolver implements Actor, Initialable {
 		String[] keys = request.getHeaderKeys();
 		for (String key : keys) {
 			String[] values = request.getRequestHeaders(key);
-			for (int i = 0; i < values.length; i++) {
-				String value = values[i];
-				values[i] = URLDecoder.decode(value, charset);
-			}
 			map.put(key, values);
 		}
 		List<Parameter> parameters = action.getParameters().all(Position.HEADER);
@@ -54,7 +50,8 @@ public class HeaderParameterResolver implements Actor, Initialable {
 				continue;
 			}
 			try {
-				Object value = headerConversionProvider.convert(parameter.getName(), parameter.getType(), map);
+				boolean decoded = parameter.isCoding() == false || (parameter.isCoding() && parameter.isDecoded());
+				Object value = headerConversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, map);
 				parameter.setValue(value);
 			} catch (IncompatibleConversionException e) {
 				throw new JestfulIOException(e);
