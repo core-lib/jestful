@@ -73,6 +73,10 @@ public class BodyParameterResolver implements Actor, Initialable {
 		if (supports.contains(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
 			RequestDeserializer deserializer = map.get(mediaType);
 			deserializer.deserialize(action, mediaType, charset, request.getRequestInputStream());
+		} else if (consumes.size() == 1) {
+			mediaType = consumes.iterator().next();
+			RequestDeserializer deserializer = map.get(mediaType);
+			deserializer.deserialize(action, mediaType, charset, request.getRequestInputStream());
 		} else {
 			String URI = action.getURI();
 			String method = action.getRestful().getMethod();

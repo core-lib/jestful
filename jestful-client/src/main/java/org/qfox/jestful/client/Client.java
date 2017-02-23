@@ -360,6 +360,19 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
 				InputStream in = response.getResponseInputStream();
 				String value = IOUtils.toString(in);
 				body.setValue(value);
+			} else if (produces.size() == 1) {
+				mediaType = produces.iterator().next();
+				String charset = mediaType.getCharset();
+				if (charset == null || charset.length() == 0) {
+					charset = response.getResponseHeader("Content-Charset");
+				}
+				if (charset == null || charset.length() == 0) {
+					charset = Charset.defaultCharset().name();
+				}
+				ResponseDeserializer deserializer = deserializers.get(mediaType);
+				InputStream in = response.getResponseInputStream();
+				deserializer.deserialize(action, mediaType, charset, in);
+				return;
 			} else {
 				if (produces.isEmpty() == false) {
 					supports.retainAll(produces);
