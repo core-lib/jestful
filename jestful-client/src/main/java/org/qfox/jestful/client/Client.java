@@ -319,6 +319,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
                     charset = response.getResponseHeader("Content-Charset");
                 }
                 if (charset == null || charset.length() == 0) {
+                    charset = response.getCharacterEncoding();
+                }
+                if (charset == null || charset.length() == 0) {
                     charset = Charset.defaultCharset().name();
                 }
                 ResponseDeserializer deserializer = deserializers.get(mediaType);
@@ -329,6 +332,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
                 String charset = mediaType.getCharset();
                 if (charset == null || charset.length() == 0) {
                     charset = response.getResponseHeader("Content-Charset");
+                }
+                if (charset == null || charset.length() == 0) {
+                    charset = response.getCharacterEncoding();
                 }
                 if (charset == null || charset.length() == 0) {
                     charset = Charset.defaultCharset().name();
@@ -342,6 +348,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
                 mediaType = produces.iterator().next();
                 if (charset == null || charset.length() == 0) {
                     charset = response.getResponseHeader("Content-Charset");
+                }
+                if (charset == null || charset.length() == 0) {
+                    charset = response.getCharacterEncoding();
                 }
                 if (charset == null || charset.length() == 0) {
                     charset = mediaType.getCharset();
