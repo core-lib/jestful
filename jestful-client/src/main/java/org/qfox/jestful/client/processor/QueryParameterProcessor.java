@@ -31,6 +31,9 @@ public class QueryParameterProcessor implements Actor, Initialable {
             String[] values = queryStringConversion.convert(parameter);
             for (int i = 0; values != null && i < values.length; i++) {
                 String value = values[i];
+                if (value == null) {
+                    continue;
+                }
                 String regex = parameter.getRegex();
                 if (regex != null && value.matches(regex) == false) {
                     throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);

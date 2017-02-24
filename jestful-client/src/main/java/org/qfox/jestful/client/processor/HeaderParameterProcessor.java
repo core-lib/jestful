@@ -4,6 +4,7 @@ import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.converter.StringConversion;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,17 +33,23 @@ public class HeaderParameterProcessor implements Actor, Initialable {
             if (values == null) {
                 continue;
             }
-            for (int i = 0; values != null && i < values.length; i++) {
-                String value = values[i];
+            List<String> list = new ArrayList<String>();
+            for (String value : values) {
+                if (value == null) {
+                    continue;
+                }
                 String regex = parameter.getRegex();
                 if (regex != null && value.matches(regex) == false) {
                     throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
                 }
                 if (parameter.isCoding() && !parameter.isEncoded()) {
-                    values[i] = URLEncoder.encode(values[i], charset);
+                    String encoded = URLEncoder.encode(value, charset);
+                    list.add(encoded);
                 }
             }
-            request.setRequestHeaders(URLEncoder.encode(name, charset), values);
+            if (list.isEmpty() == false) {
+                request.setRequestHeaders(URLEncoder.encode(name, charset), list.toArray(new String[list.size()]));
+            }
         }
         return action.execute();
     }
