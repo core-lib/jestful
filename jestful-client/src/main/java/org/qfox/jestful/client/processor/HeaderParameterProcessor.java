@@ -43,9 +43,9 @@ public class HeaderParameterProcessor implements Actor, Initialable {
                     throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
                 }
                 if (parameter.isCoding() && !parameter.isEncoded()) {
-                    String encoded = URLEncoder.encode(value, charset);
-                    list.add(encoded);
+                    value = URLEncoder.encode(value, charset);
                 }
+                list.add(value);
             }
             if (list.isEmpty() == false) {
                 request.setRequestHeaders(URLEncoder.encode(name, charset), list.toArray(new String[list.size()]));
