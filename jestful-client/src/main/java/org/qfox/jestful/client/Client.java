@@ -384,9 +384,22 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
             }
 
             if (response.isResponseSuccess() == false) {
+                String contentType = response.getContentType();
+                MediaType mediaType = contentType == null || contentType.trim().length() == 0 ? null : MediaType.valueOf(contentType);
+                String charset = mediaType == null ? null : mediaType.getCharset();
+                if (charset == null || charset.length() == 0) {
+                    charset = response.getResponseHeader("Content-Charset");
+                }
+                if (charset == null || charset.length() == 0) {
+                    charset = response.getCharacterEncoding();
+                }
+                if (charset == null || charset.length() == 0) {
+                    charset = Charset.defaultCharset().name();
+                }
                 Status status = response.getResponseStatus();
                 InputStream in = response.getResponseInputStream();
-                String body = in != null ? IOUtils.toString(in) : "";
+                InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
+                String body = reader != null ? IOUtils.toString(reader) : "";
                 throw new UnexpectedStatusException(status, body);
             }
 
