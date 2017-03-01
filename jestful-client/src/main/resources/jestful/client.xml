@@ -43,6 +43,6 @@
     <bean class="org.qfox.jestful.client.scheduler.CallbackScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.FutureScheduler"/>
 
-    <bean class="org.qfox.jestful.client.plugin.CharacterEncodingPlugin"/>
+    <bean id="characterEncodingPlugin" class="org.qfox.jestful.client.plugin.CharacterEncodingPlugin"/>
 
 </beans>
