@@ -109,10 +109,8 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
 	public Resource register(Object controller) throws IllegalConfigException {
 		try {
 			Resource resource = new Resource(controller);
-			Node<PathExpression, Mapping> node = resource.toNode();
-			Node<PathExpression, Mapping> parent = new Node<PathExpression, Mapping>(new PathExpression());
-			parent.getBranches().add(node);
-			tree.merge(parent);
+			Node<PathExpression, Mapping> branch = resource.toNode();
+			tree.merge(branch);
 			return resource;
 		} catch (AlreadyValuedException e) {
 			Node<?, ?> current = e.getCurrent();
