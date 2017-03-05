@@ -7,10 +7,10 @@ import org.qfox.jestful.core.annotation.Path;
 /**
  * Created by payne on 2017/3/5.
  */
-@Jestful("/path/{path:\\w+}")
+@Jestful("/path/{path:.+}")
 public interface PathControllerAPI {
 
-    @GET("/")
-    String get(@Path("path") String path);
+    @GET("/{id:\\d+}")
+    String get(@Path(value = "path", encoded = true) String path, @Path("id") Long id);
 
 }

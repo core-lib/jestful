@@ -8,13 +8,13 @@ import org.springframework.stereotype.Controller;
 /**
  * Created by payne on 2017/3/5.
  */
-@Jestful("/path/{path:\\w+}")
+@Jestful("/path/{path:.+}")
 @Controller
 public class PathController {
 
-    @GET("/")
-    public String get(@Path("path") String path) {
-        return "@:" + path;
+    @GET("/{id:\\d+}")
+    public String get(@Path("path") String path, @Path("id") Long id) {
+        return "@:" + path + "," + id;
     }
 
 }

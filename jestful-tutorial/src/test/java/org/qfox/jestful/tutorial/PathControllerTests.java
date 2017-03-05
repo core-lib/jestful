@@ -12,7 +12,7 @@ public class PathControllerTests {
 
     @Test
     public void testGet() throws Exception {
-        String result = api.get("sdfsdf");
+        String result = api.get("中文", 12L);
         System.out.println(result);
     }
 

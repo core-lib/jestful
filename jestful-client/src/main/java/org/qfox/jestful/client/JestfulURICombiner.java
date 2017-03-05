@@ -38,7 +38,7 @@ public class JestfulURICombiner implements Actor, Initialable {
             if (regex != null && value.matches(regex) == false) {
                 throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
             }
-            Matcher matcher = pattern.matcher(URI);
+            Matcher matcher = pattern.matcher(resource.getExpression() + mapping.getExpression());
             int group = parameter.getGroup();
             for (int i = 0; i < group; i++) {
                 matcher.find();
