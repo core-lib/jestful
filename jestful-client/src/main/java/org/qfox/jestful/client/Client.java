@@ -42,7 +42,7 @@ import java.util.Map.Entry;
  * @date 2016年4月27日 下午4:59:46
  * @since 1.0.0
  */
-public class Client implements InvocationHandler, Actor, Connector, Initialable {
+public class Client implements InvocationHandler, Actor, Connector, Initialable, Destroyable {
     private final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
     private final Map<MediaType, RequestSerializer> serializers = new HashMap<MediaType, RequestSerializer>();
     private final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
@@ -80,6 +80,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
     private final Gateway gateway;
     private final HostnameVerifier hostnameVerifier;
     private final SSLSocketFactory SSLSocketFactory;
+
+    private boolean destroyed = false;
 
     private Client(Builder builder) {
         super();
@@ -158,6 +160,24 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
         this.schedulers.putAll(schedulers);
     }
 
+    @Override
+    public void destroy() {
+        if (destroyed) {
+            return;
+        }
+        destroyed = true;
+        Collection<Destroyable> destroyables = this.beanContainer.find(Destroyable.class).values();
+        for (Destroyable destroyable : destroyables) {
+            destroyable.destroy();
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        this.destroy();
+        super.finalize();
+    }
+
     public boolean supports(Action action) {
         for (Connector connector : connectors.values()) {
             if (connector.supports(action)) {
@@ -209,6 +229,10 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
                 throw new UnsupportedOperationException();
             }
         }
+        if (destroyed) {
+            throw new IllegalStateException("Client has been destroyed");
+        }
+
         Mapping mapping = resource.getMappings().get(method).clone();
         Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
         actors.add(this);
@@ -427,6 +451,9 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable 
     }
 
     public <T> T create(Class<T> interfase) {
+        if (destroyed) {
+            throw new IllegalStateException("Client has been destroyed");
+        }
         Object proxy = java.lang.reflect.Proxy.newProxyInstance(classLoader, new Class<?>[]{interfase}, this);
         Resource resource = new Resource(proxy, interfase);
         resources.put(interfase, resource);
