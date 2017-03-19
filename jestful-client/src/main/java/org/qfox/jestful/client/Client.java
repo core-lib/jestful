@@ -172,6 +172,10 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable,
         }
     }
 
+    public boolean isDestroyed() {
+        return destroyed;
+    }
+
     @Override
     protected void finalize() throws Throwable {
         this.destroy();
@@ -217,8 +221,8 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable,
                 Constructor<?> constructor = klass.getDeclaredConstructor(Class.class, int.class);
                 constructor.setAccessible(true);
                 Object lookup = constructor.newInstance(interfase, -1);
-                Method unreflect = klass.getMethod("unreflectSpecial", Method.class, Class.class);
-                Object handle = unreflect.invoke(lookup, method, interfase);
+                Method special = klass.getMethod("unreflectSpecial", Method.class, Class.class);
+                Object handle = special.invoke(lookup, method, interfase);
                 Method bind = handle.getClass().getMethod("bindTo", Object.class);
                 Object receiver = bind.invoke(handle, target);
                 Method invoke = receiver.getClass().getMethod("invokeWithArguments", Object[].class);
@@ -229,7 +233,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable,
                 throw new UnsupportedOperationException();
             }
         }
-        if (destroyed) {
+        if (isDestroyed()) {
             throw new IllegalStateException("Client has been destroyed");
         }
 
@@ -451,7 +455,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable,
     }
 
     public <T> T create(Class<T> interfase) {
-        if (destroyed) {
+        if (isDestroyed()) {
             throw new IllegalStateException("Client has been destroyed");
         }
         Object proxy = java.lang.reflect.Proxy.newProxyInstance(classLoader, new Class<?>[]{interfase}, this);

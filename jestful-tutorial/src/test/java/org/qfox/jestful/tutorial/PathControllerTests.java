@@ -8,12 +8,13 @@ import org.qfox.jestful.client.Client;
  */
 public class PathControllerTests {
 
-    private final PathControllerAPI api = Client.builder().setHost("localhost").setPort(8080).build().create(PathControllerAPI.class);
-
     @Test
     public void testGet() throws Exception {
+        Client client = Client.builder().setHost("localhost").setPort(8080).build();
+        PathControllerAPI api = client.create(PathControllerAPI.class);
         String result = api.get("中文", 12L);
         System.out.println(result);
+        client.destroy();
     }
 
 }
