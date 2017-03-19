@@ -7,7 +7,6 @@ import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
@@ -22,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.lang.reflect.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
@@ -42,7 +41,7 @@ import java.util.Map.Entry;
  * @date 2016年4月27日 下午4:59:46
  * @since 1.0.0
  */
-public class Client implements InvocationHandler, Actor, Connector, Initialable, Destroyable {
+public class Client implements Actor, Connector, Initialable, Destroyable {
     private final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
     private final Map<MediaType, RequestSerializer> serializers = new HashMap<MediaType, RequestSerializer>();
     private final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
@@ -82,6 +81,20 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable,
     private final SSLSocketFactory SSLSocketFactory;
 
     private boolean destroyed = false;
+
+    private static Client defaultClient;
+
+    public static Client getDefaultClient() {
+        if (defaultClient != null) {
+            return defaultClient;
+        }
+        synchronized (Client.class) {
+            if (defaultClient != null) {
+                return defaultClient;
+            }
+            return defaultClient = Client.builder().build();
+        }
+    }
 
     private Client(Builder builder) {
         super();
@@ -205,91 +218,6 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable,
             }
         }
         throw new IOException("unsupported protocol " + action.getProtocol());
-    }
-
-    public Object invoke(Object target, Method method, Object[] args) throws Throwable {
-        Class<?> interfase = target.getClass().getInterfaces()[0];
-        Resource resource = resources.get(interfase);
-        if (resource.getMappings().containsKey(method) == false) {
-            // Object 方法
-            if (method.getDeclaringClass() == Object.class) {
-                return method.invoke(resource, args);
-            }
-            // JDK 1.8 default 方法
-            else if (Modifier.isAbstract(method.getModifiers()) == false) {
-                Class<?> klass = classLoader.loadClass("java.lang.invoke.MethodHandles$Lookup");
-                Constructor<?> constructor = klass.getDeclaredConstructor(Class.class, int.class);
-                constructor.setAccessible(true);
-                Object lookup = constructor.newInstance(interfase, -1);
-                Method special = klass.getMethod("unreflectSpecial", Method.class, Class.class);
-                Object handle = special.invoke(lookup, method, interfase);
-                Method bind = handle.getClass().getMethod("bindTo", Object.class);
-                Object receiver = bind.invoke(handle, target);
-                Method invoke = receiver.getClass().getMethod("invokeWithArguments", Object[].class);
-                return invoke.invoke(receiver, new Object[]{args});
-            }
-            // 没有标注http方法注解的方法
-            else {
-                throw new UnsupportedOperationException();
-            }
-        }
-        if (isDestroyed()) {
-            throw new IllegalStateException("Client has been destroyed");
-        }
-
-        Mapping mapping = resource.getMappings().get(method).clone();
-        Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
-        actors.add(this);
-        Action action = new Action(beanContainer, actors);
-        action.setResource(resource);
-        action.setMapping(mapping);
-        Parameters parameters = mapping.getParameters();
-        parameters.arguments(args != null ? args : new Object[0]);
-        action.setParameters(parameters);
-        action.setResult(mapping.getResult());
-
-        action.setRestful(mapping.getRestful());
-        action.setProtocol(protocol);
-        action.setHost(host);
-        action.setPort(port);
-        action.setRoute(route);
-
-        action.setRequest(new JestfulClientRequest(action, this, gateway, connTimeout, readTimeout));
-        action.setResponse(new JestfulClientResponse(action, this, gateway));
-
-        action.setConsumes(mapping.getConsumes());
-        action.setProduces(mapping.getProduces());
-
-        action.setAcceptCharsets(new Charsets(acceptCharsets));
-        action.setAcceptEncodings(new Encodings(acceptEncodings));
-        action.setAcceptLanguages(new Languages(acceptLanguages));
-        action.setContentCharsets(new Charsets(contentCharsets));
-        action.setContentEncodings(new Encodings(contentEncodings));
-        action.setContentLanguages(new Languages(contentLanguages));
-
-        action.setAllowEncode(allowEncode);
-        action.setAcceptEncode(acceptEncode);
-
-        action.setPathEncodeCharset(pathEncodeCharset);
-        action.setQueryEncodeCharset(queryEncodeCharset);
-        action.setHeaderEncodeCharset(headerEncodeCharset);
-
-        Result result = action.getResult();
-        Body body = result.getBody();
-        for (Scheduler scheduler : schedulers.values()) {
-            if (scheduler.supports(action)) {
-                Type type = scheduler.getBodyType(this, action);
-                body.setType(type);
-                Object value = scheduler.schedule(this, action);
-                result.setValue(value);
-                return value;
-            }
-        }
-        Type type = result.getType();
-        body.setType(type);
-        Object value = action.execute();
-        result.setValue(value);
-        return value;
     }
 
     private void serialize(Action action) throws Exception {
@@ -455,13 +383,59 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable,
     }
 
     public <T> T create(Class<T> interfase) {
-        if (isDestroyed()) {
-            throw new IllegalStateException("Client has been destroyed");
+        try {
+            String url = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
+            URL endpoint = new URL(url);
+            return create(interfase, endpoint);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
         }
-        Object proxy = java.lang.reflect.Proxy.newProxyInstance(classLoader, new Class<?>[]{interfase}, this);
-        Resource resource = new Resource(proxy, interfase);
-        resources.put(interfase, resource);
-        return interfase.cast(proxy);
+    }
+
+    public <T> T create(Class<T> interfase, String endpoint) {
+        try {
+            return create(interfase, new URL(endpoint));
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public <T> T create(Class<T> interfase, String protocol, String host) {
+        try {
+            String url = protocol + "://" + host;
+            URL endpoint = new URL(url);
+            return create(interfase, endpoint);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public <T> T create(Class<T> interfase, String protocol, String host, Integer port) {
+        try {
+            String url = protocol + "://" + host + (port != null ? ":" + port : "");
+            URL endpoint = new URL(url);
+            return create(interfase, endpoint);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public <T> T create(Class<T> interfase, String protocol, String host, Integer port, String route) {
+        try {
+            String url = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
+            URL endpoint = new URL(url);
+            return create(interfase, endpoint);
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public <T> T create(Class<T> interfase, URL endpoint) {
+        String protocol = endpoint.getProtocol();
+        String host = endpoint.getHost();
+        Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
+        String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
+        return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, this).getProxy();
     }
 
     public static Builder builder() {
@@ -526,7 +500,7 @@ public class Client implements InvocationHandler, Actor, Connector, Initialable,
 
         public Builder setHost(String host) {
             if (protocol == null) {
-                throw new IllegalArgumentException("protocol == null");
+                throw new IllegalArgumentException("host == null");
             }
             this.host = host;
             return this;
