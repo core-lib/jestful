@@ -18,7 +18,7 @@ public class PathControllerTests {
 
     @Test
     public void testGet() throws Exception {
-        PathControllerAPI api = Client.getDefaultClient().create(PathControllerAPI.class, "http://localhost:8080");
+        PathControllerAPI api = Client.getDefaultClient().create(PathControllerAPI.class, "http://localhost/");
         String result = api.get("中文", 12L);
         System.out.println(result);
         Client.getDefaultClient().destroy();
