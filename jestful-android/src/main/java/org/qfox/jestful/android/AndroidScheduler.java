@@ -25,8 +25,7 @@ public class AndroidScheduler implements Scheduler {
 		Type type = parameter.getType();
 		if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = (ParameterizedType) type;
-			Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
-			return actualTypeArgument;
+			return parameterizedType.getActualTypeArguments()[0];
 		} else {
 			throw new UncertainBodyTypeException(client, action);
 		}

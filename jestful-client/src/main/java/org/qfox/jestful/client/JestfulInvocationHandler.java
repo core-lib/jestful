@@ -12,15 +12,15 @@ import java.util.Collection;
  * Created by payne on 2017/3/19.
  */
 public class JestfulInvocationHandler<T> implements InvocationHandler {
-    private final String protocol;
-    private final String host;
-    private final Integer port;
-    private final String route;
-    private final Client client;
-    private final T proxy;
-    private final Resource resource;
+    protected final String protocol;
+    protected final String host;
+    protected final Integer port;
+    protected final String route;
+    protected final Client client;
+    protected final T proxy;
+    protected final Resource resource;
 
-    JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client) {
+    protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client) {
         if (client.isDestroyed()) {
             throw new IllegalStateException("Client has been destroyed");
         }
@@ -79,8 +79,8 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         action.setPort(port);
         action.setRoute(route);
 
-        action.setRequest(new JestfulClientRequest(action, client, client.getGateway(), client.getConnTimeout(), client.getReadTimeout()));
-        action.setResponse(new JestfulClientResponse(action, client, client.getGateway()));
+        action.setRequest(newRequest(action));
+        action.setResponse(newResponse(action));
 
         action.setConsumes(mapping.getConsumes());
         action.setProduces(mapping.getProduces());
@@ -116,6 +116,15 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         result.setValue(value);
         return value;
     }
+
+    protected Request newRequest(Action action) {
+        return new JestfulClientRequest(action, client, client.getGateway(), client.getConnTimeout(), client.getReadTimeout());
+    }
+
+    protected Response newResponse(Action action) {
+        return new JestfulClientResponse(action, client, client.getGateway());
+    }
+
 
     public String getProtocol() {
         return protocol;

@@ -11,16 +11,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class JestfulClientRequest implements Request {
-    private final Action action;
-    private final Connector connector;
-    private final Gateway gateway;
-    private final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
-    private Request request;
-    private int connTimeout;
-    private int readTimeout;
-    private String characterEncoding;
+    protected final Action action;
+    protected final Connector connector;
+    protected final Gateway gateway;
+    protected final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
+    protected Request request;
+    protected int connTimeout;
+    protected int readTimeout;
+    protected String characterEncoding;
 
-    JestfulClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout) {
+    protected JestfulClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout) {
         super();
         this.action = action;
         this.connector = connector;

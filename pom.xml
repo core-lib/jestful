@@ -23,6 +23,7 @@
 		<module>jestful-RxJava</module>
 		<module>jestful-RxAndroid</module>
         <module>jestful-tutorial</module>
+        <module>jestful-client-nio</module>
     </modules>
 
 	<build>

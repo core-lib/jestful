@@ -38,8 +38,7 @@ public class CallbackScheduler implements Scheduler, Destroyable {
         Type type = parameter.getType();
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
-            Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
-            return actualTypeArgument;
+            return parameterizedType.getActualTypeArguments()[0];
         } else {
             throw new UncertainBodyTypeException(client, action);
         }
@@ -62,7 +61,7 @@ public class CallbackScheduler implements Scheduler, Destroyable {
                     throwable = t;
                     callback.onFail(throwable);
                 } finally {
-                    callback.onCompleted(throwable == null ? true : false, result, throwable);
+                    callback.onCompleted(throwable == null, result, throwable);
                 }
             }
 

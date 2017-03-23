@@ -12,14 +12,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class JestfulClientResponse implements Response {
-    private final Action action;
-    private final Connector connector;
-    private final Gateway gateway;
-    private final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
-    private Response response;
-    private String characterEncoding;
+    protected final Action action;
+    protected final Connector connector;
+    protected final Gateway gateway;
+    protected final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
+    protected Response response;
+    protected String characterEncoding;
 
-    JestfulClientResponse(Action action, Connector connector, Gateway gateway) {
+    protected JestfulClientResponse(Action action, Connector connector, Gateway gateway) {
         super();
         this.action = action;
         this.connector = connector;

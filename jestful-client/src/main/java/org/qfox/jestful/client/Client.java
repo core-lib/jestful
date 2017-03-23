@@ -96,7 +96,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
     }
 
-    private Client(Builder builder) {
+    protected Client(Builder builder) {
         super();
         this.protocol = builder.protocol;
         this.host = builder.host;
