@@ -24,6 +24,11 @@
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
+            <artifactId>jestful-client-nio</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.qfox</groupId>
             <artifactId>jestful-server</artifactId>
             <version>1.0.0</version>
         </dependency>

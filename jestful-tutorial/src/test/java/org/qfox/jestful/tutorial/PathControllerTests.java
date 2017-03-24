@@ -2,6 +2,7 @@ package org.qfox.jestful.tutorial;
 
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.nio.NioClient;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,8 +19,9 @@ public class PathControllerTests {
 
     @Test
     public void testGet() throws Exception {
-        PathControllerAPI api = Client.getDefaultClient().create(PathControllerAPI.class, "http://localhost/");
-        String result = api.get("中文", 12L);
+        BaiduAPI api = NioClient.builder().setAcceptEncode(false).build().create(BaiduAPI.class, "http://www.qfoxtech.com");
+        String result = api.index();
+        Thread.sleep(1000 * 10L);
         System.out.println(result);
         Client.getDefaultClient().destroy();
     }

@@ -1,13 +1,13 @@
 package org.qfox.jestful.tutorial;
 
 import org.junit.Test;
-import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.nio.NioClient;
 
 /**
  * Created by yangchangpei on 17/2/21.
  */
 public class EncodeControllerAPITest {
-    private final EncodeControllerAPI api = Client.builder().setHost("localhost").setPort(8080).build().create(EncodeControllerAPI.class);
+    private final EncodeControllerAPI api = NioClient.builder().setHost("localhost").setPort(8080).build().create(EncodeControllerAPI.class);
 
     @Test
     public void testQuery() throws Exception {

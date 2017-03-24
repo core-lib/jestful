@@ -15,11 +15,15 @@ public class JestfulNioInvocationHandler<T> extends JestfulInvocationHandler<T> 
     }
 
     protected Request newRequest(Action action) {
-        return new JestfulNioClientRequest(action, client, client.getGateway(), client.getConnTimeout(), client.getReadTimeout());
+        Request request = new JestfulNioClientRequest(action, client, client.getGateway(), client.getConnTimeout(), client.getReadTimeout());
+        action.getExtra().put(JestfulNioClientRequest.class, request);
+        return request;
     }
 
     protected Response newResponse(Action action) {
-        return new JestfulNioClientResponse(action, client, client.getGateway());
+        Response response = new JestfulNioClientResponse(action, client, client.getGateway());
+        action.getExtra().put(JestfulNioClientResponse.class, response);
+        return response;
     }
 
 }

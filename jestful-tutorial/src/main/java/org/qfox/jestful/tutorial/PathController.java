@@ -14,7 +14,7 @@ public class PathController {
 
     @GET("/{id:\\d+}")
     public String get(@Path("path") String path, @Path("id") Long id) {
-        return "@:" + path + "," + id;
+        return "forward:/index.jsp";
     }
 
 }

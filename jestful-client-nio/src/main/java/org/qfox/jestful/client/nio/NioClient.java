@@ -9,9 +9,10 @@ import org.qfox.jestful.core.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -24,53 +25,88 @@ public class NioClient extends Client implements Runnable {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static NioClient defaultClient;
-
     private Selector selector;
+    private Registrations registrations;
+    private final ByteBuffer buffer = ByteBuffer.allocate(8096);
 
     protected NioClient(NioBuilder builder) {
         super(builder);
         Thread thread = new Thread(this);
-        thread.setDaemon(true);
         thread.start();
+        synchronized (this) {
+            try {
+                this.wait();
+            } catch (InterruptedException e) {
+                throw new Error(e);
+            }
+        }
     }
 
     @Override
     public void run() {
-        // 启动
         try {
             selector = Selector.open();
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.error("NioClient Start Fail", e);
-            destroy();
-            return;
+            registrations = new Registrations(selector);
+            synchronized (this) {
+                this.notifyAll();
+            }
+        } catch (Exception e) {
+            throw new Error(e);
         }
         // 运行
         while (!isDestroyed()) {
             try {
-                selector.select();
+                registrations.foreach(new Registrations.Consumer() {
+                    @Override
+                    public void consume(SocketChannel channel, int options, Object attachment) {
+                        try {
+                            channel.register(selector, options, attachment);
+                        } catch (ClosedChannelException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                if (selector.select() == 0) {
+                    continue;
+                }
+
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
                     SelectionKey key = iterator.next();
                     iterator.remove();
                     if (!key.isValid()) {
                         key.cancel();
-                    } else if (key.isConnectable()) {
+                        continue;
+                    }
+                    if (key.isConnectable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         if (channel.isConnectionPending()) {
                             if (channel.finishConnect()) {
-                                key.interestOps(SelectionKey.OP_WRITE);
-                            } else {
-                                key.cancel();
+                                Action action = (Action) key.attachment();
+                                channel.register(selector, SelectionKey.OP_WRITE, action);
                             }
                         }
-                    } else if (key.isWritable()) {
+                    }
+                    if (key.isWritable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
-                        
-                    } else if (key.isReadable()) {
-
-                    } else {
-                        key.cancel();
+                        Action action = (Action) key.attachment();
+                        JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
+                        boolean finished = request.writeTo(channel, buffer);
+                        if (finished) {
+                            channel.register(selector, SelectionKey.OP_READ, action);
+                        }
+                    }
+                    if (key.isReadable()) {
+                        SocketChannel channel = (SocketChannel) key.channel();
+                        Action action = (Action) key.attachment();
+                        JestfulNioClientResponse response = (JestfulNioClientResponse) action.getExtra().get(JestfulNioClientResponse.class);
+                        buffer.clear();
+                        channel.read(buffer);
+                        buffer.flip();
+                        boolean finished = response.write(buffer);
+                        if (finished) {
+                            key.cancel();
+                        }
                     }
                 }
             } catch (Throwable throwable) {
@@ -97,7 +133,8 @@ public class NioClient extends Client implements Runnable {
             SocketChannel channel = SocketChannel.open();
             channel.configureBlocking(false);
             channel.connect(new InetSocketAddress(host, port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 80));
-            channel.register(selector, SelectionKey.OP_CONNECT, action);
+
+            registrations.register(channel, SelectionKey.OP_CONNECT, action);
 
             return null;
         } catch (Exception e) {

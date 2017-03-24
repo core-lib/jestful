@@ -1,4 +1,4 @@
-package org.qfox.jestful.tutorial;
+package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
@@ -11,6 +11,6 @@ import org.qfox.jestful.core.annotation.Path;
 public interface PathControllerAPI {
 
     @GET("/{id:\\d+}")
-    String get(@Path("path") String path, @Path("id") Long id);
+    String get(@Path(value = "path", encoded = true) String path, @Path("id") Long id);
 
 }

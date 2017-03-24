@@ -120,6 +120,20 @@ public class IOUtils {
         writer.write('\n');
     }
 
+    public static long transfer(InputStream in, int length, OutputStream out) throws IOException {
+        int total = 0;
+        byte[] buffer = new byte[4096];
+        int len = 0;
+        while ((len = in.read(buffer, 0, Math.min(length - total, buffer.length))) != -1) {
+            out.write(buffer, 0, len);
+            total += len;
+            if (total == length) {
+                break;
+            }
+        }
+        return total;
+    }
+
     public static long transfer(InputStream in, OutputStream out) throws IOException {
         long total = 0;
         byte[] buffer = new byte[4096];
