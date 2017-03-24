@@ -19,14 +19,15 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
     private static final char[] SPRT = new char[]{':', ' '};
 
     private final Object lock = new Object();
+    private final String protocol = "HTTP/1.1";
 
-    private ByteArrayOutputStream out;
+    private NioByteArrayOutputStream out;
     private Writer writer;
 
     private boolean closed;
 
-    private byte[] bytes;
-    private int position;
+    private ByteBuffer head;
+    private ByteBuffer body;
 
     protected JestfulNioClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout) {
         super(action, connector, gateway, connTimeout, readTimeout);
@@ -46,7 +47,7 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
             if (out != null) {
                 return out;
             }
-            return out = new CloseableByteArrayOutputStream();
+            return out = new NioByteArrayOutputStream();
         }
     }
 
@@ -73,58 +74,55 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
 
     }
 
-    public boolean writeTo(SocketChannel channel, ByteBuffer buffer) throws IOException {
-        if (bytes == null) {
+    public boolean read(SocketChannel channel) throws IOException {
+        if (!closed) {
             close();
         }
 
-        if (position < bytes.length) {
-            int length = Math.min(buffer.capacity(), bytes.length - position);
-            buffer.clear();
-            buffer.put(bytes, position, length);
-            buffer.flip();
-            length = channel.write(buffer);
-            position += length;
-            return position >= bytes.length;
-        } else {
-            return true;
+        if (head.remaining() > 0) {
+            channel.write(head);
         }
+        if (head.remaining() == 0 && body.remaining() > 0) {
+            channel.write(body);
+        }
+
+        return head.remaining() == 0 && body.remaining() == 0;
     }
 
     @Override
     public void close() throws IOException {
         if (closed) return;
 
+        closed = true;
+
         IOUtils.close(writer);
         IOUtils.close(out);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        NioByteArrayOutputStream baos = new NioByteArrayOutputStream();
         OutputStreamWriter osw = new OutputStreamWriter(baos);
 
         String method = action.getRestful().getMethod();
         String uri = action.getURI();
         String query = action.getQuery();
-        osw.write(method + " " + uri + (query == null || query.length() == 0 ? "" : "?" + query));
+        String command = method + " " + (uri == null || uri.length() == 0 ? "/" : uri) + (query == null || query.length() == 0 ? "" : "?" + query) + " " + protocol;
+        setRequestHeader("", command);
+        osw.write(command);
         osw.write(CTRL);
 
         String host = action.getHost();
         Integer port = action.getPort();
-        osw.write("Host");
-        osw.write(SPRT);
-        osw.write(host + (port == null || port < 0 ? "" : ":" + port));
-        osw.write(CTRL);
+        setRequestHeader("Host", host + (port == null || port < 0 ? "" : ":" + port));
 
-        byte[] body = out == null ? new byte[0] : out.toByteArray();
-        osw.write("Content-Length");
-        osw.write(SPRT);
-        osw.write(String.valueOf(body.length));
-        osw.write(CTRL);
+        body = out != null ? out.toByteBuffer() : ByteBuffer.wrap(new byte[0]);
+        setRequestHeader("Content-Length", String.valueOf(body.remaining()));
 
         for (Map.Entry<String, String[]> entry : header.entrySet()) {
             String name = entry.getKey();
-            if (name == null) continue;
+            if (name == null || name.length() == 0) continue;
+
             for (String value : entry.getValue()) {
                 if (value == null) continue;
+
                 osw.write(name);
                 osw.write(SPRT);
                 osw.write(value);
@@ -134,12 +132,7 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
         osw.write(CTRL);
         osw.flush();
 
-        byte[] head = baos.toByteArray();
-
-        bytes = new byte[head.length + body.length];
-        System.arraycopy(head, 0, bytes, 0, head.length);
-        System.arraycopy(body, 0, bytes, head.length, body.length);
-        position = 0;
+        head = baos.toByteBuffer();
 
         super.close();
     }

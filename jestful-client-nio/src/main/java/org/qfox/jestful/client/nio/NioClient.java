@@ -21,7 +21,7 @@ import java.util.Iterator;
 /**
  * Created by yangchangpei on 17/3/23.
  */
-public class NioClient extends Client implements Runnable {
+public class NioClient extends Client implements Runnable, Registrations.Consumer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static NioClient defaultClient;
@@ -29,7 +29,7 @@ public class NioClient extends Client implements Runnable {
     private Registrations registrations;
     private final ByteBuffer buffer = ByteBuffer.allocate(8096);
 
-    protected NioClient(NioBuilder builder) {
+    private NioClient(NioBuilder builder) {
         super(builder);
         Thread thread = new Thread(this);
         thread.start();
@@ -39,6 +39,15 @@ public class NioClient extends Client implements Runnable {
             } catch (InterruptedException e) {
                 throw new Error(e);
             }
+        }
+    }
+
+    @Override
+    public void consume(SocketChannel channel, int options, Object attachment) {
+        try {
+            channel.register(selector, options, attachment);
+        } catch (ClosedChannelException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -55,30 +64,21 @@ public class NioClient extends Client implements Runnable {
         }
         // 运行
         while (!isDestroyed()) {
+            SelectionKey key = null;
             try {
-                registrations.foreach(new Registrations.Consumer() {
-                    @Override
-                    public void consume(SocketChannel channel, int options, Object attachment) {
-                        try {
-                            channel.register(selector, options, attachment);
-                        } catch (ClosedChannelException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
+                registrations.foreach(this);
+
                 if (selector.select() == 0) {
                     continue;
                 }
 
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
-                    SelectionKey key = iterator.next();
+                    key = iterator.next();
                     iterator.remove();
                     if (!key.isValid()) {
                         key.cancel();
-                        continue;
-                    }
-                    if (key.isConnectable()) {
+                    } else if (key.isConnectable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         if (channel.isConnectionPending()) {
                             if (channel.finishConnect()) {
@@ -86,17 +86,15 @@ public class NioClient extends Client implements Runnable {
                                 channel.register(selector, SelectionKey.OP_WRITE, action);
                             }
                         }
-                    }
-                    if (key.isWritable()) {
+                    } else if (key.isWritable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
                         JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
-                        boolean finished = request.writeTo(channel, buffer);
+                        boolean finished = request.read(channel);
                         if (finished) {
                             channel.register(selector, SelectionKey.OP_READ, action);
                         }
-                    }
-                    if (key.isReadable()) {
+                    } else if (key.isReadable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
                         JestfulNioClientResponse response = (JestfulNioClientResponse) action.getExtra().get(JestfulNioClientResponse.class);
@@ -107,9 +105,14 @@ public class NioClient extends Client implements Runnable {
                         if (finished) {
                             key.cancel();
                         }
+                    } else {
+                        key.cancel();
                     }
                 }
             } catch (Throwable throwable) {
+                if (key != null) {
+                    key.cancel();
+                }
                 logger.warn("", throwable);
             }
         }
@@ -169,7 +172,7 @@ public class NioClient extends Client implements Runnable {
         return new NioBuilder();
     }
 
-    public static class NioBuilder extends Builder {
+    private static class NioBuilder extends Builder {
 
         @Override
         public NioClient build() {
