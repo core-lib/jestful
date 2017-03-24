@@ -220,7 +220,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         throw new IOException("unsupported protocol " + action.getProtocol());
     }
 
-    private void serialize(Action action) throws Exception {
+    protected void serialize(Action action) throws Exception {
         Request request = action.getRequest();
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
         if (bodies.isEmpty()) {
@@ -259,7 +259,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
     }
 
-    private void deserialize(Action action) throws Exception {
+    protected void deserialize(Action action) throws Exception {
         Response response = action.getResponse();
         Body body = action.getResult().getBody();
         if (body.getType() == Void.TYPE) {
@@ -333,13 +333,13 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         try {
             Restful restful = action.getRestful();
 
-            if (restful.isAcceptBody() == false) {
-                request.connect();
-            } else {
+            if (restful.isAcceptBody()) {
                 serialize(action);
+            } else {
+                request.connect();
             }
 
-            if (response.isResponseSuccess() == false) {
+            if (!response.isResponseSuccess()) {
                 String contentType = response.getContentType();
                 MediaType mediaType = contentType == null || contentType.trim().length() == 0 ? null : MediaType.valueOf(contentType);
                 String charset = mediaType == null ? null : mediaType.getCharset();
@@ -360,7 +360,9 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             }
 
             // 回应
-            if (restful.isReturnBody() == false) {
+            if (restful.isReturnBody()) {
+                deserialize(action);
+            } else {
                 Map<String, String> header = new CaseInsensitiveMap<String, String>();
                 for (String key : response.getHeaderKeys()) {
                     String name = key != null ? key : "";
@@ -368,8 +370,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                     header.put(name, value);
                 }
                 return header;
-            } else {
-                deserialize(action);
             }
 
             // 返回

@@ -2,10 +2,15 @@ package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Request;
+import org.qfox.jestful.core.Response;
+import org.qfox.jestful.core.Restful;
+import org.qfox.jestful.core.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -60,7 +65,8 @@ public class NioClient extends Client implements Runnable {
                             }
                         }
                     } else if (key.isWritable()) {
-
+                        SocketChannel channel = (SocketChannel) key.channel();
+                        
                     } else if (key.isReadable()) {
 
                     } else {
@@ -74,8 +80,31 @@ public class NioClient extends Client implements Runnable {
     }
 
     public Object react(Action action) throws Exception {
+        Request request = action.getRequest();
+        Response response = action.getResponse();
+        try {
+            Restful restful = action.getRestful();
 
-        return null;
+            if (restful.isAcceptBody()) {
+                serialize(action);
+            } else {
+                request.connect();
+            }
+
+            String protocol = action.getProtocol();
+            String host = action.getHost();
+            Integer port = action.getPort();
+            SocketChannel channel = SocketChannel.open();
+            channel.configureBlocking(false);
+            channel.connect(new InetSocketAddress(host, port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 80));
+            channel.register(selector, SelectionKey.OP_CONNECT, action);
+
+            return null;
+        } catch (Exception e) {
+            IOUtils.close(request);
+            IOUtils.close(response);
+            throw e;
+        }
     }
 
     @Override
