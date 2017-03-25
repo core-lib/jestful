@@ -99,6 +99,10 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         action.setQueryEncodeCharset(client.getQueryEncodeCharset());
         action.setHeaderEncodeCharset(client.getHeaderEncodeCharset());
 
+        return doSchedule(action);
+    }
+
+    protected Object doSchedule(Action action) throws Exception {
         Result result = action.getResult();
         Body body = result.getBody();
         for (Scheduler scheduler : client.getSchedulers().values()) {

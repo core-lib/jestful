@@ -5,10 +5,10 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Restful;
-import org.qfox.jestful.core.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -52,6 +52,12 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     }
 
     @Override
+    public void destroy() {
+        super.destroy();
+        selector.wakeup();
+    }
+
+    @Override
     public void run() {
         try {
             selector = Selector.open();
@@ -72,6 +78,10 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                     continue;
                 }
 
+                if (isDestroyed()) {
+                    break;
+                }
+
                 Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
                 while (iterator.hasNext()) {
                     key = iterator.next();
@@ -84,6 +94,9 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                             if (channel.finishConnect()) {
                                 Action action = (Action) key.attachment();
                                 channel.register(selector, SelectionKey.OP_WRITE, action);
+
+                                NioCallback callback = (NioCallback) action.getExtra().get(NioCallback.class);
+                                callback.onConnected(action);
                             }
                         }
                     } else if (key.isWritable()) {
@@ -93,6 +106,9 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                         boolean finished = request.send(channel);
                         if (finished) {
                             channel.register(selector, SelectionKey.OP_READ, action);
+
+                            NioCallback callback = (NioCallback) action.getExtra().get(NioCallback.class);
+                            callback.onRequested(action);
                         }
                     } else if (key.isReadable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
@@ -104,25 +120,41 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                         boolean finished = response.receive(buffer);
                         if (finished) {
                             key.cancel();
+
+                            NioCallback callback = (NioCallback) action.getExtra().get(NioCallback.class);
+                            callback.onResponsed(action);
                         }
                     } else {
                         key.cancel();
+                        throw new IOException("unknown key state");
                     }
                 }
-            } catch (Throwable throwable) {
+            } catch (Exception e) {
                 if (key != null) {
                     key.cancel();
+
+                    try {
+                        Action action = (Action) key.attachment();
+                        NioCallback callback = (NioCallback) action.getExtra().get(NioCallback.class);
+                        callback.onException(e);
+                    } catch (RuntimeException re) {
+                        logger.warn("", re);
+                    }
                 }
-                logger.warn("", throwable);
+                logger.warn("", e);
+            } catch (Error e) {
+                logger.error("", e);
+            } catch (Throwable t) {
+                logger.error("", t);
             }
         }
     }
 
-    public Object react(Action action) throws Exception {
-        Request request = action.getRequest();
-        Response response = action.getResponse();
+    public Object react(final Action action) throws Exception {
+        final Request request = action.getRequest();
+        final Response response = action.getResponse();
         try {
-            Restful restful = action.getRestful();
+            final Restful restful = action.getRestful();
 
             if (restful.isAcceptBody()) {
                 serialize(action);
@@ -137,12 +169,12 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
             channel.configureBlocking(false);
             channel.connect(new InetSocketAddress(host, port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 80));
 
+
+
             registrations.register(channel, SelectionKey.OP_CONNECT, action);
 
             return null;
         } catch (Exception e) {
-            IOUtils.close(request);
-            IOUtils.close(response);
             throw e;
         }
     }
