@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by yangchangpei on 17/3/25.
  */
-public class JestfulNewClientResponse extends JestfulClientResponse {
+public class JestfulNioClientResponse extends JestfulClientResponse {
     private NioByteArrayOutputStream head = new NioByteArrayOutputStream();
     private NioByteArrayOutputStream body = new NioByteArrayOutputStream();
 
@@ -27,7 +27,7 @@ public class JestfulNewClientResponse extends JestfulClientResponse {
 
     private ByteBuffer last;
 
-    protected JestfulNewClientResponse(Action action, Connector connector, Gateway gateway) {
+    protected JestfulNioClientResponse(Action action, Connector connector, Gateway gateway) {
         super(action, connector, gateway);
     }
 

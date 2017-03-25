@@ -90,14 +90,14 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
                         JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
-                        boolean finished = request.read(channel);
+                        boolean finished = request.send(channel);
                         if (finished) {
                             channel.register(selector, SelectionKey.OP_READ, action);
                         }
                     } else if (key.isReadable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
-                        JestfulNewClientResponse response = (JestfulNewClientResponse) action.getExtra().get(JestfulNewClientResponse.class);
+                        JestfulNioClientResponse response = (JestfulNioClientResponse) action.getExtra().get(JestfulNioClientResponse.class);
                         buffer.clear();
                         channel.read(buffer);
                         buffer.flip();

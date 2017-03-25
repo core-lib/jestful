@@ -71,7 +71,7 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
 
     }
 
-    public boolean read(SocketChannel channel) throws IOException {
+    public boolean send(SocketChannel channel) throws IOException {
         if (head == null || body == null) {
             NioByteArrayOutputStream baos = new NioByteArrayOutputStream();
             OutputStreamWriter osw = new OutputStreamWriter(baos);
@@ -82,7 +82,7 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
             String command = method + " " + (uri == null || uri.length() == 0 ? "/" : uri) + (query == null || query.length() == 0 ? "" : "?" + query) + " " + protocol;
             setRequestHeader("", command);
             osw.write(command);
-            osw.write(CTRL);
+            osw.write(CRLF);
 
             String host = action.getHost();
             Integer port = action.getPort();
@@ -101,10 +101,10 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
                     osw.write(name);
                     osw.write(SPRT);
                     osw.write(value);
-                    osw.write(CTRL);
+                    osw.write(CRLF);
                 }
             }
-            osw.write(CTRL);
+            osw.write(CRLF);
             osw.flush();
 
             head = baos.toByteBuffer();
