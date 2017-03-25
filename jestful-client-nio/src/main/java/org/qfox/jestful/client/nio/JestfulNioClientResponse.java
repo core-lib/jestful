@@ -18,14 +18,16 @@ public class JestfulNioClientResponse extends JestfulClientResponse {
     private NioByteArrayOutputStream body = new NioByteArrayOutputStream();
 
     private Boolean chunked;
-    private int ctrls;
-
-    private Status status;
-
+    private int crlfs;
     private int total;
     private int position;
-
     private ByteBuffer last;
+
+    private Status status;
+    private InputStream in;
+    private Reader reader;
+    private final Object lock = new Object();
+    private boolean closed;
 
     protected JestfulNioClientResponse(Action action, Connector connector, Gateway gateway) {
         super(action, connector, gateway);
@@ -38,7 +40,7 @@ public class JestfulNioClientResponse extends JestfulClientResponse {
 
         while (in.available() > 0) {
             String line = IOUtils.readln(in);
-            int index = line.indexOf(':');
+            int index = line != null ? line.indexOf(':') : -1;
             if (index == -1) continue;
             String key = line.substring(0, index).trim();
             String value = line.substring(index + 1).trim();
@@ -71,16 +73,16 @@ public class JestfulNioClientResponse extends JestfulClientResponse {
                 head.write(b);
                 switch (b) {
                     case '\n':
-                        if (++ctrls == 2) {
+                        if (++crlfs == 2) {
                             doReadHeader();
-                            ctrls = 0;
+                            crlfs = 0;
                             return receive(buffer);
                         }
                         break;
                     case '\r':
                         break;
                     default:
-                        ctrls = 0;
+                        crlfs = 0;
                         break;
                 }
             }
@@ -96,23 +98,24 @@ public class JestfulNioClientResponse extends JestfulClientResponse {
                     byte b = last.get();
                     cache.write(b);
                     if (b == '\n') {
-                        ctrls++;
+                        crlfs++;
                     }
                 }
                 // 再往后面追加
                 while (buffer.hasRemaining()) {
                     byte b = buffer.get();
                     cache.write(b);
-                    // 利用短路原理 b != '\n' 时 不会执行 ++ctrls !!!
-                    if (b == '\n' && ++ctrls == 2) {
+                    // 利用短路原理 b != '\n' 时 不会执行 ++crlfs !!!
+                    if (b == '\n' && ++crlfs == 2) {
                         // 开始读取chunk size
                         InputStream in = cache.toInputStream();
                         // 去掉一个空行
                         IOUtils.readln(in);
                         // 紧跟着的一行就是chunk size
-                        total = Integer.valueOf(IOUtils.readln(in), 16);
+                        String hex = IOUtils.readln(in);
+                        total = hex != null ? Integer.valueOf(hex, 16) : 0;
                         position = 0;
-                        ctrls = 0;
+                        crlfs = 0;
                         if (total == 0) {
                             return true;
                         }
@@ -121,7 +124,7 @@ public class JestfulNioClientResponse extends JestfulClientResponse {
                     }
                 }
                 // 来到这里证明真的在 chunk size 的位置被截断了 那么保留下来 等待下次接收的时候再确定 chunk size
-                ctrls = 0;
+                crlfs = 0;
                 last = cache.toByteBuffer();
                 return false;
             }
@@ -156,41 +159,66 @@ public class JestfulNioClientResponse extends JestfulClientResponse {
 
     @Override
     public InputStream getResponseInputStream() throws IOException {
-        return super.getResponseInputStream();
+        if (in != null) {
+            return in;
+        }
+        synchronized (lock) {
+            if (in != null) {
+                return in;
+            }
+            return in = body.toInputStream();
+        }
     }
 
     @Override
     public OutputStream getResponseOutputStream() throws IOException {
-        return super.getResponseOutputStream();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Reader getResponseReader() throws IOException {
-        return super.getResponseReader();
+        if (reader != null) {
+            return reader;
+        }
+        synchronized (lock) {
+            if (reader != null) {
+                return reader;
+            }
+            return reader = characterEncoding != null ? new InputStreamReader(getResponseInputStream(), characterEncoding) : new InputStreamReader(getResponseInputStream());
+        }
     }
 
     @Override
     public Writer getResponseWriter() throws IOException {
-        return super.getResponseWriter();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Status getResponseStatus() throws IOException {
-        return super.getResponseStatus();
+        return status;
     }
 
     @Override
     public void setResponseStatus(Status status) throws IOException {
-        super.setResponseStatus(status);
+        this.status = status;
     }
 
     @Override
     public boolean isResponseSuccess() throws IOException {
-        return super.isResponseSuccess();
+        return status != null && status.isSuccess();
     }
 
     @Override
     public void close() throws IOException {
+        if (closed) {
+            return;
+        }
+
+        closed = true;
+
+        IOUtils.close(reader);
+        IOUtils.close(in);
+
         super.close();
     }
 

@@ -6,14 +6,14 @@ import java.io.IOException;
 /**
  * Created by yangchangpei on 17/3/24.
  */
-public class CloseableByteArrayInputStream extends ByteArrayInputStream {
+public class NioByteArrayInputStream extends ByteArrayInputStream {
     private boolean closed = false;
 
-    public CloseableByteArrayInputStream(byte[] buf) {
-        super(buf);
+    public NioByteArrayInputStream(byte[] buf) {
+        this(buf, 0, buf.length);
     }
 
-    public CloseableByteArrayInputStream(byte[] buf, int offset, int length) {
+    public NioByteArrayInputStream(byte[] buf, int offset, int length) {
         super(buf, offset, length);
     }
 

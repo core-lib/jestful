@@ -1,6 +1,5 @@
 package org.qfox.jestful.client.nio;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +58,7 @@ public class NioByteArrayOutputStream extends ByteArrayOutputStream {
     }
 
     public InputStream toInputStream() {
-        return new ByteArrayInputStream(buf, 0, count);
+        return new NioByteArrayInputStream(buf, 0, count);
     }
 
 }
