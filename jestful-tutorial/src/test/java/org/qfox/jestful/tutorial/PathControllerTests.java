@@ -3,11 +3,9 @@ package org.qfox.jestful.tutorial;
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.nio.NioClient;
-import sun.security.action.GetPropertyAction;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.AccessController;
 import java.util.Map;
 import java.util.Properties;
 
@@ -27,9 +25,8 @@ public class PathControllerTests {
 
     @Test
     public void testGet() throws Exception {
-        BaiduAPI api = NioClient.builder().setAcceptEncode(false).build().create(BaiduAPI.class, "http://www.httpwatch.com");
-        String result = api.index();
-        Thread.sleep(1000 * 10L);
+        PathControllerAPI api = NioClient.builder().setAcceptEncode(false).build().create(PathControllerAPI.class, "http://localhost:8080");
+        String result = api.get("sdfsdf", 12L);
         System.out.println(result);
         Client.getDefaultClient().destroy();
     }

@@ -45,7 +45,11 @@ public class JestfulNioInvocationHandler<T> extends JestfulInvocationHandler<T> 
             waiting.wait();
         }
 
-        return result.getValue();
+        if (result.getException() != null) {
+            throw result.getException();
+        }
+
+        return result.getBody().getValue();
     }
 
     protected Request newRequest(Action action) {
