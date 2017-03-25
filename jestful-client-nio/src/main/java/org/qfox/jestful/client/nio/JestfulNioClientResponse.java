@@ -60,9 +60,7 @@ public class JestfulNioClientResponse extends JestfulClientResponse {
                         while (in.available() > 0) {
                             String line = IOUtils.readln(in);
                             int index = line.indexOf(':');
-                            if (index == -1) {
-                                continue;
-                            }
+                            if (index == -1) continue;
                             String name = line.substring(0, index).trim();
                             String value = line.substring(index + 1).trim();
                             setResponseHeader(name, value);

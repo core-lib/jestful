@@ -1,5 +1,7 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.core.io.IOConstants;
+
 import java.io.*;
 
 /**
@@ -15,7 +17,7 @@ import java.io.*;
  * @date 2016年4月12日 下午8:55:03
  * @since 1.0.0
  */
-public interface Response extends Closeable {
+public interface Response extends Closeable, IOConstants {
 
     String[] getHeaderKeys();
 

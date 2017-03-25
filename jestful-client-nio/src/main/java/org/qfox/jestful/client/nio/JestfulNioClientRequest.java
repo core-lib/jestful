@@ -15,9 +15,6 @@ import java.util.Map;
  * Created by yangchangpei on 17/3/24.
  */
 public class JestfulNioClientRequest extends JestfulClientRequest {
-    private static final char[] CTRL = new char[]{'\r', '\n'};
-    private static final char[] SPRT = new char[]{':', ' '};
-
     private final Object lock = new Object();
     private final String protocol = "HTTP/1.1";
 
@@ -75,8 +72,42 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
     }
 
     public boolean read(SocketChannel channel) throws IOException {
-        if (!closed) {
-            close();
+        if (head == null || body == null) {
+            NioByteArrayOutputStream baos = new NioByteArrayOutputStream();
+            OutputStreamWriter osw = new OutputStreamWriter(baos);
+
+            String method = action.getRestful().getMethod();
+            String uri = action.getURI();
+            String query = action.getQuery();
+            String command = method + " " + (uri == null || uri.length() == 0 ? "/" : uri) + (query == null || query.length() == 0 ? "" : "?" + query) + " " + protocol;
+            setRequestHeader("", command);
+            osw.write(command);
+            osw.write(CTRL);
+
+            String host = action.getHost();
+            Integer port = action.getPort();
+            setRequestHeader("Host", host + (port == null || port < 0 ? "" : ":" + port));
+
+            body = out != null ? out.toByteBuffer() : ByteBuffer.wrap(new byte[0]);
+            setRequestHeader("Content-Length", String.valueOf(body.remaining()));
+
+            for (Map.Entry<String, String[]> entry : header.entrySet()) {
+                String name = entry.getKey();
+                if (name == null || name.length() == 0) continue;
+
+                for (String value : entry.getValue()) {
+                    if (value == null) continue;
+
+                    osw.write(name);
+                    osw.write(SPRT);
+                    osw.write(value);
+                    osw.write(CTRL);
+                }
+            }
+            osw.write(CTRL);
+            osw.flush();
+
+            head = baos.toByteBuffer();
         }
 
         if (head.remaining() > 0) {
@@ -97,42 +128,6 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
 
         IOUtils.close(writer);
         IOUtils.close(out);
-
-        NioByteArrayOutputStream baos = new NioByteArrayOutputStream();
-        OutputStreamWriter osw = new OutputStreamWriter(baos);
-
-        String method = action.getRestful().getMethod();
-        String uri = action.getURI();
-        String query = action.getQuery();
-        String command = method + " " + (uri == null || uri.length() == 0 ? "/" : uri) + (query == null || query.length() == 0 ? "" : "?" + query) + " " + protocol;
-        setRequestHeader("", command);
-        osw.write(command);
-        osw.write(CTRL);
-
-        String host = action.getHost();
-        Integer port = action.getPort();
-        setRequestHeader("Host", host + (port == null || port < 0 ? "" : ":" + port));
-
-        body = out != null ? out.toByteBuffer() : ByteBuffer.wrap(new byte[0]);
-        setRequestHeader("Content-Length", String.valueOf(body.remaining()));
-
-        for (Map.Entry<String, String[]> entry : header.entrySet()) {
-            String name = entry.getKey();
-            if (name == null || name.length() == 0) continue;
-
-            for (String value : entry.getValue()) {
-                if (value == null) continue;
-
-                osw.write(name);
-                osw.write(SPRT);
-                osw.write(value);
-                osw.write(CTRL);
-            }
-        }
-        osw.write(CTRL);
-        osw.flush();
-
-        head = baos.toByteBuffer();
 
         super.close();
     }

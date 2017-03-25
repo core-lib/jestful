@@ -172,7 +172,7 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         return new NioBuilder();
     }
 
-    private static class NioBuilder extends Builder {
+    public static class NioBuilder extends Builder {
 
         @Override
         public NioClient build() {
