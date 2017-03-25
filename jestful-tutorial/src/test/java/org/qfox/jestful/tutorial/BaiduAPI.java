@@ -9,7 +9,7 @@ import org.qfox.jestful.core.annotation.Jestful;
 @Jestful("/")
 public interface BaiduAPI {
 
-    @GET("/index.html")
+    @GET("/httpgallery/chunked/chunkedimage.aspx")
     public String index();
 
 }

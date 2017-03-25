@@ -21,8 +21,8 @@ public class JestfulNioInvocationHandler<T> extends JestfulInvocationHandler<T> 
     }
 
     protected Response newResponse(Action action) {
-        Response response = new JestfulNioClientResponse(action, client, client.getGateway());
-        action.getExtra().put(JestfulNioClientResponse.class, response);
+        Response response = new JestfulNewClientResponse(action, client, client.getGateway());
+        action.getExtra().put(JestfulNewClientResponse.class, response);
         return response;
     }
 

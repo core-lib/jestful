@@ -27,7 +27,7 @@ public class PathControllerTests {
 
     @Test
     public void testGet() throws Exception {
-        BaiduAPI api = NioClient.builder().setAcceptEncode(false).build().create(BaiduAPI.class, "http://www.qfoxtech.com");
+        BaiduAPI api = NioClient.builder().setAcceptEncode(false).build().create(BaiduAPI.class, "http://www.httpwatch.com");
         String result = api.index();
         Thread.sleep(1000 * 10L);
         System.out.println(result);
