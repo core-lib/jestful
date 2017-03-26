@@ -7,6 +7,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.io.IOUtils;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Map;
@@ -77,9 +78,8 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
             OutputStreamWriter osw = new OutputStreamWriter(baos);
 
             String method = action.getRestful().getMethod();
-            String uri = action.getURI();
-            String query = action.getQuery();
-            String command = method + " " + (uri == null || uri.length() == 0 ? "/" : uri) + (query == null || query.length() == 0 ? "" : "?" + query) + " " + protocol;
+            String uri = new URL(action.getURL()).getFile();
+            String command = method + " " + uri + " " + protocol;
             setRequestHeader("", command);
             osw.write(command);
             osw.write(CRLF);
