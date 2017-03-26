@@ -30,6 +30,7 @@ public class FutureNioScheduler extends FutureScheduler implements NioScheduler 
     }
 
     private static class NioFuture implements Future<Object> {
+        private final Object lock = new Object();
         private final Action action;
         private boolean done;
         private boolean canceled;
@@ -39,71 +40,89 @@ public class FutureNioScheduler extends FutureScheduler implements NioScheduler 
         }
 
         @Override
-        public synchronized boolean cancel(boolean mayInterruptIfRunning) {
-            if (isDone()) {
-                return false;
-            }
-            canceled = true;
-            this.notifyAll();
-            return true;
-        }
-
-        @Override
-        public synchronized boolean isCancelled() {
-            return canceled;
-        }
-
-        synchronized boolean done() {
-            if (isDone()) {
-                return false;
-            }
-            done = true;
-            this.notifyAll();
-            return true;
-        }
-
-        @Override
-        public synchronized boolean isDone() {
-            return done;
-        }
-
-        @Override
-        public synchronized Object get() throws InterruptedException, ExecutionException {
-            if (isCancelled()) {
-                throw new CancellationException();
-            } else if (isDone()) {
-                Object body = action.getResult().getBody().getValue();
-                Exception exception = action.getResult().getException();
-                if (exception != null) throw new ExecutionException(exception);
-                else return body;
-            } else {
-                this.wait();
-                return get();
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            synchronized (lock) {
+                if (isCancelled()) {
+                    return true;
+                }
+                if (isDone()) {
+                    return false;
+                }
+                canceled = true;
+                lock.notifyAll();
+                return true;
             }
         }
 
         @Override
-        public synchronized Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-            if (isCancelled()) {
-                throw new CancellationException();
-            } else if (isDone()) {
-                Object body = action.getResult().getBody().getValue();
-                Exception exception = action.getResult().getException();
-                if (exception != null) throw new ExecutionException(exception);
-                else return body;
-            } else {
-                this.wait(unit.toMillis(timeout));
+        public boolean isCancelled() {
+            synchronized (lock) {
+                return canceled;
             }
+        }
 
-            if (isCancelled()) {
-                throw new CancellationException();
-            } else if (isDone()) {
-                Object body = action.getResult().getBody().getValue();
-                Exception exception = action.getResult().getException();
-                if (exception != null) throw new ExecutionException(exception);
-                else return body;
-            } else {
-                throw new TimeoutException();
+        boolean done() {
+            synchronized (lock) {
+                if (isDone()) {
+                    return true;
+                }
+                if (isCancelled()) {
+                    return false;
+                }
+                done = true;
+                lock.notifyAll();
+                return true;
+            }
+        }
+
+        @Override
+        public boolean isDone() {
+            synchronized (lock) {
+                return done;
+            }
+        }
+
+        @Override
+        public Object get() throws InterruptedException, ExecutionException {
+            synchronized (lock) {
+                if (isCancelled()) {
+                    throw new CancellationException();
+                } else if (isDone()) {
+                    Object body = action.getResult().getBody().getValue();
+                    Exception exception = action.getResult().getException();
+                    if (exception != null) throw new ExecutionException(exception);
+                    else return body;
+                } else {
+                    lock.wait();
+                    return get();
+                }
+            }
+        }
+
+        @Override
+        public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+            synchronized (lock) {
+                if (isCancelled()) {
+                    throw new CancellationException();
+                } else if (isDone()) {
+                    Object body = action.getResult().getBody().getValue();
+                    Exception exception = action.getResult().getException();
+                    if (exception != null) throw new ExecutionException(exception);
+                    else return body;
+                } else {
+                    lock.wait(unit.toMillis(timeout));
+                }
+
+                if (isCancelled()) {
+                    throw new CancellationException();
+                } else if (isDone()) {
+                    Object body = action.getResult().getBody().getValue();
+                    Exception exception = action.getResult().getException();
+                    if (exception != null) throw new ExecutionException(exception);
+                    else return body;
+                } else {
+                    throw new TimeoutException();
+                }
             }
         }
     }
