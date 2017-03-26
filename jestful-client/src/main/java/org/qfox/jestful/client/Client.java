@@ -224,6 +224,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         Request request = action.getRequest();
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
         if (bodies.isEmpty()) {
+            request.connect();
             return;
         } else {
             String charset = null;

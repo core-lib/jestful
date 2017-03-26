@@ -35,6 +35,7 @@
     <orderEntry type="module" module-name="jestful-commons" />
     <orderEntry type="library" name="Maven: eu.medsea.mimeutil:mime-util:2.1.3" level="project" />
     <orderEntry type="module" module-name="jestful-spring" />
+    <orderEntry type="module" module-name="jestful-cookie" />
     <orderEntry type="module" module-name="jestful-client-nio" />
     <orderEntry type="module" module-name="jestful-server" />
     <orderEntry type="module" module-name="jestful-java" />

@@ -33,6 +33,7 @@ public class ResponseCookiePlugin implements Plugin {
             this.cookieHandler = new CookieManager();
             CookieHandler.setDefault(cookieHandler);
         }
+        this.cookieHandler = CookieHandler.getDefault();
     }
 
     public ResponseCookiePlugin(CookieHandler cookieHandler) {
