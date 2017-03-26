@@ -2,6 +2,7 @@ package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
+import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.nio.scheduler.NioScheduler;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
@@ -158,14 +160,16 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         String protocol = action.getProtocol();
         String host = action.getHost();
         Integer port = action.getPort();
+        port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
         SocketChannel channel = SocketChannel.open();
         channel.configureBlocking(false);
-        channel.connect(new InetSocketAddress(host, port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 80));
-
+        Gateway gateway = this.getGateway();
+        SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toProxy().address() : new InetSocketAddress(host, port);
+        channel.connect(address);
+        (gateway != null ? gateway : Gateway.NULL).onConnected(action);
         NioListener listener = new JestfulNioListener();
         action.getExtra().put(NioListener.class, listener);
         registrations.register(channel, SelectionKey.OP_CONNECT, action);
-
         return null;
     }
 
