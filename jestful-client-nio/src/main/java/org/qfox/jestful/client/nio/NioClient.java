@@ -120,19 +120,21 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                         buffer.flip();
                         if (response.receive(buffer)) {
                             key.cancel();
+                            IOUtils.close(key.channel());
 
                             NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
                             listener.onCompleted(action);
                         }
                     } else {
                         key.cancel();
+                        IOUtils.close(key.channel());
                         throw new IllegalStateException();
                     }
                 }
             } catch (Exception e) {
                 if (key != null) {
                     key.cancel();
-
+                    IOUtils.close(key.channel());
                     try {
                         Action action = (Action) key.attachment();
                         NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
