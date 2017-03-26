@@ -164,7 +164,7 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         SocketChannel channel = SocketChannel.open();
         channel.configureBlocking(false);
         Gateway gateway = this.getGateway();
-        SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toProxy().address() : new InetSocketAddress(host, port);
+        SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
         channel.connect(address);
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
         NioListener listener = new JestfulNioListener();
