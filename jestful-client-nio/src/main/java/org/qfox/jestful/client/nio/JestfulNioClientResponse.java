@@ -23,7 +23,7 @@ public class JestfulNioClientResponse extends JestfulClientResponse {
     private int position;
     private ByteBuffer last;
 
-    private Status status;
+    private Status status = new Status(200, "OK");
     private InputStream in;
     private Reader reader;
     private final Object lock = new Object();
