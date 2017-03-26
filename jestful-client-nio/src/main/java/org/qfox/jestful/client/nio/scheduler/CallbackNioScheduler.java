@@ -14,17 +14,12 @@ public class CallbackNioScheduler extends CallbackScheduler implements NioSchedu
 
     @Override
     public Object doMotivateSchedule(final Client client, final Action action) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    action.execute();
-                } catch (Exception e) {
-                    action.getResult().setException(e);
-                    doCallbackSchedule(client, action);
-                }
-            }
-        });
+        try {
+            action.execute();
+        } catch (Exception e) {
+            action.getResult().setException(e);
+            doCallbackSchedule(client, action);
+        }
         return null;
     }
 
