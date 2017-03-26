@@ -2,13 +2,14 @@ package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
+import org.qfox.jestful.client.nio.scheduler.NioScheduler;
+import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
@@ -34,10 +35,10 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
 
     private NioClient(NioBuilder builder) {
         super(builder);
-        Thread thread = new Thread(this);
-        thread.start();
         synchronized (this) {
             try {
+                Thread thread = new Thread(this);
+                thread.start();
                 this.wait();
             } catch (InterruptedException e) {
                 throw new Error(e);
@@ -63,9 +64,9 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     @Override
     public void run() {
         try {
-            selector = Selector.open();
-            registrations = new Registrations(selector);
             synchronized (this) {
+                selector = Selector.open();
+                registrations = new Registrations(selector);
                 this.notifyAll();
             }
         } catch (Exception e) {
@@ -97,8 +98,8 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                         if (channel.isConnectionPending() && channel.finishConnect()) {
                             channel.register(selector, SelectionKey.OP_WRITE, action);
 
-                            NioCallback callback = (NioCallback) action.getExtra().get(NioCallback.class);
-                            callback.onConnected(action);
+                            NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+                            listener.onConnected(action);
                         }
                     } else if (key.isWritable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
@@ -107,8 +108,8 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                         if (request.send(channel)) {
                             channel.register(selector, SelectionKey.OP_READ, action);
 
-                            NioCallback callback = (NioCallback) action.getExtra().get(NioCallback.class);
-                            callback.onRequested(action);
+                            NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+                            listener.onRequested(action);
                         }
                     } else if (key.isReadable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
@@ -120,12 +121,12 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                         if (response.receive(buffer)) {
                             key.cancel();
 
-                            NioCallback callback = (NioCallback) action.getExtra().get(NioCallback.class);
-                            callback.onCompleted(action);
+                            NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+                            listener.onCompleted(action);
                         }
                     } else {
                         key.cancel();
-                        throw new IOException("unknown key state");
+                        throw new IllegalStateException();
                     }
                 }
             } catch (Exception e) {
@@ -134,16 +135,18 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
 
                     try {
                         Action action = (Action) key.attachment();
-                        NioCallback callback = (NioCallback) action.getExtra().get(NioCallback.class);
-                        callback.onException(action, e);
+                        NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+                        listener.onException(action, e);
                     } catch (RuntimeException re) {
                         logger.warn("", re);
                     }
                 }
                 logger.warn("", e);
             } catch (Error e) {
+                if (key != null) key.cancel();
                 logger.error("", e);
             } catch (Throwable t) {
+                if (key != null) key.cancel();
                 logger.error("", t);
             }
         }
@@ -167,8 +170,8 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
             channel.configureBlocking(false);
             channel.connect(new InetSocketAddress(host, port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 80));
 
-            NioCallback callback = new JestfulNioCallback();
-            action.getExtra().put(NioCallback.class, callback);
+            NioListener listener = new JestfulNioListener();
+            action.getExtra().put(NioListener.class, listener);
             registrations.register(channel, SelectionKey.OP_CONNECT, action);
 
             return null;
@@ -211,7 +214,7 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
 
     }
 
-    private class JestfulNioCallback extends NioAdapter {
+    private class JestfulNioListener extends NioAdapter {
 
         @Override
         public void onCompleted(Action action) throws Exception {
@@ -250,16 +253,16 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                 action.getResult().getBody().setValue(header);
             }
 
-            NioWaiting waiting = (NioWaiting) action.getExtra().get(NioWaiting.class);
-            waiting.act();
+            NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
+            scheduler.doCallbackSchedule(NioClient.this, action);
         }
 
         @Override
         public void onException(Action action, Exception exception) {
             action.getResult().setException(exception);
 
-            NioWaiting waiting = (NioWaiting) action.getExtra().get(NioWaiting.class);
-            waiting.act();
+            NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
+            scheduler.doCallbackSchedule(NioClient.this, action);
         }
     }
 

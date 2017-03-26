@@ -5,7 +5,7 @@ import org.qfox.jestful.core.Action;
 /**
  * Created by yangchangpei on 17/3/25.
  */
-public class NioAdapter implements NioCallback {
+public class NioAdapter implements NioListener {
     @Override
     public void onConnected(Action action) throws Exception {
 

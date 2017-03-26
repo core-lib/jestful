@@ -23,8 +23,8 @@ import java.util.concurrent.Executors;
  * @since 1.0.0
  */
 public class CallbackScheduler implements Scheduler, Destroyable {
-    private int maxThreadSize = 24;
-    private ExecutorService executor = Executors.newFixedThreadPool(maxThreadSize);
+    protected int maxThreadSize = 24;
+    protected ExecutorService executor = Executors.newFixedThreadPool(maxThreadSize);
 
     public boolean supports(Action action) {
         Parameters parameters = action.getParameters();

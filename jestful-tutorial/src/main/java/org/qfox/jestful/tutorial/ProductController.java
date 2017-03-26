@@ -6,6 +6,7 @@ import org.qfox.jestful.core.annotation.Path;
 import org.springframework.stereotype.Controller;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by yangchangpei on 16/12/1.
@@ -21,8 +22,7 @@ public class ProductController {
     }
 
     @GET(value = "/{productId:\\d+}.json", produces = "application/json")
-    public Object json(@Path("productId") Long productId) {
-
+    public List<Long> json(@Path("productId") Long productId) {
         return Arrays.asList(productId);
     }
 

@@ -1,6 +1,7 @@
 package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.client.JestfulInvocationHandler;
+import org.qfox.jestful.client.nio.scheduler.NioScheduler;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.core.*;
 
@@ -20,36 +21,16 @@ public class JestfulNioInvocationHandler<T> extends JestfulInvocationHandler<T> 
         Result result = action.getResult();
         Body body = result.getBody();
         for (Scheduler scheduler : client.getSchedulers().values()) {
-            if (scheduler.supports(action)) {
+            if (scheduler instanceof NioScheduler && scheduler.supports(action)) {
+                action.getExtra().put(Scheduler.class, scheduler);
                 Type type = scheduler.getBodyType(client, action);
                 body.setType(type);
-                Object value = scheduler.schedule(client, action);
+                Object value = ((NioScheduler) scheduler).doMotivateSchedule(client, action);
                 result.setValue(value);
                 return value;
             }
         }
-
-        Type type = result.getType();
-        body.setType(type);
-        NioWaiting waiting = new NioWaiting() {
-            @Override
-            public void act() {
-                synchronized (this) {
-                    this.notify();
-                }
-            }
-        };
-        action.getExtra().put(NioWaiting.class, waiting);
-        synchronized (waiting) {
-            action.execute();
-            waiting.wait();
-        }
-
-        if (result.getException() != null) {
-            throw result.getException();
-        }
-
-        return result.getBody().getValue();
+        throw new UnsupportedOperationException();
     }
 
     protected Request newRequest(Action action) {
