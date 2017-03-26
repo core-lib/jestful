@@ -4,7 +4,6 @@ import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.ResponseWrapper;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.CookieHandler;
 import java.net.URI;
 import java.util.Arrays;
@@ -26,9 +25,7 @@ public class CookieManagedResponse extends ResponseWrapper {
     }
 
     @Override
-    public InputStream getResponseInputStream() throws IOException {
-        InputStream in = super.getResponseInputStream();
-
+    public void close() throws IOException {
         Map<String, List<String>> header = new HashMap<String, List<String>>();
         String[] keys = getHeaderKeys();
         for (String key : keys) {
@@ -36,7 +33,6 @@ public class CookieManagedResponse extends ResponseWrapper {
             header.put(key, Arrays.asList(values));
         }
         cookieHandler.put(uri, header);
-
-        return in;
+        super.close();
     }
 }

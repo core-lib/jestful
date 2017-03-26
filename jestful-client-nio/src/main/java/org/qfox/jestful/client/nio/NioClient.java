@@ -153,31 +153,18 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     }
 
     public Object react(Action action) throws Exception {
-        Request request = action.getRequest();
-        try {
-            Restful restful = action.getRestful();
+        String protocol = action.getProtocol();
+        String host = action.getHost();
+        Integer port = action.getPort();
+        SocketChannel channel = SocketChannel.open();
+        channel.configureBlocking(false);
+        channel.connect(new InetSocketAddress(host, port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 80));
 
-            if (restful.isAcceptBody()) {
-                serialize(action);
-            } else {
-                request.connect();
-            }
+        NioListener listener = new JestfulNioListener();
+        action.getExtra().put(NioListener.class, listener);
+        registrations.register(channel, SelectionKey.OP_CONNECT, action);
 
-            String protocol = action.getProtocol();
-            String host = action.getHost();
-            Integer port = action.getPort();
-            SocketChannel channel = SocketChannel.open();
-            channel.configureBlocking(false);
-            channel.connect(new InetSocketAddress(host, port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 80));
-
-            NioListener listener = new JestfulNioListener();
-            action.getExtra().put(NioListener.class, listener);
-            registrations.register(channel, SelectionKey.OP_CONNECT, action);
-
-            return null;
-        } catch (Exception e) {
-            throw e;
-        }
+        return null;
     }
 
     @Override
@@ -217,7 +204,19 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     private class JestfulNioListener extends NioAdapter {
 
         @Override
-        public void onCompleted(Action action) throws Exception {
+        public void onConnected(Action action) throws Exception {
+            Request request = action.getRequest();
+            Restful restful = action.getRestful();
+
+            if (restful.isAcceptBody()) {
+                serialize(action);
+            } else {
+                request.connect();
+            }
+        }
+
+        @Override
+        public void onRequested(Action action) throws Exception {
             Response response = action.getResponse();
             if (!response.isResponseSuccess()) {
                 String contentType = response.getContentType();
@@ -238,31 +237,50 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                 String body = reader != null ? IOUtils.toString(reader) : "";
                 throw new UnexpectedStatusException(status, body);
             }
+        }
 
-            // 回应
-            Restful restful = action.getRestful();
-            if (restful.isReturnBody()) {
-                deserialize(action);
-            } else {
-                Map<String, String> header = new CaseInsensitiveMap<String, String>();
-                for (String key : response.getHeaderKeys()) {
-                    String name = key != null ? key : "";
-                    String value = response.getResponseHeader(key);
-                    header.put(name, value);
+        @Override
+        public void onCompleted(Action action) throws Exception {
+            Response response = action.getResponse();
+            try {
+                onRequested(action);
+
+                // 回应
+                Restful restful = action.getRestful();
+                if (restful.isReturnBody()) {
+                    deserialize(action);
+                } else {
+                    Map<String, String> header = new CaseInsensitiveMap<String, String>();
+                    for (String key : response.getHeaderKeys()) {
+                        String name = key != null ? key : "";
+                        String value = response.getResponseHeader(key);
+                        header.put(name, value);
+                    }
+                    action.getResult().getBody().setValue(header);
                 }
-                action.getResult().getBody().setValue(header);
-            }
 
-            NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
-            scheduler.doCallbackSchedule(NioClient.this, action);
+                NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
+                scheduler.doCallbackSchedule(NioClient.this, action);
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                IOUtils.close(response);
+            }
         }
 
         @Override
         public void onException(Action action, Exception exception) {
-            action.getResult().setException(exception);
+            Response response = action.getResponse();
+            try {
+                action.getResult().setException(exception);
 
-            NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
-            scheduler.doCallbackSchedule(NioClient.this, action);
+                NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
+                scheduler.doCallbackSchedule(NioClient.this, action);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                IOUtils.close(response);
+            }
         }
     }
 
