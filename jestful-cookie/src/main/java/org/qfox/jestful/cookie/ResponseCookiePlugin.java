@@ -9,9 +9,6 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.URI;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,18 +45,12 @@ public class ResponseCookiePlugin implements Plugin {
     }
 
     public Object react(Action action) throws Exception {
-        Object value = action.execute();
         Response response = action.getResponse();
         URL url = new URL(action.getURL());
         URI uri = url.toURI();
-        Map<String, List<String>> header = new HashMap<String, List<String>>();
-        String[] keys = response.getHeaderKeys();
-        for (String key : keys) {
-            String[] values = response.getResponseHeaders(key);
-            header.put(key, Arrays.asList(values));
-        }
-        cookieHandler.put(uri, header);
-        return value;
+        Response target = new CookieManagedResponse(response, uri, cookieHandler);
+        action.setResponse(target);
+        return action.execute();
     }
 
     public CookieHandler getCookieHandler() {
