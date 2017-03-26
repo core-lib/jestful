@@ -47,7 +47,9 @@ public class CookieParameterProcessor implements Actor, Initialable {
                 cookie += (cookie.length() == 0 ? "" : "; ") + name + "=" + value;
             }
         }
-        request.setRequestHeader("Cookie", cookie.length() == 0 ? null : cookie);
+        if (cookie.length() > 0) {
+            request.setRequestHeader("Cookie", cookie.length() == 0 ? null : cookie);
+        }
         return action.execute();
     }
 

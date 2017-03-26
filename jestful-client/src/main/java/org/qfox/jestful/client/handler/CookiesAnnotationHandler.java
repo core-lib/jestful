@@ -63,8 +63,9 @@ public class CookiesAnnotationHandler implements Actor {
                 cookie += (cookie.length() == 0 ? "" : "; ") + k + "=" + v;
             }
         }
-
-        request.setRequestHeader("Cookie", cookie.length() == 0 ? null : cookie);
+        if (cookie.length() > 0) {
+            request.setRequestHeader("Cookie", cookie.length() == 0 ? null : cookie);
+        }
         return action.execute();
     }
 
