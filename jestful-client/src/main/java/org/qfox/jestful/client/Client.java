@@ -193,15 +193,14 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     public Connection connect(Action action, Gateway gateway, Client client) throws IOException {
-        String key = "org.qfox.jestful.connection";
-        Connection connection = (Connection) action.getExtra().get(key);
+        Connection connection = (Connection) action.getExtra().get(Connection.class);
         if (connection != null) {
             return connection;
         }
         for (Connector connector : connectors.values()) {
             if (connector.supports(action)) {
                 connection = connector.connect(action, gateway, this);
-                action.getExtra().put(key, connection);
+                action.getExtra().put(Connection.class, connection);
                 return connection;
             }
         }
@@ -372,48 +371,25 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     public <T> T create(Class<T> interfase) {
-        try {
-            String url = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
-            URL endpoint = new URL(url);
-            return create(interfase, endpoint);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return create(interfase, protocol, host, port, route);
+    }
+
+    public <T> T create(Class<T> interfase, String protocol, String host) {
+        return create(interfase, protocol, host, null);
+    }
+
+    public <T> T create(Class<T> interfase, String protocol, String host, Integer port) {
+        return create(interfase, protocol, host, port, null);
+    }
+
+    public <T> T create(Class<T> interfase, String protocol, String host, Integer port, String route) {
+        String endpoint = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
+        return create(interfase, endpoint);
     }
 
     public <T> T create(Class<T> interfase, String endpoint) {
         try {
             return create(interfase, new URL(endpoint));
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    public <T> T create(Class<T> interfase, String protocol, String host) {
-        try {
-            String url = protocol + "://" + host;
-            URL endpoint = new URL(url);
-            return create(interfase, endpoint);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    public <T> T create(Class<T> interfase, String protocol, String host, Integer port) {
-        try {
-            String url = protocol + "://" + host + (port != null ? ":" + port : "");
-            URL endpoint = new URL(url);
-            return create(interfase, endpoint);
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    public <T> T create(Class<T> interfase, String protocol, String host, Integer port, String route) {
-        try {
-            String url = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
-            URL endpoint = new URL(url);
-            return create(interfase, endpoint);
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         }
