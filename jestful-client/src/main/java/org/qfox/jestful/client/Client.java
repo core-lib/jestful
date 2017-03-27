@@ -84,19 +84,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
     private static Client defaultClient;
 
-    public static Client getDefaultClient() {
-        if (defaultClient != null) {
-            return defaultClient;
-        }
-        synchronized (Client.class) {
-            if (defaultClient != null) {
-                return defaultClient;
-            }
-            return defaultClient = Client.builder().build();
-        }
-    }
-
-    protected Client(Builder builder) {
+    protected Client(Builder<?> builder) {
         super();
         this.protocol = builder.protocol;
         this.host = builder.host;
@@ -439,11 +427,23 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, this).getProxy();
     }
 
-    public static Builder builder() {
+    public static Client getDefaultClient() {
+        if (defaultClient != null) {
+            return defaultClient;
+        }
+        synchronized (Client.class) {
+            if (defaultClient != null) {
+                return defaultClient;
+            }
+            return defaultClient = builder().build();
+        }
+    }
+
+    public static Builder<?> builder() {
         return new Builder();
     }
 
-    public static class Builder {
+    public static class Builder<T extends Builder<T>> {
         private String protocol = "http";
         private String host = "localhost";
         private Integer port = null;
@@ -480,7 +480,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             return new Client(this);
         }
 
-        public Builder setEndpoint(URL endpoint) {
+        public T setEndpoint(URL endpoint) {
             if (endpoint == null) {
                 throw new IllegalArgumentException("endpoint == null");
             }
@@ -488,257 +488,257 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             setHost(endpoint.getHost());
             setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
             setRoute(endpoint.getFile().length() == 0 ? null : endpoint.getFile());
-            return this;
+            return (T) this;
         }
 
-        public Builder setProtocol(String protocol) {
+        public T setProtocol(String protocol) {
             if (protocol == null) {
                 throw new IllegalArgumentException("protocol == null");
             }
             this.protocol = protocol;
-            return this;
+            return (T) this;
         }
 
-        public Builder setHost(String host) {
+        public T setHost(String host) {
             if (protocol == null) {
                 throw new IllegalArgumentException("host == null");
             }
             this.host = host;
-            return this;
+            return (T) this;
         }
 
-        public Builder setPort(Integer port) {
+        public T setPort(Integer port) {
             if (port != null && (port < 0 || port > 65535)) {
                 throw new IllegalArgumentException("port " + port + " out of bounds [0, 65535]");
             }
             this.port = port;
-            return this;
+            return (T) this;
         }
 
-        public Builder setRoute(String route) {
+        public T setRoute(String route) {
             if (route != null && route.length() == 0 == false && route.startsWith("/") == false) {
                 throw new IllegalArgumentException("route should starts with /");
             }
             this.route = route;
-            return this;
+            return (T) this;
         }
 
-        public Builder setClassLoader(ClassLoader classLoader) {
+        public T setClassLoader(ClassLoader classLoader) {
             if (classLoader == null) {
                 throw new IllegalArgumentException("class loader is null");
             }
             this.classLoader = classLoader;
-            return this;
+            return (T) this;
         }
 
-        public Builder setBeanContainer(String beanContainer) {
+        public T setBeanContainer(String beanContainer) {
             if (beanContainer == null) {
                 throw new IllegalArgumentException("bean container is null");
             }
             this.beanContainer = beanContainer;
-            return this;
+            return (T) this;
         }
 
-        public Builder setPlugins(String... plugins) {
+        public T setPlugins(String... plugins) {
             if (plugins == null || plugins.length == 0) {
                 throw new IllegalArgumentException("plugins is null or empty array");
             }
             this.plugins = new ArrayList<String>(Arrays.asList(plugins));
-            return this;
+            return (T) this;
         }
 
-        public Builder addPlugins(String... plugins) {
+        public T addPlugins(String... plugins) {
             if (plugins == null) {
                 throw new IllegalArgumentException("plugins is null");
             }
             this.plugins.addAll(Arrays.asList(plugins));
-            return this;
+            return (T) this;
         }
 
-        public Builder setConfigLocations(String... configLocations) {
+        public T setConfigLocations(String... configLocations) {
             if (configLocations == null || configLocations.length == 0) {
                 throw new IllegalArgumentException("config locations is null or empty");
             }
             this.configLocations = new ArrayList<String>(Arrays.asList(configLocations));
-            return this;
+            return (T) this;
         }
 
-        public Builder addConfigLocations(String... configLocations) {
+        public T addConfigLocations(String... configLocations) {
             if (configLocations == null) {
                 throw new IllegalArgumentException("config locations is null");
             }
             this.configLocations.addAll(Arrays.asList(configLocations));
-            return this;
+            return (T) this;
         }
 
-        public Builder setAcceptCharsets(String... acceptCharsets) {
+        public T setAcceptCharsets(String... acceptCharsets) {
             if (acceptCharsets == null || acceptCharsets.length == 0) {
                 throw new IllegalArgumentException("accept charsets is null or empty");
             }
             this.acceptCharsets = new ArrayList<String>(Arrays.asList(acceptCharsets));
-            return this;
+            return (T) this;
         }
 
-        public Builder addAcceptCharsets(String... acceptCharsets) {
+        public T addAcceptCharsets(String... acceptCharsets) {
             if (acceptCharsets == null) {
                 throw new IllegalArgumentException("accept charsets is null");
             }
             this.acceptCharsets.addAll(Arrays.asList(acceptCharsets));
-            return this;
+            return (T) this;
         }
 
-        public Builder setAcceptEncodings(String... acceptEncodings) {
+        public T setAcceptEncodings(String... acceptEncodings) {
             if (acceptEncodings == null || acceptEncodings.length == 0) {
                 throw new IllegalArgumentException("accept encodings is null or empty");
             }
             this.acceptEncodings = new ArrayList<String>(Arrays.asList(acceptEncodings));
-            return this;
+            return (T) this;
         }
 
-        public Builder addAcceptEncodings(String... acceptEncodings) {
+        public T addAcceptEncodings(String... acceptEncodings) {
             if (acceptEncodings == null) {
                 throw new IllegalArgumentException("accept encodings is null");
             }
             this.acceptEncodings.addAll(Arrays.asList(acceptEncodings));
-            return this;
+            return (T) this;
         }
 
-        public Builder setAcceptLanguages(String... acceptLanguages) {
+        public T setAcceptLanguages(String... acceptLanguages) {
             if (acceptLanguages == null || acceptLanguages.length == 0) {
                 throw new IllegalArgumentException("accept languages is null or empty");
             }
             this.acceptLanguages = new ArrayList<String>(Arrays.asList(acceptLanguages));
-            return this;
+            return (T) this;
         }
 
-        public Builder addAcceptLanguages(String... acceptLanguages) {
+        public T addAcceptLanguages(String... acceptLanguages) {
             if (acceptLanguages == null) {
                 throw new IllegalArgumentException("accept languages is null");
             }
             this.acceptLanguages.addAll(Arrays.asList(acceptLanguages));
-            return this;
+            return (T) this;
         }
 
-        public Builder setContentCharsets(String... contentCharsets) {
+        public T setContentCharsets(String... contentCharsets) {
             if (contentCharsets == null || contentCharsets.length == 0) {
                 throw new IllegalArgumentException("content charsets is null or empty");
             }
             this.contentCharsets = new ArrayList<String>(Arrays.asList(contentCharsets));
-            return this;
+            return (T) this;
         }
 
-        public Builder addContentCharsets(String... contentCharsets) {
+        public T addContentCharsets(String... contentCharsets) {
             if (contentCharsets == null) {
                 throw new IllegalArgumentException("content charsets is null");
             }
             this.contentCharsets.addAll(Arrays.asList(contentCharsets));
-            return this;
+            return (T) this;
         }
 
-        public Builder setContentEncodings(String... contentEncodings) {
+        public T setContentEncodings(String... contentEncodings) {
             if (contentEncodings == null || contentEncodings.length == 0) {
                 throw new IllegalArgumentException("content encodings is null or empty");
             }
             this.contentEncodings = new ArrayList<String>(Arrays.asList(contentEncodings));
-            return this;
+            return (T) this;
         }
 
-        public Builder addContentEncodings(String... contentEncodings) {
+        public T addContentEncodings(String... contentEncodings) {
             if (contentEncodings == null) {
                 throw new IllegalArgumentException("content encodings is null");
             }
             this.contentEncodings.addAll(Arrays.asList(contentEncodings));
-            return this;
+            return (T) this;
         }
 
-        public Builder setContentLanguages(String... contentLanguages) {
+        public T setContentLanguages(String... contentLanguages) {
             if (contentLanguages == null || contentLanguages.length == 0) {
                 throw new IllegalArgumentException("content languages is null or empty");
             }
             this.contentLanguages = new ArrayList<String>(Arrays.asList(contentLanguages));
-            return this;
+            return (T) this;
         }
 
-        public Builder addContentLanguages(String... contentLanguages) {
+        public T addContentLanguages(String... contentLanguages) {
             if (contentLanguages == null) {
                 throw new IllegalArgumentException("content languages is null");
             }
             this.contentLanguages.addAll(Arrays.asList(contentLanguages));
-            return this;
+            return (T) this;
         }
 
-        public Builder setAllowEncode(boolean allowEncode) {
+        public T setAllowEncode(boolean allowEncode) {
             this.allowEncode = allowEncode;
-            return this;
+            return (T) this;
         }
 
-        public Builder setAcceptEncode(boolean acceptEncode) {
+        public T setAcceptEncode(boolean acceptEncode) {
             this.acceptEncode = acceptEncode;
-            return this;
+            return (T) this;
         }
 
-        public Builder setPathEncodeCharset(String pathEncodeCharset) {
+        public T setPathEncodeCharset(String pathEncodeCharset) {
             if (Charset.isSupported(pathEncodeCharset) == false) {
                 throw new UnsupportedCharsetException(pathEncodeCharset);
             }
             this.pathEncodeCharset = pathEncodeCharset;
-            return this;
+            return (T) this;
         }
 
-        public Builder setQueryEncodeCharset(String queryEncodeCharset) {
+        public T setQueryEncodeCharset(String queryEncodeCharset) {
             if (Charset.isSupported(queryEncodeCharset) == false) {
                 throw new UnsupportedCharsetException(queryEncodeCharset);
             }
             this.queryEncodeCharset = queryEncodeCharset;
-            return this;
+            return (T) this;
         }
 
-        public Builder setHeaderEncodeCharset(String headerEncodeCharset) {
+        public T setHeaderEncodeCharset(String headerEncodeCharset) {
             if (Charset.isSupported(headerEncodeCharset) == false) {
                 throw new UnsupportedCharsetException(headerEncodeCharset);
             }
             this.headerEncodeCharset = headerEncodeCharset;
-            return this;
+            return (T) this;
         }
 
-        public Builder setConnTimeout(int connTimeout) {
+        public T setConnTimeout(int connTimeout) {
             if (connTimeout < 0) {
                 throw new IllegalArgumentException("connect timeout is negative");
             }
             this.connTimeout = connTimeout;
-            return this;
+            return (T) this;
         }
 
-        public Builder setReadTimeout(int readTimeout) {
+        public T setReadTimeout(int readTimeout) {
             if (readTimeout < 0) {
                 throw new IllegalArgumentException("reading timeout is negative");
             }
             this.readTimeout = readTimeout;
-            return this;
+            return (T) this;
         }
 
-        public Builder setGateway(Gateway gateway) {
+        public T setGateway(Gateway gateway) {
             if (gateway == null) {
                 throw new IllegalArgumentException("can not set null gateway");
             }
             this.gateway = gateway;
-            return this;
+            return (T) this;
         }
 
-        public Builder setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+        public T setHostnameVerifier(HostnameVerifier hostnameVerifier) {
             if (hostnameVerifier == null) {
                 throw new IllegalArgumentException("can not set null hostnameVerifier");
             }
             this.hostnameVerifier = hostnameVerifier;
-            return this;
+            return (T) this;
         }
 
-        public Builder setSSLSocketFactory(SSLSocketFactory SSLSocketFactory) {
+        public T setSSLSocketFactory(SSLSocketFactory SSLSocketFactory) {
             if (SSLSocketFactory == null) {
                 throw new IllegalArgumentException("can not set null SSLSocketFactory");
             }
             this.SSLSocketFactory = SSLSocketFactory;
-            return this;
+            return (T) this;
         }
 
     }

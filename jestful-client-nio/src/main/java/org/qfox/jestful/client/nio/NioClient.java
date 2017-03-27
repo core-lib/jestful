@@ -34,9 +34,11 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     private Selector selector;
     private Registrations registrations;
     private final ByteBuffer buffer = ByteBuffer.allocate(8096);
+    private final int selectTimeout;
 
-    private NioClient(NioBuilder builder) {
+    private NioClient(Builder<?> builder) {
         super(builder);
+        this.selectTimeout = builder.selectTimeout;
         synchronized (this) {
             try {
                 Thread thread = new Thread(this);
@@ -80,7 +82,7 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
             try {
                 registrations.foreach(this);
 
-                if (selector.select() == 0) {
+                if (selector.select(selectTimeout) == 0) {
                     continue;
                 }
 
@@ -190,21 +192,29 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
             if (defaultClient != null) {
                 return defaultClient;
             }
-            return defaultClient = NioClient.builder().build();
+            return defaultClient = builder().build();
         }
     }
 
-    public static NioBuilder builder() {
-        return new NioBuilder();
+    public static Builder<?> builder() {
+        return new Builder();
     }
 
-    public static class NioBuilder extends Builder {
+    public static class Builder<T extends Builder<T>> extends org.qfox.jestful.client.Client.Builder<T> {
+        private int selectTimeout;
 
         @Override
         public NioClient build() {
             return new NioClient(this);
         }
 
+        public T setSelectTimeout(int selectTimeout) {
+            if (selectTimeout < 0) {
+                throw new IllegalArgumentException("select timeout is negative");
+            }
+            this.selectTimeout = selectTimeout;
+            return (T) this;
+        }
     }
 
     private class JestfulNioListener extends NioAdapter {

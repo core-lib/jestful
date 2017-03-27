@@ -55,7 +55,7 @@ public class CookieAPITests {
     @Test
     public void testNioCookie() throws Exception {
         final Object lock = new Object();
-        final CookieAPI api = NioClient.builder().addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
+        final CookieAPI api = NioClient.builder().setSelectTimeout(1000).setAcceptEncode(true).addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
         api.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {
