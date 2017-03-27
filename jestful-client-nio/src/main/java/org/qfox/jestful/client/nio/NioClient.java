@@ -13,6 +13,7 @@ import org.qfox.jestful.core.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
@@ -169,7 +170,11 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                 logger.error("", t);
             }
         }
-        IOUtils.close(selector);
+        try {
+            selector.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Object react(Action action) throws Exception {
