@@ -150,6 +150,7 @@ public class JestfulClientRequest implements Request {
         }
         request.setConnTimeout(connTimeout);
         request.setReadTimeout(readTimeout);
+        request.setWriteTimeout(writeTimeout);
         if (characterEncoding != null) {
             request.setCharacterEncoding(characterEncoding);
         }

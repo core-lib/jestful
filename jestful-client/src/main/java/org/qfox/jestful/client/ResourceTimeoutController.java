@@ -19,6 +19,7 @@ public class ResourceTimeoutController implements Actor {
 			long duration = unit.toMillis(value);
 			Request request = action.getRequest();
 			request.setReadTimeout((int) duration);
+			request.setWriteTimeout((int) duration);
 		}
 		return action.execute();
 	}
