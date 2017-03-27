@@ -19,10 +19,6 @@ public abstract class TimeoutHandler implements Comparable<TimeoutHandler> {
         return time > timeInvalid;
     }
 
-    protected SocketTimeoutException wrapSocketTimeoutException() {
-        return wrapSocketTimeoutException(null);
-    }
-
     protected SocketTimeoutException wrapSocketTimeoutException(String msg) {
         try {
             throw msg == null ? new SocketTimeoutException() : new SocketTimeoutException(msg);
