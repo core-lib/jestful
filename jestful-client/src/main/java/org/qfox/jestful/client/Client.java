@@ -696,11 +696,12 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             return (T) this;
         }
 
-        public void setWriteTimeout(int writeTimeout) {
+        public T setWriteTimeout(int writeTimeout) {
             if (writeTimeout < 0) {
                 throw new IllegalArgumentException("writing timeout is negative");
             }
             this.writeTimeout = writeTimeout;
+            return (T) this;
         }
 
         public T setGateway(Gateway gateway) {
