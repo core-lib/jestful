@@ -218,6 +218,12 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         private long selectTimeout = 1000L;
         private TimeoutManager timeoutManager = new TreeSetTimeoutManager();
 
+        public Builder() {
+            this.setConnTimeout(20 * 1000);
+            this.setReadTimeout(Integer.MAX_VALUE);
+            this.setWriteTimeout(Integer.MAX_VALUE);
+        }
+
         @Override
         public NioClient build() {
             return new NioClient(this);
