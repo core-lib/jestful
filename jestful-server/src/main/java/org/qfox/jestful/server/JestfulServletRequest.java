@@ -93,6 +93,14 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
         throw new UnsupportedOperationException();
     }
 
+    public int getWriteTimeout() {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setWriteTimeout(int timeout) {
+        throw new UnsupportedOperationException();
+    }
+
     public String getContentType() {
         return super.getContentType();
     }

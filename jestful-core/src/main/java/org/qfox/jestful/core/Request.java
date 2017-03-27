@@ -37,6 +37,10 @@ public interface Request extends Closeable, IOConstants {
 
     void setReadTimeout(int timeout);
 
+    int getWriteTimeout();
+
+    void setWriteTimeout(int timeout);
+
     void connect() throws IOException;
 
     String getContentType();

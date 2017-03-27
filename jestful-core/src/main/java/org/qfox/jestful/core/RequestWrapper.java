@@ -64,6 +64,14 @@ public class RequestWrapper implements Request {
         request.setReadTimeout(timeout);
     }
 
+    public int getWriteTimeout() {
+        return request.getWriteTimeout();
+    }
+
+    public void setWriteTimeout(int timeout) {
+        request.setWriteTimeout(timeout);
+    }
+
     public String getContentType() {
         return request.getContentType();
     }

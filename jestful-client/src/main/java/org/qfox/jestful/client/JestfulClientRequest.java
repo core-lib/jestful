@@ -18,15 +18,17 @@ public class JestfulClientRequest implements Request {
     protected Request request;
     protected int connTimeout;
     protected int readTimeout;
+    protected int writeTimeout;
     protected String characterEncoding;
 
-    protected JestfulClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout) {
+    protected JestfulClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
         super();
         this.action = action;
         this.connector = connector;
         this.gateway = gateway;
         this.connTimeout = connTimeout;
         this.readTimeout = readTimeout;
+        this.writeTimeout = writeTimeout;
     }
 
     public String[] getHeaderKeys() {
@@ -79,6 +81,14 @@ public class JestfulClientRequest implements Request {
 
     public void setReadTimeout(int timeout) {
         this.readTimeout = timeout;
+    }
+
+    public int getWriteTimeout() {
+        return writeTimeout;
+    }
+
+    public void setWriteTimeout(int writeTimeout) {
+        this.writeTimeout = writeTimeout;
     }
 
     public String getContentType() {

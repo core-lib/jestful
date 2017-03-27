@@ -75,6 +75,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
     private final int connTimeout;
     private final int readTimeout;
+    private final int writeTimeout;
 
     private final Gateway gateway;
     private final HostnameVerifier hostnameVerifier;
@@ -131,6 +132,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
         this.connTimeout = builder.connTimeout;
         this.readTimeout = builder.readTimeout;
+        this.writeTimeout = builder.writeTimeout;
 
         this.gateway = builder.gateway;
         this.hostnameVerifier = builder.hostnameVerifier;
@@ -446,6 +448,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
         private int connTimeout = 0;
         private int readTimeout = 0;
+        private int writeTimeout = 0;
 
         private Gateway gateway = Gateway.NULL;
 
@@ -693,6 +696,13 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             return (T) this;
         }
 
+        public void setWriteTimeout(int writeTimeout) {
+            if (writeTimeout < 0) {
+                throw new IllegalArgumentException("writing timeout is negative");
+            }
+            this.writeTimeout = writeTimeout;
+        }
+
         public T setGateway(Gateway gateway) {
             if (gateway == null) {
                 throw new IllegalArgumentException("can not set null gateway");
@@ -825,6 +835,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
     public int getReadTimeout() {
         return readTimeout;
+    }
+
+    public int getWriteTimeout() {
+        return writeTimeout;
     }
 
     public Gateway getGateway() {

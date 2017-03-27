@@ -122,7 +122,7 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
     }
 
     protected Request newRequest(Action action) {
-        return new JestfulClientRequest(action, client, client.getGateway(), client.getConnTimeout(), client.getReadTimeout());
+        return new JestfulClientRequest(action, client, client.getGateway(), client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout());
     }
 
     protected Response newResponse(Action action) {

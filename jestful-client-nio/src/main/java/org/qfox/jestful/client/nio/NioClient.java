@@ -4,6 +4,8 @@ import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.nio.scheduler.NioScheduler;
+import org.qfox.jestful.client.nio.timeout.TimeoutManager;
+import org.qfox.jestful.client.nio.timeout.TreeSetTimeoutManager;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
@@ -34,11 +36,13 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     private Selector selector;
     private Registrations registrations;
     private final ByteBuffer buffer = ByteBuffer.allocate(8096);
-    private final int selectTimeout;
+    private final long selectTimeout;
+    private final TimeoutManager timeoutManager;
 
     private NioClient(Builder<?> builder) {
         super(builder);
         this.selectTimeout = builder.selectTimeout;
+        this.timeoutManager = builder.timeoutManager;
         synchronized (this) {
             try {
                 Thread thread = new Thread(this);
@@ -53,7 +57,10 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     @Override
     public void consume(SocketChannel channel, int options, Object attachment) {
         try {
-            channel.register(selector, options, attachment);
+            SelectionKey connectableKey = channel.register(selector, options, attachment);
+            Action action = (Action) attachment;
+            JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
+            timeoutManager.addConnTimeoutHandler(connectableKey, request.getConnTimeout());
         } catch (ClosedChannelException e) {
             throw new RuntimeException(e);
         }
@@ -80,8 +87,11 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         while (!isDestroyed()) {
             SelectionKey key = null;
             try {
+                // 处理超时
+                timeoutManager.fire();
+                // 处理注册
                 registrations.foreach(this);
-
+                // 最多等待 select timeout 时间进行一次超时检查
                 if (selector.select(selectTimeout) == 0) {
                     continue;
                 }
@@ -99,8 +109,10 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                     } else if (key.isConnectable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
+                        JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
                         if (channel.isConnectionPending() && channel.finishConnect()) {
-                            channel.register(selector, SelectionKey.OP_WRITE, action);
+                            SelectionKey writableKey = channel.register(selector, SelectionKey.OP_WRITE, action);
+                            timeoutManager.addWriteTimeoutHandler(writableKey, request.getWriteTimeout());
 
                             NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
                             listener.onConnected(action);
@@ -110,7 +122,8 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                         Action action = (Action) key.attachment();
                         JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
                         if (request.send(channel)) {
-                            channel.register(selector, SelectionKey.OP_READ, action);
+                            SelectionKey readableKey = channel.register(selector, SelectionKey.OP_READ, action);
+                            timeoutManager.addReadTimeoutHandler(readableKey, request.getReadTimeout());
 
                             NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
                             listener.onRequested(action);
@@ -156,6 +169,7 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                 logger.error("", t);
             }
         }
+        IOUtils.close(selector);
     }
 
     public Object react(Action action) throws Exception {
@@ -201,18 +215,27 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     }
 
     public static class Builder<T extends Builder<T>> extends org.qfox.jestful.client.Client.Builder<T> {
-        private int selectTimeout;
+        private long selectTimeout = 1000L;
+        private TimeoutManager timeoutManager = new TreeSetTimeoutManager();
 
         @Override
         public NioClient build() {
             return new NioClient(this);
         }
 
-        public T setSelectTimeout(int selectTimeout) {
+        public T setSelectTimeout(long selectTimeout) {
             if (selectTimeout < 0) {
                 throw new IllegalArgumentException("select timeout is negative");
             }
             this.selectTimeout = selectTimeout;
+            return (T) this;
+        }
+
+        public T setTimeoutManager(TimeoutManager timeoutManager) {
+            if (timeoutManager == null) {
+                throw new IllegalArgumentException("timeoutManager can not be null");
+            }
+            this.timeoutManager = timeoutManager;
             return (T) this;
         }
     }
@@ -300,4 +323,11 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         }
     }
 
+    public long getSelectTimeout() {
+        return selectTimeout;
+    }
+
+    public TimeoutManager getTimeoutManager() {
+        return timeoutManager;
+    }
 }

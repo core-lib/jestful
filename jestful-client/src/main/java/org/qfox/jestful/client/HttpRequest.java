@@ -74,6 +74,14 @@ public class HttpRequest implements Request {
         httpURLConnection.setReadTimeout(timeout);
     }
 
+    public int getWriteTimeout() {
+        return 0;
+    }
+
+    public void setWriteTimeout(int timeout) {
+
+    }
+
     public String getContentType() {
         return getRequestHeader("Content-Type");
     }

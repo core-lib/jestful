@@ -27,8 +27,8 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
     private ByteBuffer head;
     private ByteBuffer body;
 
-    protected JestfulNioClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout) {
-        super(action, connector, gateway, connTimeout, readTimeout);
+    protected JestfulNioClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
+        super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
     }
 
     @Override
