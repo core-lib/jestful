@@ -2,6 +2,7 @@ package org.qfox.jestful.tutorial;
 
 import org.qfox.jestful.core.annotation.Cookie;
 import org.qfox.jestful.core.annotation.GET;
+import org.qfox.jestful.core.annotation.Header;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.springframework.stereotype.Controller;
 
@@ -15,7 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 public class CookieController {
 
     @GET("/")
-    public String index(@Cookie("cookie") String cookie, HttpServletResponse response) {
+    public String index(@Header("User-Agent") String userAgent, @Cookie("cookie") String cookie, HttpServletResponse response) {
+        System.out.println(userAgent);
         if (cookie != null) {
             System.out.println(cookie);
         } else {

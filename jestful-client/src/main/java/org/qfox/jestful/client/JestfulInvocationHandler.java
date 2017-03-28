@@ -79,8 +79,12 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         action.setPort(port);
         action.setRoute(route);
 
-        action.setRequest(newRequest(action));
-        action.setResponse(newResponse(action));
+        Request request = newRequest(action);
+        request.setRequestHeader("User-Agent", client.getUserAgent());
+        action.setRequest(request);
+
+        Response response = newResponse(action);
+        action.setResponse(response);
 
         action.setConsumes(mapping.getConsumes());
         action.setProduces(mapping.getProduces());

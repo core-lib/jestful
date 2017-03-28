@@ -5,12 +5,12 @@ import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
+import org.qfox.jestful.commons.IOUtils;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
-import org.qfox.jestful.commons.IOUtils;
 import org.qfox.jestful.core.io.RequestLazyOutputStream;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
@@ -80,6 +80,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     private final Gateway gateway;
     private final HostnameVerifier hostnameVerifier;
     private final SSLSocketFactory SSLSocketFactory;
+    private final String userAgent;
 
     private boolean destroyed = false;
 
@@ -137,6 +138,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.gateway = builder.gateway;
         this.hostnameVerifier = builder.hostnameVerifier;
         this.SSLSocketFactory = builder.SSLSocketFactory;
+        this.userAgent = builder.userAgent;
 
         this.initialize(this.beanContainer);
     }
@@ -455,6 +457,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         private HostnameVerifier hostnameVerifier;
         private SSLSocketFactory SSLSocketFactory;
 
+        private String userAgent = Module.getInstance().getName() + "/" + Module.getInstance().getVersion();
+
         public Client build() {
             return new Client(this);
         }
@@ -728,6 +732,13 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             return (T) this;
         }
 
+        public T setUserAgent(String userAgent) {
+            if (userAgent == null) {
+                throw new IllegalArgumentException("User-Agent can not be null");
+            }
+            this.userAgent = userAgent;
+            return (T) this;
+        }
     }
 
     public Charsets getCharsets() {
@@ -852,6 +863,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
     public SSLSocketFactory getSSLSocketFactory() {
         return SSLSocketFactory;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
     }
 
     @Override
