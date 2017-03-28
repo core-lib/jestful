@@ -17,11 +17,6 @@ public class Module extends Config implements Serializable {
     private String parentName;
     private String parentVersion;
 
-    public static void main(String[] args) {
-        new Module();
-        new Module();
-    }
-
     public static Module getInstance() {
         if (instance != null) {
             return instance;
