@@ -12,7 +12,7 @@ import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestSerializer;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -42,11 +42,11 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 
 	public boolean supports(Action action) {
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
-		return bodies.size() == 0 ? true : bodies.size() == 1 ? supports(bodies.get(0)) : false;
+		return bodies.size() == 0 || bodies.size() == 1 && supports(bodies.get(0));
 	}
 
 	public boolean supports(Parameter parameter) {
-		return parameter.getValue() != null ? canSerialize(parameter.getValue().getClass()) : true;
+		return parameter.getValue() == null || canSerialize(parameter.getValue().getClass());
 	}
 
 	public void serialize(Action action, String charset, OutputStream out) throws IOException {

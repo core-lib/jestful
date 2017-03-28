@@ -4,7 +4,7 @@ import org.qfox.jestful.client.Connector;
 import org.qfox.jestful.client.JestfulClientRequest;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 
 import java.io.*;
 import java.net.URL;

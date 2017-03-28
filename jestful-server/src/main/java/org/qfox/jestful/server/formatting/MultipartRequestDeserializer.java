@@ -19,7 +19,7 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 import org.qfox.jestful.core.io.MultipartInputStream;
 import org.qfox.jestful.server.JestfulServletRequest;
 import org.qfox.jestful.server.converter.ConversionException;

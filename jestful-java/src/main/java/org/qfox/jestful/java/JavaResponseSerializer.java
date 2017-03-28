@@ -3,7 +3,7 @@ package org.qfox.jestful.java;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;

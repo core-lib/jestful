@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 
 /**
  * <p>

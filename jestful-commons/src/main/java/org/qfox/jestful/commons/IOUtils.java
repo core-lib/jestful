@@ -1,4 +1,4 @@
-package org.qfox.jestful.core.io;
+package org.qfox.jestful.commons;
 
 import java.io.*;
 

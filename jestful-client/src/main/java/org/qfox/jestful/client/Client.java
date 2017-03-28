@@ -10,7 +10,7 @@ import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 import org.qfox.jestful.core.io.RequestLazyOutputStream;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;

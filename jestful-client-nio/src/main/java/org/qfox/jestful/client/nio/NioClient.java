@@ -9,7 +9,7 @@ import org.qfox.jestful.client.nio.timeout.TreeSetTimeoutManager;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

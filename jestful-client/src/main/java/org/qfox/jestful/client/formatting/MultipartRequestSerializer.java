@@ -22,7 +22,7 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import eu.medsea.mimeutil.MimeUtil;
@@ -52,7 +52,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 
 	public boolean supports(Action action) {
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
-		return bodies.size() == 0 ? true : bodies.size() == 1 ? supports(bodies.get(0)) : true;
+		return bodies.size() == 0 || (bodies.size() != 1 || supports(bodies.get(0)));
 	}
 
 	public boolean supports(Parameter parameter) {

@@ -4,7 +4,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Result;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;

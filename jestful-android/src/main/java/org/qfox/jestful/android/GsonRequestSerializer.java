@@ -12,7 +12,7 @@ import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestSerializer;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import com.google.gson.Gson;
@@ -27,7 +27,7 @@ public class GsonRequestSerializer implements RequestSerializer {
 
 	public boolean supports(Action action) {
 		List<Parameter> bodies = action.getParameters().all(Position.BODY);
-		return bodies.size() == 0 ? true : bodies.size() == 1 ? supports(bodies.get(0)) : false;
+		return bodies.size() == 0 || bodies.size() == 1 && supports(bodies.get(0));
 	}
 
 	public boolean supports(Parameter parameter) {

@@ -5,7 +5,7 @@ import org.qfox.jestful.client.JestfulClientResponse;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Status;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 
 import java.io.*;
 import java.nio.ByteBuffer;

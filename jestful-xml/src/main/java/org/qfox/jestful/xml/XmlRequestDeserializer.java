@@ -13,7 +13,7 @@ import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 

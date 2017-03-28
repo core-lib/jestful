@@ -2,7 +2,7 @@ package org.qfox.jestful.server.formatting;
 
 import org.qfox.jestful.core.Multibody;
 import org.qfox.jestful.core.Multihead;
-import org.qfox.jestful.core.io.IOUtils;
+import org.qfox.jestful.commons.IOUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Part;
