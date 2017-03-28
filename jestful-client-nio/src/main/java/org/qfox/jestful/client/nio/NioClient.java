@@ -227,7 +227,26 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
             this.setConnTimeout(20 * 1000);
             this.setReadTimeout(Integer.MAX_VALUE);
             this.setWriteTimeout(Integer.MAX_VALUE);
-            this.setUserAgent(Module.getInstance().getName() + "/" + Module.getInstance().getVersion());
+            String userAgent = "Mozilla/5.0"
+                    + " "
+                    + "("
+                    + System.getProperty("os.name")
+                    + " "
+                    + System.getProperty("os.version")
+                    + "; "
+                    + System.getProperty("os.arch")
+                    + "; "
+                    + System.getProperty("user.language")
+                    + ")"
+                    + " "
+                    + Module.getInstance().getParentName()
+                    + "/"
+                    + Module.getInstance().getParentVersion()
+                    + " "
+                    + Module.getInstance().getName()
+                    + "/"
+                    + Module.getInstance().getVersion();
+            this.setUserAgent(userAgent);
         }
 
         @Override

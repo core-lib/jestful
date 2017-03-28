@@ -457,7 +457,25 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         private HostnameVerifier hostnameVerifier;
         private SSLSocketFactory SSLSocketFactory;
 
-        private String userAgent = Module.getInstance().getName() + "/" + Module.getInstance().getVersion();
+        private String userAgent = "Mozilla/5.0"
+                + " "
+                + "("
+                + System.getProperty("os.name")
+                + " "
+                + System.getProperty("os.version")
+                + "; "
+                + System.getProperty("os.arch")
+                + "; "
+                + System.getProperty("user.language")
+                + ")"
+                + " "
+                + Module.getInstance().getParentName()
+                + "/"
+                + Module.getInstance().getParentVersion()
+                + " "
+                + Module.getInstance().getName()
+                + "/"
+                + Module.getInstance().getVersion();
 
         public Client build() {
             return new Client(this);
