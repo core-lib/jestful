@@ -67,7 +67,7 @@ public abstract class LazyInputStream extends InputStream {
 		return get().markSupported();
 	}
 
-	private final InputStream get() {
+	private InputStream get() {
 		if (inputSream != null) {
 			return inputSream;
 		}

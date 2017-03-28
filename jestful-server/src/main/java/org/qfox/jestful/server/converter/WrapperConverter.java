@@ -47,7 +47,7 @@ public class WrapperConverter implements Converter {
 				result = Short.valueOf(value);
 				break;
 			case 3:
-				result = Character.valueOf(value.charAt(0));
+				result = value.charAt(0);
 				break;
 			case 4:
 				result = Integer.valueOf(value);

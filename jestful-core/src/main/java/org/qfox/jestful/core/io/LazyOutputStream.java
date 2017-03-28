@@ -47,7 +47,7 @@ public abstract class LazyOutputStream extends OutputStream {
 		get().close();
 	}
 
-	private final OutputStream get() {
+	private OutputStream get() {
 		if (outputStream != null) {
 			return outputStream;
 		}

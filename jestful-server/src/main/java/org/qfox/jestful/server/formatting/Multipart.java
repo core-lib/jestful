@@ -55,7 +55,7 @@ public class Multipart implements MultipartFile, Part, Cloneable {
     }
 
     public boolean isEmpty() {
-        return getSize() == 0l;
+        return getSize() == 0L;
     }
 
     public long getSize() {

@@ -76,9 +76,7 @@ public class Capacity {
 		Capacity other = (Capacity) obj;
 		if (unit != other.unit)
 			return false;
-		if (value != other.value)
-			return false;
-		return true;
+		return value == other.value;
 	}
 
 	@Override
@@ -86,7 +84,7 @@ public class Capacity {
 		return value + unit.name();
 	}
 
-	public static enum Unit {
+	public enum Unit {
 		B {
 			@Override
 			public long toByteSize(long value) {
@@ -96,31 +94,31 @@ public class Capacity {
 		KB {
 			@Override
 			public long toByteSize(long value) {
-				return B.toByteSize(1024l * value);
+				return B.toByteSize(1024L * value);
 			}
 		},
 		MB {
 			@Override
 			public long toByteSize(long value) {
-				return KB.toByteSize(1024l * value);
+				return KB.toByteSize(1024L * value);
 			}
 		},
 		GB {
 			@Override
 			public long toByteSize(long value) {
-				return MB.toByteSize(1024l * value);
+				return MB.toByteSize(1024L * value);
 			}
 		},
 		TB {
 			@Override
 			public long toByteSize(long value) {
-				return GB.toByteSize(1024l * value);
+				return GB.toByteSize(1024L * value);
 			}
 		},
 		PB {
 			@Override
 			public long toByteSize(long value) {
-				return TB.toByteSize(1024l * value);
+				return TB.toByteSize(1024L * value);
 			}
 		};
 

@@ -15,14 +15,14 @@ public class DefaultParameterResolver implements Actor {
     private final Map<Class<?>, Object> defaults = new HashMap<Class<?>, Object>();
 
     {
-        defaults.put(boolean.class, Boolean.valueOf((boolean) false));
-        defaults.put(byte.class, Byte.valueOf((byte) 0));
-        defaults.put(char.class, Character.valueOf((char) 0));
-        defaults.put(short.class, Short.valueOf((short) 0));
-        defaults.put(int.class, Integer.valueOf((int) 0));
-        defaults.put(long.class, Long.valueOf((long) 0));
-        defaults.put(float.class, Float.valueOf((float) 0));
-        defaults.put(double.class, Double.valueOf((double) 0));
+        defaults.put(boolean.class, false);
+        defaults.put(byte.class, (byte) 0);
+        defaults.put(char.class, (char) 0);
+        defaults.put(short.class, (short) 0);
+        defaults.put(int.class, 0);
+        defaults.put(long.class, (long) 0);
+        defaults.put(float.class, (float) 0);
+        defaults.put(double.class, (double) 0);
     }
 
     public Object react(Action action) throws Exception {

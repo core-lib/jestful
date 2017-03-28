@@ -5,8 +5,6 @@ import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
 
-import java.io.File;
-
 /**
  * Created by payne on 2017/3/27.
  */
