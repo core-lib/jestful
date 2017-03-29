@@ -59,13 +59,12 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
     }
 
     @Override
-    public void consume(SocketAddress address, Object attachment) {
-        Action action = (Action) attachment;
+    public void consume(SocketAddress address, Action action) {
         try {
             SocketChannel channel = SocketChannel.open();
             channel.configureBlocking(false);
             channel.connect(address);
-            SelectionKey connectableKey = channel.register(selector, SelectionKey.OP_CONNECT, attachment);
+            SelectionKey connectableKey = channel.register(selector, SelectionKey.OP_CONNECT, action);
             JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
             timeoutManager.addConnTimeoutHandler(connectableKey, request.getConnTimeout());
         } catch (Exception e) {

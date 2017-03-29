@@ -1,5 +1,7 @@
 package org.qfox.jestful.client.nio;
 
+import org.qfox.jestful.core.Action;
+
 import java.net.SocketAddress;
 import java.nio.channels.Selector;
 import java.util.Iterator;
@@ -18,7 +20,7 @@ public class NioCalls {
         this.selector = selector;
     }
 
-    public void offer(SocketAddress channel, Object attachment) {
+    public void offer(SocketAddress channel, Action attachment) {
         synchronized (lock) {
             calls.add(new NioCall(channel, attachment));
             selector.wakeup();
@@ -31,25 +33,25 @@ public class NioCalls {
             while (iterator.hasNext()) {
                 NioCall call = iterator.next();
                 iterator.remove();
-                consumer.consume(call.address, call.attachment);
+                consumer.consume(call.address, call.action);
             }
         }
     }
 
     public static class NioCall {
         private final SocketAddress address;
-        private final Object attachment;
+        private final Action action;
 
-        public NioCall(SocketAddress address, Object attachment) {
+        public NioCall(SocketAddress address, Action action) {
             this.address = address;
-            this.attachment = attachment;
+            this.action = action;
         }
 
     }
 
     public interface NioConsumer {
 
-        void consume(SocketAddress address, Object attachment);
+        void consume(SocketAddress address, Action attachment);
 
     }
 
