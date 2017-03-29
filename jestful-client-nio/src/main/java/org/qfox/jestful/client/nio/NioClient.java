@@ -37,7 +37,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
     private static NioClient defaultClient;
     private Selector selector;
     private NioCalls calls;
-    private final ByteBuffer buffer = ByteBuffer.allocate(8096);
+    private final ByteBuffer buffer = ByteBuffer.allocate(4096);
     private final long selectTimeout;
     private final TimeoutManager timeoutManager;
 

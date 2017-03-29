@@ -1,13 +1,17 @@
 package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.core.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,8 +41,19 @@ public class AioClient extends Client {
         String host = action.getHost();
         Integer port = action.getPort();
         port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
-        
+        Gateway gateway = this.getGateway();
+        SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
+        (gateway != null ? gateway : Gateway.NULL).onConnected(action);
+        AsynchronousSocketChannel channel = AsynchronousSocketChannel.open();
+        channel.connect(address, action, new ConnectCompletionProcessor(channel));
         return null;
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        if (aioChannelGroup != null) aioChannelGroup.shutdown();
+        if (executor != null) executor.shutdown();
     }
 
     @Override
