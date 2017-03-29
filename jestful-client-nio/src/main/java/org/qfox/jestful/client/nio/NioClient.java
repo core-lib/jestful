@@ -33,6 +33,8 @@ import java.util.Map;
 public class NioClient extends Client implements Runnable, Registrations.Consumer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final Object startupLock = new Object();
+    private Exception startupException;
     private static NioClient defaultClient;
     private Selector selector;
     private Registrations registrations;
@@ -44,13 +46,15 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         super(builder);
         this.selectTimeout = builder.selectTimeout;
         this.timeoutManager = builder.timeoutManager;
-        synchronized (this) {
+        synchronized (startupLock) {
             try {
-                Thread thread = new Thread(this);
-                thread.start();
-                this.wait();
+                new Thread(this).start();
+                startupLock.wait();
+                if (startupException != null) throw startupException;
             } catch (InterruptedException e) {
-                throw new Error(e);
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -70,19 +74,22 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     @Override
     public void destroy() {
         super.destroy();
-        selector.wakeup();
+        if (selector != null) selector.wakeup();
     }
 
     @Override
     public void run() {
-        try {
-            synchronized (this) {
+        // 启动
+        synchronized (startupLock) {
+            try {
                 selector = Selector.open();
                 registrations = new Registrations(selector);
-                this.notifyAll();
+            } catch (IOException e) {
+                startupException = e;
+                return;
+            } finally {
+                startupLock.notify();
             }
-        } catch (Exception e) {
-            throw new Error(e);
         }
         // 运行
         while (!isDestroyed()) {
