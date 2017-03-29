@@ -27,8 +27,6 @@ import java.util.concurrent.Executors;
  * Created by yangchangpei on 17/3/29.
  */
 public class AioClient extends Client {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private static AioClient defaultClient;
 
     private final ExecutorService executor;

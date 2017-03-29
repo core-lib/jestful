@@ -27,6 +27,7 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
 
                 IOUtils.close(channel);
             } else {
+                buffer.clear();
                 channel.read(buffer, action, this);
             }
         } catch (Exception e) {

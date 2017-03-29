@@ -2,6 +2,7 @@ package org.qfox.jestful.tutorial;
 
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
 
@@ -56,6 +57,48 @@ public class CookieAPITests {
     public void testNioCookie() throws Exception {
         final Object lock = new Object();
         final CookieAPI api = NioClient.builder().setSelectTimeout(1000).setAcceptEncode(true).addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
+        api.index(new Callback<String>() {
+            @Override
+            public void onCompleted(boolean success, String result, Throwable throwable) {
+                api.index(new Callback<String>() {
+                    @Override
+                    public void onCompleted(boolean success, String result, Throwable throwable) {
+                        synchronized (lock) {
+                            lock.notifyAll();
+                        }
+                    }
+
+                    @Override
+                    public void onSuccess(String result) {
+
+                    }
+
+                    @Override
+                    public void onFail(Throwable throwable) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onSuccess(String result) {
+
+            }
+
+            @Override
+            public void onFail(Throwable throwable) {
+
+            }
+        });
+        synchronized (lock) {
+            lock.wait();
+        }
+    }
+
+    @Test
+    public void testAioCookie() throws Exception {
+        final Object lock = new Object();
+        final CookieAPI api = AioClient.builder().setAcceptEncode(true).addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
         api.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {
