@@ -3,8 +3,8 @@ package org.qfox.jestful.client.nio;
 import org.qfox.jestful.client.Connector;
 import org.qfox.jestful.client.JestfulClientRequest;
 import org.qfox.jestful.client.gateway.Gateway;
-import org.qfox.jestful.core.Action;
 import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.core.Action;
 
 import java.io.*;
 import java.net.URL;
@@ -72,42 +72,46 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
 
     }
 
-    public boolean send(SocketChannel channel) throws IOException {
-        if (head == null || body == null) {
-            NioByteArrayOutputStream baos = new NioByteArrayOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(baos);
+    private void doWriteHeader() throws IOException {
+        NioByteArrayOutputStream baos = new NioByteArrayOutputStream();
+        OutputStreamWriter osw = new OutputStreamWriter(baos);
 
-            String method = action.getRestful().getMethod();
-            String uri = new URL(action.getURL()).getFile();
-            String command = method + " " + uri + " " + protocol;
-            setRequestHeader("", command);
-            osw.write(command);
-            osw.write(CRLF);
+        String method = action.getRestful().getMethod();
+        String uri = new URL(action.getURL()).getFile();
+        String command = method + " " + uri + " " + protocol;
+        setRequestHeader("", command);
+        osw.write(command);
+        osw.write(CRLF);
 
-            String host = action.getHost();
-            Integer port = action.getPort();
-            setRequestHeader("Host", host + (port == null || port < 0 ? "" : ":" + port));
+        String host = action.getHost();
+        Integer port = action.getPort();
+        setRequestHeader("Host", host + (port == null || port < 0 ? "" : ":" + port));
 
-            body = out != null ? out.toByteBuffer() : ByteBuffer.wrap(new byte[0]);
-            setRequestHeader("Content-Length", String.valueOf(body.remaining()));
+        body = out != null ? out.toByteBuffer() : ByteBuffer.wrap(new byte[0]);
+        setRequestHeader("Content-Length", String.valueOf(body.remaining()));
 
-            for (Map.Entry<String, String[]> entry : header.entrySet()) {
-                String name = entry.getKey();
-                if (name == null || name.length() == 0) continue;
+        for (Map.Entry<String, String[]> entry : header.entrySet()) {
+            String name = entry.getKey();
+            if (name == null || name.length() == 0) continue;
 
-                for (String value : entry.getValue()) {
-                    if (value == null) continue;
+            for (String value : entry.getValue()) {
+                if (value == null) continue;
 
-                    osw.write(name);
-                    osw.write(SPRT);
-                    osw.write(value);
-                    osw.write(CRLF);
-                }
+                osw.write(name);
+                osw.write(SPRT);
+                osw.write(value);
+                osw.write(CRLF);
             }
-            osw.write(CRLF);
-            osw.flush();
+        }
+        osw.write(CRLF);
+        osw.flush();
 
-            head = baos.toByteBuffer();
+        head = baos.toByteBuffer();
+    }
+
+    public boolean send(SocketChannel channel) throws IOException {
+        if (head == null) {
+            doWriteHeader();
         }
 
         if (head.remaining() > 0) {

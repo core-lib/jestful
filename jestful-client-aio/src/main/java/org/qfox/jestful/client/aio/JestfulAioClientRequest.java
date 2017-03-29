@@ -9,7 +9,8 @@ import org.qfox.jestful.core.Action;
 import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
 import java.util.Map;
 
 /**
@@ -72,49 +73,52 @@ public class JestfulAioClientRequest extends JestfulClientRequest {
 
     }
 
-    public boolean send(SocketChannel channel) throws IOException {
-        if (head == null || body == null) {
-            AioByteArrayOutputStream baos = new AioByteArrayOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(baos);
+    private void doWriteHeader() throws IOException {
+        AioByteArrayOutputStream baos = new AioByteArrayOutputStream();
+        OutputStreamWriter osw = new OutputStreamWriter(baos);
 
-            String method = action.getRestful().getMethod();
-            String uri = new URL(action.getURL()).getFile();
-            String command = method + " " + uri + " " + protocol;
-            setRequestHeader("", command);
-            osw.write(command);
-            osw.write(CRLF);
+        String method = action.getRestful().getMethod();
+        String uri = new URL(action.getURL()).getFile();
+        String command = method + " " + uri + " " + protocol;
+        setRequestHeader("", command);
+        osw.write(command);
+        osw.write(CRLF);
 
-            String host = action.getHost();
-            Integer port = action.getPort();
-            setRequestHeader("Host", host + (port == null || port < 0 ? "" : ":" + port));
+        String host = action.getHost();
+        Integer port = action.getPort();
+        setRequestHeader("Host", host + (port == null || port < 0 ? "" : ":" + port));
 
-            body = out != null ? out.toByteBuffer() : ByteBuffer.wrap(new byte[0]);
-            setRequestHeader("Content-Length", String.valueOf(body.remaining()));
+        body = out != null ? out.toByteBuffer() : ByteBuffer.wrap(new byte[0]);
+        setRequestHeader("Content-Length", String.valueOf(body.remaining()));
 
-            for (Map.Entry<String, String[]> entry : header.entrySet()) {
-                String name = entry.getKey();
-                if (name == null || name.length() == 0) continue;
+        for (Map.Entry<String, String[]> entry : header.entrySet()) {
+            String name = entry.getKey();
+            if (name == null || name.length() == 0) continue;
 
-                for (String value : entry.getValue()) {
-                    if (value == null) continue;
+            for (String value : entry.getValue()) {
+                if (value == null) continue;
 
-                    osw.write(name);
-                    osw.write(SPRT);
-                    osw.write(value);
-                    osw.write(CRLF);
-                }
+                osw.write(name);
+                osw.write(SPRT);
+                osw.write(value);
+                osw.write(CRLF);
             }
-            osw.write(CRLF);
-            osw.flush();
+        }
+        osw.write(CRLF);
+        osw.flush();
 
-            head = baos.toByteBuffer();
+        head = baos.toByteBuffer();
+    }
+
+    public boolean send(AsynchronousSocketChannel channel, CompletionHandler<Integer, Action> completionHandler) throws IOException {
+        if (head == null) {
+            doWriteHeader();
         }
 
         if (head.remaining() > 0) {
-            channel.write(head);
-        }
-        if (head.remaining() == 0 && body.remaining() > 0) {
-            channel.write(body);
+            channel.write(head, action, completionHandler);
+        } else if (body.remaining() > 0) {
+            channel.write(body, action, completionHandler);
         }
 
         return head.remaining() == 0 && body.remaining() == 0;

@@ -1,17 +1,25 @@
 package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.aio.scheduler.AioScheduler;
+import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
-import org.qfox.jestful.core.Action;
+import org.qfox.jestful.client.scheduler.Scheduler;
+import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
+import org.qfox.jestful.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,8 +52,10 @@ public class AioClient extends Client {
         Gateway gateway = this.getGateway();
         SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
-        AsynchronousSocketChannel channel = AsynchronousSocketChannel.open();
-        channel.connect(address, action, new ConnectCompletionProcessor(channel));
+        AioListener listener = new JestfulAioListener();
+        action.getExtra().put(AioListener.class, listener);
+        AsynchronousSocketChannel channel = AsynchronousSocketChannel.open(aioChannelGroup);
+        channel.connect(address, action, new ConnectCompletionHandler(channel));
         return null;
     }
 
@@ -121,6 +131,88 @@ public class AioClient extends Client {
             }
             this.concurrent = concurrent;
             return (T) this;
+        }
+    }
+
+    private class JestfulAioListener extends AioAdapter {
+        @Override
+        public void onConnected(Action action) throws Exception {
+            Request request = action.getRequest();
+            Restful restful = action.getRestful();
+
+            if (restful.isAcceptBody()) {
+                serialize(action);
+            } else {
+                request.connect();
+            }
+        }
+
+        @Override
+        public void onRequested(Action action) throws Exception {
+            Response response = action.getResponse();
+            if (!response.isResponseSuccess()) {
+                String contentType = response.getContentType();
+                MediaType mediaType = contentType == null || contentType.trim().length() == 0 ? null : MediaType.valueOf(contentType);
+                String charset = mediaType == null ? null : mediaType.getCharset();
+                if (charset == null || charset.length() == 0) {
+                    charset = response.getResponseHeader("Content-Charset");
+                }
+                if (charset == null || charset.length() == 0) {
+                    charset = response.getCharacterEncoding();
+                }
+                if (charset == null || charset.length() == 0) {
+                    charset = java.nio.charset.Charset.defaultCharset().name();
+                }
+                Status status = response.getResponseStatus();
+                InputStream in = response.getResponseInputStream();
+                InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
+                String body = reader != null ? IOUtils.toString(reader) : "";
+                throw new UnexpectedStatusException(status, body);
+            }
+        }
+
+        @Override
+        public void onCompleted(Action action) throws Exception {
+            Response response = action.getResponse();
+            try {
+                onRequested(action);
+
+                // 回应
+                Restful restful = action.getRestful();
+                if (restful.isReturnBody()) {
+                    deserialize(action);
+                } else {
+                    Map<String, String> header = new CaseInsensitiveMap<String, String>();
+                    for (String key : response.getHeaderKeys()) {
+                        String name = key != null ? key : "";
+                        String value = response.getResponseHeader(key);
+                        header.put(name, value);
+                    }
+                    action.getResult().getBody().setValue(header);
+                }
+
+                AioScheduler scheduler = (AioScheduler) action.getExtra().get(Scheduler.class);
+                scheduler.doCallbackSchedule(AioClient.this, action);
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                IOUtils.close(response);
+            }
+        }
+
+        @Override
+        public void onException(Action action, Exception exception) {
+            Response response = action.getResponse();
+            try {
+                action.getResult().setException(exception);
+
+                AioScheduler scheduler = (AioScheduler) action.getExtra().get(Scheduler.class);
+                scheduler.doCallbackSchedule(AioClient.this, action);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                IOUtils.close(response);
+            }
         }
     }
 
