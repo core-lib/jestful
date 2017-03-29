@@ -20,7 +20,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -30,14 +29,14 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/3/23.
  */
-public class NioClient extends Client implements Runnable, Registrations.Consumer {
+public class NioClient extends Client implements Runnable, NioCalls.NioConsumer {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Object startupLock = new Object();
     private Exception startupException;
     private static NioClient defaultClient;
     private Selector selector;
-    private Registrations registrations;
+    private NioCalls calls;
     private final ByteBuffer buffer = ByteBuffer.allocate(8096);
     private final long selectTimeout;
     private final TimeoutManager timeoutManager;
@@ -60,13 +59,18 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
     }
 
     @Override
-    public void consume(SocketChannel channel, int options, Object attachment) {
+    public void consume(SocketAddress address, Object attachment) {
+        Action action = (Action) attachment;
         try {
-            SelectionKey connectableKey = channel.register(selector, options, attachment);
-            Action action = (Action) attachment;
+            SocketChannel channel = SocketChannel.open();
+            channel.configureBlocking(false);
+            channel.connect(address);
+            SelectionKey connectableKey = channel.register(selector, SelectionKey.OP_CONNECT, attachment);
             JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
             timeoutManager.addConnTimeoutHandler(connectableKey, request.getConnTimeout());
-        } catch (ClosedChannelException e) {
+        } catch (Exception e) {
+            NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+            listener.onException(action, e);
             throw new RuntimeException(e);
         }
     }
@@ -83,7 +87,7 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         synchronized (startupLock) {
             try {
                 selector = Selector.open();
-                registrations = new Registrations(selector);
+                calls = new NioCalls(selector);
             } catch (IOException e) {
                 startupException = e;
                 return;
@@ -98,7 +102,7 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
                 // 处理超时
                 timeoutManager.fire();
                 // 处理注册
-                registrations.foreach(this);
+                calls.foreach(this);
                 // 最多等待 select timeout 时间进行一次超时检查
                 if (selector.select(selectTimeout) == 0) {
                     continue;
@@ -189,15 +193,12 @@ public class NioClient extends Client implements Runnable, Registrations.Consume
         String host = action.getHost();
         Integer port = action.getPort();
         port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
-        SocketChannel channel = SocketChannel.open();
-        channel.configureBlocking(false);
         Gateway gateway = this.getGateway();
         SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
-        channel.connect(address);
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
         NioListener listener = new JestfulNioListener();
         action.getExtra().put(NioListener.class, listener);
-        registrations.register(channel, SelectionKey.OP_CONNECT, action);
+        calls.offer(address, action);
         return null;
     }
 
