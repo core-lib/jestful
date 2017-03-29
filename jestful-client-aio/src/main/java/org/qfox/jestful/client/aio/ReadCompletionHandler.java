@@ -14,13 +14,13 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
 
     ReadCompletionHandler(AsynchronousSocketChannel channel) {
         super(channel);
-        this.buffer.flip();
     }
 
     @Override
     public void completed(Integer count, Action action) {
         try {
             JestfulAioClientResponse response = (JestfulAioClientResponse) action.getExtra().get(JestfulAioClientResponse.class);
+            this.buffer.flip();
             if (response.receive(buffer)) {
                 AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
                 listener.onCompleted(action);

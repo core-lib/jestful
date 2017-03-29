@@ -319,30 +319,25 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
         @Override
         public void onCompleted(Action action) throws Exception {
             Response response = action.getResponse();
-            try {
-                onRequested(action);
+            IOUtils.close(response);
+            onRequested(action);
 
-                // 回应
-                Restful restful = action.getRestful();
-                if (restful.isReturnBody()) {
-                    deserialize(action);
-                } else {
-                    Map<String, String> header = new CaseInsensitiveMap<String, String>();
-                    for (String key : response.getHeaderKeys()) {
-                        String name = key != null ? key : "";
-                        String value = response.getResponseHeader(key);
-                        header.put(name, value);
-                    }
-                    action.getResult().getBody().setValue(header);
+            // 回应
+            Restful restful = action.getRestful();
+            if (restful.isReturnBody()) {
+                deserialize(action);
+            } else {
+                Map<String, String> header = new CaseInsensitiveMap<String, String>();
+                for (String key : response.getHeaderKeys()) {
+                    String name = key != null ? key : "";
+                    String value = response.getResponseHeader(key);
+                    header.put(name, value);
                 }
-
-                NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
-                scheduler.doCallbackSchedule(NioClient.this, action);
-            } catch (Exception e) {
-                throw e;
-            } finally {
-                IOUtils.close(response);
+                action.getResult().getBody().setValue(header);
             }
+
+            NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
+            scheduler.doCallbackSchedule(NioClient.this, action);
         }
 
         @Override

@@ -8,8 +8,6 @@ import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOUtils;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -172,30 +170,25 @@ public class AioClient extends Client {
         @Override
         public void onCompleted(Action action) throws Exception {
             Response response = action.getResponse();
-            try {
-                onRequested(action);
+            IOUtils.close(response);
+            onRequested(action);
 
-                // 回应
-                Restful restful = action.getRestful();
-                if (restful.isReturnBody()) {
-                    deserialize(action);
-                } else {
-                    Map<String, String> header = new CaseInsensitiveMap<String, String>();
-                    for (String key : response.getHeaderKeys()) {
-                        String name = key != null ? key : "";
-                        String value = response.getResponseHeader(key);
-                        header.put(name, value);
-                    }
-                    action.getResult().getBody().setValue(header);
+            // 回应
+            Restful restful = action.getRestful();
+            if (restful.isReturnBody()) {
+                deserialize(action);
+            } else {
+                Map<String, String> header = new CaseInsensitiveMap<String, String>();
+                for (String key : response.getHeaderKeys()) {
+                    String name = key != null ? key : "";
+                    String value = response.getResponseHeader(key);
+                    header.put(name, value);
                 }
-
-                AioScheduler scheduler = (AioScheduler) action.getExtra().get(Scheduler.class);
-                scheduler.doCallbackSchedule(AioClient.this, action);
-            } catch (Exception e) {
-                throw e;
-            } finally {
-                IOUtils.close(response);
+                action.getResult().getBody().setValue(header);
             }
+
+            AioScheduler scheduler = (AioScheduler) action.getExtra().get(Scheduler.class);
+            scheduler.doCallbackSchedule(AioClient.this, action);
         }
 
         @Override
