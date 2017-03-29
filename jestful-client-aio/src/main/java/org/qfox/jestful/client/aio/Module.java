@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.nio;
+package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.commons.Config;
 
@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by yangchangpei on 17/3/28.
  */
 public class Module extends Config implements Serializable {
-    private static final long serialVersionUID = -3838624370718465752L;
+    private static final long serialVersionUID = -9188298869037362895L;
 
     private static Module instance;
 
@@ -16,6 +16,10 @@ public class Module extends Config implements Serializable {
     private String version;
     private String parentName;
     private String parentVersion;
+
+    public static void main(String[] args) {
+        System.out.println(new Module());
+    }
 
     private Module() {
     }

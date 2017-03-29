@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by payne on 2017/3/28.
  */
 public class Module extends Config implements Serializable {
-    private static final long serialVersionUID = 1276714617922958064L;
+    private static final long serialVersionUID = 8979830823718754930L;
 
     private static Module instance;
 
@@ -17,7 +17,7 @@ public class Module extends Config implements Serializable {
     private String parentName;
     private String parentVersion;
 
-    public Module() {
+    private Module() {
     }
 
     public static Module getInstance() {
