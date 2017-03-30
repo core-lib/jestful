@@ -6,6 +6,8 @@ import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
 
+import java.util.concurrent.Future;
+
 /**
  * Created by payne on 2017/3/26.
  */
@@ -93,6 +95,13 @@ public class CookieAPITests {
         synchronized (lock) {
             lock.wait();
         }
+    }
+
+    @Test
+    public void testAioFuture() throws Exception {
+        CookieAPI api = AioClient.builder().setAcceptEncode(true).addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
+        Future<String> future = api.index();
+        System.out.println(future.get());
     }
 
     @Test

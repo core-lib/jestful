@@ -14,7 +14,7 @@ public class FutureAioScheduler extends FutureScheduler implements AioScheduler 
     @Override
     public Object doMotivateSchedule(Client client, Action action) {
         try {
-            NioFuture future = new NioFuture(action);
+            AioFuture future = new AioFuture(action);
             action.getResult().setValue(future);
             action.execute();
             return future;
@@ -25,17 +25,17 @@ public class FutureAioScheduler extends FutureScheduler implements AioScheduler 
 
     @Override
     public void doCallbackSchedule(Client client, Action action) {
-        NioFuture future = (NioFuture) action.getResult().getValue();
+        AioFuture future = (AioFuture) action.getResult().getValue();
         future.done();
     }
 
-    private static class NioFuture implements Future<Object> {
+    private static class AioFuture implements Future<Object> {
         private final Object lock = new Object();
         private final Action action;
         private boolean done;
         private boolean canceled;
 
-        NioFuture(Action action) {
+        AioFuture(Action action) {
             this.action = action;
         }
 

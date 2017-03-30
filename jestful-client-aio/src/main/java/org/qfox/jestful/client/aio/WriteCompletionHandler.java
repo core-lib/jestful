@@ -9,7 +9,7 @@ import java.nio.channels.AsynchronousSocketChannel;
  * Created by payne on 2017/3/29.
  */
 public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
-    private final ByteBuffer empty = ByteBuffer.allocate(0);
+    private final ByteBuffer buffer = ByteBuffer.allocate(4096);
 
     WriteCompletionHandler(AsynchronousSocketChannel channel) {
         super(channel);
@@ -19,12 +19,11 @@ public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
     public void completed(Integer count, Action action) {
         try {
             JestfulAioClientRequest request = (JestfulAioClientRequest) action.getExtra().get(JestfulAioClientRequest.class);
-            if (request.send(channel, this)) {
-                AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
-                listener.onRequested(action);
-
-                channel.read(empty, action, new ReadCompletionHandler(channel));
-            }
+            buffer.clear();
+            request.send(buffer);
+            buffer.flip();
+            if (buffer.hasRemaining()) channel.write(buffer, action, this);
+            else new ReadCompletionHandler(channel).completed(0, action);
         } catch (Exception e) {
             failed(e, action);
         }
