@@ -9,7 +9,6 @@ import org.qfox.jestful.core.Action;
 import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
 import java.util.Map;
 
 /**
@@ -109,19 +108,23 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
         head = baos.toByteBuffer();
     }
 
-    public boolean send(SocketChannel channel) throws IOException {
+    public boolean send(ByteBuffer buffer) throws IOException {
         if (head == null) {
             doWriteHeader();
         }
 
-        if (head.remaining() > 0) {
-            channel.write(head);
-        }
-        if (head.remaining() == 0 && body.remaining() > 0) {
-            channel.write(body);
+        if (head.remaining() == 0 && body.remaining() == 0) {
+            return true;
         }
 
-        return head.remaining() == 0 && body.remaining() == 0;
+        while (buffer.hasRemaining() && head.hasRemaining()) {
+            buffer.put(head.get());
+        }
+        while (buffer.hasRemaining() && body.hasRemaining()) {
+            buffer.put(body.get());
+        }
+
+        return false;
     }
 
     @Override

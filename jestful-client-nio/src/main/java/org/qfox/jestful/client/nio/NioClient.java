@@ -132,12 +132,16 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
                         JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
-                        if (request.send(channel)) {
+                        buffer.clear();
+                        if (request.send(buffer)) {
                             SelectionKey readableKey = channel.register(selector, SelectionKey.OP_READ, action);
                             timeoutManager.addReadTimeoutHandler(readableKey, request.getReadTimeout());
 
                             NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
                             listener.onRequested(action);
+                        } else {
+                            buffer.flip();
+                            channel.write(buffer);
                         }
                     } else if (key.isReadable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
