@@ -16,7 +16,7 @@ public class CookieAPITests {
     @Test
     public void testBioCookie() throws Exception {
         final Object lock = new Object();
-        final CookieAPI api = Client.builder().addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
+        final CookieAPI api = Client.builder().addPlugins("cookie").build().create(CookieAPI.class, "https://localhost:443");
         api.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {
