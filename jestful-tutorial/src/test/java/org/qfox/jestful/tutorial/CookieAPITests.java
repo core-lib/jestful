@@ -99,7 +99,7 @@ public class CookieAPITests {
 
     @Test
     public void testAioFuture() throws Exception {
-        CookieAPI api = AioClient.builder().setAcceptEncode(true).addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
+        CookieAPI api = AioClient.builder().setReadTimeout(5 * 1000).setAcceptEncode(true).addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
         Future<String> future = api.index();
         System.out.println(future.get());
     }
