@@ -110,15 +110,16 @@ public class JestfulAioClientRequest extends JestfulClientRequest {
         head = baos.toByteBuffer();
     }
 
-    public boolean send(AsynchronousSocketChannel channel, CompletionHandler<Integer, Action> completionHandler) throws IOException {
+    public boolean send(ByteBuffer buffer) throws IOException {
         if (head == null) {
             doWriteHeader();
         }
 
-        if (head.remaining() > 0) {
-            channel.write(head, action, completionHandler);
-        } else if (body.remaining() > 0) {
-            channel.write(body, action, completionHandler);
+        while(buffer.hasRemaining() && head.hasRemaining()) {
+            buffer.put(head.get());
+        }
+        while(buffer.hasRemaining() && body.hasRemaining()) {
+            buffer.put(body.get());
         }
 
         return head.remaining() == 0 && body.remaining() == 0;
