@@ -20,10 +20,15 @@ public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
         try {
             JestfulAioClientRequest request = (JestfulAioClientRequest) action.getExtra().get(JestfulAioClientRequest.class);
             buffer.clear();
-            request.send(buffer);
-            buffer.flip();
-            if (buffer.hasRemaining()) channel.write(buffer, action, this);
-            else new ReadCompletionHandler(channel).completed(0, action);
+            if (request.send(buffer)) {
+                AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
+                listener.onRequested(action);
+
+                new ReadCompletionHandler(channel).completed(0, action);
+            } else {
+                buffer.flip();
+                channel.write(buffer, action, this);
+            }
         } catch (Exception e) {
             failed(e, action);
         }

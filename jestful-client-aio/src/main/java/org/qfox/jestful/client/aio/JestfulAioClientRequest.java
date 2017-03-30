@@ -9,8 +9,6 @@ import org.qfox.jestful.core.Action;
 import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
 import java.util.Map;
 
 /**
@@ -115,14 +113,18 @@ public class JestfulAioClientRequest extends JestfulClientRequest {
             doWriteHeader();
         }
 
-        while(buffer.hasRemaining() && head.hasRemaining()) {
+        if (head.remaining() == 0 && body.remaining() == 0) {
+            return true;
+        }
+
+        while (buffer.hasRemaining() && head.hasRemaining()) {
             buffer.put(head.get());
         }
-        while(buffer.hasRemaining() && body.hasRemaining()) {
+        while (buffer.hasRemaining() && body.hasRemaining()) {
             buffer.put(body.get());
         }
 
-        return head.remaining() == 0 && body.remaining() == 0;
+        return false;
     }
 
     @Override
