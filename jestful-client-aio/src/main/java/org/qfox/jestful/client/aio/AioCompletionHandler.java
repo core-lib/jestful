@@ -22,13 +22,32 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
     }
 
     @Override
+    public void completed(V result, Action action) {
+        try {
+            onCompleted(result, action);
+        } catch (Exception e) {
+            onFailed(e, action);
+        }
+    }
+
+    public abstract void onCompleted(V result, Action action) throws Exception;
+
+    @Override
     public void failed(Throwable throwable, Action action) {
+        try {
+            throw throwable instanceof Exception ? (Exception) throwable : new Exception(throwable);
+        } catch (Exception e) {
+            onFailed(e, action);
+        }
+    }
+
+    public void onFailed(Exception exception, Action action) {
         AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
-        listener.onException(action, throwable instanceof Exception ? (Exception) throwable : new Exception(throwable));
+        listener.onException(action, exception);
         if (channel.isOpen()) IOKit.close(channel);
     }
 
-    protected long getTimeAvailable() {
+    protected long toTimeAvailable() {
         return timeExpired - System.currentTimeMillis();
     }
 

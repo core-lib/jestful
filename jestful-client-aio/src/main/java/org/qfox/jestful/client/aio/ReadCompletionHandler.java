@@ -19,24 +19,20 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
     }
 
     @Override
-    public void completed(Integer count, Action action) {
-        try {
-            JestfulAioClientResponse response = (JestfulAioClientResponse) action.getExtra().get(JestfulAioClientResponse.class);
-            buffer.flip();
-            if (response.receive(buffer)) {
-                AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
-                listener.onCompleted(action);
+    public void onCompleted(Integer count, Action action) throws Exception {
+        JestfulAioClientResponse response = (JestfulAioClientResponse) action.getExtra().get(JestfulAioClientResponse.class);
+        buffer.flip();
+        if (response.receive(buffer)) {
+            AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
+            listener.onCompleted(action);
 
-                IOKit.close(channel);
-            } else {
-                long timeAvailable = getTimeAvailable();
-                if (timeAvailable <= 0) throw new InterruptedByTimeoutException();
+            IOKit.close(channel);
+        } else {
+            long timeAvailable = toTimeAvailable();
+            if (timeAvailable <= 0) throw new InterruptedByTimeoutException();
 
-                buffer.clear();
-                channel.read(buffer, timeAvailable, TimeUnit.MILLISECONDS, action, this);
-            }
-        } catch (Exception e) {
-            failed(e, action);
+            buffer.clear();
+            channel.read(buffer, timeAvailable, TimeUnit.MILLISECONDS, action, this);
         }
     }
 }

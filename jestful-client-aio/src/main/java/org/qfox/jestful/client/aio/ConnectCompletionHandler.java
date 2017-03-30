@@ -14,16 +14,12 @@ public class ConnectCompletionHandler extends AioCompletionHandler<Void> {
     }
 
     @Override
-    public void completed(Void result, Action action) {
-        try {
-            JestfulAioClientRequest request = (JestfulAioClientRequest) action.getExtra().get(JestfulAioClientRequest.class);
-            AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
-            listener.onConnected(action);
+    public void onCompleted(Void result, Action action) throws Exception {
+        JestfulAioClientRequest request = (JestfulAioClientRequest) action.getExtra().get(JestfulAioClientRequest.class);
+        AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
+        listener.onConnected(action);
 
-            new WriteCompletionHandler(channel, request.getWriteTimeout()).completed(0, action);
-        } catch (Exception e) {
-            failed(e, action);
-        }
+        new WriteCompletionHandler(channel, request.getWriteTimeout()).completed(0, action);
     }
 
 }
