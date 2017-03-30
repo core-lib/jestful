@@ -15,13 +15,13 @@ import java.io.*;
  * @date 2016年3月17日 下午3:48:07
  * @since 1.0.0
  */
-public class IOUtils {
+public class IOKit {
 
     /**
      * just close the I/O stream quietly
      *
      * @param closeable
-     * @see {@link IOUtils#close(Closeable, boolean)}
+     * @see {@link IOKit#close(Closeable, boolean)}
      */
     public static void close(Closeable closeable) {
         close(closeable, true);

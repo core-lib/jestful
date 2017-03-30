@@ -5,7 +5,7 @@ import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
@@ -243,7 +243,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                     } catch (Exception e) {
                         throw e;
                     } finally {
-                        IOUtils.close(out);
+                        IOKit.close(out);
                     }
                 }
             }
@@ -289,7 +289,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                 }
                 InputStream in = response.getResponseInputStream();
                 InputStreamReader reader = new InputStreamReader(in, charset);
-                String value = IOUtils.toString(reader);
+                String value = IOKit.toString(reader);
                 body.setValue(value);
             } else if (produces.size() == 1) {
                 String charset = mediaType.getCharset();
@@ -347,7 +347,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                 Status status = response.getResponseStatus();
                 InputStream in = response.getResponseInputStream();
                 InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
-                String body = reader != null ? IOUtils.toString(reader) : "";
+                String body = reader != null ? IOKit.toString(reader) : "";
                 throw new UnexpectedStatusException(status, body);
             }
 

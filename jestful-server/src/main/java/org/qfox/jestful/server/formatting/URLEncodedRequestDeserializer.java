@@ -4,7 +4,7 @@ import org.qfox.jestful.commons.Utils;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.IncompatibleConversionException;
@@ -77,8 +77,8 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
                 }
             }
         } finally {
-            IOUtils.close(br);
-            IOUtils.close(isr);
+            IOKit.close(br);
+            IOKit.close(isr);
         }
     }
 

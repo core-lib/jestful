@@ -12,7 +12,7 @@ import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestSerializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import com.google.gson.Gson;
@@ -44,7 +44,7 @@ public class GsonRequestSerializer implements RequestSerializer {
 				gson.toJson(parameter.getValue(), osw);
 				break;
 			} finally {
-				IOUtils.close(osw);
+				IOKit.close(osw);
 			}
 		}
 	}
@@ -59,7 +59,7 @@ public class GsonRequestSerializer implements RequestSerializer {
 			osw = new OutputStreamWriter(out, charset);
 			gson.toJson(parameter.getValue(), osw);
 		} finally {
-			IOUtils.close(osw);
+			IOKit.close(osw);
 		}
 	}
 

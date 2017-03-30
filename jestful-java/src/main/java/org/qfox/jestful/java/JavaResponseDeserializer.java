@@ -5,7 +5,7 @@ import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +41,7 @@ public class JavaResponseDeserializer implements ResponseDeserializer {
         } catch (ClassNotFoundException e) {
             throw new JestfulIOException(e);
         } finally {
-            IOUtils.close(ois);
+            IOKit.close(ois);
         }
     }
 

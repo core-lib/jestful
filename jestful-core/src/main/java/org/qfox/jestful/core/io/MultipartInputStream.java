@@ -3,7 +3,7 @@ package org.qfox.jestful.core.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Multihead;
 
 /**
@@ -37,7 +37,7 @@ public class MultipartInputStream extends InputStream {
 		this.inputStream = inputStream;
 		this.boundary = "--" + boundary;
 		this.buffer = new byte[boundary.length() + 5];
-		String line = IOUtils.readln(inputStream);
+		String line = IOKit.readln(inputStream);
 		// 如果后面跟换行那么证明还有更多数据
 		if (line.equals(this.boundary)) {
 			start = false;

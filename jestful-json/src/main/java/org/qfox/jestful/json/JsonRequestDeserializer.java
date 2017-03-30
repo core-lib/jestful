@@ -13,7 +13,7 @@ import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -61,7 +61,7 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
 				parameter.setValue(value);
 				break;
 			} finally {
-				IOUtils.close(isr);
+				IOKit.close(isr);
 			}
 		}
 	}
@@ -74,7 +74,7 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
 			Object value = readValue(isr, constructType(type));
 			parameter.setValue(value);
 		} finally {
-			IOUtils.close(isr);
+			IOKit.close(isr);
 		}
 	}
 

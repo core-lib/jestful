@@ -5,7 +5,7 @@ import org.qfox.jestful.client.aio.scheduler.AioScheduler;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
 
@@ -162,15 +162,17 @@ public class AioClient extends Client {
                 Status status = response.getResponseStatus();
                 InputStream in = response.getResponseInputStream();
                 InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
-                String body = reader != null ? IOUtils.toString(reader) : "";
+                String body = reader != null ? IOKit.toString(reader) : "";
                 throw new UnexpectedStatusException(status, body);
             }
         }
 
         @Override
         public void onCompleted(Action action) throws Exception {
+            Request request = action.getRequest();
             Response response = action.getResponse();
-            IOUtils.close(response);
+            IOKit.close(request);
+            IOKit.close(response);
             onRequested(action);
 
             // 回应
@@ -193,7 +195,11 @@ public class AioClient extends Client {
 
         @Override
         public void onException(Action action, Exception exception) {
+            Request request = action.getRequest();
             Response response = action.getResponse();
+            IOKit.close(request);
+            IOKit.close(response);
+
             try {
                 action.getResult().setException(exception);
 
@@ -201,8 +207,6 @@ public class AioClient extends Client {
                 scheduler.doCallbackSchedule(AioClient.this, action);
             } catch (Exception e) {
                 throw new RuntimeException(e);
-            } finally {
-                IOUtils.close(response);
             }
         }
     }

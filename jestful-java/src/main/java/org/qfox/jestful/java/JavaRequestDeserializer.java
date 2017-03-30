@@ -12,7 +12,7 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 
 /**
  * <p>
@@ -47,7 +47,7 @@ public class JavaRequestDeserializer implements RequestDeserializer {
 			} catch (ClassNotFoundException e) {
 				throw new JestfulIOException(e);
 			} finally {
-				IOUtils.close(ois);
+				IOKit.close(ois);
 			}
 		}
 	}
@@ -61,7 +61,7 @@ public class JavaRequestDeserializer implements RequestDeserializer {
 		} catch (ClassNotFoundException e) {
 			throw new JestfulIOException(e);
 		} finally {
-			IOUtils.close(ois);
+			IOKit.close(ois);
 		}
 	}
 

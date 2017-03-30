@@ -3,7 +3,7 @@ package org.qfox.jestful.client.aio;
 import org.qfox.jestful.client.Connector;
 import org.qfox.jestful.client.JestfulClientResponse;
 import org.qfox.jestful.client.gateway.Gateway;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Status;
 
@@ -35,11 +35,11 @@ public class JestfulAioClientResponse extends JestfulClientResponse {
 
     private void doReadHeader() throws IOException {
         InputStream in = head.toInputStream();
-        String head = IOUtils.readln(in);
+        String head = IOKit.readln(in);
         status = new Status(head);
 
         while (in.available() > 0) {
-            String line = IOUtils.readln(in);
+            String line = IOKit.readln(in);
             int index = line != null ? line.indexOf(':') : -1;
             if (index == -1) continue;
             String key = line.substring(0, index).trim();
@@ -110,9 +110,9 @@ public class JestfulAioClientResponse extends JestfulClientResponse {
                         // 开始读取chunk size
                         InputStream in = cache.toInputStream();
                         // 去掉一个空行
-                        IOUtils.readln(in);
+                        IOKit.readln(in);
                         // 紧跟着的一行就是chunk size
-                        String hex = IOUtils.readln(in);
+                        String hex = IOKit.readln(in);
                         total = hex != null ? Integer.valueOf(hex, 16) : 0;
                         position = 0;
                         crlfs = 0;
@@ -216,8 +216,8 @@ public class JestfulAioClientResponse extends JestfulClientResponse {
 
         closed = true;
 
-        IOUtils.close(reader);
-        IOUtils.close(in);
+        IOKit.close(reader);
+        IOKit.close(in);
 
         super.close();
     }

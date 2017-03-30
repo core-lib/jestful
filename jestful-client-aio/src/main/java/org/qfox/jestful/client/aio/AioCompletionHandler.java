@@ -1,5 +1,6 @@
 package org.qfox.jestful.client.aio;
 
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 
 import java.nio.channels.AsynchronousSocketChannel;
@@ -19,6 +20,7 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
     public void failed(Throwable throwable, Action action) {
         AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
         listener.onException(action, throwable instanceof Exception ? (Exception) throwable : new Exception(throwable));
+        IOKit.close(channel);
     }
 
 }

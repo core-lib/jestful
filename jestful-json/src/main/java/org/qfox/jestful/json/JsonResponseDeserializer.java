@@ -6,7 +6,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +50,7 @@ public class JsonResponseDeserializer extends ObjectMapper implements ResponseDe
             isr = new InputStreamReader(in, charset);
             deserialize(action, mediaType, isr);
         } finally {
-            IOUtils.close(isr);
+            IOKit.close(isr);
         }
     }
 

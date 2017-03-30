@@ -22,7 +22,7 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import eu.medsea.mimeutil.MimeUtil;
@@ -117,7 +117,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 			MediaType type = MediaType.valueOf(mediaType);
 			Multihead multihead = new Multihead(disposition, type);
 			out.setNextMultihead(multihead);
-			IOUtils.transfer(file, out);
+			IOKit.transfer(file, out);
 		}
 	}
 

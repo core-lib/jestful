@@ -1,6 +1,6 @@
 package org.qfox.jestful.client.aio;
 
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 
 import java.nio.ByteBuffer;
@@ -25,7 +25,7 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
                 AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
                 listener.onCompleted(action);
 
-                IOUtils.close(channel);
+                IOKit.close(channel);
             } else {
                 buffer.clear();
                 channel.read(buffer, action, this);

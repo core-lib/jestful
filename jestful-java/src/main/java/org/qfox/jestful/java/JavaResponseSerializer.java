@@ -3,7 +3,7 @@ package org.qfox.jestful.java;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -35,7 +35,7 @@ public class JavaResponseSerializer implements ResponseSerializer {
             oos = new ObjectOutputStream(out);
             oos.writeObject(action.getResult().getValue());
         } finally {
-            IOUtils.close(oos);
+            IOKit.close(oos);
         }
     }
 

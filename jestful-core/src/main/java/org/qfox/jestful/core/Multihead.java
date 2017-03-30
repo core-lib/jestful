@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 
 /**
  * <p>
@@ -52,7 +52,7 @@ public class Multihead implements Cloneable {
 	public Multihead(InputStream inputStream) throws IOException {
 		this.header = new CaseInsensitiveMap<String, String>();
 		String line = null;
-		while ((line = IOUtils.readln(inputStream)) != null && line.length() == 0 == false) {
+		while ((line = IOKit.readln(inputStream)) != null && line.length() == 0 == false) {
 			int index = line.indexOf(':');
 			if (index < 0) {
 				throw new IllegalArgumentException(line);

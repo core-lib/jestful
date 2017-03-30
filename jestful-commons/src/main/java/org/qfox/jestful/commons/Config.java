@@ -93,7 +93,7 @@ public abstract class Config {
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             } finally {
-                IOUtils.close(in);
+                IOKit.close(in);
             }
         }
     }

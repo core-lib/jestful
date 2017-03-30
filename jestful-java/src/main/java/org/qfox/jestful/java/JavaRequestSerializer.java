@@ -13,7 +13,7 @@ import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestSerializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.io.MultipartOutputStream;
 
 /**
@@ -57,7 +57,7 @@ public class JavaRequestSerializer implements RequestSerializer {
 				oos.writeObject(parameter.getValue());
 				break;
 			} finally {
-				IOUtils.close(oos);
+				IOKit.close(oos);
 			}
 		}
 	}
@@ -72,7 +72,7 @@ public class JavaRequestSerializer implements RequestSerializer {
 			oos = new ObjectOutputStream(out);
 			oos.writeObject(parameter.getValue());
 		} finally {
-			IOUtils.close(oos);
+			IOKit.close(oos);
 		}
 	}
 

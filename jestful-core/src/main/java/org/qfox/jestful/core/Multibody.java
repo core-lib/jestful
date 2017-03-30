@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 
 import eu.medsea.mimeutil.MimeUtil;
 
@@ -41,14 +41,14 @@ public class Multibody implements Cloneable {
 	public Multibody(InputStream inputStream) throws IOException {
 		super();
 		this.file = File.createTempFile("jestful", ".tmp");
-		IOUtils.transfer(inputStream, file);
+		IOKit.transfer(inputStream, file);
 		Collection<?> types = MimeUtil.getMimeTypes(file);
 		this.contentType = types == null || types.isEmpty() ? "application/octet-stream" : types.toArray()[0].toString();
 		this.size = file.length();
 	}
 
 	public void writeTo(OutputStream out) throws IOException {
-		IOUtils.transfer(file, out);
+		IOKit.transfer(file, out);
 	}
 
 	public File getFile() {

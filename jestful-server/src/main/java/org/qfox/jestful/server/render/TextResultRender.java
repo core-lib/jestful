@@ -4,7 +4,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Result;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -59,7 +59,7 @@ public class TextResultRender implements Actor {
                         Writer writer = new OutputStreamWriter(out, charset);
                         writer.write(content);
                         writer.flush();
-                        IOUtils.close(writer);
+                        IOKit.close(writer);
                     }
                     break;
                 }

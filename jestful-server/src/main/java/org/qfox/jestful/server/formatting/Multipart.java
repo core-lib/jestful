@@ -2,7 +2,7 @@ package org.qfox.jestful.server.formatting;
 
 import org.qfox.jestful.core.Multibody;
 import org.qfox.jestful.core.Multihead;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Part;
@@ -64,7 +64,7 @@ public class Multipart implements MultipartFile, Part, Cloneable {
 
     public byte[] getBytes() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        IOUtils.transfer(getInputStream(), baos);
+        IOKit.transfer(getInputStream(), baos);
         return baos.toByteArray();
     }
 
@@ -77,7 +77,7 @@ public class Multipart implements MultipartFile, Part, Cloneable {
     }
 
     public void transferTo(File dest) throws IOException, IllegalStateException {
-        IOUtils.transfer(getInputStream(), dest);
+        IOKit.transfer(getInputStream(), dest);
     }
 
     @Override

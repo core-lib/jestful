@@ -19,7 +19,7 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.io.MultipartInputStream;
 import org.qfox.jestful.server.JestfulServletRequest;
 import org.qfox.jestful.server.converter.ConversionException;
@@ -122,7 +122,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 					break;
 				}
 			} else {
-				String value = IOUtils.toString(mis);
+				String value = IOKit.toString(mis);
 				String[] values = fields.get(name);
 				if (values == null) {
 					values = new String[] { value };

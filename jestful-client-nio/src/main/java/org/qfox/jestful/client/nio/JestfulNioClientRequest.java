@@ -3,7 +3,7 @@ package org.qfox.jestful.client.nio;
 import org.qfox.jestful.client.Connector;
 import org.qfox.jestful.client.JestfulClientRequest;
 import org.qfox.jestful.client.gateway.Gateway;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 
 import java.io.*;
@@ -130,8 +130,8 @@ public class JestfulNioClientRequest extends JestfulClientRequest {
 
         closed = true;
 
-        IOUtils.close(writer);
-        IOUtils.close(out);
+        IOKit.close(writer);
+        IOKit.close(out);
 
         super.close();
     }

@@ -12,7 +12,7 @@ import org.qfox.jestful.core.Multihead;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.formatting.RequestSerializer;
-import org.qfox.jestful.commons.IOUtils;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -59,7 +59,7 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 				writeValue(osw, parameter.getValue());
 				break;
 			} finally {
-				IOUtils.close(osw);
+				IOKit.close(osw);
 			}
 		}
 	}
@@ -74,7 +74,7 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 			osw = new OutputStreamWriter(out, charset);
 			writeValue(osw, parameter.getValue());
 		} finally {
-			IOUtils.close(osw);
+			IOKit.close(osw);
 		}
 	}
 
