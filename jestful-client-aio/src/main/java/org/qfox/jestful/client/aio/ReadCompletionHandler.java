@@ -5,6 +5,8 @@ import org.qfox.jestful.core.Action;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.InterruptedByTimeoutException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by payne on 2017/3/29.
@@ -12,8 +14,8 @@ import java.nio.channels.AsynchronousSocketChannel;
 public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
     private final ByteBuffer buffer = ByteBuffer.allocate(4096);
 
-    ReadCompletionHandler(AsynchronousSocketChannel channel) {
-        super(channel);
+    ReadCompletionHandler(AsynchronousSocketChannel channel, long timeout) {
+        super(channel, timeout);
     }
 
     @Override
@@ -27,8 +29,11 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
 
                 IOKit.close(channel);
             } else {
+                long timeAvailable = getTimeAvailable();
+                if (timeAvailable <= 0) throw new InterruptedByTimeoutException();
+
                 buffer.clear();
-                channel.read(buffer, action, this);
+                channel.read(buffer, timeAvailable, TimeUnit.MILLISECONDS, action, this);
             }
         } catch (Exception e) {
             failed(e, action);

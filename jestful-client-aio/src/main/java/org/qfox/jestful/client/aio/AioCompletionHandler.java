@@ -11,9 +11,14 @@ import java.nio.channels.CompletionHandler;
  */
 public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Action> {
     protected final AsynchronousSocketChannel channel;
+    protected final long timeExpired;
 
-    protected AioCompletionHandler(AsynchronousSocketChannel channel) {
+    protected AioCompletionHandler(AsynchronousSocketChannel channel, long timeout) {
+        if (channel == null) throw new IllegalArgumentException("asynchronous socket channel can not be null");
+        if (timeout < 0) throw new IllegalArgumentException("timeout can not be negative");
+
         this.channel = channel;
+        this.timeExpired = System.currentTimeMillis() + timeout;
     }
 
     @Override
@@ -21,6 +26,10 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
         AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
         listener.onException(action, throwable instanceof Exception ? (Exception) throwable : new Exception(throwable));
         if (channel.isOpen()) IOKit.close(channel);
+    }
+
+    protected long getTimeAvailable() {
+        return timeExpired - System.currentTimeMillis();
     }
 
 }

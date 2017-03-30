@@ -10,16 +10,17 @@ import java.nio.channels.AsynchronousSocketChannel;
 public class ConnectCompletionHandler extends AioCompletionHandler<Void> {
 
     ConnectCompletionHandler(AsynchronousSocketChannel channel) {
-        super(channel);
+        super(channel, 0);
     }
 
     @Override
     public void completed(Void result, Action action) {
         try {
+            JestfulAioClientRequest request = (JestfulAioClientRequest) action.getExtra().get(JestfulAioClientRequest.class);
             AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
             listener.onConnected(action);
 
-            new WriteCompletionHandler(channel).completed(0, action);
+            new WriteCompletionHandler(channel, request.getWriteTimeout()).completed(0, action);
         } catch (Exception e) {
             failed(e, action);
         }
