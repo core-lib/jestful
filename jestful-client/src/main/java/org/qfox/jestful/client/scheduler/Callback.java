@@ -17,7 +17,7 @@ package org.qfox.jestful.client.scheduler;
  */
 public interface Callback<R> {
 
-	Callback<Object> NULL = new Callback<Object>() {
+	Callback<Object> DEFAULT = new Callback<Object>() {
 
 		public void onCompleted(boolean success, Object result, Throwable throwable) {
 

@@ -30,7 +30,7 @@ public class CallbackAioScheduler extends CallbackScheduler implements AioSchedu
             public void run() {
                 Parameters parameters = action.getParameters();
                 Parameter parameter = parameters.unique(Callback.class);
-                Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.NULL;
+                Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.DEFAULT;
 
                 Object body = action.getResult().getBody().getValue();
                 Exception exception = action.getResult().getException();

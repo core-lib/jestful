@@ -58,7 +58,7 @@ public class CallbackScheduler implements Scheduler, Destroyable {
             public void run() {
                 Parameters parameters = action.getParameters();
                 Parameter parameter = parameters.unique(Callback.class);
-                Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.NULL;
+                Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.DEFAULT;
 
                 Object result = null;
                 Throwable throwable = null;
