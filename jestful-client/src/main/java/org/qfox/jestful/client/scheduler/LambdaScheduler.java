@@ -50,17 +50,17 @@ public class LambdaScheduler implements Scheduler, Destroyable {
 
     @Override
     public Object schedule(final Client client, final Action action) throws Exception {
-        Parameters parameters = action.getParameters();
-
-        Parameter success = parameters.first(OnSuccess.class);
-        final OnSuccess onSuccess = success != null && success.getValue() != null ? (OnSuccess) success.getValue() : OnSuccess.DEFAULT;
-        Parameter fail = parameters.first(OnFail.class);
-        final OnFail onFail = fail != null && fail.getValue() != null ? (OnFail) fail.getValue() : OnFail.DEFAULT;
-        Parameter completed = parameters.first(OnCompleted.class);
-        final OnCompleted onCompleted = completed != null && completed.getValue() != null ? (OnCompleted) completed.getValue() : OnCompleted.DEFAULT;
         executor.execute(new Runnable() {
 
             public void run() {
+                Parameters parameters = action.getParameters();
+                Parameter success = parameters.first(OnSuccess.class);
+                OnSuccess onSuccess = success != null && success.getValue() != null ? (OnSuccess) success.getValue() : OnSuccess.DEFAULT;
+                Parameter fail = parameters.first(OnFail.class);
+                OnFail onFail = fail != null && fail.getValue() != null ? (OnFail) fail.getValue() : OnFail.DEFAULT;
+                Parameter completed = parameters.first(OnCompleted.class);
+                OnCompleted onCompleted = completed != null && completed.getValue() != null ? (OnCompleted) completed.getValue() : OnCompleted.DEFAULT;
+
                 Object result = null;
                 Throwable throwable = null;
                 try {

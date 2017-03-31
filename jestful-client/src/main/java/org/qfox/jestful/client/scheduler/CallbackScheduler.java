@@ -53,13 +53,13 @@ public class CallbackScheduler implements Scheduler, Destroyable {
     }
 
     public Object schedule(final Client client, final Action action) throws Exception {
-        final Parameters parameters = action.getParameters();
-        final Parameter parameter = parameters.unique(Callback.class);
-        @SuppressWarnings("unchecked")
-        final Callback<Object> callback = parameter.getValue() != null ? (Callback<Object>) parameter.getValue() : Callback.NULL;
         executor.execute(new Runnable() {
 
             public void run() {
+                Parameters parameters = action.getParameters();
+                Parameter parameter = parameters.unique(Callback.class);
+                Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.NULL;
+
                 Object result = null;
                 Throwable throwable = null;
                 try {

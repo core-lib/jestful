@@ -24,14 +24,13 @@ public class CallbackAioScheduler extends CallbackScheduler implements AioSchedu
     }
 
     @Override
-    public void doCallbackSchedule(Client client, final Action action) {
+    public void doCallbackSchedule(final Client client, final Action action) {
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 Parameters parameters = action.getParameters();
                 Parameter parameter = parameters.unique(Callback.class);
-                @SuppressWarnings("unchecked")
-                Callback<Object> callback = parameter.getValue() != null ? (Callback<Object>) parameter.getValue() : Callback.NULL;
+                Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.NULL;
 
                 Object body = action.getResult().getBody().getValue();
                 Exception exception = action.getResult().getException();
