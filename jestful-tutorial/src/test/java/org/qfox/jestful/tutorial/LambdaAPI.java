@@ -14,9 +14,12 @@ import org.qfox.jestful.core.annotation.Query;
 public interface LambdaAPI<R extends String> {
 
     @GET("/")
-    void call(@Query("name") String name, OnSuccess<R> onSuccess, OnFail onFail, OnCompleted<R> onCompleted);
+    void callWithInterfaceTypeVariable(@Query("name") String name, OnSuccess<R> onSuccess, OnFail onFail, OnCompleted<R> onCompleted);
 
     @GET("/")
-    void index(@Query("name") String name, OnSuccess<String> onSuccess, OnFail onFail, OnCompleted<String> onCompleted);
+    <T extends String> void callWithMethodTypeVariable(@Query("name") String name, OnSuccess<T> onSuccess, OnFail onFail, OnCompleted<T> onCompleted);
+
+    @GET("/")
+    void callWithParameterTypeVariable(@Query("name") String name, OnSuccess<String> onSuccess, OnFail onFail, OnCompleted<String> onCompleted);
 
 }

@@ -4,6 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean class="org.qfox.jestful.client.nio.scheduler.CallbackNioScheduler"/>
+    <bean class="org.qfox.jestful.client.nio.scheduler.LambdaNioScheduler"/>
     <bean class="org.qfox.jestful.client.nio.scheduler.FutureNioScheduler"/>
 
 </beans>
