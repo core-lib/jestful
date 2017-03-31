@@ -333,8 +333,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
             if (!response.isResponseSuccess()) {
                 String contentType = response.getContentType();
-                MediaType mediaType = contentType == null || contentType.trim().length() == 0 ? null : MediaType.valueOf(contentType);
-                String charset = mediaType == null ? null : mediaType.getCharset();
+                MediaType mediaType = MediaType.valueOf(contentType);
+                String charset = mediaType.getCharset();
                 if (charset == null || charset.length() == 0) {
                     charset = response.getResponseHeader("Content-Charset");
                 }
