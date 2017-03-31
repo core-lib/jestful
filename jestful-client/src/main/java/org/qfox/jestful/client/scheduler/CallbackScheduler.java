@@ -6,6 +6,7 @@ import org.qfox.jestful.core.*;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -23,8 +24,7 @@ import java.util.concurrent.Executors;
  * @since 1.0.0
  */
 public class CallbackScheduler implements Scheduler, Destroyable {
-    protected int maxThreadSize = 24;
-    protected ExecutorService executor = Executors.newFixedThreadPool(maxThreadSize);
+    protected ExecutorService executor = Executors.newCachedThreadPool();
 
     public boolean supports(Action action) {
         Parameters parameters = action.getParameters();
@@ -36,12 +36,20 @@ public class CallbackScheduler implements Scheduler, Destroyable {
         Parameters parameters = action.getParameters();
         Parameter parameter = parameters.unique(Callback.class);
         Type type = parameter.getType();
-        if (type instanceof ParameterizedType) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            return parameterizedType.getActualTypeArguments()[0];
-        } else {
+        if (!(type instanceof ParameterizedType)) {
             throw new UncertainBodyTypeException(client, action);
         }
+        ParameterizedType parameterizedType = (ParameterizedType) type;
+        Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
+        if (!(actualTypeArgument instanceof TypeVariable<?>)) {
+            return actualTypeArgument;
+        }
+        TypeVariable<?> typeVariable = (TypeVariable<?>) actualTypeArgument;
+        Type[] bounds = typeVariable.getBounds();
+        if (bounds.length == 0) {
+            throw new UncertainBodyTypeException(client, action);
+        }
+        return bounds[0];
     }
 
     public Object schedule(final Client client, final Action action) throws Exception {
@@ -67,19 +75,6 @@ public class CallbackScheduler implements Scheduler, Destroyable {
 
         });
         return null;
-    }
-
-    public int getMaxThreadSize() {
-        return maxThreadSize;
-    }
-
-    public void setMaxThreadSize(int maxThreadSize) {
-        if (maxThreadSize <= 0) {
-            throw new IllegalArgumentException("max thread size should greater than zero");
-        }
-        this.maxThreadSize = maxThreadSize;
-        this.executor.shutdown();
-        this.executor = Executors.newFixedThreadPool(maxThreadSize);
     }
 
     @Override

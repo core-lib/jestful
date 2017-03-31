@@ -135,8 +135,7 @@ public class NioSSLServer {
                     do {
                         SSLEngineResult engineResult = sslEngine.unwrap(netInData, appInData);
                         hsStatus = doTask();
-                    } while (hsStatus == SSLEngineResult.HandshakeStatus.NEED_UNWRAP
-                            && netInData.remaining() > 0);
+                    } while (hsStatus == SSLEngineResult.HandshakeStatus.NEED_UNWRAP && netInData.remaining() > 0);
                     netInData.clear();
                     break;
                 case NEED_WRAP:

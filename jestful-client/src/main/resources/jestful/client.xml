@@ -41,6 +41,7 @@
     <bean class="org.qfox.jestful.client.codec.NoneResponseDecoder"/>
 
     <bean class="org.qfox.jestful.client.scheduler.CallbackScheduler"/>
+    <bean class="org.qfox.jestful.client.scheduler.LambdaScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.FutureScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.MessageScheduler"/>
 

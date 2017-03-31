@@ -5,6 +5,8 @@ import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
+import org.qfox.jestful.commons.Lock;
+import org.qfox.jestful.commons.SimpleLock;
 
 import java.util.concurrent.Future;
 
@@ -14,45 +16,31 @@ import java.util.concurrent.Future;
 public class CookieAPITests {
 
     @Test
+    public void testLambda() throws Exception {
+
+    }
+
+    @Test
     public void testBioCookie() throws Exception {
-        final Object lock = new Object();
-        final CookieAPI api = Client.builder().addPlugins("cookie").build().create(CookieAPI.class, "https://localhost:443");
+        final Lock lock = new SimpleLock();
+        final CookieAPI api = Client.builder().addPlugins("cookie").build().create(CookieAPI.class, "http://localhost:8080");
         api.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {
-                api.index(new Callback<String>() {
-                    @Override
-                    public void onCompleted(boolean success, String result, Throwable throwable) {
-                        synchronized (lock) {
-                            lock.notifyAll();
-                        }
-                    }
-
-                    @Override
-                    public void onSuccess(String result) {
-
-                    }
-
-                    @Override
-                    public void onFail(Throwable throwable) {
-
-                    }
-                });
+                lock.openAll();
             }
 
             @Override
             public void onSuccess(String result) {
-
+                System.out.println(result);
             }
 
             @Override
             public void onFail(Throwable throwable) {
-
+                throwable.printStackTrace();
             }
         });
-        synchronized (lock) {
-            lock.wait();
-        }
+        lock.lockOne();
     }
 
     @Test

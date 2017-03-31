@@ -27,8 +27,7 @@ import java.util.concurrent.Future;
  * @since 1.0.0
  */
 public class FutureScheduler implements Scheduler, Destroyable {
-    private int maxThreadSize = 24;
-    private ExecutorService executor = Executors.newFixedThreadPool(maxThreadSize);
+    private ExecutorService executor = Executors.newCachedThreadPool();
 
     public boolean supports(Action action) {
         Result result = action.getResult();
@@ -57,19 +56,6 @@ public class FutureScheduler implements Scheduler, Destroyable {
 
         });
         return future;
-    }
-
-    public int getMaxThreadSize() {
-        return maxThreadSize;
-    }
-
-    public void setMaxThreadSize(int maxThreadSize) {
-        if (maxThreadSize <= 0) {
-            throw new IllegalArgumentException("max thread size should greater than zero");
-        }
-        this.maxThreadSize = maxThreadSize;
-        this.executor.shutdown();
-        this.executor = Executors.newFixedThreadPool(maxThreadSize);
     }
 
     @Override
