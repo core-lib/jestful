@@ -17,14 +17,14 @@ public class NioSSLServer {
     private SSLEngine sslEngine;
     private Selector selector;
     private SSLContext sslContext;
-    private ByteBuffer netInData;
-    private ByteBuffer appInData;
-    private ByteBuffer netOutData;
-    private ByteBuffer appOutData;
+    private ByteBuffer netInputBuffer;
+    private ByteBuffer appInputBuffer;
+    private ByteBuffer netOutputBuffer;
+    private ByteBuffer appOutputBuffer;
     private static final String SSL_TYPE = "SSL";
     private static final String KS_TYPE = "JKS";
     private static final String X509 = "SunX509";
-    private final static int PORT = 443;
+    private final static int PORT = 8443;
 
     public void run() throws Exception {
         createServerSocket();
@@ -44,10 +44,10 @@ public class NioSSLServer {
 
     private void createBuffer() {
         SSLSession session = sslEngine.getSession();
-        appInData = ByteBuffer.allocate(session.getApplicationBufferSize());
-        netInData = ByteBuffer.allocate(session.getPacketBufferSize());
-        appOutData = ByteBuffer.wrap("Hello\n".getBytes());
-        netOutData = ByteBuffer.allocate(session.getPacketBufferSize());
+        appInputBuffer = ByteBuffer.allocate(session.getApplicationBufferSize());
+        netInputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
+        appOutputBuffer = ByteBuffer.wrap("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK".getBytes());
+        netOutputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
     }
 
     private void createSSLEngine() {
@@ -67,14 +67,14 @@ public class NioSSLServer {
     private void createSSLContext() throws Exception {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(X509);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(X509);
-        String serverKeyStoreFile = "C:\\Users\\payne\\csii.jks";
-        String svrPassphrase = "123456";
+        String serverKeyStoreFile = "/Users/yangchangpei/csii.jks";
+        String svrPassphrase = "123123";
         char[] svrPassword = svrPassphrase.toCharArray();
         KeyStore serverKeyStore = KeyStore.getInstance(KS_TYPE);
         serverKeyStore.load(new FileInputStream(serverKeyStoreFile), svrPassword);
         kmf.init(serverKeyStore, svrPassword);
-        String clientKeyStoreFile = "C:\\Users\\payne\\csii_pub.jks";
-        String cntPassphrase = "123456";
+        String clientKeyStoreFile = "/Users/yangchangpei/csii_pub.jks";
+        String cntPassphrase = "123123";
         char[] cntPassword = cntPassphrase.toCharArray();
         KeyStore clientKeyStore = KeyStore.getInstance(KS_TYPE);
         clientKeyStore.load(new FileInputStream(clientKeyStoreFile), cntPassword);
@@ -88,75 +88,72 @@ public class NioSSLServer {
             ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
             SocketChannel channel = ssc.accept();
             channel.configureBlocking(false);
-            doHandShake(channel);
+            doHandshake(channel);
         } else if (key.isReadable()) {
             if (sslEngine.getHandshakeStatus() == SSLEngineResult.HandshakeStatus.NOT_HANDSHAKING) {
                 SocketChannel sc = (SocketChannel) key.channel();
-                netInData.clear();
-                appInData.clear();
-                sc.read(netInData);
-                netInData.flip();
-                SSLEngineResult engineResult = sslEngine.unwrap(netInData, appInData);
+                netInputBuffer.clear();
+                appInputBuffer.clear();
+                sc.read(netInputBuffer);
+                netInputBuffer.flip();
+                SSLEngineResult engineResult = sslEngine.unwrap(netInputBuffer, appInputBuffer);
                 doTask();
                 if (engineResult.getStatus() == SSLEngineResult.Status.OK) {
-                    appInData.flip();
-                    System.out.println(new String(appInData.array()));
-
+                    appInputBuffer.flip();
+                    System.out.println(new String(appInputBuffer.array(), appInputBuffer.arrayOffset(), appInputBuffer.remaining()));
                 }
                 sc.register(selector, SelectionKey.OP_WRITE);
             }
         } else if (key.isWritable()) {
             SocketChannel sc = (SocketChannel) key.channel();
-            netOutData.clear();
-            SSLEngineResult engineResult = sslEngine.wrap(appOutData, netOutData);
+            netOutputBuffer.clear();
+            sslEngine.wrap(appOutputBuffer, netOutputBuffer);
             doTask();
-            netOutData.flip();
-            while (netOutData.hasRemaining())
-                sc.write(netOutData);
-            sc.register(selector, SelectionKey.OP_READ);
+            netOutputBuffer.flip();
+            if (netOutputBuffer.hasRemaining()) sc.write(netOutputBuffer);
+            else key.cancel();
         }
     }
 
-    private void doHandShake(SocketChannel sc) throws IOException {
-        boolean handshakeDone = false;
+    private void doHandshake(SocketChannel sc) throws IOException {
+        boolean done = false;
         sslEngine.beginHandshake();
-        SSLEngineResult.HandshakeStatus hsStatus = sslEngine.getHandshakeStatus();
-        while (!handshakeDone) {
-            switch (hsStatus) {
+        SSLEngineResult.HandshakeStatus status = sslEngine.getHandshakeStatus();
+        while (!done) {
+            switch (status) {
                 case FINISHED:
                     break;
                 case NEED_TASK:
-                    hsStatus = doTask();
+                    status = doTask();
                     break;
                 case NEED_UNWRAP:
-                    netInData.clear();
-                    sc.read(netInData);
-                    netInData.flip();
+                    netInputBuffer.clear();
+                    sc.read(netInputBuffer);
+                    netInputBuffer.flip();
                     do {
-                        SSLEngineResult engineResult = sslEngine.unwrap(netInData, appInData);
-                        hsStatus = doTask();
-                    } while (hsStatus == SSLEngineResult.HandshakeStatus.NEED_UNWRAP && netInData.remaining() > 0);
-                    netInData.clear();
+                        sslEngine.unwrap(netInputBuffer, appInputBuffer);
+                        status = doTask();
+                    } while (status == SSLEngineResult.HandshakeStatus.NEED_UNWRAP && netInputBuffer.remaining() > 0);
+                    netInputBuffer.clear();
                     break;
                 case NEED_WRAP:
-                    SSLEngineResult engineResult = sslEngine.wrap(appOutData, netOutData);
-                    hsStatus = doTask();
-                    netOutData.flip();
-                    sc.write(netOutData);
-                    netOutData.clear();
+                    sslEngine.wrap(appOutputBuffer, netOutputBuffer);
+                    status = doTask();
+                    netOutputBuffer.flip();
+                    sc.write(netOutputBuffer);
+                    netOutputBuffer.clear();
                     break;
                 case NOT_HANDSHAKING:
                     sc.configureBlocking(false);
                     sc.register(selector, SelectionKey.OP_READ);
-                    handshakeDone = true;
+                    done = true;
                     break;
             }
         }
     }
 
     private SSLEngineResult.HandshakeStatus doTask() {
-        Runnable task;
-        while ((task = sslEngine.getDelegatedTask()) != null) {
+        for (Runnable task = sslEngine.getDelegatedTask(); task != null; task = sslEngine.getDelegatedTask()) {
             new Thread(task).start();
         }
         return sslEngine.getHandshakeStatus();

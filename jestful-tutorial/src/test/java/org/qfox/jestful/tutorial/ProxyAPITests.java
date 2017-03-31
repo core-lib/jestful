@@ -6,6 +6,12 @@ import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+
 /**
  * Created by payne on 2017/3/27.
  */
@@ -13,7 +19,13 @@ public class ProxyAPITests {
 
     @Test
     public void testBioProxy() throws Exception {
-        ProxyAPI api = Client.builder().build().create(ProxyAPI.class, "http://www.httpwatch.com");
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(new FileInputStream("/Users/yangchangpei/csii_pub.jks"), "123123".toCharArray());
+        SSLContext sslContext = SSLContext.getInstance("SSL");
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+        tmf.init(keyStore);
+        sslContext.init(null, tmf.getTrustManagers(), null);
+        ProxyAPI api = Client.builder().setHostnameVerifier((HostnameVerifier) (s, sslSession) -> true).setSSLSocketFactory(sslContext.getSocketFactory()).build().create(ProxyAPI.class, "https://localhost:8443");
         String image = api.index();
         System.out.println(image);
     }
