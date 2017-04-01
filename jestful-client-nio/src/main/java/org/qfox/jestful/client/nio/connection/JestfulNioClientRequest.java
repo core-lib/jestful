@@ -1,8 +1,10 @@
-package org.qfox.jestful.client.nio;
+package org.qfox.jestful.client.nio.connection;
 
-import org.qfox.jestful.client.Connector;
 import org.qfox.jestful.client.JestfulClientRequest;
+import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
+import org.qfox.jestful.client.nio.NioByteArrayOutputStream;
+import org.qfox.jestful.client.nio.NioRequest;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 
@@ -14,7 +16,7 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/3/24.
  */
-public class JestfulNioClientRequest extends JestfulClientRequest {
+public class JestfulNioClientRequest extends JestfulClientRequest implements NioRequest {
     private final Object lock = new Object();
     private final String protocol = "HTTP/1.1";
 

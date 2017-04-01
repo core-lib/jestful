@@ -7,4 +7,7 @@
     <bean class="org.qfox.jestful.client.nio.scheduler.LambdaNioScheduler"/>
     <bean class="org.qfox.jestful.client.nio.scheduler.FutureNioScheduler"/>
 
+    <bean class="org.qfox.jestful.client.nio.connection.HttpNioConnector"/>
+    <bean class="org.qfox.jestful.client.nio.connection.HttpsNioConnector"/>
+
 </beans>

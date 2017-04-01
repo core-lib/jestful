@@ -1,11 +1,13 @@
-package org.qfox.jestful.client.nio;
+package org.qfox.jestful.client.nio.connection;
 
-import org.qfox.jestful.client.Connector;
 import org.qfox.jestful.client.JestfulClientResponse;
+import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
+import org.qfox.jestful.client.nio.NioByteArrayOutputStream;
+import org.qfox.jestful.client.nio.NioResponse;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Status;
-import org.qfox.jestful.commons.IOKit;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -13,7 +15,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by yangchangpei on 17/3/25.
  */
-public class JestfulNioClientResponse extends JestfulClientResponse {
+public class JestfulNioClientResponse extends JestfulClientResponse implements NioResponse {
     private NioByteArrayOutputStream head = new NioByteArrayOutputStream();
     private NioByteArrayOutputStream body = new NioByteArrayOutputStream();
 

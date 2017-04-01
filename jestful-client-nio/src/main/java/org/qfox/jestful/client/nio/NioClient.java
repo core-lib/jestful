@@ -1,8 +1,12 @@
 package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.connection.Connection;
+import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
+import org.qfox.jestful.client.nio.connection.NioConnection;
+import org.qfox.jestful.client.nio.connection.NioConnector;
 import org.qfox.jestful.client.nio.scheduler.NioScheduler;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TreeSetTimeoutManager;
@@ -29,7 +33,7 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/3/23.
  */
-public class NioClient extends Client implements Runnable, NioCalls.NioConsumer {
+public class NioClient extends Client implements Runnable, NioCalls.NioConsumer, NioConnector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Object startupLock = new Object();
@@ -65,7 +69,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
             channel.configureBlocking(false);
             channel.connect(address);
             SelectionKey connectableKey = channel.register(selector, SelectionKey.OP_CONNECT, action);
-            JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
+            NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
             timeoutManager.addConnTimeoutHandler(connectableKey, request.getConnTimeout());
         } catch (Exception e) {
             NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
@@ -117,23 +121,28 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
                     iterator.remove();
                     if (!key.isValid()) {
                         key.cancel();
-                    } else if (key.isConnectable()) {
+                        continue;
+                    }
+                    if (key.isConnectable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
-                        JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
+                        NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
                         if (channel.isConnectionPending() && channel.finishConnect()) {
-                            SelectionKey writableKey = channel.register(selector, SelectionKey.OP_WRITE, action);
+                            // 本来HTTP 模式情况下这里只需要注册WRITE即可 但是为了适配SSL模式的握手过程的握手数据读写 这里必须注册成WRITE | READ 但是只计算Write Timeout
+                            SelectionKey writableKey = channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
                             timeoutManager.addWriteTimeoutHandler(writableKey, request.getWriteTimeout());
 
                             NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
                             listener.onConnected(action);
                         }
-                    } else if (key.isWritable()) {
+                    }
+                    if (key.isWritable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
-                        JestfulNioClientRequest request = (JestfulNioClientRequest) action.getExtra().get(JestfulNioClientRequest.class);
+                        NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
                         buffer.clear();
                         if (request.send(buffer)) {
+                            // 请求发送成功后只注册READ把之前的 WRITE | READ 注销掉 开始计算Read Timeout
                             SelectionKey readableKey = channel.register(selector, SelectionKey.OP_READ, action);
                             timeoutManager.addReadTimeoutHandler(readableKey, request.getReadTimeout());
 
@@ -143,10 +152,11 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
                             buffer.flip();
                             channel.write(buffer);
                         }
-                    } else if (key.isReadable()) {
+                    }
+                    if (key.isReadable()) {
                         SocketChannel channel = (SocketChannel) key.channel();
                         Action action = (Action) key.attachment();
-                        JestfulNioClientResponse response = (JestfulNioClientResponse) action.getExtra().get(JestfulNioClientResponse.class);
+                        NioResponse response = (NioResponse) action.getExtra().get(NioResponse.class);
                         buffer.clear();
                         channel.read(buffer);
                         buffer.flip();
@@ -157,10 +167,6 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
                             NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
                             listener.onCompleted(action);
                         }
-                    } else {
-                        key.cancel();
-                        IOKit.close(key.channel());
-                        throw new IllegalStateException();
                     }
                 }
             } catch (Exception e) {
@@ -212,6 +218,23 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer 
         Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
         String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
         return new JestfulNioInvocationHandler<T>(interfase, protocol, host, port, route, this).getProxy();
+    }
+
+    @Override
+    public NioConnection nioConnect(Action action, Gateway gateway, NioClient client) throws IOException {
+        NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
+        if (connection != null) {
+            return connection;
+        }
+        for (Connector connector : connectors.values()) {
+            if (connector.supports(action) && connector instanceof NioConnector) {
+                NioConnector nioConnector = (NioConnector) connector;
+                connection = nioConnector.nioConnect(action, gateway, this);
+                action.getExtra().put(Connection.class, connection);
+                return connection;
+            }
+        }
+        throw new IOException("unsupported protocol " + action.getProtocol());
     }
 
     public static NioClient getDefaultClient() {

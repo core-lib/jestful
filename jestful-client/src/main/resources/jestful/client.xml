@@ -25,8 +25,8 @@
         <bean class="org.qfox.jestful.client.wrapper.ResponseDecodeWrapper"/>
     </jestful:group>
 
-    <bean class="org.qfox.jestful.client.HttpConnector"/>
-    <bean class="org.qfox.jestful.client.HttpsConnector"/>
+    <bean class="org.qfox.jestful.client.connection.HttpConnector"/>
+    <bean class="org.qfox.jestful.client.connection.HttpsConnector"/>
 
     <bean class="org.qfox.jestful.client.formatting.URLEncodedRequestSerializer"/>
     <bean class="org.qfox.jestful.client.formatting.MultipartRequestSerializer"/>

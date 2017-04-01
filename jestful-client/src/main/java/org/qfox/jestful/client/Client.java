@@ -1,5 +1,7 @@
 package org.qfox.jestful.client;
 
+import org.qfox.jestful.client.connection.Connection;
+import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
@@ -42,11 +44,11 @@ import java.util.Map.Entry;
  * @since 1.0.0
  */
 public class Client implements Actor, Connector, Initialable, Destroyable {
-    private final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
-    private final Map<MediaType, RequestSerializer> serializers = new HashMap<MediaType, RequestSerializer>();
-    private final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
-    private final Map<String, Scheduler> schedulers = new HashMap<String, Scheduler>();
-    private final Map<String, Connector> connectors = new HashMap<String, Connector>();
+    protected final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
+    protected final Map<MediaType, RequestSerializer> serializers = new HashMap<MediaType, RequestSerializer>();
+    protected final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
+    protected final Map<String, Scheduler> schedulers = new HashMap<String, Scheduler>();
+    protected final Map<String, Connector> connectors = new HashMap<String, Connector>();
 
     private final String protocol;
     private final String host;

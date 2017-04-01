@@ -1,4 +1,4 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.connection;
 
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;

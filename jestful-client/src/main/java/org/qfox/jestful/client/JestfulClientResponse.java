@@ -1,5 +1,7 @@
 package org.qfox.jestful.client;
 
+import org.qfox.jestful.client.connection.Connection;
+import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Action;

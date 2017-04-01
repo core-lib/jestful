@@ -1,4 +1,4 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.connection;
 
 import java.io.IOException;
 import java.net.Proxy;
@@ -8,6 +8,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Request;
