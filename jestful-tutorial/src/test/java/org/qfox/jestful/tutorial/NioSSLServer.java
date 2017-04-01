@@ -29,8 +29,6 @@ public class NioSSLServer {
     public void run() throws Exception {
         createServerSocket();
         createSSLContext();
-        createSSLEngine();
-        createBuffer();
         while (true) {
             selector.select();
             Iterator<SelectionKey> it = selector.selectedKeys().iterator();
@@ -46,7 +44,8 @@ public class NioSSLServer {
         SSLSession session = sslEngine.getSession();
         appInputBuffer = ByteBuffer.allocate(session.getApplicationBufferSize());
         netInputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
-        appOutputBuffer = ByteBuffer.wrap("HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nOK".getBytes());
+
+        appOutputBuffer = ByteBuffer.wrap(("HTTP/1.1 200 OK\r\nContent-Length:2\r\n\r\nOK").getBytes());
         netOutputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
     }
 
@@ -67,14 +66,14 @@ public class NioSSLServer {
     private void createSSLContext() throws Exception {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(X509);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(X509);
-        String serverKeyStoreFile = "/Users/yangchangpei/csii.jks";
-        String svrPassphrase = "123123";
+        String serverKeyStoreFile = "C:\\Users\\payne\\csii.jks";
+        String svrPassphrase = "123456";
         char[] svrPassword = svrPassphrase.toCharArray();
         KeyStore serverKeyStore = KeyStore.getInstance(KS_TYPE);
         serverKeyStore.load(new FileInputStream(serverKeyStoreFile), svrPassword);
         kmf.init(serverKeyStore, svrPassword);
-        String clientKeyStoreFile = "/Users/yangchangpei/csii_pub.jks";
-        String cntPassphrase = "123123";
+        String clientKeyStoreFile = "C:\\Users\\payne\\csii_pub.jks";
+        String cntPassphrase = "123456";
         char[] cntPassword = cntPassphrase.toCharArray();
         KeyStore clientKeyStore = KeyStore.getInstance(KS_TYPE);
         clientKeyStore.load(new FileInputStream(clientKeyStoreFile), cntPassword);
@@ -85,6 +84,8 @@ public class NioSSLServer {
 
     private void handleRequest(SelectionKey key) throws Exception {
         if (key.isAcceptable()) {
+            createSSLEngine();
+            createBuffer();
             ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
             SocketChannel channel = ssc.accept();
             channel.configureBlocking(false);
@@ -100,7 +101,7 @@ public class NioSSLServer {
                 doTask();
                 if (engineResult.getStatus() == SSLEngineResult.Status.OK) {
                     appInputBuffer.flip();
-                    System.out.println(new String(appInputBuffer.array(), appInputBuffer.arrayOffset(), appInputBuffer.remaining()));
+
                 }
                 sc.register(selector, SelectionKey.OP_WRITE);
             }
@@ -115,9 +116,13 @@ public class NioSSLServer {
         }
     }
 
+    private boolean handshakeStarted = false;
+
     private void doHandshake(SocketChannel sc) throws IOException {
         boolean done = false;
-        sslEngine.beginHandshake();
+        if (!handshakeStarted) {
+            sslEngine.beginHandshake();
+        }
         SSLEngineResult.HandshakeStatus status = sslEngine.getHandshakeStatus();
         while (!done) {
             switch (status) {
@@ -154,7 +159,7 @@ public class NioSSLServer {
 
     private SSLEngineResult.HandshakeStatus doTask() {
         for (Runnable task = sslEngine.getDelegatedTask(); task != null; task = sslEngine.getDelegatedTask()) {
-            new Thread(task).start();
+            task.run();
         }
         return sslEngine.getHandshakeStatus();
     }

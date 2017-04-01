@@ -20,7 +20,7 @@ public class ProxyAPITests {
     @Test
     public void testBioProxy() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("JKS");
-        keyStore.load(new FileInputStream("/Users/yangchangpei/csii_pub.jks"), "123123".toCharArray());
+        keyStore.load(new FileInputStream("C:\\Users\\payne\\csii_pub.jks"), "123456".toCharArray());
         SSLContext sslContext = SSLContext.getInstance("SSL");
         TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
         tmf.init(keyStore);
