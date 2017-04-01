@@ -17,6 +17,7 @@ import org.qfox.jestful.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -44,11 +45,13 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
     private final ByteBuffer buffer = ByteBuffer.allocate(4096);
     private final long selectTimeout;
     private final TimeoutManager timeoutManager;
+    private final SSLContext sslContext;
 
     private NioClient(Builder<?> builder) {
         super(builder);
         this.selectTimeout = builder.selectTimeout;
         this.timeoutManager = builder.timeoutManager;
+        this.sslContext = builder.sslContext;
         synchronized (startupLock) {
             try {
                 new Thread(this).start();
@@ -256,6 +259,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
     public static class Builder<T extends Builder<T>> extends org.qfox.jestful.client.Client.Builder<T> {
         private long selectTimeout = 1000L;
         private TimeoutManager timeoutManager = new TreeSetTimeoutManager();
+        private SSLContext sslContext;
 
         public Builder() {
             this.setConnTimeout(20 * 1000);
@@ -298,9 +302,17 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
 
         public T setTimeoutManager(TimeoutManager timeoutManager) {
             if (timeoutManager == null) {
-                throw new IllegalArgumentException("timeoutManager can not be null");
+                throw new IllegalArgumentException("timeout manager can not be null");
             }
             this.timeoutManager = timeoutManager;
+            return (T) this;
+        }
+
+        public T setSslContext(SSLContext sslContext) {
+            this.sslContext = sslContext;
+            if (sslContext == null) {
+                throw new IllegalArgumentException("SSLContext can not be null");
+            }
             return (T) this;
         }
     }
@@ -393,5 +405,9 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
 
     public TimeoutManager getTimeoutManager() {
         return timeoutManager;
+    }
+
+    public SSLContext getSslContext() {
+        return sslContext;
     }
 }

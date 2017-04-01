@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by yangchangpei on 17/3/25.
  */
-public class JestfulNioClientResponse extends JestfulClientResponse implements NioResponse {
+public class JestfulNioHttpClientResponse extends JestfulClientResponse implements NioResponse {
     private NioByteArrayOutputStream head = new NioByteArrayOutputStream();
     private NioByteArrayOutputStream body = new NioByteArrayOutputStream();
 
@@ -31,7 +31,7 @@ public class JestfulNioClientResponse extends JestfulClientResponse implements N
     private final Object lock = new Object();
     private boolean closed;
 
-    protected JestfulNioClientResponse(Action action, Connector connector, Gateway gateway) {
+    protected JestfulNioHttpClientResponse(Action action, Connector connector, Gateway gateway) {
         super(action, connector, gateway);
     }
 

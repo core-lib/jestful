@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/3/24.
  */
-public class JestfulNioClientRequest extends JestfulClientRequest implements NioRequest {
+public class JestfulNioHttpClientRequest extends JestfulClientRequest implements NioRequest {
     private final Object lock = new Object();
     private final String protocol = "HTTP/1.1";
 
@@ -28,7 +28,7 @@ public class JestfulNioClientRequest extends JestfulClientRequest implements Nio
     private ByteBuffer head;
     private ByteBuffer body;
 
-    protected JestfulNioClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
+    protected JestfulNioHttpClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
         super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
     }
 

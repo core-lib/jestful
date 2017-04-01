@@ -16,8 +16,8 @@ public class HttpNioConnector extends HttpConnector implements NioConnector {
 
     @Override
     public NioConnection nioConnect(Action action, Gateway gateway, NioClient client) throws IOException {
-        NioRequest request = new JestfulNioClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout());
-        NioResponse response = new JestfulNioClientResponse(action, this, gateway);
+        NioRequest request = new JestfulNioHttpClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout());
+        NioResponse response = new JestfulNioHttpClientResponse(action, this, gateway);
         NioConnection connection = new NioConnection(request, response);
         return connection;
     }

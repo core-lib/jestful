@@ -9,12 +9,11 @@ import javax.net.ssl.SSLEngine;
 /**
  * Created by payne on 2017/4/1.
  */
-public class JestfulNioSSLClientRequest extends JestfulNioClientRequest {
+public class JestfulNioHttpsClientResponse extends JestfulNioHttpClientResponse {
     protected final SSLEngine engine;
 
-    public JestfulNioSSLClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout, SSLEngine engine) {
-        super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
+    public JestfulNioHttpsClientResponse(Action action, Connector connector, Gateway gateway, SSLEngine engine) {
+        super(action, connector, gateway);
         this.engine = engine;
     }
-
 }
