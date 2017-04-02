@@ -5,12 +5,12 @@ import java.lang.reflect.Array;
 /**
  * Created by yangchangpei on 16/9/21.
  */
-public class Utils {
+public class ArrayKit {
 
     public static <T> T[] copyOf(T[] original, int newLength) {
         Class<?> type = original.getClass();
         @SuppressWarnings("unchecked")
-        T[] array = ((Object) type == (Object) Object[].class)
+        T[] array = (type == Object[].class)
                 ? (T[]) new Object[newLength]
                 : (T[]) Array.newInstance(type.getComponentType(), newLength);
         System.arraycopy(original, 0, array, 0,
@@ -24,7 +24,7 @@ public class Utils {
             throw new IllegalArgumentException(from + " > " + to);
         Class<?> type = original.getClass();
         @SuppressWarnings("unchecked")
-        T[] array = ((Object) type == (Object) Object[].class)
+        T[] array = (type == Object[].class)
                 ? (T[]) new Object[length]
                 : (T[]) Array.newInstance(type.getComponentType(), length);
         System.arraycopy(original, from, array, 0,

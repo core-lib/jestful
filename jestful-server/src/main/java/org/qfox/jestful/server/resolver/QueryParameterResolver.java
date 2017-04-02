@@ -1,6 +1,6 @@
 package org.qfox.jestful.server.resolver;
 
-import org.qfox.jestful.commons.Utils;
+import org.qfox.jestful.commons.ArrayKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.server.converter.ConversionException;
@@ -44,7 +44,7 @@ public class QueryParameterResolver implements Actor, Initialable {
                 map.put(key, new String[0]);
             }
             String[] values = map.get(key);
-            values = Utils.copyOf(values, values.length + 1);
+            values = ArrayKit.copyOf(values, values.length + 1);
             values[values.length - 1] = value;
             map.put(key, values);
         }
