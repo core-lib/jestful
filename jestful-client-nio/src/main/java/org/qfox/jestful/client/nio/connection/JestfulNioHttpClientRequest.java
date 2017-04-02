@@ -17,16 +17,16 @@ import java.util.Map;
  * Created by yangchangpei on 17/3/24.
  */
 public class JestfulNioHttpClientRequest extends JestfulClientRequest implements NioRequest {
-    private final Object lock = new Object();
-    private final String protocol = "HTTP/1.1";
+    protected final Object lock = new Object();
+    protected final String protocol = "HTTP/1.1";
 
-    private NioByteArrayOutputStream out;
-    private Writer writer;
+    protected NioByteArrayOutputStream out;
+    protected Writer writer;
 
-    private boolean closed;
+    protected boolean closed;
 
-    private ByteBuffer head;
-    private ByteBuffer body;
+    protected ByteBuffer head;
+    protected ByteBuffer body;
 
     protected JestfulNioHttpClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
         super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
@@ -73,7 +73,7 @@ public class JestfulNioHttpClientRequest extends JestfulClientRequest implements
 
     }
 
-    private void doWriteHeader() throws IOException {
+    protected void doWriteHeader() throws IOException {
         NioByteArrayOutputStream baos = new NioByteArrayOutputStream();
         OutputStreamWriter osw = new OutputStreamWriter(baos);
 

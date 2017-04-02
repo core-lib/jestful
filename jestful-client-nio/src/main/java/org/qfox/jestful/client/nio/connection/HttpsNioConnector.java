@@ -21,17 +21,28 @@ public class HttpsNioConnector extends HttpsConnector implements NioConnector {
     @Override
     public NioConnection nioConnect(Action action, Gateway gateway, NioClient client) throws IOException {
         SSLContext sslContext = client.getSslContext();
-        if (sslContext == null) {
-            if (context != null) sslContext = context;
-            synchronized (lock) {
-                if (context != null) sslContext = context;
+        sslContext = sslContext != null ? sslContext : getDefaultSSLContext();
+        SSLEngine engine = sslContext.createSSLEngine();
+        engine.setUseClientMode(true);
+        engine.beginHandshake();
+        NioSSLChannel nioSSLChannel = new HttpsNioSSLChannel(engine);
+        NioRequest request = new JestfulNioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), nioSSLChannel);
+        NioResponse response = new JestfulNioHttpsClientResponse(action, this, gateway, nioSSLChannel);
+        return new NioConnection(request, response);
+    }
+
+    public SSLContext getDefaultSSLContext() throws IOException {
+        if (context != null) return context;
+        synchronized (lock) {
+            if (context != null) return context;
+            try {
+                context = SSLContext.getInstance("SSL");
+                context.init(null, null, null);
+                return context;
+            } catch (Exception e) {
+                throw new IOException(e);
             }
         }
-        SSLEngine engine = sslContext.createSSLEngine();
-        NioRequest request = new JestfulNioHttpsClientRequest(action, this, gateway, 0, 0, 0, engine);
-        NioResponse response = new JestfulNioHttpsClientResponse(action, this, gateway, engine);
-        NioConnection connection = new NioConnection(request, response);
-        return connection;
     }
 
 }

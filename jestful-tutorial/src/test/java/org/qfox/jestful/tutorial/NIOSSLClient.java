@@ -20,14 +20,6 @@ public class NIOSSLClient {
     private ByteBuffer buffer = ByteBuffer.allocate(2048);
 
     public static void main(String[] args) throws Exception {
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
-        buffer.put("Hello World!".getBytes());
-        buffer.flip();
-        buffer.get(new byte[6]);
-        buffer.compact();
-        buffer.put("NIOSSL".getBytes());
-        buffer.flip();
-        System.out.println(new String(buffer.array(), buffer.arrayOffset(), buffer.remaining()));
 
         new NIOSSLClient().run();
     }
@@ -40,7 +32,7 @@ public class NIOSSLClient {
         selector = Selector.open();
         SocketChannel channel = SocketChannel.open();
         channel.configureBlocking(false);
-        channel.connect(new InetSocketAddress("merchant.qfoxy.com", 443));
+        channel.connect(new InetSocketAddress("www.baidu.com", 443));
         channel.register(selector, SelectionKey.OP_CONNECT);
 
         while (true) {
@@ -105,84 +97,6 @@ public class NIOSSLClient {
         }
     }
 
-    public void start() throws Exception {
-        createSSLContext();
-        createSSLEngine();
-        createBuffer();
-
-        selector = Selector.open();
-        SocketChannel channel = SocketChannel.open();
-        channel.configureBlocking(false);
-        channel.connect(new InetSocketAddress("merchant.qfoxy.com", 443));
-        channel.register(selector, SelectionKey.OP_CONNECT);
-        while (true) {
-            selector.select();
-            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
-            while (iterator.hasNext()) {
-                SelectionKey key = iterator.next();
-                iterator.remove();
-                if (key.isConnectable()) {
-                    if (channel.isConnectionPending() && channel.finishConnect()) {
-                        sslEngine.beginHandshake();
-                        while (true) {
-                            SSLEngineResult.HandshakeStatus status = sslEngine.getHandshakeStatus();
-                            switch (status) {
-                                case NOT_HANDSHAKING:
-                                    if (appOutputBuffer.hasRemaining()) {
-                                        netOutputBuffer.clear();
-                                        SSLEngineResult re = sslEngine.wrap(appOutputBuffer, netOutputBuffer);
-                                        System.out.println("wrap: " + re);
-                                        netOutputBuffer.flip();
-                                        System.out.println("need write : " + netOutputBuffer.remaining());
-                                        System.out.println("written : " + channel.write(netOutputBuffer));
-                                    } else {
-                                        if (netInputBuffer.hasRemaining()) {
-                                            SSLEngineResult r = sslEngine.unwrap(netInputBuffer, appInputBuffer);
-                                            System.out.println("unwrap: " + r);
-                                        } else {
-                                            netInputBuffer.clear();
-                                            System.out.println("read : " + channel.read(netInputBuffer));
-                                            netInputBuffer.flip();
-                                        }
-                                    }
-                                    break;
-                                case FINISHED:
-                                    break;
-                                case NEED_TASK:
-                                    for (Runnable task = sslEngine.getDelegatedTask(); task != null; task = sslEngine.getDelegatedTask()) {
-                                        task.run();
-                                    }
-                                    break;
-                                case NEED_WRAP:
-                                    netOutputBuffer.clear();
-                                    SSLEngineResult result = sslEngine.wrap(appOutputBuffer, netOutputBuffer);
-                                    System.out.println("wrap: " + result);
-                                    netOutputBuffer.flip();
-                                    System.out.println("need write : " + netOutputBuffer.remaining());
-                                    System.out.println("written : " + channel.write(netOutputBuffer));
-                                    break;
-                                case NEED_UNWRAP:
-                                    if (netInputBuffer.hasRemaining()) {
-                                        SSLEngineResult r = sslEngine.unwrap(netInputBuffer, appInputBuffer);
-                                        System.out.println("unwrap: " + r);
-                                    } else {
-                                        netInputBuffer.clear();
-                                        System.out.println("read : " + channel.read(netInputBuffer));
-                                        netInputBuffer.flip();
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                } else if (key.isWritable()) {
-
-                } else if (key.isReadable()) {
-
-                }
-            }
-        }
-    }
-
     private SSLEngine sslEngine;
     private SSLContext sslContext;
     private ByteBuffer netInputBuffer;
@@ -201,7 +115,7 @@ public class NIOSSLClient {
 
         String request = "" +
                 "GET / HTTP/1.1\n" +
-                "Host: merchant.qfoxy.com\n" +
+                "Host: www.baidu.com\n" +
                 "Connection: keep-alive\n" +
                 "Upgrade-Insecure-Requests: 1\n" +
                 "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.98 Safari/537.36\n" +

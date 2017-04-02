@@ -6,6 +6,8 @@ import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
 
+import java.net.URL;
+
 /**
  * Created by yangchangpei on 17/3/31.
  */
@@ -70,7 +72,7 @@ public class LambdaAPITests {
     @Test
     public void testNioInterfaceTypeVariable() throws Exception {
         Lock lock = new SimpleLock();
-        LambdaAPI lambdaAPI = NioClient.builder().setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
+        LambdaAPI lambdaAPI = NioClient.builder().setEndpoint(new URL("https://merchant.qfoxy.com")).build().create(LambdaAPI.class);
         lambdaAPI.callWithInterfaceTypeVariable("add",
                 System.out::println,
                 Throwable::printStackTrace,
