@@ -18,7 +18,6 @@
 		<module>jestful-spring</module>
 		<module>jestful-validation</module>
 		<module>jestful-cookie</module>
-		<module>jestful-translation</module>
 		<module>jestful-android</module>
 		<module>jestful-RxJava</module>
 		<module>jestful-RxAndroid</module>
