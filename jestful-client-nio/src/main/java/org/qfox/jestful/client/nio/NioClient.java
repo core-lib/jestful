@@ -1,7 +1,6 @@
 package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.client.Client;
-import org.qfox.jestful.client.connection.Connection;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
@@ -233,7 +232,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
             if (connector.supports(action) && connector instanceof NioConnector) {
                 NioConnector nioConnector = (NioConnector) connector;
                 connection = nioConnector.nioConnect(action, gateway, this);
-                action.getExtra().put(Connection.class, connection);
+                action.getExtra().put(NioConnection.class, connection);
                 return connection;
             }
         }

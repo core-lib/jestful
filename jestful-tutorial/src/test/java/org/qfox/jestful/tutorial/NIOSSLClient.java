@@ -18,6 +18,7 @@ import java.util.Iterator;
 public class NIOSSLClient {
     private Selector selector;
 
+    private ByteBuffer buffer = ByteBuffer.allocate(4096);
     private SSLEngine sslEngine;
     private SSLContext sslContext;
     private ByteBuffer netInputBuffer;
@@ -91,15 +92,25 @@ public class NIOSSLClient {
                 }
                 // 4. 一般来说一直都可以写
                 if (key.isWritable()) {
+                    buffer.clear();
+                    int n = Math.min(netOutputBuffer.remaining(), buffer.remaining());
+                    buffer.put(netOutputBuffer.array(), netOutputBuffer.position(), n);
+                    buffer.flip();
+
                     // 5. 写到流里面
-                    channel.write(netOutputBuffer);
+                    n = channel.write(buffer);
+                    netOutputBuffer.position(netOutputBuffer.position() + n);
                     doHandshake();
                 }
                 // 6. 如果可以读 有可能是服务端发来的握手数据
                 if (key.isReadable()) {
+                    buffer.clear();
+                    channel.read(buffer);
+                    buffer.flip();
+
                     // 7. 有可能之前的数据还没消费完 所以接收到的数据应该放在netInputBuffer的后面
                     netInputBuffer.compact();
-                    channel.read(netInputBuffer);
+                    netInputBuffer.put(buffer);
                     netInputBuffer.flip();
                     doHandshake();
                 }

@@ -26,7 +26,7 @@ public class HttpsNioConnector extends HttpsConnector implements NioConnector {
         SSLEngine engine = sslContext.createSSLEngine();
         engine.setUseClientMode(true);
         engine.beginHandshake();
-        NioSSLChannel nioSSLChannel = null;
+        NioSSLChannel nioSSLChannel = new JestfulNioSSLChannel(engine);
         NioRequest request = new JestfulNioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), nioSSLChannel);
         NioResponse response = new JestfulNioHttpsClientResponse(action, this, gateway, nioSSLChannel);
         return new NioConnection(request, response);

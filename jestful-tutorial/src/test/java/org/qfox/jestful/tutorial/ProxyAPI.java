@@ -10,10 +10,7 @@ import org.qfox.jestful.core.annotation.Jestful;
 @Jestful("/")
 public interface ProxyAPI {
 
-    @GET("/httpgallery/chunked/chunkedimage.aspx")
-    String index();
-
-    @GET("/httpgallery/chunked/chunkedimage.aspx")
+    @GET("/")
     void index(Callback<String> callback);
 
 }

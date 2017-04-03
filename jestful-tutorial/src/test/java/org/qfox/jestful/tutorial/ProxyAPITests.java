@@ -18,19 +18,6 @@ import java.security.KeyStore;
 public class ProxyAPITests {
 
     @Test
-    public void testBioProxy() throws Exception {
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        keyStore.load(new FileInputStream("C:\\Users\\payne\\csii_pub.jks"), "123456".toCharArray());
-        SSLContext sslContext = SSLContext.getInstance("SSL");
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-        tmf.init(keyStore);
-        sslContext.init(null, tmf.getTrustManagers(), null);
-        ProxyAPI api = Client.builder().setHostnameVerifier((HostnameVerifier) (s, sslSession) -> true).setSSLSocketFactory(sslContext.getSocketFactory()).build().create(ProxyAPI.class, "https://localhost:8443");
-        String image = api.index();
-        System.out.println(image);
-    }
-
-    @Test
     public void testNioProxy() throws Exception {
         ProxyAPI api = NioClient.builder().build().create(ProxyAPI.class, "http://www.httpwatch.com");
         api.index(new Callback<String>() {
