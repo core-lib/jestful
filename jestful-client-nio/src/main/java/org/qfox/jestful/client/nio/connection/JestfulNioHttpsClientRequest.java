@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 
 /**
  * Created by payne on 2017/4/1.
+ * Version: 1.0
  */
 public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
     private final NioSSLChannel nioSSLChannel;
@@ -26,17 +27,12 @@ public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
 
     // 数据出站
     @Override
-    public boolean copy(ByteBuffer buffer) throws IOException {
-        if (head == null) {
-            doWriteHeader();
-        }
-
-        if (head.remaining() == 0 && body.remaining() == 0) return nioSSLChannel.wrap(EMPTY, buffer);
-
-        if (head.hasRemaining() && buffer.hasRemaining()) nioSSLChannel.wrap(head, buffer);
-        if (body.hasRemaining() && buffer.hasRemaining()) nioSSLChannel.wrap(body, buffer);
-
-        return false;
+    public void copy(ByteBuffer buffer) throws IOException {
     }
 
+
+    @Override
+    public boolean move(int n) throws IOException {
+        return false;
+    }
 }

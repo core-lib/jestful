@@ -7,6 +7,7 @@ import org.qfox.jestful.core.Action;
  * Version: 1.0
  */
 public class NioEventAdapter implements NioEventListener {
+
     @Override
     public void onConnected(Action action) throws Exception {
 

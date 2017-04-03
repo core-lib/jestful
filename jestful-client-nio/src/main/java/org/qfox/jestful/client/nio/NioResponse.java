@@ -10,6 +10,6 @@ import java.nio.ByteBuffer;
  */
 public interface NioResponse extends Response {
 
-    boolean receive(ByteBuffer buffer) throws IOException;
+    boolean load(ByteBuffer buffer) throws IOException;
 
 }

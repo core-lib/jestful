@@ -2,6 +2,7 @@ package org.qfox.jestful.tutorial;
 
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
@@ -83,7 +84,7 @@ public class LambdaAPITests {
     @Test
     public void testAioParameterTypeVariable() throws Exception {
         Lock lock = new SimpleLock();
-        LambdaAPI lambdaAPI = NioClient.builder().setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
+        LambdaAPI lambdaAPI = AioClient.builder().setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
         lambdaAPI.callWithParameterTypeVariable("add",
                 System.out::println,
                 Throwable::printStackTrace,
@@ -94,7 +95,7 @@ public class LambdaAPITests {
     @Test
     public void testAioMethodTypeVariable() throws Exception {
         Lock lock = new SimpleLock();
-        LambdaAPI lambdaAPI = NioClient.builder().setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
+        LambdaAPI lambdaAPI = AioClient.builder().setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
         lambdaAPI.callWithMethodTypeVariable("add",
                 System.out::println,
                 Throwable::printStackTrace,
@@ -105,7 +106,7 @@ public class LambdaAPITests {
     @Test
     public void testAioInterfaceTypeVariable() throws Exception {
         Lock lock = new SimpleLock();
-        LambdaAPI lambdaAPI = NioClient.builder().setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
+        LambdaAPI lambdaAPI = AioClient.builder().setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
         lambdaAPI.callWithInterfaceTypeVariable("add",
                 System.out::println,
                 Throwable::printStackTrace,

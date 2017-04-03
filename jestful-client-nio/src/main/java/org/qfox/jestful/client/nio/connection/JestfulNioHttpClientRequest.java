@@ -110,21 +110,15 @@ public class JestfulNioHttpClientRequest extends JestfulClientRequest implements
         head = baos.toByteBuffer();
     }
 
-    public boolean copy(ByteBuffer buffer) throws IOException {
+    public void copy(ByteBuffer buffer) throws IOException {
         if (head == null) {
             doWriteHeader();
         }
 
         if (head.remaining() == 0 && body.remaining() == 0) {
-            return true;
+            return;
         }
 
-//        while (buffer.hasRemaining() && head.hasRemaining()) {
-//            buffer.put(head.get());
-//        }
-//        while (buffer.hasRemaining() && body.hasRemaining()) {
-//            buffer.put(body.get());
-//        }
         {
             int n = Math.min(head.remaining(), buffer.remaining());
             buffer.put(head.array(), head.position(), n);
@@ -133,21 +127,19 @@ public class JestfulNioHttpClientRequest extends JestfulClientRequest implements
             int n = Math.min(body.remaining(), buffer.remaining());
             buffer.put(body.array(), body.position(), n);
         }
-
-        return false;
     }
 
     @Override
     public boolean move(int n) throws IOException {
         {
-            int ahead = Math.min(n, head.remaining());
-            head.position(head.position() + ahead);
-            n -= ahead;
+            int m = Math.min(n, head.remaining());
+            head.position(head.position() + m);
+            n -= m;
         }
         {
-            int ahead = Math.min(n, body.remaining());
-            body.position(body.position() + ahead);
-            n -= ahead;
+            int m = Math.min(n, body.remaining());
+            body.position(body.position() + m);
+            n -= m;
         }
         if (n > 0) {
             throw new IOException("illegal call");

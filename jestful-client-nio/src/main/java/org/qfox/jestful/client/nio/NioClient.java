@@ -42,7 +42,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
     private static NioClient defaultClient;
     private Selector selector;
     private NioCalls calls;
-    private final ByteBuffer buffer = ByteBuffer.allocate(4096);
+    private final ByteBuffer buffer = ByteBuffer.allocate(9192);
     private final long selectTimeout;
     private final TimeoutManager timeoutManager;
     private final SSLContext sslContext;
@@ -109,7 +109,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                 timeoutManager.fire();
                 // 处理注册
                 calls.foreach(this);
-                // 最多等待 select timeout 时间进行一次超时检查
+                // 最多等待 selected timeout 时间进行一次超时检查
                 if (selector.select(selectTimeout) == 0) {
                     continue;
                 }
@@ -163,7 +163,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                         buffer.clear();
                         channel.read(buffer);
                         buffer.flip();
-                        if (response.receive(buffer)) {
+                        if (response.load(buffer)) {
                             key.cancel();
                             IOKit.close(key.channel());
 
@@ -294,7 +294,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
 
         public T setSelectTimeout(long selectTimeout) {
             if (selectTimeout < 0) {
-                throw new IllegalArgumentException("select timeout is negative");
+                throw new IllegalArgumentException("selected timeout is negative");
             }
             this.selectTimeout = selectTimeout;
             return (T) this;

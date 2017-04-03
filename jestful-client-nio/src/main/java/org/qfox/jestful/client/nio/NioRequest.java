@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
  */
 public interface NioRequest extends Request {
 
-    boolean copy(ByteBuffer buffer) throws IOException;
+    void copy(ByteBuffer buffer) throws IOException;
 
     boolean move(int n) throws IOException;
 

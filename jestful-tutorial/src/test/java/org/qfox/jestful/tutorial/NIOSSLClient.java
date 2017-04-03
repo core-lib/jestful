@@ -17,85 +17,6 @@ import java.util.Iterator;
  */
 public class NIOSSLClient {
     private Selector selector;
-    private ByteBuffer buffer = ByteBuffer.allocate(2048);
-
-    public static void main(String[] args) throws Exception {
-
-        new NIOSSLClient().run();
-    }
-
-    public void run() throws Exception {
-        createSSLContext();
-        createSSLEngine();
-        createBuffer();
-
-        selector = Selector.open();
-        SocketChannel channel = SocketChannel.open();
-        channel.configureBlocking(false);
-        channel.connect(new InetSocketAddress("www.baidu.com", 443));
-        channel.register(selector, SelectionKey.OP_CONNECT);
-
-        while (true) {
-            selector.select();
-            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
-            while (iterator.hasNext()) {
-                SelectionKey key = iterator.next();
-                iterator.remove();
-                if (key.isConnectable()) {
-                    // 1. 建立连接
-                    if (channel.isConnectionPending() && channel.finishConnect()) {
-                        // 2. 建立成功后注册读写事件
-                        channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ);
-                        // 3. 申请SSL握手
-                        sslEngine.beginHandshake();
-                    }
-                }
-                // 4. 一般来说一直都可以写
-                if (key.isWritable()) {
-                    // 5. 写到流里面
-                    channel.write(netOutputBuffer);
-                }
-                // 6. 如果可以读 有可能是服务端发来的握手数据
-                if (key.isReadable()) {
-                    // 7. 有可能之前的数据还没消费完 所以接收到的数据应该放在netInputBuffer的后面
-                    netInputBuffer.compact();
-                    channel.read(netInputBuffer);
-                    netInputBuffer.flip();
-                }
-                // 8. 尝试再握手
-                doHandshake();
-            }
-        }
-    }
-
-    private void doHandshake() throws IOException {
-        SSLEngineResult.HandshakeStatus status = sslEngine.getHandshakeStatus();
-        switch (status) {
-            case NOT_HANDSHAKING:
-                System.out.println("握手完成");
-                // 数据出站
-                netOutputBuffer.compact();
-                sslEngine.wrap(appOutputBuffer, netOutputBuffer);
-                netOutputBuffer.flip();
-                // 数据入站
-                sslEngine.unwrap(netInputBuffer, appInputBuffer);
-                break;
-            case FINISHED:
-                System.out.println("握手结束");
-                break;
-            case NEED_TASK:
-                for (Runnable task = sslEngine.getDelegatedTask(); task != null; task = null) task.run();
-                break;
-            case NEED_WRAP:
-                netOutputBuffer.compact();
-                sslEngine.wrap(appOutputBuffer, netOutputBuffer);
-                netOutputBuffer.flip();
-                break;
-            case NEED_UNWRAP:
-                sslEngine.unwrap(netInputBuffer, appInputBuffer);
-                break;
-        }
-    }
 
     private SSLEngine sslEngine;
     private SSLContext sslContext;
@@ -103,19 +24,17 @@ public class NIOSSLClient {
     private ByteBuffer appInputBuffer;
     private ByteBuffer netOutputBuffer;
     private ByteBuffer appOutputBuffer;
-    private static final String SSL_TYPE = "SSL";
-    private static final String KS_TYPE = "JKS";
-    private static final String X509 = "SunX509";
 
     private void createBuffer() {
         SSLSession session = sslEngine.getSession();
         appInputBuffer = ByteBuffer.allocate(session.getApplicationBufferSize());
+        appInputBuffer.flip();
         netInputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
         netInputBuffer.flip();
 
         String request = "" +
                 "GET / HTTP/1.1\n" +
-                "Host: www.baidu.com\n" +
+                "Host: merchant.qfoxy.com\n" +
                 "Connection: keep-alive\n" +
                 "Upgrade-Insecure-Requests: 1\n" +
                 "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.98 Safari/537.36\n" +
@@ -134,15 +53,90 @@ public class NIOSSLClient {
     }
 
     private void createSSLContext() throws Exception {
-//        TrustManagerFactory tmf = TrustManagerFactory.getInstance(X509);
-//        String clientKeyStoreFile = "C:\\Users\\payne\\csii_pub.jks";
-//        String cntPassphrase = "123456";
-//        char[] cntPassword = cntPassphrase.toCharArray();
-//        KeyStore clientKeyStore = KeyStore.getInstance(KS_TYPE);
-//        clientKeyStore.load(new FileInputStream(clientKeyStoreFile), cntPassword);
-//        tmf.init(clientKeyStore);
-        sslContext = SSLContext.getInstance(SSL_TYPE);
+        sslContext = SSLContext.getInstance("SSL");
         sslContext.init(null, null, null);
+    }
+
+    public static void main(String[] args) throws Exception {
+        new NIOSSLClient().run();
+    }
+
+    public void run() throws Exception {
+        createSSLContext();
+        createSSLEngine();
+        createBuffer();
+
+        selector = Selector.open();
+        SocketChannel channel = SocketChannel.open();
+        channel.configureBlocking(false);
+        channel.connect(new InetSocketAddress("merchant.qfoxy.com", 443));
+        channel.register(selector, SelectionKey.OP_CONNECT);
+
+        while (true) {
+            selector.select();
+            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+            while (iterator.hasNext()) {
+                SelectionKey key = iterator.next();
+                iterator.remove();
+
+                if (key.isConnectable()) {
+                    // 1. 建立连接
+                    if (channel.isConnectionPending() && channel.finishConnect()) {
+                        // 2. 建立成功后注册读写事件
+                        channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+                        // 3. 申请SSL握手
+                        sslEngine.beginHandshake();
+                        doHandshake();
+                    }
+                }
+                // 4. 一般来说一直都可以写
+                if (key.isWritable()) {
+                    // 5. 写到流里面
+                    channel.write(netOutputBuffer);
+                    doHandshake();
+                }
+                // 6. 如果可以读 有可能是服务端发来的握手数据
+                if (key.isReadable()) {
+                    // 7. 有可能之前的数据还没消费完 所以接收到的数据应该放在netInputBuffer的后面
+                    netInputBuffer.compact();
+                    channel.read(netInputBuffer);
+                    netInputBuffer.flip();
+                    doHandshake();
+                }
+            }
+        }
+    }
+
+    private void doHandshake() throws IOException {
+        SSLEngineResult.HandshakeStatus status = sslEngine.getHandshakeStatus();
+        switch (status) {
+            case NOT_HANDSHAKING:
+                System.out.println("握手完成");
+                // 数据出站
+                netOutputBuffer.compact();
+                sslEngine.wrap(appOutputBuffer, netOutputBuffer);
+                netOutputBuffer.flip();
+                // 数据入站
+                appInputBuffer.compact();
+                sslEngine.unwrap(netInputBuffer, appInputBuffer);
+                appInputBuffer.flip();
+                break;
+            case FINISHED:
+                break;
+            case NEED_TASK:
+                for (Runnable task = sslEngine.getDelegatedTask(); task != null; task = null) task.run();
+                break;
+            case NEED_WRAP:
+                netOutputBuffer.compact();
+                sslEngine.wrap(appOutputBuffer, netOutputBuffer);
+                netOutputBuffer.flip();
+                break;
+            case NEED_UNWRAP:
+                appInputBuffer.compact();
+                sslEngine.unwrap(netInputBuffer, appInputBuffer);
+                appInputBuffer.flip();
+                break;
+        }
     }
 
 }
