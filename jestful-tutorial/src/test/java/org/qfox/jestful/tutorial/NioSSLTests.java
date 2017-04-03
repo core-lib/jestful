@@ -17,10 +17,11 @@ public class NioSSLTests {
     @Test
     public void test() throws Exception {
         Lock lock = new SimpleLock();
-        ProxyAPI proxyAPI = NioClient.builder().setConnTimeout(1000 * 1000).setEndpoint(new URL("https://merchant.qfoxy.com")).build().create(ProxyAPI.class);
+        ProxyAPI proxyAPI = NioClient.builder().setConnTimeout(1000 * 1000).setEndpoint(new URL("https://merchant.qfoxy.com/v4/login")).build().create(ProxyAPI.class);
         proxyAPI.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {
+                System.out.print(result);
                 lock.openAll();
             }
 
@@ -31,7 +32,7 @@ public class NioSSLTests {
 
             @Override
             public void onFail(Throwable throwable) {
-
+                throwable.printStackTrace();
             }
         });
         lock.lockOne();

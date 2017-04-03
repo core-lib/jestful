@@ -28,12 +28,20 @@ public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
     // 数据出站
     @Override
     public void copy(ByteBuffer buffer) throws IOException {
+        if (head == null) {
+            doWriteHeader();
+        }
+
+        nioSSLChannel.write(head);
+        nioSSLChannel.write(body);
+
         nioSSLChannel.copy(buffer);
     }
 
 
     @Override
     public boolean move(int n) throws IOException {
-        return nioSSLChannel.move(n);
+        nioSSLChannel.move(n);
+        return false;
     }
 }

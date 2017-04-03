@@ -1,11 +1,9 @@
 package org.qfox.jestful.client.nio.connection;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLSession;
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 /**
@@ -26,9 +24,22 @@ public class JestfulNioSSLChannel implements NioSSLChannel {
         appInputBuffer.flip();
         netInputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
         netInputBuffer.flip();
-        appOutputBuffer = ByteBuffer.wrap(new byte[0]);
+        appOutputBuffer = ByteBuffer.allocate(session.getApplicationBufferSize());
+        appOutputBuffer.flip();
         netOutputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
         netOutputBuffer.flip();
+    }
+
+    @Override
+    public void write(ByteBuffer buffer) throws IOException {
+        appOutputBuffer.compact();
+        while (appOutputBuffer.hasRemaining() && buffer.hasRemaining()) appOutputBuffer.put(buffer.get());
+        appOutputBuffer.flip();
+    }
+
+    @Override
+    public void read(ByteBuffer buffer) throws IOException {
+        while (appInputBuffer.hasRemaining() && buffer.hasRemaining()) buffer.put(appInputBuffer.get());
     }
 
     @Override
@@ -38,26 +49,23 @@ public class JestfulNioSSLChannel implements NioSSLChannel {
     }
 
     @Override
-    public boolean move(int n) throws IOException {
+    public void move(int n) throws IOException {
         netOutputBuffer.position(netOutputBuffer.position() + n);
         handshake();
-        return false;
     }
 
     @Override
     public void load(ByteBuffer buffer) throws IOException {
         netInputBuffer.compact();
-        netInputBuffer.put(buffer);
+        while (netInputBuffer.hasRemaining() && buffer.hasRemaining()) netInputBuffer.put(buffer.get());
         netInputBuffer.flip();
         handshake();
     }
 
-    @Override
-    public void handshake() throws IOException {
+    private void handshake() throws IOException {
         SSLEngineResult.HandshakeStatus status = sslEngine.getHandshakeStatus();
         switch (status) {
             case NOT_HANDSHAKING:
-                System.out.println("握手完成");
                 // 数据出站
                 netOutputBuffer.compact();
                 sslEngine.wrap(appOutputBuffer, netOutputBuffer);
@@ -66,6 +74,7 @@ public class JestfulNioSSLChannel implements NioSSLChannel {
                 appInputBuffer.compact();
                 sslEngine.unwrap(netInputBuffer, appInputBuffer);
                 appInputBuffer.flip();
+                break;
             case FINISHED:
                 break;
             case NEED_TASK:

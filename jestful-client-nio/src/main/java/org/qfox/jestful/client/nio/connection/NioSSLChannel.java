@@ -8,12 +8,14 @@ import java.nio.ByteBuffer;
  */
 public interface NioSSLChannel {
 
+    void write(ByteBuffer buffer) throws IOException;
+
+    void read(ByteBuffer buffer) throws IOException;
+
     void copy(ByteBuffer buffer) throws IOException;
 
-    boolean move(int n) throws IOException;
+    void move(int n) throws IOException;
 
     void load(ByteBuffer buffer) throws IOException;
-
-    void handshake() throws IOException;
 
 }

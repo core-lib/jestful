@@ -9,9 +9,12 @@ import java.nio.ByteBuffer;
 
 /**
  * Created by payne on 2017/4/1.
+ * Version: 1.0
  */
 public class JestfulNioHttpsClientResponse extends JestfulNioHttpClientResponse {
-    protected final NioSSLChannel nioSSLChannel;
+    private final NioSSLChannel nioSSLChannel;
+    private ByteBuffer cache = ByteBuffer.allocate(0);
+    private ByteBuffer block = ByteBuffer.allocate(4096);
 
     public JestfulNioHttpsClientResponse(Action action,
                                          Connector connector,
@@ -23,7 +26,22 @@ public class JestfulNioHttpsClientResponse extends JestfulNioHttpClientResponse 
 
     @Override
     public boolean load(ByteBuffer buffer) throws IOException {
-        nioSSLChannel.load(buffer);
-        return false;
+        cache.compact();
+        if (cache.remaining() >= buffer.remaining()) {
+            cache.put(buffer);
+        } else {
+            ByteBuffer bigger = ByteBuffer.allocate(cache.remaining() + buffer.remaining());
+            bigger.put(cache);
+            bigger.put(buffer);
+            cache = bigger;
+        }
+        cache.flip();
+        nioSSLChannel.load(cache);
+
+        block.clear();
+        nioSSLChannel.read(block);
+        block.flip();
+
+        return super.load(block);
     }
 }

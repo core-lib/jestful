@@ -41,7 +41,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
     private static NioClient defaultClient;
     private Selector selector;
     private NioCalls calls;
-    private final ByteBuffer buffer = ByteBuffer.allocate(9192);
+    private final ByteBuffer buffer = ByteBuffer.allocate(4096);
     private final long selectTimeout;
     private final TimeoutManager timeoutManager;
     private final SSLContext sslContext;
@@ -162,7 +162,8 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                         buffer.clear();
                         channel.read(buffer);
                         buffer.flip();
-                        if (response.load(buffer)) {
+                        boolean finished = response.load(buffer);
+                        if (finished) {
                             key.cancel();
                             IOKit.close(key.channel());
 

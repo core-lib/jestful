@@ -64,6 +64,10 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
     }
 
     public boolean load(ByteBuffer buffer) throws IOException {
+        return doLoad(buffer);
+    }
+
+    public boolean doLoad(ByteBuffer buffer) throws IOException {
         if (buffer.remaining() == 0) {
             return false;
         }
@@ -78,7 +82,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
                         if (++crlfs == 2) {
                             doReadHeader();
                             crlfs = 0;
-                            return load(buffer);
+                            return doLoad(buffer);
                         }
                         break;
                     case '\r':
@@ -122,7 +126,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
                             return true;
                         }
                         // 递归读取段内容
-                        return load(buffer);
+                        return doLoad(buffer);
                     }
                 }
                 // 来到这里证明真的在 chunk size 的位置被截断了 那么保留下来 等待下次接收的时候再确定 chunk size
@@ -138,7 +142,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
                     // 该段读完 递归下一段
                     if (++position == total) {
                         // 这里会带来一个问题 因为把一个没用的换行符留给到下次程序读chunk size的时候 但是这里又没法保证能读出来这个换行符 因为有可能截断了!!!!
-                        return load(buffer);
+                        return doLoad(buffer);
                     }
                 }
                 // 来到这里证明该段还没读完 等待下一次接收吧
