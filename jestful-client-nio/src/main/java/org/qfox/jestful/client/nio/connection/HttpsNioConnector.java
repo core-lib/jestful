@@ -13,6 +13,7 @@ import java.io.IOException;
 
 /**
  * Created by payne on 2017/4/2.
+ * Version: 1.0
  */
 public class HttpsNioConnector extends HttpsConnector implements NioConnector {
     private final Object lock = new Object();
@@ -31,7 +32,7 @@ public class HttpsNioConnector extends HttpsConnector implements NioConnector {
         return new NioConnection(request, response);
     }
 
-    public SSLContext getDefaultSSLContext() throws IOException {
+    private SSLContext getDefaultSSLContext() throws IOException {
         if (context != null) return context;
         synchronized (lock) {
             if (context != null) return context;

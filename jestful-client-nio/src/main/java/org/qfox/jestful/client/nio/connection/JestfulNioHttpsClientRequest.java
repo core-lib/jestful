@@ -26,7 +26,7 @@ public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
 
     // 数据出站
     @Override
-    public boolean send(ByteBuffer buffer) throws IOException {
+    public boolean copy(ByteBuffer buffer) throws IOException {
         if (head == null) {
             doWriteHeader();
         }

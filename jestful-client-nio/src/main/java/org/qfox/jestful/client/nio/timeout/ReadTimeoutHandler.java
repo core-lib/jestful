@@ -1,6 +1,6 @@
 package org.qfox.jestful.client.nio.timeout;
 
-import org.qfox.jestful.client.nio.NioListener;
+import org.qfox.jestful.client.nio.NioEventListener;
 import org.qfox.jestful.core.Action;
 
 import java.nio.channels.SelectionKey;
@@ -18,7 +18,7 @@ public class ReadTimeoutHandler extends TimeoutHandler {
     public void doInvalid() {
         Action action = (Action) key.attachment();
         key.cancel();
-        NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+        NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
         listener.onException(action, wrapSocketTimeoutException("read timeout"));
     }
 }

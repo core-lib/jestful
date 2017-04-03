@@ -75,7 +75,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
             NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
             timeoutManager.addConnTimeoutHandler(connectableKey, request.getConnTimeout());
         } catch (Exception e) {
-            NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+            NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
             listener.onException(action, e);
             throw new RuntimeException(e);
         }
@@ -135,7 +135,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                             SelectionKey writableKey = channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
                             timeoutManager.addWriteTimeoutHandler(writableKey, request.getWriteTimeout());
 
-                            NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+                            NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                             listener.onConnected(action);
                         }
                     }
@@ -144,16 +144,16 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                         Action action = (Action) key.attachment();
                         NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
                         buffer.clear();
-                        if (request.send(buffer)) {
+                        request.copy(buffer);
+                        buffer.flip();
+                        int n = channel.write(buffer);
+                        if (request.move(n)) {
                             // 请求发送成功后只注册READ把之前的 WRITE | READ 注销掉 开始计算Read Timeout
                             SelectionKey readableKey = channel.register(selector, SelectionKey.OP_READ, action);
                             timeoutManager.addReadTimeoutHandler(readableKey, request.getReadTimeout());
 
-                            NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+                            NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                             listener.onRequested(action);
-                        } else {
-                            buffer.flip();
-                            channel.write(buffer);
                         }
                     }
                     if (key.isReadable()) {
@@ -167,7 +167,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                             key.cancel();
                             IOKit.close(key.channel());
 
-                            NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+                            NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                             listener.onCompleted(action);
                         }
                     }
@@ -178,7 +178,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                     IOKit.close(key.channel());
                     try {
                         Action action = (Action) key.attachment();
-                        NioListener listener = (NioListener) action.getExtra().get(NioListener.class);
+                        NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                         listener.onException(action, e);
                     } catch (RuntimeException re) {
                         logger.warn("", re);
@@ -208,8 +208,8 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         Gateway gateway = this.getGateway();
         SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
-        NioListener listener = new JestfulNioListener();
-        action.getExtra().put(NioListener.class, listener);
+        NioEventListener listener = new JestfulNioListener();
+        action.getExtra().put(NioEventListener.class, listener);
         calls.offer(address, action);
         return null;
     }
@@ -317,7 +317,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         }
     }
 
-    private class JestfulNioListener extends NioAdapter {
+    private class JestfulNioListener extends NioEventAdapter {
 
         @Override
         public void onConnected(Action action) throws Exception {

@@ -5,7 +5,7 @@ import org.qfox.jestful.core.Action;
 /**
  * Created by yangchangpei on 17/3/25.
  */
-public interface NioListener {
+public interface NioEventListener {
 
     void onConnected(Action action) throws Exception;
 
