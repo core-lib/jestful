@@ -41,7 +41,6 @@ public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
 
     @Override
     public boolean move(int n) throws IOException {
-        nioSSLChannel.move(n);
-        return false;
+        return nioSSLChannel.move(n) && head.remaining() == 0 && body.remaining() == 0;
     }
 }

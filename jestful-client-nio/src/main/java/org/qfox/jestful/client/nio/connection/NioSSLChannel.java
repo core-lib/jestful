@@ -14,7 +14,7 @@ public interface NioSSLChannel {
 
     void copy(ByteBuffer buffer) throws IOException;
 
-    void move(int n) throws IOException;
+    boolean move(int n) throws IOException;
 
     void load(ByteBuffer buffer) throws IOException;
 
