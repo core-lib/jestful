@@ -50,7 +50,12 @@ public class JestfulNioSSLChannel implements NioSSLChannel {
 
     @Override
     public boolean move(int n) throws IOException {
-        netOutputBuffer.position(netOutputBuffer.position() + n);
+        int m = Math.min(netOutputBuffer.remaining(), n);
+        netOutputBuffer.position(netOutputBuffer.position() + m);
+        n -= m;
+        if (n > 0) {
+            throw new IOException("illegal call");
+        }
         handshake();
         return appOutputBuffer.remaining() == 0 && netOutputBuffer.remaining() == 0;
     }
