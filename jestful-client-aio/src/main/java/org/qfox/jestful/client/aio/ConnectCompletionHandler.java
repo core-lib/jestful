@@ -19,7 +19,8 @@ public class ConnectCompletionHandler extends AioCompletionHandler<Void> {
         AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
         listener.onConnected(action);
 
-        new WriteCompletionHandler(channel, request.getWriteTimeout()).completed(0, action);
+        new WriteCompletionHandler(channel, request.getWriteTimeout()).completed(-1, action);
+        new ReadCompletionHandler(channel, request.getReadTimeout()).completed(-1, action);
     }
 
 }

@@ -1,6 +1,5 @@
 package org.qfox.jestful.client.aio;
 
-import org.qfox.jestful.client.aio.connection.JestfulAioHttpClientRequest;
 import org.qfox.jestful.core.Action;
 
 import java.nio.ByteBuffer;
@@ -22,11 +21,9 @@ public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
     public void onCompleted(Integer count, Action action) throws Exception {
         AioRequest request = (AioRequest) action.getExtra().get(AioRequest.class);
         buffer.clear();
-        if (request.move(count)) {
+        if (count != -1 && request.move(count)) {
             AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
             listener.onRequested(action);
-
-            new ReadCompletionHandler(channel, request.getReadTimeout()).completed(0, action);
         } else {
             long timeAvailable = toTimeAvailable();
             if (timeAvailable <= 0) throw new InterruptedByTimeoutException();

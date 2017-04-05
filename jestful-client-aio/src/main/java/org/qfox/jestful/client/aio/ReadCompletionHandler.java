@@ -22,7 +22,7 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
     public void onCompleted(Integer count, Action action) throws Exception {
         AioResponse response = (AioResponse) action.getExtra().get(AioResponse.class);
         buffer.flip();
-        if (response.load(buffer)) {
+        if (count != -1 && response.load(buffer)) {
             AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
             listener.onCompleted(action);
 

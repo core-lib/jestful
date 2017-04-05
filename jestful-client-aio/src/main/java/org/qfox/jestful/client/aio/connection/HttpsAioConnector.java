@@ -26,9 +26,9 @@ public class HttpsAioConnector extends HttpsConnector implements AioConnector {
         SSLEngine engine = sslContext.createSSLEngine();
         engine.setUseClientMode(true);
         engine.beginHandshake();
-        AioSSLChannel nioSSLChannel = new JestfulAioSSLChannel(engine);
-        AioRequest request = new JestfulAioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), nioSSLChannel);
-        AioResponse response = new JestfulAioHttpsClientResponse(action, this, gateway, nioSSLChannel);
+        AioSSLChannel aioSSLChannel = new JestfulAioSSLChannel(engine);
+        AioRequest request = new JestfulAioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), aioSSLChannel);
+        AioResponse response = new JestfulAioHttpsClientResponse(action, this, gateway, aioSSLChannel);
         return new AioConnection(request, response);
     }
 
