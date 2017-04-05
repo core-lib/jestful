@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.nio.connection;
+package org.qfox.jestful.client.aio.connection;
 
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
@@ -11,17 +11,17 @@ import java.nio.ByteBuffer;
  * Created by payne on 2017/4/1.
  * Version: 1.0
  */
-public class JestfulNioHttpsClientResponse extends JestfulNioHttpClientResponse {
-    private final NioSSLChannel nioSSLChannel;
+public class JestfulAioHttpsClientResponse extends JestfulAioHttpClientResponse {
+    private final AioSSLChannel aioSSLChannel;
     private ByteBuffer cache = ByteBuffer.allocate(0);
     private ByteBuffer block = ByteBuffer.allocate(4096);
 
-    protected JestfulNioHttpsClientResponse(Action action,
+    protected JestfulAioHttpsClientResponse(Action action,
                                          Connector connector,
                                          Gateway gateway,
-                                         NioSSLChannel nioSSLChannel) {
+                                         AioSSLChannel aioSSLChannel) {
         super(action, connector, gateway);
-        this.nioSSLChannel = nioSSLChannel;
+        this.aioSSLChannel = aioSSLChannel;
     }
 
     @Override
@@ -36,10 +36,10 @@ public class JestfulNioHttpsClientResponse extends JestfulNioHttpClientResponse 
             cache = bigger;
         }
         cache.flip();
-        nioSSLChannel.load(cache);
+        aioSSLChannel.load(cache);
 
         block.clear();
-        nioSSLChannel.read(block);
+        aioSSLChannel.read(block);
         block.flip();
 
         return super.load(block);

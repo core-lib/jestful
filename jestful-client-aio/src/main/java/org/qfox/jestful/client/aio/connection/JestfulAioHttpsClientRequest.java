@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.nio.connection;
+package org.qfox.jestful.client.aio.connection;
 
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
@@ -11,18 +11,18 @@ import java.nio.ByteBuffer;
  * Created by payne on 2017/4/1.
  * Version: 1.0
  */
-public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
-    private final NioSSLChannel nioSSLChannel;
+public class JestfulAioHttpsClientRequest extends JestfulAioHttpClientRequest {
+    private final AioSSLChannel aioSSLChannel;
 
-    protected JestfulNioHttpsClientRequest(Action action,
+    protected JestfulAioHttpsClientRequest(Action action,
                                         Connector connector,
                                         Gateway gateway,
                                         int connTimeout,
                                         int readTimeout,
                                         int writeTimeout,
-                                        NioSSLChannel nioSSLChannel) {
+                                        AioSSLChannel aioSSLChannel) {
         super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
-        this.nioSSLChannel = nioSSLChannel;
+        this.aioSSLChannel = aioSSLChannel;
     }
 
     // 数据出站
@@ -32,15 +32,15 @@ public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
             doWriteHeader();
         }
 
-        nioSSLChannel.write(head);
-        nioSSLChannel.write(body);
+        aioSSLChannel.write(head);
+        aioSSLChannel.write(body);
 
-        nioSSLChannel.copy(buffer);
+        aioSSLChannel.copy(buffer);
     }
 
 
     @Override
     public boolean move(int n) throws IOException {
-        return nioSSLChannel.move(n) && head.remaining() == 0 && body.remaining() == 0;
+        return aioSSLChannel.move(n) && head.remaining() == 0 && body.remaining() == 0;
     }
 }

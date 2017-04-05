@@ -12,6 +12,7 @@ import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,12 +33,14 @@ public class AioClient extends Client implements AioConnector {
 
     private final ExecutorService executor;
     private final AsynchronousChannelGroup aioChannelGroup;
+    private final SSLContext sslContext;
 
     private AioClient(Builder<?> builder) {
         super(builder);
         try {
             this.executor = builder.concurrent > 0 ? Executors.newFixedThreadPool(builder.concurrent) : Executors.newCachedThreadPool();
             this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(executor);
+            this.sslContext = builder.sslContext;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -109,6 +112,7 @@ public class AioClient extends Client implements AioConnector {
 
     public static class Builder<T extends Builder<T>> extends org.qfox.jestful.client.Client.Builder<T> {
         private int concurrent = Runtime.getRuntime().availableProcessors() * 2;
+        private SSLContext sslContext;
 
         public Builder() {
             this.setConnTimeout(20 * 1000);
@@ -146,6 +150,14 @@ public class AioClient extends Client implements AioConnector {
                 throw new IllegalArgumentException("concurrent can not be negative");
             }
             this.concurrent = concurrent;
+            return (T) this;
+        }
+
+        public T setSslContext(SSLContext sslContext) {
+            this.sslContext = sslContext;
+            if (sslContext == null) {
+                throw new IllegalArgumentException("SSLContext can not be null");
+            }
             return (T) this;
         }
     }
@@ -231,4 +243,7 @@ public class AioClient extends Client implements AioConnector {
         }
     }
 
+    public SSLContext getSslContext() {
+        return sslContext;
+    }
 }
