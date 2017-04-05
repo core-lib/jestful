@@ -15,8 +15,8 @@ public abstract class TimeoutHandler implements Comparable<TimeoutHandler> {
         this.timeExpired = System.currentTimeMillis() + timeout;
     }
 
-    public boolean isValid() {
-        return key.isValid();
+    public boolean isChanged() {
+        return !key.isValid();
     }
 
     public boolean isTimeout(long time) {

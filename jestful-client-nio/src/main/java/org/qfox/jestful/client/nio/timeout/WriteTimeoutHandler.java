@@ -15,8 +15,8 @@ public class WriteTimeoutHandler extends TimeoutHandler {
     }
 
     @Override
-    public boolean isValid() {
-        return super.isValid() && (key.interestOps() & SelectionKey.OP_WRITE) != 0;
+    public boolean isChanged() {
+        return super.isChanged() && (key.interestOps() & SelectionKey.OP_WRITE) == 0;
     }
 
     @Override

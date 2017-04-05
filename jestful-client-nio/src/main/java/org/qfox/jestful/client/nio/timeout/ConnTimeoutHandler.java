@@ -15,8 +15,8 @@ public class ConnTimeoutHandler extends TimeoutHandler {
     }
 
     @Override
-    public boolean isValid() {
-        return super.isValid() && (key.interestOps() & SelectionKey.OP_CONNECT) != 0;
+    public boolean isChanged() {
+        return super.isChanged() || (key.interestOps() & SelectionKey.OP_CONNECT) == 0;
     }
 
     @Override

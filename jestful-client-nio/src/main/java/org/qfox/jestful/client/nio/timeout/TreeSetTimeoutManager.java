@@ -36,7 +36,7 @@ public class TreeSetTimeoutManager implements TimeoutManager {
         Iterator<TimeoutHandler> iterator = handlers.iterator();
         while (iterator.hasNext()) {
             TimeoutHandler handler = iterator.next();
-            if (!handler.isValid()) {
+            if (handler.isChanged()) {
                 iterator.remove();
             } else if (handler.isTimeout(time)) {
                 iterator.remove();
