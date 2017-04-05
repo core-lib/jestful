@@ -130,6 +130,10 @@ public class JestfulAioClientRequest extends JestfulClientRequest implements Aio
 
     @Override
     public boolean move(int n) throws IOException {
+        if (head == null) {
+            doWriteHeader();
+        }
+
         {
             int m = Math.min(n, head.remaining());
             head.position(head.position() + m);

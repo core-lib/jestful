@@ -20,17 +20,17 @@ public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
     @Override
     public void onCompleted(Integer count, Action action) throws Exception {
         JestfulAioClientRequest request = (JestfulAioClientRequest) action.getExtra().get(JestfulAioClientRequest.class);
-        boolean finished = request.move(count);
-        if (finished) {
+        buffer.clear();
+        if (request.move(count)) {
             AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
             listener.onRequested(action);
 
             new ReadCompletionHandler(channel, request.getReadTimeout()).completed(0, action);
         } else {
-            buffer.clear();
             long timeAvailable = toTimeAvailable();
             if (timeAvailable <= 0) throw new InterruptedByTimeoutException();
 
+            request.copy(buffer);
             buffer.flip();
             channel.write(buffer, timeAvailable, TimeUnit.MILLISECONDS, action, this);
         }
