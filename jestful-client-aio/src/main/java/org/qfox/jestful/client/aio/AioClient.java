@@ -1,7 +1,10 @@
 package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.aio.connection.AioConnection;
+import org.qfox.jestful.client.aio.connection.AioConnector;
 import org.qfox.jestful.client.aio.scheduler.AioScheduler;
+import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
@@ -24,7 +27,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by yangchangpei on 17/3/29.
  */
-public class AioClient extends Client {
+public class AioClient extends Client implements AioConnector {
     private static AioClient defaultClient;
 
     private final ExecutorService executor;
@@ -69,6 +72,23 @@ public class AioClient extends Client {
         Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
         String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
         return new JestfulAioInvocationHandler<T>(interfase, protocol, host, port, route, this).getProxy();
+    }
+
+    @Override
+    public AioConnection aioConnect(Action action, Gateway gateway, AioClient client) throws IOException {
+        AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
+        if (connection != null) {
+            return connection;
+        }
+        for (Connector connector : connectors.values()) {
+            if (connector.supports(action) && connector instanceof AioConnection) {
+                AioConnector aioConnector = (AioConnector) connector;
+                connection = aioConnector.aioConnect(action, gateway, this);
+                action.getExtra().put(AioConnection.class, connection);
+                return connection;
+            }
+        }
+        throw new IOException("unsupported protocol " + action.getProtocol());
     }
 
     public static AioClient getDefaultClient() {

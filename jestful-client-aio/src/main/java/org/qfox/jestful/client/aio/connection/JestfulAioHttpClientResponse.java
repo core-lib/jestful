@@ -1,6 +1,8 @@
-package org.qfox.jestful.client.aio;
+package org.qfox.jestful.client.aio.connection;
 
 import org.qfox.jestful.client.JestfulClientResponse;
+import org.qfox.jestful.client.aio.AioByteArrayOutputStream;
+import org.qfox.jestful.client.aio.AioResponse;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.commons.IOKit;
@@ -13,7 +15,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by yangchangpei on 17/3/25.
  */
-public class JestfulAioClientResponse extends JestfulClientResponse implements AioResponse {
+public class JestfulAioHttpClientResponse extends JestfulClientResponse implements AioResponse {
     private AioByteArrayOutputStream head = new AioByteArrayOutputStream();
     private AioByteArrayOutputStream body = new AioByteArrayOutputStream();
 
@@ -29,7 +31,7 @@ public class JestfulAioClientResponse extends JestfulClientResponse implements A
     private final Object lock = new Object();
     private boolean closed;
 
-    protected JestfulAioClientResponse(Action action, Connector connector, Gateway gateway) {
+    protected JestfulAioHttpClientResponse(Action action, Connector connector, Gateway gateway) {
         super(action, connector, gateway);
     }
 

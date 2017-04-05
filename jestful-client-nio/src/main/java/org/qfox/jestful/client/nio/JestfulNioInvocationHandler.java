@@ -11,11 +11,9 @@ import java.lang.reflect.Type;
  * Created by yangchangpei on 17/3/23.
  */
 public class JestfulNioInvocationHandler<T> extends JestfulInvocationHandler<T> {
-    private NioClient nioClient;
 
     protected JestfulNioInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, NioClient client) {
         super(interfase, protocol, host, port, route, client);
-        this.nioClient = client;
     }
 
     @Override
@@ -36,12 +34,14 @@ public class JestfulNioInvocationHandler<T> extends JestfulInvocationHandler<T> 
     }
 
     protected Request newRequest(Action action) throws Exception {
+        NioClient nioClient = (NioClient) client;
         NioRequest request = nioClient.nioConnect(action, nioClient.getGateway(), nioClient).getRequest();
         action.getExtra().put(NioRequest.class, request);
         return request;
     }
 
     protected Response newResponse(Action action) throws Exception {
+        NioClient nioClient = (NioClient) client;
         NioResponse response = nioClient.nioConnect(action, nioClient.getGateway(), nioClient).getResponse();
         action.getExtra().put(NioResponse.class, response);
         return response;

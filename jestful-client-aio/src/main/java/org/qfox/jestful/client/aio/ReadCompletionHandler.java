@@ -20,7 +20,7 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
 
     @Override
     public void onCompleted(Integer count, Action action) throws Exception {
-        JestfulAioClientResponse response = (JestfulAioClientResponse) action.getExtra().get(JestfulAioClientResponse.class);
+        AioResponse response = (AioResponse) action.getExtra().get(AioResponse.class);
         buffer.flip();
         if (response.load(buffer)) {
             AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);

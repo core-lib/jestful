@@ -1,6 +1,8 @@
-package org.qfox.jestful.client.aio;
+package org.qfox.jestful.client.aio.connection;
 
 import org.qfox.jestful.client.JestfulClientRequest;
+import org.qfox.jestful.client.aio.AioByteArrayOutputStream;
+import org.qfox.jestful.client.aio.AioRequest;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.commons.IOKit;
@@ -14,7 +16,7 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/3/24.
  */
-public class JestfulAioClientRequest extends JestfulClientRequest implements AioRequest {
+public class JestfulAioHttpClientRequest extends JestfulClientRequest implements AioRequest {
     private final Object lock = new Object();
     private final String protocol = "HTTP/1.1";
 
@@ -26,7 +28,7 @@ public class JestfulAioClientRequest extends JestfulClientRequest implements Aio
     private ByteBuffer head;
     private ByteBuffer body;
 
-    protected JestfulAioClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
+    protected JestfulAioHttpClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
         super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
     }
 

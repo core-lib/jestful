@@ -1,5 +1,6 @@
 package org.qfox.jestful.client.aio;
 
+import org.qfox.jestful.client.aio.connection.JestfulAioHttpClientRequest;
 import org.qfox.jestful.core.Action;
 
 import java.nio.ByteBuffer;
@@ -19,7 +20,7 @@ public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
 
     @Override
     public void onCompleted(Integer count, Action action) throws Exception {
-        JestfulAioClientRequest request = (JestfulAioClientRequest) action.getExtra().get(JestfulAioClientRequest.class);
+        AioRequest request = (AioRequest) action.getExtra().get(AioRequest.class);
         buffer.clear();
         if (request.move(count)) {
             AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);

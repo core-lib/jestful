@@ -1,6 +1,8 @@
 package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.JestfulInvocationHandler;
+import org.qfox.jestful.client.aio.connection.JestfulAioHttpClientRequest;
+import org.qfox.jestful.client.aio.connection.JestfulAioHttpClientResponse;
 import org.qfox.jestful.client.aio.scheduler.AioScheduler;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.core.*;
@@ -33,15 +35,17 @@ public class JestfulAioInvocationHandler<T> extends JestfulInvocationHandler<T> 
         throw new UnsupportedOperationException();
     }
 
-    protected Request newRequest(Action action) {
-        Request request = new JestfulAioClientRequest(action, client, client.getGateway(), client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout());
-        action.getExtra().put(JestfulAioClientRequest.class, request);
+    protected Request newRequest(Action action) throws Exception {
+        AioClient aioClient = (AioClient) client;
+        AioRequest request = aioClient.aioConnect(action, aioClient.getGateway(), aioClient).getRequest();
+        action.getExtra().put(AioRequest.class, request);
         return request;
     }
 
-    protected Response newResponse(Action action) {
-        Response response = new JestfulAioClientResponse(action, client, client.getGateway());
-        action.getExtra().put(JestfulAioClientResponse.class, response);
+    protected Response newResponse(Action action) throws Exception {
+        AioClient aioClient = (AioClient) client;
+        AioResponse response = aioClient.aioConnect(action, aioClient.getGateway(), aioClient).getResponse();
+        action.getExtra().put(AioResponse.class, response);
         return response;
     }
 
