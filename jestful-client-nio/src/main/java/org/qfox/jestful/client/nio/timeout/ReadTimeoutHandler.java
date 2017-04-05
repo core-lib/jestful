@@ -15,14 +15,14 @@ public class ReadTimeoutHandler extends TimeoutHandler {
     }
 
     @Override
-    public boolean isInvalid() {
-        return (key.interestOps() & SelectionKey.OP_READ) != 0;
+    public boolean isValid() {
+        return super.isValid() && (key.interestOps() & SelectionKey.OP_READ) != 0;
     }
 
     @Override
     public void doTimeout() {
+        super.doTimeout();
         Action action = (Action) key.attachment();
-        key.cancel();
         NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
         listener.onException(action, toTimeoutException("read timeout"));
     }

@@ -8,20 +8,24 @@ import java.nio.channels.SelectionKey;
  */
 public abstract class TimeoutHandler implements Comparable<TimeoutHandler> {
     protected final SelectionKey key;
-    protected final long timeInvalid;
+    protected final long timeExpired;
 
     protected TimeoutHandler(SelectionKey key, long timeout) {
         this.key = key;
-        this.timeInvalid = System.currentTimeMillis() + timeout;
+        this.timeExpired = System.currentTimeMillis() + timeout;
     }
 
-    public abstract boolean isInvalid();
+    public boolean isValid() {
+        return key.isValid();
+    }
 
     public boolean isTimeout(long time) {
-        return time > timeInvalid;
+        return time > timeExpired;
     }
 
-    public abstract void doTimeout();
+    public void doTimeout() {
+        key.cancel();
+    }
 
     protected SocketTimeoutException toTimeoutException(String message) {
         try {
@@ -33,6 +37,6 @@ public abstract class TimeoutHandler implements Comparable<TimeoutHandler> {
 
     @Override
     public int compareTo(TimeoutHandler o) {
-        return timeInvalid < o.timeInvalid ? -1 : 1;
+        return timeExpired < o.timeExpired ? -1 : 1;
     }
 }

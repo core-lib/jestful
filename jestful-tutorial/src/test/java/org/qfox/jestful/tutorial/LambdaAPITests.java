@@ -51,7 +51,7 @@ public class LambdaAPITests {
     @Test
     public void testNioParameterTypeVariable() throws Exception {
         Lock lock = new SimpleLock();
-        LambdaAPI lambdaAPI = NioClient.builder().setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
+        LambdaAPI lambdaAPI = NioClient.builder().setReadTimeout(10 * 1000).setHost("localhost").setPort(8080).build().create(LambdaAPI.class);
         lambdaAPI.callWithParameterTypeVariable("add",
                 System.out::println,
                 Throwable::printStackTrace,
