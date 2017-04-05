@@ -7,4 +7,7 @@
     <bean class="org.qfox.jestful.client.aio.scheduler.LambdaAioScheduler"/>
     <bean class="org.qfox.jestful.client.aio.scheduler.FutureAioScheduler"/>
 
+    <bean class="org.qfox.jestful.client.aio.connection.HttpAioConnector"/>
+    <bean class="org.qfox.jestful.client.aio.connection.HttpsAioConnector"/>
+
 </beans>
