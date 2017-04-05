@@ -42,7 +42,7 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
     }
 
     public void onFailed(Exception exception, Action action) {
-        AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
+        AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
         listener.onException(action, exception);
         if (channel.isOpen()) IOKit.close(channel);
     }

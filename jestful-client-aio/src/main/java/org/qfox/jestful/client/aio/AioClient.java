@@ -48,8 +48,8 @@ public class AioClient extends Client {
         Gateway gateway = this.getGateway();
         SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
-        AioListener listener = new JestfulAioListener();
-        action.getExtra().put(AioListener.class, listener);
+        AioEventListener listener = new JestfulAioEventListener();
+        action.getExtra().put(AioEventListener.class, listener);
         AsynchronousSocketChannel channel = AsynchronousSocketChannel.open(aioChannelGroup);
         channel.connect(address, action, new ConnectCompletionHandler(channel));
         return null;
@@ -130,7 +130,7 @@ public class AioClient extends Client {
         }
     }
 
-    private class JestfulAioListener extends AioAdapter {
+    private class JestfulAioEventListener extends AioEventAdapter {
         @Override
         public void onConnected(Action action) throws Exception {
             Request request = action.getRequest();

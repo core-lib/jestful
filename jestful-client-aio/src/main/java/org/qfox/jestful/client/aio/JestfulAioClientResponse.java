@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.aio;
 
-import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.JestfulClientResponse;
+import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
 /**
  * Created by yangchangpei on 17/3/25.
  */
-public class JestfulAioClientResponse extends JestfulClientResponse {
+public class JestfulAioClientResponse extends JestfulClientResponse implements AioResponse {
     private AioByteArrayOutputStream head = new AioByteArrayOutputStream();
     private AioByteArrayOutputStream body = new AioByteArrayOutputStream();
 
@@ -61,7 +61,12 @@ public class JestfulAioClientResponse extends JestfulClientResponse {
         }
     }
 
-    public boolean receive(ByteBuffer buffer) throws IOException {
+    @Override
+    public boolean load(ByteBuffer buffer) throws IOException {
+        return doLoad(buffer);
+    }
+
+    private boolean doLoad(ByteBuffer buffer) throws IOException {
         if (buffer.remaining() == 0) {
             return false;
         }
@@ -76,7 +81,7 @@ public class JestfulAioClientResponse extends JestfulClientResponse {
                         if (++crlfs == 2) {
                             doReadHeader();
                             crlfs = 0;
-                            return receive(buffer);
+                            return doLoad(buffer);
                         }
                         break;
                     case '\r':
@@ -120,7 +125,7 @@ public class JestfulAioClientResponse extends JestfulClientResponse {
                             return true;
                         }
                         // 递归读取段内容
-                        return receive(buffer);
+                        return doLoad(buffer);
                     }
                 }
                 // 来到这里证明真的在 chunk size 的位置被截断了 那么保留下来 等待下次接收的时候再确定 chunk size
@@ -136,7 +141,7 @@ public class JestfulAioClientResponse extends JestfulClientResponse {
                     // 该段读完 递归下一段
                     if (++position == total) {
                         // 这里会带来一个问题 因为把一个没用的换行符留给到下次程序读chunk size的时候 但是这里又没法保证能读出来这个换行符 因为有可能截断了!!!!
-                        return receive(buffer);
+                        return doLoad(buffer);
                     }
                 }
                 // 来到这里证明该段还没读完 等待下一次接收吧

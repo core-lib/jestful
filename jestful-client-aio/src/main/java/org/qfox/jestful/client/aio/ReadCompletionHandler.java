@@ -22,8 +22,8 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
     public void onCompleted(Integer count, Action action) throws Exception {
         JestfulAioClientResponse response = (JestfulAioClientResponse) action.getExtra().get(JestfulAioClientResponse.class);
         buffer.flip();
-        if (response.receive(buffer)) {
-            AioListener listener = (AioListener) action.getExtra().get(AioListener.class);
+        if (response.load(buffer)) {
+            AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
             listener.onCompleted(action);
 
             IOKit.close(channel);

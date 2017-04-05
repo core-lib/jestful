@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.aio;
 
-import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.JestfulClientRequest;
+import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/3/24.
  */
-public class JestfulAioClientRequest extends JestfulClientRequest {
+public class JestfulAioClientRequest extends JestfulClientRequest implements AioRequest {
     private final Object lock = new Object();
     private final String protocol = "HTTP/1.1";
 
@@ -108,23 +108,42 @@ public class JestfulAioClientRequest extends JestfulClientRequest {
         head = baos.toByteBuffer();
     }
 
-    public boolean send(ByteBuffer buffer) throws IOException {
+    @Override
+    public void copy(ByteBuffer buffer) throws IOException {
         if (head == null) {
             doWriteHeader();
         }
 
         if (head.remaining() == 0 && body.remaining() == 0) {
-            return true;
+            return;
         }
 
-        while (buffer.hasRemaining() && head.hasRemaining()) {
-            buffer.put(head.get());
+        {
+            int n = Math.min(head.remaining(), buffer.remaining());
+            buffer.put(head.array(), head.position(), n);
         }
-        while (buffer.hasRemaining() && body.hasRemaining()) {
-            buffer.put(body.get());
+        {
+            int n = Math.min(body.remaining(), buffer.remaining());
+            buffer.put(body.array(), body.position(), n);
         }
+    }
 
-        return false;
+    @Override
+    public boolean move(int n) throws IOException {
+        {
+            int m = Math.min(n, head.remaining());
+            head.position(head.position() + m);
+            n -= m;
+        }
+        {
+            int m = Math.min(n, body.remaining());
+            body.position(body.position() + m);
+            n -= m;
+        }
+        if (n > 0) {
+            throw new IOException("illegal call");
+        }
+        return head.remaining() == 0 && body.remaining() == 0;
     }
 
     @Override
