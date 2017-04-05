@@ -84,7 +84,12 @@ public class NIOSSLClient {
                     // 1. 建立连接
                     if (channel.isConnectionPending() && channel.finishConnect()) {
                         // 2. 建立成功后注册读写事件
+                        System.out.println((key.interestOps() & SelectionKey.OP_CONNECT) != 0);
                         channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ);
+                        System.out.println((key.interestOps() & SelectionKey.OP_CONNECT) != 0);
+                        System.out.println((key.interestOps() & SelectionKey.OP_WRITE) != 0);
+                        System.out.println((key.interestOps() & SelectionKey.OP_READ) != 0);
+
                         // 3. 申请SSL握手
                         sslEngine.beginHandshake();
                         doHandshake();

@@ -70,9 +70,9 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
             SocketChannel channel = SocketChannel.open();
             channel.configureBlocking(false);
             channel.connect(address);
-            SelectionKey connectableKey = channel.register(selector, SelectionKey.OP_CONNECT, action);
+            SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT, action);
             NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
-            timeoutManager.addConnTimeoutHandler(connectableKey, request.getConnTimeout());
+            timeoutManager.addConnTimeoutHandler(key, request.getConnTimeout());
         } catch (Exception e) {
             NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
             listener.onException(action, e);
@@ -131,8 +131,8 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                         NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
                         if (channel.isConnectionPending() && channel.finishConnect()) {
                             // 本来HTTP 模式情况下这里只需要注册WRITE即可 但是为了适配SSL模式的握手过程的握手数据读写 这里必须注册成WRITE | READ 但是只计算Write Timeout
-                            SelectionKey writableKey = channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
-                            timeoutManager.addWriteTimeoutHandler(writableKey, request.getWriteTimeout());
+                            channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
+                            timeoutManager.addWriteTimeoutHandler(key, request.getWriteTimeout());
 
                             NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                             listener.onConnected(action);
@@ -148,8 +148,8 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                         int n = channel.write(buffer);
                         if (request.move(n)) {
                             // 请求发送成功后只注册READ把之前的 WRITE | READ 注销掉 开始计算Read Timeout
-                            SelectionKey readableKey = channel.register(selector, SelectionKey.OP_READ, action);
-                            timeoutManager.addReadTimeoutHandler(readableKey, request.getReadTimeout());
+                            channel.register(selector, SelectionKey.OP_READ, action);
+                            timeoutManager.addReadTimeoutHandler(key, request.getReadTimeout());
 
                             NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                             listener.onRequested(action);

@@ -15,26 +15,20 @@ public abstract class TimeoutHandler implements Comparable<TimeoutHandler> {
         this.timeInvalid = System.currentTimeMillis() + timeout;
     }
 
-    public boolean isInvalid(long time) {
+    public abstract boolean isInvalid();
+
+    public boolean isTimeout(long time) {
         return time > timeInvalid;
     }
 
-    protected SocketTimeoutException wrapSocketTimeoutException(String msg) {
+    public abstract void doTimeout();
+
+    protected SocketTimeoutException toTimeoutException(String message) {
         try {
-            throw msg == null ? new SocketTimeoutException() : new SocketTimeoutException(msg);
-        } catch (SocketTimeoutException ste) {
-            return ste;
+            throw message == null ? new SocketTimeoutException() : new SocketTimeoutException(message);
+        } catch (SocketTimeoutException socketTimeoutException) {
+            return socketTimeoutException;
         }
-    }
-
-    public abstract void doInvalid();
-
-    public SelectionKey getKey() {
-        return key;
-    }
-
-    public long getTimeInvalid() {
-        return timeInvalid;
     }
 
     @Override
