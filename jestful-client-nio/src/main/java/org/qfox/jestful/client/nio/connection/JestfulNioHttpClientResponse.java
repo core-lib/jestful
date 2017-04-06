@@ -24,6 +24,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
     private int total;
     private int position;
     private ByteBuffer last;
+    private boolean loaded;
 
     private Status status = new Status(200, "OK");
     private InputStream in;
@@ -68,10 +69,6 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
     }
 
     public boolean doLoad(ByteBuffer buffer) throws IOException {
-        if (buffer.remaining() == 0) {
-            return false;
-        }
-
         // 协议头还没读完
         if (chunked == null) {
             while (buffer.hasRemaining()) {
@@ -123,7 +120,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
                         position = 0;
                         crlfs = 0;
                         if (total == 0) {
-                            return true;
+                            return loaded = true;
                         }
                         // 递归读取段内容
                         return doLoad(buffer);
@@ -132,7 +129,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
                 // 来到这里证明真的在 chunk size 的位置被截断了 那么保留下来 等待下次接收的时候再确定 chunk size
                 crlfs = 0;
                 last = cache.toByteBuffer();
-                return false;
+                return loaded = false;
             }
             // 已经确定了该段的长度 现在读取该段的内容
             else {
@@ -146,7 +143,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
                     }
                 }
                 // 来到这里证明该段还没读完 等待下一次接收吧
-                return false;
+                return loaded = false;
             }
         }
         // Transfer-Encoding != chunked
@@ -155,12 +152,12 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
                 byte b = buffer.get();
                 body.write(b);
                 if (++position == total) {
-                    return true;
+                    return loaded = true;
                 }
             }
         }
 
-        return chunked != null && position == total;
+        return loaded = (chunked != null && position == total);
     }
 
     @Override
