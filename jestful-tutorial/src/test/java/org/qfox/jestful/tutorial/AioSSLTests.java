@@ -15,7 +15,7 @@ import java.net.URL;
  * Version: 1.0
  */
 public class AioSSLTests {
-    ProxyAPI proxyAPI = AioClient.builder().setConnTimeout(1000 * 1000).setEndpoint(new URL("https://merchant.qfoxy.com/v4/login")).build().create(ProxyAPI.class);
+    ProxyAPI proxyAPI = AioClient.builder().setConnTimeout(1000 * 1000).setEndpoint(new URL("https://merchant.qfoxy.com/index.jsp")).build().create(ProxyAPI.class);
 
     public AioSSLTests() throws MalformedURLException {
     }
@@ -27,7 +27,11 @@ public class AioSSLTests {
         proxyAPI.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {
-                lock.openAll();
+                try {
+                    test();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

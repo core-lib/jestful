@@ -99,4 +99,9 @@ public class JestfulNioSSLChannel implements NioSSLChannel {
         }
     }
 
+    @Override
+    public void close() throws IOException {
+        sslEngine.closeOutbound();
+        sslEngine.closeInbound();
+    }
 }

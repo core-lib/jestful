@@ -1,12 +1,13 @@
 package org.qfox.jestful.client.aio.connection;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
  * Created by yangchangpei on 17/4/2.
  */
-public interface AioSSLChannel {
+public interface AioSSLChannel extends Closeable {
 
     void write(ByteBuffer buffer) throws IOException;
 

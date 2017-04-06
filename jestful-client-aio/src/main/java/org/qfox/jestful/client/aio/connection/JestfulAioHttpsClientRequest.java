@@ -2,6 +2,7 @@ package org.qfox.jestful.client.aio.connection;
 
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 
 import java.io.IOException;
@@ -42,5 +43,11 @@ public class JestfulAioHttpsClientRequest extends JestfulAioHttpClientRequest {
     @Override
     public boolean move(int n) throws IOException {
         return aioSSLChannel.move(n) && head.remaining() == 0 && body.remaining() == 0;
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+        IOKit.close(aioSSLChannel);
     }
 }
