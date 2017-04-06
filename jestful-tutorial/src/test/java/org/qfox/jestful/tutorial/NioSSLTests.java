@@ -14,7 +14,7 @@ import java.net.URL;
  * Version: 1.0
  */
 public class NioSSLTests {
-    ProxyAPI proxyAPI = NioClient.builder().setConnTimeout(1000 * 1000).setEndpoint(new URL("https://merchant.qfoxy.com/index.jsp")).build().create(ProxyAPI.class);
+    ProxyAPI proxyAPI = NioClient.builder().setConnTimeout(1000 * 1000).setEndpoint(new URL("https://merchant.qfoxy.com/v4/login")).build().create(ProxyAPI.class);
 
     public NioSSLTests() throws MalformedURLException {
     }

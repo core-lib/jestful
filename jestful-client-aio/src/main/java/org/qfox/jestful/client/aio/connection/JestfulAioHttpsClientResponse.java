@@ -14,7 +14,6 @@ import java.nio.ByteBuffer;
  */
 public class JestfulAioHttpsClientResponse extends JestfulAioHttpClientResponse {
     private final AioSSLChannel aioSSLChannel;
-    private ByteBuffer cache = ByteBuffer.allocate(0);
     private ByteBuffer block = ByteBuffer.allocate(4096);
 
     protected JestfulAioHttpsClientResponse(Action action,
@@ -27,17 +26,7 @@ public class JestfulAioHttpsClientResponse extends JestfulAioHttpClientResponse 
 
     @Override
     public boolean load(ByteBuffer buffer) throws IOException {
-        cache.compact();
-        if (cache.remaining() >= buffer.remaining()) {
-            cache.put(buffer);
-        } else {
-            ByteBuffer bigger = ByteBuffer.allocate(cache.remaining() + buffer.remaining());
-            bigger.put(cache);
-            bigger.put(buffer);
-            cache = bigger;
-        }
-        cache.flip();
-        aioSSLChannel.load(cache);
+        aioSSLChannel.load(buffer);
 
         block.clear();
         aioSSLChannel.read(block);
