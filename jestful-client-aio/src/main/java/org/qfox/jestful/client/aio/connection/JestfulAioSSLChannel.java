@@ -31,25 +31,25 @@ public class JestfulAioSSLChannel implements AioSSLChannel {
     }
 
     @Override
-    public void write(ByteBuffer buffer) throws IOException {
+    public synchronized void write(ByteBuffer buffer) throws IOException {
         appOutputBuffer.compact();
         while (appOutputBuffer.hasRemaining() && buffer.hasRemaining()) appOutputBuffer.put(buffer.get());
         appOutputBuffer.flip();
     }
 
     @Override
-    public void read(ByteBuffer buffer) throws IOException {
+    public synchronized void read(ByteBuffer buffer) throws IOException {
         while (appInputBuffer.hasRemaining() && buffer.hasRemaining()) buffer.put(appInputBuffer.get());
     }
 
     @Override
-    public void copy(ByteBuffer buffer) throws IOException {
+    public synchronized void copy(ByteBuffer buffer) throws IOException {
         int n = Math.min(netOutputBuffer.remaining(), buffer.remaining());
         buffer.put(netOutputBuffer.array(), netOutputBuffer.position(), n);
     }
 
     @Override
-    public boolean move(int n) throws IOException {
+    public synchronized boolean move(int n) throws IOException {
         int m = Math.min(netOutputBuffer.remaining(), n);
         netOutputBuffer.position(netOutputBuffer.position() + m);
         n -= m;
@@ -61,14 +61,14 @@ public class JestfulAioSSLChannel implements AioSSLChannel {
     }
 
     @Override
-    public void load(ByteBuffer buffer) throws IOException {
+    public synchronized void load(ByteBuffer buffer) throws IOException {
         netInputBuffer.compact();
         while (netInputBuffer.hasRemaining() && buffer.hasRemaining()) netInputBuffer.put(buffer.get());
         netInputBuffer.flip();
         handshake();
     }
 
-    private void handshake() throws IOException {
+    private synchronized void handshake() throws IOException {
         SSLEngineResult.HandshakeStatus status = sslEngine.getHandshakeStatus();
         switch (status) {
             case NOT_HANDSHAKING:
