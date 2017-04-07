@@ -11,11 +11,12 @@ public class Redirection301Catcher implements Catcher {
 
     @Override
     public boolean catchable(StatusException statusException) {
-        return false;
+        return statusException.getStatus() == 301;
     }
 
     @Override
     public Object catched(Client client, Action action, StatusException statusException) throws Exception {
+
         return null;
     }
 

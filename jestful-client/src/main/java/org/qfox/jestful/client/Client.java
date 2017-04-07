@@ -107,21 +107,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         reader.loadBeanDefinitions(configLocations);
         this.beanContainer = defaultListableBeanFactory.getBean(builder.beanContainer, BeanContainer.class);
         String[] plugins = builder.plugins.toArray(new String[0]);
-        this.plugins = new Actor[plugins.length];
-        for (int i = 0; i < plugins.length; i++) {
-            String[] segments = plugins[i].split("\\s*;\\s*");
-            this.plugins[i] = defaultListableBeanFactory.getBean(segments[0], Actor.class);
-            if (this.plugins[i] instanceof Plugin) {
-                Map<String, String> arguments = new LinkedHashMap<String, String>();
-                for (int j = 1; j < segments.length; j++) {
-                    String segment = segments[j];
-                    String[] keyvalue = segment.split("\\s*=\\s*");
-                    arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
-                }
-                Plugin plugin = (Plugin) this.plugins[i];
-                plugin.config(arguments);
-            }
-        }
+        this.plugins = load(plugins);
+
         this.acceptCharsets = builder.acceptCharsets.toArray(new String[0]);
         this.acceptEncodings = builder.acceptEncodings.toArray(new String[0]);
         this.acceptLanguages = builder.acceptLanguages.toArray(new String[0]);
@@ -148,6 +135,26 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.followRedirection = builder.followRedirection;
 
         this.initialize(this.beanContainer);
+    }
+
+    protected Actor[] load(String... plugins) {
+        Actor[] actors = new Actor[plugins.length];
+        for (int i = 0; i < plugins.length; i++) {
+            String[] segments = plugins[i].split("\\s*;\\s*");
+            Actor actor = beanContainer.get(segments[0], Actor.class);
+            if (actor instanceof Plugin) {
+                Map<String, String> arguments = new LinkedHashMap<String, String>();
+                for (int j = 1; j < segments.length; j++) {
+                    String segment = segments[j];
+                    String[] keyvalue = segment.split("\\s*=\\s*");
+                    arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
+                }
+                Plugin plugin = (Plugin) actor;
+                plugin.config(arguments);
+            }
+            actors[i] = actor;
+        }
+        return actors;
     }
 
     public void initialize(BeanContainer beanContainer) {
@@ -419,6 +426,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         String host = endpoint.getHost();
         Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
         String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
+
         return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, this).getProxy();
     }
 

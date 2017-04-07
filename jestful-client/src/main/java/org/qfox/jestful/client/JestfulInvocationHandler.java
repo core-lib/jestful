@@ -19,8 +19,9 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
     protected final Client client;
     protected final T proxy;
     protected final Resource resource;
+    protected final Actor[] plugins;
 
-    protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client) {
+    protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client, Actor... plugins) {
         if (client.isDestroyed()) {
             throw new IllegalStateException("Client has been destroyed");
         }
@@ -31,6 +32,7 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         this.client = client;
         this.proxy = interfase.cast(Proxy.newProxyInstance(client.getClassLoader(), new Class<?>[]{interfase}, this));
         this.resource = new Resource(proxy, interfase);
+        this.plugins = plugins != null ? plugins : new Actor[0];
     }
 
     public Object invoke(Object target, Method method, Object[] args) throws Throwable {
@@ -133,7 +135,6 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         return new JestfulClientResponse(action, client, client.getGateway());
     }
 
-
     public String getProtocol() {
         return protocol;
     }
@@ -160,5 +161,9 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
 
     public Resource getResource() {
         return resource;
+    }
+
+    public Actor[] getPlugins() {
+        return plugins;
     }
 }
