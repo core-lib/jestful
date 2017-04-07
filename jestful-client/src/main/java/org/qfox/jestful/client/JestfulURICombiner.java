@@ -49,7 +49,7 @@ public class JestfulURICombiner implements Actor, Initialable {
             }
             URI = URI.replace(variable, value);
         }
-        action.setURI(URI.replaceAll("\\/+", "/"));
+        action.setURI(URI.replaceAll("/+", "/"));
         return action.execute();
     }
 
