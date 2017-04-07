@@ -84,7 +84,7 @@ public class AioClient extends Client implements AioConnector {
             return connection;
         }
         for (Connector connector : connectors.values()) {
-            if (connector.supports(action) && connector instanceof AioConnector) {
+            if (connector instanceof AioConnector && connector.supports(action)) {
                 AioConnector aioConnector = (AioConnector) connector;
                 connection = aioConnector.aioConnect(action, gateway, this);
                 action.getExtra().put(AioConnection.class, connection);

@@ -230,7 +230,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
             return connection;
         }
         for (Connector connector : connectors.values()) {
-            if (connector.supports(action) && connector instanceof NioConnector) {
+            if (connector instanceof NioConnector && connector.supports(action)) {
                 NioConnector nioConnector = (NioConnector) connector;
                 connection = nioConnector.nioConnect(action, gateway, this);
                 action.getExtra().put(NioConnection.class, connection);
