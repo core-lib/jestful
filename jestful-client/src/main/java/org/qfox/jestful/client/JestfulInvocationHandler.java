@@ -71,8 +71,12 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         }
 
         Mapping mapping = resource.getMappings().get(method).clone();
-        Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(client.getPlugins()));
+        Collection<Actor> actors = new ArrayList<Actor>();
+        actors.addAll(Arrays.asList(forePlugins));
+        actors.addAll(Arrays.asList(client.getPlugins()));
+        actors.addAll(Arrays.asList(backPlugins));
         actors.add(client);
+
         Action action = new Action(client.getBeanContainer(), actors);
         action.setResource(resource);
         action.setMapping(mapping);

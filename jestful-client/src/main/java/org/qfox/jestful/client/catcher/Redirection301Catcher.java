@@ -16,7 +16,6 @@ public class Redirection301Catcher implements Catcher {
 
     @Override
     public Object catched(Client client, Action action, StatusException statusException) throws Exception {
-
         return null;
     }
 
