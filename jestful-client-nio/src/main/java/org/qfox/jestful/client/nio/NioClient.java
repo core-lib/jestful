@@ -208,7 +208,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         Gateway gateway = this.getGateway();
         SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
-        NioEventListener listener = new JestfulNioListener();
+        NioEventListener listener = new JestfulNioEventListener();
         action.getExtra().put(NioEventListener.class, listener);
         calls.offer(address, action);
         return null;
@@ -317,7 +317,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         }
     }
 
-    private class JestfulNioListener extends NioEventAdapter {
+    private class JestfulNioEventListener extends NioEventAdapter {
 
         @Override
         public void onConnected(Action action) throws Exception {
