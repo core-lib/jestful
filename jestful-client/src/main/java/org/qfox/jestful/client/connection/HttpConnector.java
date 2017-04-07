@@ -30,7 +30,7 @@ public class HttpConnector implements Connector {
             httpURLConnection.setRequestMethod(restful.getMethod());
             httpURLConnection.setDoOutput(restful.isAcceptBody());
             httpURLConnection.setDoInput(true);
-            httpURLConnection.setInstanceFollowRedirects(client.isRedirectFollowed());
+            httpURLConnection.setInstanceFollowRedirects(client.isFollowRedirection());
             Request request = new HttpRequest(httpURLConnection);
             Response response = new HttpResponse(httpURLConnection);
             return new Connection(request, response);

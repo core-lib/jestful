@@ -1,5 +1,6 @@
 package org.qfox.jestful.client;
 
+import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connection;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
@@ -11,6 +12,7 @@ import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
+import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
 import org.qfox.jestful.core.io.RequestLazyOutputStream;
@@ -49,6 +51,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     protected final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
     protected final Map<String, Scheduler> schedulers = new HashMap<String, Scheduler>();
     protected final Map<String, Connector> connectors = new HashMap<String, Connector>();
+    protected final Map<String, Catcher> catchers = new HashMap<String, Catcher>();
 
     private final String protocol;
     private final String host;
@@ -83,7 +86,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     private final HostnameVerifier hostnameVerifier;
     private final SSLSocketFactory SSLSocketFactory;
     private final String userAgent;
-    private final boolean redirectFollowed;
+    private final boolean followRedirection;
 
     private boolean destroyed = false;
 
@@ -142,7 +145,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.hostnameVerifier = builder.hostnameVerifier;
         this.SSLSocketFactory = builder.SSLSocketFactory;
         this.userAgent = builder.userAgent;
-        this.redirectFollowed = builder.redirectFollowed;
+        this.followRedirection = builder.followRedirection;
 
         this.initialize(this.beanContainer);
     }
@@ -167,6 +170,9 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
         Map<String, Scheduler> schedulers = beanContainer.find(Scheduler.class);
         this.schedulers.putAll(schedulers);
+
+        Map<String, Catcher> catchers = beanContainer.find(Catcher.class);
+        this.catchers.putAll(catchers);
     }
 
     @Override
@@ -370,8 +376,13 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
             // 返回
             return action.getResult().getBody().getValue();
-        } catch (Exception e) {
-            throw e;
+        } catch (StatusException statusException) {
+            for (Catcher catcher : catchers.values()) {
+                if (catcher.catchable(statusException)) {
+                    return catcher.catched(this, action, statusException);
+                }
+            }
+            throw statusException;
         } finally {
             request.close();
             response.close();
@@ -481,7 +492,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                 + "/"
                 + Module.getInstance().getVersion();
 
-        private boolean redirectFollowed = true;
+        private boolean followRedirection = true;
 
         public Client build() {
             return new Client(this);
@@ -764,8 +775,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             return (T) this;
         }
 
-        public T setRedirectFollowed(boolean redirectFollowed) {
-            this.redirectFollowed = redirectFollowed;
+        public T setFollowRedirection(boolean followRedirection) {
+            this.followRedirection = followRedirection;
             return (T) this;
         }
     }
@@ -898,8 +909,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         return userAgent;
     }
 
-    public boolean isRedirectFollowed() {
-        return redirectFollowed;
+    public boolean isFollowRedirection() {
+        return followRedirection;
     }
 
     @Override
