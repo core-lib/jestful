@@ -83,6 +83,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     private final HostnameVerifier hostnameVerifier;
     private final SSLSocketFactory SSLSocketFactory;
     private final String userAgent;
+    private final boolean redirectFollowed;
 
     private boolean destroyed = false;
 
@@ -141,6 +142,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.hostnameVerifier = builder.hostnameVerifier;
         this.SSLSocketFactory = builder.SSLSocketFactory;
         this.userAgent = builder.userAgent;
+        this.redirectFollowed = builder.redirectFollowed;
 
         this.initialize(this.beanContainer);
     }
@@ -479,6 +481,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                 + "/"
                 + Module.getInstance().getVersion();
 
+        private boolean redirectFollowed = true;
+
         public Client build() {
             return new Client(this);
         }
@@ -759,6 +763,11 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             this.userAgent = userAgent;
             return (T) this;
         }
+
+        public T setRedirectFollowed(boolean redirectFollowed) {
+            this.redirectFollowed = redirectFollowed;
+            return (T) this;
+        }
     }
 
     public Charsets getCharsets() {
@@ -887,6 +896,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
     public String getUserAgent() {
         return userAgent;
+    }
+
+    public boolean isRedirectFollowed() {
+        return redirectFollowed;
     }
 
     @Override

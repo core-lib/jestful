@@ -48,6 +48,7 @@ public class HttpsConnector implements Connector {
 			httpsURLConnection.setRequestMethod(restful.getMethod());
 			httpsURLConnection.setDoOutput(restful.isAcceptBody());
 			httpsURLConnection.setDoInput(true);
+			httpsURLConnection.setInstanceFollowRedirects(client.isRedirectFollowed());
 
 			HostnameVerifier hostnameVerifier = client.getHostnameVerifier();
 			if (hostnameVerifier != null) {
