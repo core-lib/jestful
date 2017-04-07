@@ -397,37 +397,80 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     public <T> T create(Class<T> interfase) {
-        return create(interfase, protocol, host, port, route);
+        return creater().create(interfase);
     }
 
     public <T> T create(Class<T> interfase, String protocol, String host) {
-        return create(interfase, protocol, host, null);
+        return creater().create(interfase, protocol, host);
     }
 
     public <T> T create(Class<T> interfase, String protocol, String host, Integer port) {
-        return create(interfase, protocol, host, port, null);
+        return creater().create(interfase, protocol, host, port);
     }
 
     public <T> T create(Class<T> interfase, String protocol, String host, Integer port, String route) {
-        String endpoint = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
-        return create(interfase, endpoint);
+        return creater().create(interfase, protocol, host, port, route);
     }
 
     public <T> T create(Class<T> interfase, String endpoint) {
-        try {
-            return create(interfase, new URL(endpoint));
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return creater().create(interfase, endpoint);
     }
 
     public <T> T create(Class<T> interfase, URL endpoint) {
-        String protocol = endpoint.getProtocol();
-        String host = endpoint.getHost();
-        Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
-        String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
+        return creater().create(interfase, endpoint);
+    }
 
-        return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, this).getProxy();
+    public Creater<?> creater() {
+        return new Creater();
+    }
+
+    public class Creater<C extends Creater<C>> {
+        private String[] forePlugins = new String[0];
+        private String[] backPlugins = new String[0];
+
+        public C setForePlugins(String... plugins) {
+            this.forePlugins = plugins;
+            return (C) this;
+        }
+
+        public C setBackPlugins(String... plugins) {
+            this.backPlugins = plugins;
+            return (C) this;
+        }
+
+        public <T> T create(Class<T> interfase) {
+            return create(interfase, protocol, host, port, route);
+        }
+
+        public <T> T create(Class<T> interfase, String protocol, String host) {
+            return create(interfase, protocol, host, null);
+        }
+
+        public <T> T create(Class<T> interfase, String protocol, String host, Integer port) {
+            return create(interfase, protocol, host, port, null);
+        }
+
+        public <T> T create(Class<T> interfase, String protocol, String host, Integer port, String route) {
+            String endpoint = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
+            return create(interfase, endpoint);
+        }
+
+        public <T> T create(Class<T> interfase, String endpoint) {
+            try {
+                return create(interfase, new URL(endpoint));
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
+        public <T> T create(Class<T> interfase, URL endpoint) {
+            String protocol = endpoint.getProtocol();
+            String host = endpoint.getHost();
+            Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
+            String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
+            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, load(forePlugins), load(backPlugins)).getProxy();
+        }
+
     }
 
     public static Client getDefaultClient() {
