@@ -214,13 +214,19 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         return null;
     }
 
-    @Override
-    public <T> T create(Class<T> interfase, URL endpoint) {
-        String protocol = endpoint.getProtocol();
-        String host = endpoint.getHost();
-        Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
-        String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
-        return new JestfulNioInvocationHandler<T>(interfase, protocol, host, port, route, this).getProxy();
+    public Creater<?> creater() {
+        return new Creater();
+    }
+
+    public class Creater<C extends Creater<C>> extends Client.Creater<C> {
+        @Override
+        public <T> T create(Class<T> interfase, URL endpoint) {
+            String protocol = endpoint.getProtocol();
+            String host = endpoint.getHost();
+            Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
+            String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
+            return new JestfulNioInvocationHandler<T>(interfase, protocol, host, port, route, NioClient.this).getProxy();
+        }
     }
 
     @Override
@@ -256,7 +262,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         return new Builder();
     }
 
-    public static class Builder<T extends Builder<T>> extends org.qfox.jestful.client.Client.Builder<T> {
+    public static class Builder<T extends Builder<T>> extends Client.Builder<T> {
         private long selectTimeout = 1000L;
         private TimeoutManager timeoutManager = new TreeSetTimeoutManager();
         private SSLContext sslContext;

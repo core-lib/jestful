@@ -69,12 +69,19 @@ public class AioClient extends Client implements AioConnector {
     }
 
     @Override
-    public <T> T create(Class<T> interfase, URL endpoint) {
-        String protocol = endpoint.getProtocol();
-        String host = endpoint.getHost();
-        Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
-        String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
-        return new JestfulAioInvocationHandler<T>(interfase, protocol, host, port, route, this).getProxy();
+    public Creater<?> creater() {
+        return new Creater();
+    }
+
+    public class Creater<C extends Creater<C>> extends Client.Creater<C> {
+        @Override
+        public <T> T create(Class<T> interfase, URL endpoint) {
+            String protocol = endpoint.getProtocol();
+            String host = endpoint.getHost();
+            Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
+            String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
+            return new JestfulAioInvocationHandler<T>(interfase, protocol, host, port, route, AioClient.this).getProxy();
+        }
     }
 
     @Override
@@ -110,7 +117,7 @@ public class AioClient extends Client implements AioConnector {
         return new Builder();
     }
 
-    public static class Builder<T extends Builder<T>> extends org.qfox.jestful.client.Client.Builder<T> {
+    public static class Builder<T extends Builder<T>> extends Client.Builder<T> {
         private int concurrent = Runtime.getRuntime().availableProcessors() * 2;
         private SSLContext sslContext;
 
