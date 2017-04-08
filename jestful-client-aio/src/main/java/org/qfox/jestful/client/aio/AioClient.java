@@ -16,6 +16,7 @@ import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URL;
@@ -59,6 +60,37 @@ public class AioClient extends Client implements AioConnector {
         AsynchronousSocketChannel channel = AsynchronousSocketChannel.open(aioChannelGroup);
         channel.connect(address, action, new ConnectCompletionHandler(channel));
         return null;
+    }
+
+    @Override
+    protected Object doSchedule(Action action) throws Exception {
+        Result result = action.getResult();
+        Body body = result.getBody();
+        for (Scheduler scheduler : schedulers.values()) {
+            if (scheduler instanceof AioScheduler && scheduler.supports(action)) {
+                action.getExtra().put(Scheduler.class, scheduler);
+                Type type = scheduler.getBodyType(this, action);
+                body.setType(type);
+                Object value = ((AioScheduler) scheduler).doMotivateSchedule(this, action);
+                result.setValue(value);
+                return value;
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    protected Request newRequest(Action action) throws Exception {
+        AioClient aioClient = this;
+        AioRequest request = aioClient.aioConnect(action, aioClient.getGateway(), aioClient).getRequest();
+        action.getExtra().put(AioRequest.class, request);
+        return request;
+    }
+
+    protected Response newResponse(Action action) throws Exception {
+        AioClient aioClient = this;
+        AioResponse response = aioClient.aioConnect(action, aioClient.getGateway(), aioClient).getResponse();
+        action.getExtra().put(AioResponse.class, response);
+        return response;
     }
 
     @Override

@@ -1,7 +1,8 @@
 package org.qfox.jestful.client;
 
-import org.qfox.jestful.client.scheduler.Scheduler;
-import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Mapping;
+import org.qfox.jestful.core.Resource;
 
 import java.lang.reflect.*;
 
@@ -79,33 +80,6 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
                 .setForePlugins(forePlugins)
                 .setBackPlugins(backPlugins)
                 .invoke(args);
-    }
-
-    protected Object doSchedule(Action action) throws Exception {
-        Result result = action.getResult();
-        Body body = result.getBody();
-        for (Scheduler scheduler : client.getSchedulers().values()) {
-            if (scheduler.supports(action)) {
-                Type type = scheduler.getBodyType(client, action);
-                body.setType(type);
-                Object value = scheduler.schedule(client, action);
-                result.setValue(value);
-                return value;
-            }
-        }
-        Type type = result.getType();
-        body.setType(type);
-        Object value = action.execute();
-        result.setValue(value);
-        return value;
-    }
-
-    protected Request newRequest(Action action) throws Exception {
-        return new JestfulClientRequest(action, client, client.getGateway(), client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout());
-    }
-
-    protected Response newResponse(Action action) throws Exception {
-        return new JestfulClientResponse(action, client, client.getGateway());
     }
 
     public String getProtocol() {

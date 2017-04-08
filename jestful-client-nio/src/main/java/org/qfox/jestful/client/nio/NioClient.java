@@ -20,6 +20,7 @@ import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URL;
@@ -212,6 +213,37 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         action.getExtra().put(NioEventListener.class, listener);
         calls.offer(address, action);
         return null;
+    }
+
+    @Override
+    protected Object doSchedule(Action action) throws Exception {
+        Result result = action.getResult();
+        Body body = result.getBody();
+        for (Scheduler scheduler : schedulers.values()) {
+            if (scheduler instanceof NioScheduler && scheduler.supports(action)) {
+                action.getExtra().put(Scheduler.class, scheduler);
+                Type type = scheduler.getBodyType(this, action);
+                body.setType(type);
+                Object value = ((NioScheduler) scheduler).doMotivateSchedule(this, action);
+                result.setValue(value);
+                return value;
+            }
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    protected Request newRequest(Action action) throws Exception {
+        NioClient nioClient = this;
+        NioRequest request = nioClient.nioConnect(action, nioClient.getGateway(), nioClient).getRequest();
+        action.getExtra().put(NioRequest.class, request);
+        return request;
+    }
+
+    protected Response newResponse(Action action) throws Exception {
+        NioClient nioClient = this;
+        NioResponse response = nioClient.nioConnect(action, nioClient.getGateway(), nioClient).getResponse();
+        action.getExtra().put(NioResponse.class, response);
+        return response;
     }
 
     public Creator<?> creator() {
