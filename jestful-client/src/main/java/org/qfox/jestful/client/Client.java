@@ -106,8 +106,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         reader.setBeanClassLoader(classLoader);
         reader.loadBeanDefinitions(configLocations);
         this.beanContainer = defaultListableBeanFactory.getBean(builder.beanContainer, BeanContainer.class);
-        String[] plugins = builder.plugins.toArray(new String[0]);
-        this.plugins = load(plugins);
+        this.plugins = load(builder.plugins);
 
         this.acceptCharsets = builder.acceptCharsets.toArray(new String[0]);
         this.acceptEncodings = builder.acceptEncodings.toArray(new String[0]);
@@ -137,10 +136,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.initialize(this.beanContainer);
     }
 
-    protected Actor[] load(String... plugins) {
-        Actor[] actors = new Actor[plugins.length];
-        for (int i = 0; i < plugins.length; i++) {
-            String[] segments = plugins[i].split("\\s*;\\s*");
+    protected Actor[] load(List<String> plugins) {
+        Actor[] actors = new Actor[plugins.size()];
+        for (int i = 0; i < plugins.size(); i++) {
+            String[] segments = plugins.get(i).split("\\s*;\\s*");
             Actor actor = beanContainer.get(segments[0], Actor.class);
             if (actor instanceof Plugin) {
                 Map<String, String> arguments = new LinkedHashMap<String, String>();
@@ -478,7 +477,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             String host = endpoint.getHost();
             Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
             String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
-            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, load(forePlugins.toArray(new String[0])), load(backPlugins.toArray(new String[0]))).getProxy();
+            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, load(forePlugins), load(backPlugins)).getProxy();
         }
 
     }
