@@ -54,44 +54,44 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     protected final Map<String, Connector> connectors = new HashMap<String, Connector>();
     protected final Map<String, Catcher> catchers = new HashMap<String, Catcher>();
 
-    private final String protocol;
-    private final String host;
-    private final Integer port;
-    private final String route;
-    private final ClassLoader classLoader;
-    private final Map<Class<?>, Resource> resources;
-    private final BeanContainer beanContainer;
-    private final String[] configLocations;
-    private final Actor[] plugins;
+    protected final String protocol;
+    protected final String host;
+    protected final Integer port;
+    protected final String route;
+    protected final ClassLoader classLoader;
+    protected final Map<Class<?>, Resource> resources;
+    protected final BeanContainer beanContainer;
+    protected final String[] configLocations;
+    protected final Actor[] plugins;
 
-    private final String[] acceptCharsets;
-    private final String[] acceptEncodings;
-    private final String[] acceptLanguages;
+    protected final String[] acceptCharsets;
+    protected final String[] acceptEncodings;
+    protected final String[] acceptLanguages;
 
-    private final String[] contentCharsets;
-    private final String[] contentEncodings;
-    private final String[] contentLanguages;
+    protected final String[] contentCharsets;
+    protected final String[] contentEncodings;
+    protected final String[] contentLanguages;
 
-    private final boolean allowEncode;
-    private final boolean acceptEncode;
+    protected final boolean allowEncode;
+    protected final boolean acceptEncode;
 
-    private final String pathEncodeCharset;
-    private final String queryEncodeCharset;
-    private final String headerEncodeCharset;
+    protected final String pathEncodeCharset;
+    protected final String queryEncodeCharset;
+    protected final String headerEncodeCharset;
 
-    private final int connTimeout;
-    private final int readTimeout;
-    private final int writeTimeout;
+    protected final int connTimeout;
+    protected final int readTimeout;
+    protected final int writeTimeout;
 
-    private final Gateway gateway;
-    private final HostnameVerifier hostnameVerifier;
-    private final SSLSocketFactory SSLSocketFactory;
-    private final String userAgent;
-    private final boolean followRedirection;
+    protected final Gateway gateway;
+    protected final HostnameVerifier hostnameVerifier;
+    protected final SSLSocketFactory SSLSocketFactory;
+    protected final String userAgent;
+    protected final boolean followRedirection;
 
-    private boolean destroyed = false;
+    protected boolean destroyed = false;
 
-    private static Client defaultClient;
+    protected static Client defaultClient;
 
     protected Client(Builder<?> builder) {
         super();

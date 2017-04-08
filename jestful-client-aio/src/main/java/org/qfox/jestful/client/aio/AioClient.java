@@ -80,15 +80,13 @@ public class AioClient extends Client implements AioConnector {
     }
 
     protected Request newRequest(Action action) throws Exception {
-        AioClient aioClient = this;
-        AioRequest request = aioClient.aioConnect(action, aioClient.getGateway(), aioClient).getRequest();
+        AioRequest request = aioConnect(action, gateway, this).getRequest();
         action.getExtra().put(AioRequest.class, request);
         return request;
     }
 
     protected Response newResponse(Action action) throws Exception {
-        AioClient aioClient = this;
-        AioResponse response = aioClient.aioConnect(action, aioClient.getGateway(), aioClient).getResponse();
+        AioResponse response = aioConnect(action, gateway, this).getResponse();
         action.getExtra().put(AioResponse.class, response);
         return response;
     }

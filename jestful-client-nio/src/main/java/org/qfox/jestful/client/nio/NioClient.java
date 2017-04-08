@@ -233,15 +233,13 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
     }
 
     protected Request newRequest(Action action) throws Exception {
-        NioClient nioClient = this;
-        NioRequest request = nioClient.nioConnect(action, nioClient.getGateway(), nioClient).getRequest();
+        NioRequest request = nioConnect(action, gateway, this).getRequest();
         action.getExtra().put(NioRequest.class, request);
         return request;
     }
 
     protected Response newResponse(Action action) throws Exception {
-        NioClient nioClient = this;
-        NioResponse response = nioClient.nioConnect(action, nioClient.getGateway(), nioClient).getResponse();
+        NioResponse response = nioConnect(action, gateway, this).getResponse();
         action.getExtra().put(NioResponse.class, response);
         return response;
     }
