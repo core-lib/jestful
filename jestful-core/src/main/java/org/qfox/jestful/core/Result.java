@@ -2,7 +2,9 @@ package org.qfox.jestful.core;
 
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
@@ -28,6 +30,16 @@ public class Result extends Configuration {
     private Object value;
     private Exception exception;
     private boolean rendered = false;
+
+    public Result(Type type) {
+        super(new Annotation[0]);
+        this.mapping = null;
+        this.controller = null;
+        this.method = null;
+        this.type = type;
+        this.klass = type instanceof Class<?> ? (Class<?>) type : type instanceof ParameterizedType ? (Class<?>) ((ParameterizedType) type).getRawType() : null;
+        this.body = new Body(type);
+    }
 
     public Result(Mapping mapping, Method method) throws IllegalConfigException {
         super(method.getAnnotations());

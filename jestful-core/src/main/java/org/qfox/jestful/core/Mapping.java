@@ -44,6 +44,23 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
     private final Pattern pattern;
     private final String version;
 
+    public Mapping(Resource resource, Parameters parameters, Result result, Restful restful, Accepts consumes, Accepts produces) {
+        super(new Annotation[0]);
+        this.resource = resource;
+        this.controller = resource.getController();
+        this.method = null;
+        this.configuration = null;
+        this.parameters = parameters;
+        this.result = result;
+        this.restful = restful;
+        this.consumes = consumes;
+        this.produces = produces;
+        this.expression = "";
+        this.regex = "";
+        this.pattern = Pattern.compile("");
+        this.version = null;
+    }
+
     public Mapping(Resource resource, Object controller, Method method, Method configuration) throws IllegalConfigException {
         super(configuration.getAnnotations());
         try {

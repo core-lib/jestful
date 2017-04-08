@@ -14,7 +14,7 @@ public class RedirectTests {
     @Test
     public void testBioRedirect() {
         Lock lock = new SimpleLock();
-        ProxyAPI proxyAPI = Client.builder().setFollowRedirection(true).build().create(ProxyAPI.class, "https://merchant.qfoxy.com/index.jsp");
+        ProxyAPI proxyAPI = Client.builder().setFollowRedirection(true).build().create(ProxyAPI.class, "http://merchant.qfoxtech.com/index.jsp");
         proxyAPI.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {

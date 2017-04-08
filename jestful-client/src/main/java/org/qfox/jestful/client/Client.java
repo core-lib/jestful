@@ -494,11 +494,13 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
         public I setMapping(Mapping mapping) {
             this.mapping = mapping;
-            this.restful = mapping.getRestful();
-            this.parameters = mapping.getParameters();
-            this.result = mapping.getResult();
-            this.consumes = mapping.getConsumes();
-            this.produces = mapping.getProduces();
+            if (mapping != null) {
+                this.restful = mapping.getRestful();
+                this.parameters = mapping.getParameters();
+                this.result = mapping.getResult();
+                this.consumes = mapping.getConsumes();
+                this.produces = mapping.getProduces();
+            }
             return (I) this;
         }
 
@@ -539,6 +541,9 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
         public Object invoke(Object... args) throws Exception {
             parameters.arguments(args);
+
+            if (resource == null) resource = new Resource();
+            if (mapping == null) mapping = new Mapping(resource, parameters, result, restful, consumes, produces);
 
             Collection<Actor> actors = new ArrayList<Actor>();
             actors.addAll(Arrays.asList(forePlugins));
