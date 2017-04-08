@@ -232,7 +232,7 @@ public class AioClient extends Client implements AioConnector {
                 InputStream in = response.getResponseInputStream();
                 InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
                 String body = reader != null ? IOKit.toString(reader) : "";
-                throw new UnexpectedStatusException(status, body);
+                throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, body);
             }
         }
 
