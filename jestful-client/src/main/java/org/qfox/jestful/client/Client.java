@@ -428,21 +428,21 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     public class Invoker<I extends Invoker<I>> {
-        private String protocol;
-        private String host;
-        private Integer port;
-        private String route;
+        private String protocol = Client.this.protocol;
+        private String host = Client.this.host;
+        private Integer port = Client.this.port;
+        private String route = Client.this.route;
         private Resource resource;
         private Mapping mapping;
         private Restful restful;
         private Parameters parameters;
         private Result result;
 
-        private Accepts consumes;
-        private Accepts produces;
+        private Accepts consumes = Accepts.valueOf("");
+        private Accepts produces = Accepts.valueOf("");
 
-        private Actor[] forePlugins;
-        private Actor[] backPlugins;
+        private Actor[] forePlugins = new Actor[0];
+        private Actor[] backPlugins = new Actor[0];
 
         public I setEndpoint(URL endpoint) {
             if (endpoint == null) {
