@@ -117,7 +117,7 @@ public class AioClient extends Client implements AioConnector {
         return new Builder();
     }
 
-    public static class Builder<T extends Builder<T>> extends Client.Builder<T> {
+    public static class Builder<B extends Builder<B>> extends Client.Builder<B> {
         private int concurrent = Runtime.getRuntime().availableProcessors() * 2;
         private SSLContext sslContext;
 
@@ -152,20 +152,20 @@ public class AioClient extends Client implements AioConnector {
             return new AioClient(this);
         }
 
-        public T setConcurrent(int concurrent) {
+        public B setConcurrent(int concurrent) {
             if (concurrent < 0) {
                 throw new IllegalArgumentException("concurrent can not be negative");
             }
             this.concurrent = concurrent;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setSslContext(SSLContext sslContext) {
+        public B setSslContext(SSLContext sslContext) {
             this.sslContext = sslContext;
             if (sslContext == null) {
                 throw new IllegalArgumentException("SSLContext can not be null");
             }
-            return (T) this;
+            return (B) this;
         }
     }
 

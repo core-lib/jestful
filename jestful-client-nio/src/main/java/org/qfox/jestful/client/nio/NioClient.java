@@ -262,7 +262,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         return new Builder();
     }
 
-    public static class Builder<T extends Builder<T>> extends Client.Builder<T> {
+    public static class Builder<B extends Builder<B>> extends Client.Builder<B> {
         private long selectTimeout = 1000L;
         private TimeoutManager timeoutManager = new TreeSetTimeoutManager();
         private SSLContext sslContext;
@@ -298,28 +298,28 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
             return new NioClient(this);
         }
 
-        public T setSelectTimeout(long selectTimeout) {
+        public B setSelectTimeout(long selectTimeout) {
             if (selectTimeout < 0) {
                 throw new IllegalArgumentException("selected timeout is negative");
             }
             this.selectTimeout = selectTimeout;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setTimeoutManager(TimeoutManager timeoutManager) {
+        public B setTimeoutManager(TimeoutManager timeoutManager) {
             if (timeoutManager == null) {
                 throw new IllegalArgumentException("timeout manager can not be null");
             }
             this.timeoutManager = timeoutManager;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setSslContext(SSLContext sslContext) {
+        public B setSslContext(SSLContext sslContext) {
             this.sslContext = sslContext;
             if (sslContext == null) {
                 throw new IllegalArgumentException("SSLContext can not be null");
             }
-            return (T) this;
+            return (B) this;
         }
     }
 

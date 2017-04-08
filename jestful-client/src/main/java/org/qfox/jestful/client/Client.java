@@ -499,7 +499,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         return new Builder();
     }
 
-    public static class Builder<T extends Builder<T>> {
+    public static class Builder<B extends Builder<B>> {
         private String protocol = "http";
         private String host = "localhost";
         private Integer port = null;
@@ -559,7 +559,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             return new Client(this);
         }
 
-        public T setEndpoint(URL endpoint) {
+        public B setEndpoint(URL endpoint) {
             if (endpoint == null) {
                 throw new IllegalArgumentException("endpoint == null");
             }
@@ -567,278 +567,278 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             setHost(endpoint.getHost());
             setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
             setRoute(endpoint.getFile().length() == 0 ? null : endpoint.getFile());
-            return (T) this;
+            return (B) this;
         }
 
-        public T setProtocol(String protocol) {
+        public B setProtocol(String protocol) {
             if (protocol == null) {
                 throw new IllegalArgumentException("protocol == null");
             }
             this.protocol = protocol;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setHost(String host) {
+        public B setHost(String host) {
             if (protocol == null) {
                 throw new IllegalArgumentException("host == null");
             }
             this.host = host;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setPort(Integer port) {
+        public B setPort(Integer port) {
             if (port != null && (port < 0 || port > 65535)) {
                 throw new IllegalArgumentException("port " + port + " out of bounds [0, 65535]");
             }
             this.port = port;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setRoute(String route) {
+        public B setRoute(String route) {
             if (route != null && route.length() == 0 == false && route.startsWith("/") == false) {
                 throw new IllegalArgumentException("route should starts with /");
             }
             this.route = route;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setClassLoader(ClassLoader classLoader) {
+        public B setClassLoader(ClassLoader classLoader) {
             if (classLoader == null) {
                 throw new IllegalArgumentException("class loader is null");
             }
             this.classLoader = classLoader;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setBeanContainer(String beanContainer) {
+        public B setBeanContainer(String beanContainer) {
             if (beanContainer == null) {
                 throw new IllegalArgumentException("bean container is null");
             }
             this.beanContainer = beanContainer;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setPlugins(String... plugins) {
+        public B setPlugins(String... plugins) {
             if (plugins == null || plugins.length == 0) {
                 throw new IllegalArgumentException("plugins is null or empty array");
             }
             this.plugins = new ArrayList<String>(Arrays.asList(plugins));
-            return (T) this;
+            return (B) this;
         }
 
-        public T addPlugins(String... plugins) {
+        public B addPlugins(String... plugins) {
             if (plugins == null) {
                 throw new IllegalArgumentException("plugins is null");
             }
             this.plugins.addAll(Arrays.asList(plugins));
-            return (T) this;
+            return (B) this;
         }
 
-        public T setConfigLocations(String... configLocations) {
+        public B setConfigLocations(String... configLocations) {
             if (configLocations == null || configLocations.length == 0) {
                 throw new IllegalArgumentException("config locations is null or empty");
             }
             this.configLocations = new ArrayList<String>(Arrays.asList(configLocations));
-            return (T) this;
+            return (B) this;
         }
 
-        public T addConfigLocations(String... configLocations) {
+        public B addConfigLocations(String... configLocations) {
             if (configLocations == null) {
                 throw new IllegalArgumentException("config locations is null");
             }
             this.configLocations.addAll(Arrays.asList(configLocations));
-            return (T) this;
+            return (B) this;
         }
 
-        public T setAcceptCharsets(String... acceptCharsets) {
+        public B setAcceptCharsets(String... acceptCharsets) {
             if (acceptCharsets == null || acceptCharsets.length == 0) {
                 throw new IllegalArgumentException("accept charsets is null or empty");
             }
             this.acceptCharsets = new ArrayList<String>(Arrays.asList(acceptCharsets));
-            return (T) this;
+            return (B) this;
         }
 
-        public T addAcceptCharsets(String... acceptCharsets) {
+        public B addAcceptCharsets(String... acceptCharsets) {
             if (acceptCharsets == null) {
                 throw new IllegalArgumentException("accept charsets is null");
             }
             this.acceptCharsets.addAll(Arrays.asList(acceptCharsets));
-            return (T) this;
+            return (B) this;
         }
 
-        public T setAcceptEncodings(String... acceptEncodings) {
+        public B setAcceptEncodings(String... acceptEncodings) {
             if (acceptEncodings == null || acceptEncodings.length == 0) {
                 throw new IllegalArgumentException("accept encodings is null or empty");
             }
             this.acceptEncodings = new ArrayList<String>(Arrays.asList(acceptEncodings));
-            return (T) this;
+            return (B) this;
         }
 
-        public T addAcceptEncodings(String... acceptEncodings) {
+        public B addAcceptEncodings(String... acceptEncodings) {
             if (acceptEncodings == null) {
                 throw new IllegalArgumentException("accept encodings is null");
             }
             this.acceptEncodings.addAll(Arrays.asList(acceptEncodings));
-            return (T) this;
+            return (B) this;
         }
 
-        public T setAcceptLanguages(String... acceptLanguages) {
+        public B setAcceptLanguages(String... acceptLanguages) {
             if (acceptLanguages == null || acceptLanguages.length == 0) {
                 throw new IllegalArgumentException("accept languages is null or empty");
             }
             this.acceptLanguages = new ArrayList<String>(Arrays.asList(acceptLanguages));
-            return (T) this;
+            return (B) this;
         }
 
-        public T addAcceptLanguages(String... acceptLanguages) {
+        public B addAcceptLanguages(String... acceptLanguages) {
             if (acceptLanguages == null) {
                 throw new IllegalArgumentException("accept languages is null");
             }
             this.acceptLanguages.addAll(Arrays.asList(acceptLanguages));
-            return (T) this;
+            return (B) this;
         }
 
-        public T setContentCharsets(String... contentCharsets) {
+        public B setContentCharsets(String... contentCharsets) {
             if (contentCharsets == null || contentCharsets.length == 0) {
                 throw new IllegalArgumentException("content charsets is null or empty");
             }
             this.contentCharsets = new ArrayList<String>(Arrays.asList(contentCharsets));
-            return (T) this;
+            return (B) this;
         }
 
-        public T addContentCharsets(String... contentCharsets) {
+        public B addContentCharsets(String... contentCharsets) {
             if (contentCharsets == null) {
                 throw new IllegalArgumentException("content charsets is null");
             }
             this.contentCharsets.addAll(Arrays.asList(contentCharsets));
-            return (T) this;
+            return (B) this;
         }
 
-        public T setContentEncodings(String... contentEncodings) {
+        public B setContentEncodings(String... contentEncodings) {
             if (contentEncodings == null || contentEncodings.length == 0) {
                 throw new IllegalArgumentException("content encodings is null or empty");
             }
             this.contentEncodings = new ArrayList<String>(Arrays.asList(contentEncodings));
-            return (T) this;
+            return (B) this;
         }
 
-        public T addContentEncodings(String... contentEncodings) {
+        public B addContentEncodings(String... contentEncodings) {
             if (contentEncodings == null) {
                 throw new IllegalArgumentException("content encodings is null");
             }
             this.contentEncodings.addAll(Arrays.asList(contentEncodings));
-            return (T) this;
+            return (B) this;
         }
 
-        public T setContentLanguages(String... contentLanguages) {
+        public B setContentLanguages(String... contentLanguages) {
             if (contentLanguages == null || contentLanguages.length == 0) {
                 throw new IllegalArgumentException("content languages is null or empty");
             }
             this.contentLanguages = new ArrayList<String>(Arrays.asList(contentLanguages));
-            return (T) this;
+            return (B) this;
         }
 
-        public T addContentLanguages(String... contentLanguages) {
+        public B addContentLanguages(String... contentLanguages) {
             if (contentLanguages == null) {
                 throw new IllegalArgumentException("content languages is null");
             }
             this.contentLanguages.addAll(Arrays.asList(contentLanguages));
-            return (T) this;
+            return (B) this;
         }
 
-        public T setAllowEncode(boolean allowEncode) {
+        public B setAllowEncode(boolean allowEncode) {
             this.allowEncode = allowEncode;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setAcceptEncode(boolean acceptEncode) {
+        public B setAcceptEncode(boolean acceptEncode) {
             this.acceptEncode = acceptEncode;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setPathEncodeCharset(String pathEncodeCharset) {
+        public B setPathEncodeCharset(String pathEncodeCharset) {
             if (Charset.isSupported(pathEncodeCharset) == false) {
                 throw new UnsupportedCharsetException(pathEncodeCharset);
             }
             this.pathEncodeCharset = pathEncodeCharset;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setQueryEncodeCharset(String queryEncodeCharset) {
+        public B setQueryEncodeCharset(String queryEncodeCharset) {
             if (Charset.isSupported(queryEncodeCharset) == false) {
                 throw new UnsupportedCharsetException(queryEncodeCharset);
             }
             this.queryEncodeCharset = queryEncodeCharset;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setHeaderEncodeCharset(String headerEncodeCharset) {
+        public B setHeaderEncodeCharset(String headerEncodeCharset) {
             if (Charset.isSupported(headerEncodeCharset) == false) {
                 throw new UnsupportedCharsetException(headerEncodeCharset);
             }
             this.headerEncodeCharset = headerEncodeCharset;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setConnTimeout(int connTimeout) {
+        public B setConnTimeout(int connTimeout) {
             if (connTimeout < 0) {
                 throw new IllegalArgumentException("connect timeout is negative");
             }
             this.connTimeout = connTimeout;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setReadTimeout(int readTimeout) {
+        public B setReadTimeout(int readTimeout) {
             if (readTimeout < 0) {
                 throw new IllegalArgumentException("reading timeout is negative");
             }
             this.readTimeout = readTimeout;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setWriteTimeout(int writeTimeout) {
+        public B setWriteTimeout(int writeTimeout) {
             if (writeTimeout < 0) {
                 throw new IllegalArgumentException("writing timeout is negative");
             }
             this.writeTimeout = writeTimeout;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setGateway(Gateway gateway) {
+        public B setGateway(Gateway gateway) {
             if (gateway == null) {
                 throw new IllegalArgumentException("can not set null gateway");
             }
             this.gateway = gateway;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setHostnameVerifier(HostnameVerifier hostnameVerifier) {
+        public B setHostnameVerifier(HostnameVerifier hostnameVerifier) {
             if (hostnameVerifier == null) {
                 throw new IllegalArgumentException("can not set null hostnameVerifier");
             }
             this.hostnameVerifier = hostnameVerifier;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setSSLSocketFactory(SSLSocketFactory SSLSocketFactory) {
+        public B setSSLSocketFactory(SSLSocketFactory SSLSocketFactory) {
             if (SSLSocketFactory == null) {
                 throw new IllegalArgumentException("can not set null SSLSocketFactory");
             }
             this.SSLSocketFactory = SSLSocketFactory;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setUserAgent(String userAgent) {
+        public B setUserAgent(String userAgent) {
             if (userAgent == null) {
                 throw new IllegalArgumentException("User-Agent can not be null");
             }
             this.userAgent = userAgent;
-            return (T) this;
+            return (B) this;
         }
 
-        public T setFollowRedirection(boolean followRedirection) {
+        public B setFollowRedirection(boolean followRedirection) {
             this.followRedirection = followRedirection;
-            return (T) this;
+            return (B) this;
         }
     }
 
