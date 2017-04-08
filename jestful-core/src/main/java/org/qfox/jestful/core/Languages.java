@@ -36,7 +36,7 @@ public class Languages implements Iterable<Language>, Cloneable {
 
 	public static Languages valueOf(String accept) {
 		Set<Language> languages = new TreeSet<Language>();
-		String[] values = accept != null && accept.length() == 0 == false ? accept.split(",") : new String[0];
+		String[] values = accept != null && accept.length() != 0 ? accept.split(",") : new String[0];
 		for (String value : values) {
 			Language mediaType = Language.valueOf(value);
 			languages.add(mediaType);

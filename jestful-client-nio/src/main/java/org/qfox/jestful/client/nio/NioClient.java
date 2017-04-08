@@ -225,7 +225,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
             String host = endpoint.getHost();
             Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
             String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
-            return new JestfulNioInvocationHandler<T>(interfase, protocol, host, port, route, NioClient.this).getProxy();
+            return new JestfulNioInvocationHandler<T>(interfase, protocol, host, port, route, NioClient.this, load(forePlugins), load(backPlugins)).getProxy();
         }
     }
 

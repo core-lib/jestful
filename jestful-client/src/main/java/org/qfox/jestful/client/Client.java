@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -395,6 +396,197 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
     }
 
+    protected Object doSchedule(Action action) throws Exception {
+        Result result = action.getResult();
+        Body body = result.getBody();
+        for (Scheduler scheduler : schedulers.values()) {
+            if (scheduler.supports(action)) {
+                Type type = scheduler.getBodyType(this, action);
+                body.setType(type);
+                Object value = scheduler.schedule(this, action);
+                result.setValue(value);
+                return value;
+            }
+        }
+        Type type = result.getType();
+        body.setType(type);
+        Object value = action.execute();
+        result.setValue(value);
+        return value;
+    }
+
+    protected Request newRequest(Action action) throws Exception {
+        return new JestfulClientRequest(action, this, gateway, connTimeout, readTimeout, writeTimeout);
+    }
+
+    protected Response newResponse(Action action) throws Exception {
+        return new JestfulClientResponse(action, this, gateway);
+    }
+
+    public Invoker<?> invoker() {
+        return new Invoker();
+    }
+
+    public class Invoker<I extends Invoker<I>> {
+        private String protocol;
+        private String host;
+        private Integer port;
+        private String route;
+        private Resource resource;
+        private Mapping mapping;
+        private Restful restful;
+        private Parameters parameters;
+        private Result result;
+
+        private Accepts consumes;
+        private Accepts produces;
+
+        private Actor[] forePlugins;
+        private Actor[] backPlugins;
+
+        public I setEndpoint(URL endpoint) {
+            if (endpoint == null) {
+                throw new IllegalArgumentException("endpoint == null");
+            }
+            setProtocol(endpoint.getProtocol());
+            setHost(endpoint.getHost());
+            setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
+            setRoute(endpoint.getFile().length() == 0 ? null : endpoint.getFile());
+            return (I) this;
+        }
+
+        public I setProtocol(String protocol) {
+            if (protocol == null) {
+                throw new IllegalArgumentException("protocol == null");
+            }
+            this.protocol = protocol;
+            return (I) this;
+        }
+
+        public I setHost(String host) {
+            if (protocol == null) {
+                throw new IllegalArgumentException("host == null");
+            }
+            this.host = host;
+            return (I) this;
+        }
+
+        public I setPort(Integer port) {
+            if (port != null && (port < 0 || port > 65535)) {
+                throw new IllegalArgumentException("port " + port + " out of bounds [0, 65535]");
+            }
+            this.port = port;
+            return (I) this;
+        }
+
+        public I setRoute(String route) {
+            if (route != null && route.length() == 0 == false && route.startsWith("/") == false) {
+                throw new IllegalArgumentException("route should starts with /");
+            }
+            this.route = route;
+            return (I) this;
+        }
+
+        public I setResource(Resource resource) {
+            this.resource = resource;
+            return (I) this;
+        }
+
+        public I setMapping(Mapping mapping) {
+            this.mapping = mapping;
+            this.restful = mapping.getRestful();
+            this.parameters = mapping.getParameters();
+            this.result = mapping.getResult();
+            this.consumes = mapping.getConsumes();
+            this.produces = mapping.getProduces();
+            return (I) this;
+        }
+
+        public I setRestful(Restful restful) {
+            this.restful = restful;
+            return (I) this;
+        }
+
+        public I setParameters(Parameters parameters) {
+            this.parameters = parameters;
+            return (I) this;
+        }
+
+        public I setResult(Result result) {
+            this.result = result;
+            return (I) this;
+        }
+
+        public I setConsumes(Accepts consumes) {
+            this.consumes = consumes;
+            return (I) this;
+        }
+
+        public I setProduces(Accepts produces) {
+            this.produces = produces;
+            return (I) this;
+        }
+
+        public I setForePlugins(Actor[] forePlugins) {
+            this.forePlugins = forePlugins;
+            return (I) this;
+        }
+
+        public I setBackPlugins(Actor[] backPlugins) {
+            this.backPlugins = backPlugins;
+            return (I) this;
+        }
+
+        public Object invoke(Object... args) throws Exception {
+            parameters.arguments(args);
+
+            Collection<Actor> actors = new ArrayList<Actor>();
+            actors.addAll(Arrays.asList(forePlugins));
+            actors.addAll(Arrays.asList(plugins));
+            actors.addAll(Arrays.asList(backPlugins));
+            actors.add(Client.this);
+
+            Action action = new Action(beanContainer, actors);
+            action.setResource(resource);
+            action.setMapping(mapping);
+            action.setParameters(parameters);
+            action.setResult(result);
+
+            action.setRestful(restful);
+            action.setProtocol(protocol);
+            action.setHost(host);
+            action.setPort(port);
+            action.setRoute(route);
+
+            Request request = newRequest(action);
+            request.setRequestHeader("User-Agent", userAgent);
+            action.setRequest(request);
+
+            Response response = newResponse(action);
+            action.setResponse(response);
+
+            action.setConsumes(consumes);
+            action.setProduces(produces);
+
+            action.setAcceptCharsets(new Charsets(acceptCharsets));
+            action.setAcceptEncodings(new Encodings(acceptEncodings));
+            action.setAcceptLanguages(new Languages(acceptLanguages));
+            action.setContentCharsets(new Charsets(contentCharsets));
+            action.setContentEncodings(new Encodings(contentEncodings));
+            action.setContentLanguages(new Languages(contentLanguages));
+
+            action.setAllowEncode(allowEncode);
+            action.setAcceptEncode(acceptEncode);
+
+            action.setPathEncodeCharset(pathEncodeCharset);
+            action.setQueryEncodeCharset(queryEncodeCharset);
+            action.setHeaderEncodeCharset(headerEncodeCharset);
+
+            return doSchedule(action);
+        }
+
+    }
+
     public <T> T create(Class<T> interfase) {
         return creator().create(interfase);
     }
@@ -424,8 +616,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     public class Creator<C extends Creator<C>> {
-        private List<String> forePlugins = new ArrayList<String>();
-        private List<String> backPlugins = new ArrayList<String>();
+        protected List<String> forePlugins = new ArrayList<String>();
+        protected List<String> backPlugins = new ArrayList<String>();
 
         public C setForePlugins(String... plugins) {
             this.forePlugins.clear();

@@ -4,9 +4,6 @@ import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.core.*;
 
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * Created by payne on 2017/3/19.
@@ -71,51 +68,17 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         }
 
         Mapping mapping = resource.getMappings().get(method).clone();
-        Collection<Actor> actors = new ArrayList<Actor>();
-        actors.addAll(Arrays.asList(forePlugins));
-        actors.addAll(Arrays.asList(client.getPlugins()));
-        actors.addAll(Arrays.asList(backPlugins));
-        actors.add(client);
 
-        Action action = new Action(client.getBeanContainer(), actors);
-        action.setResource(resource);
-        action.setMapping(mapping);
-        Parameters parameters = mapping.getParameters();
-        parameters.arguments(args != null ? args : new Object[0]);
-        action.setParameters(parameters);
-        action.setResult(mapping.getResult());
-
-        action.setRestful(mapping.getRestful());
-        action.setProtocol(protocol);
-        action.setHost(host);
-        action.setPort(port);
-        action.setRoute(route);
-
-        Request request = newRequest(action);
-        request.setRequestHeader("User-Agent", client.getUserAgent());
-        action.setRequest(request);
-
-        Response response = newResponse(action);
-        action.setResponse(response);
-
-        action.setConsumes(mapping.getConsumes());
-        action.setProduces(mapping.getProduces());
-
-        action.setAcceptCharsets(new Charsets(client.getAcceptCharsets()));
-        action.setAcceptEncodings(new Encodings(client.getAcceptEncodings()));
-        action.setAcceptLanguages(new Languages(client.getAcceptLanguages()));
-        action.setContentCharsets(new Charsets(client.getContentCharsets()));
-        action.setContentEncodings(new Encodings(client.getContentEncodings()));
-        action.setContentLanguages(new Languages(client.getContentLanguages()));
-
-        action.setAllowEncode(client.isAllowEncode());
-        action.setAcceptEncode(client.isAcceptEncode());
-
-        action.setPathEncodeCharset(client.getPathEncodeCharset());
-        action.setQueryEncodeCharset(client.getQueryEncodeCharset());
-        action.setHeaderEncodeCharset(client.getHeaderEncodeCharset());
-
-        return doSchedule(action);
+        return client.invoker()
+                .setProtocol(protocol)
+                .setHost(host)
+                .setPort(port)
+                .setRoute(route)
+                .setResource(resource)
+                .setMapping(mapping)
+                .setForePlugins(forePlugins)
+                .setBackPlugins(backPlugins)
+                .invoke(args);
     }
 
     protected Object doSchedule(Action action) throws Exception {

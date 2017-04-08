@@ -36,7 +36,7 @@ public class Charsets implements Iterable<Charset>, Cloneable {
 
 	public static Charsets valueOf(String accept) {
 		Set<Charset> charsets = new TreeSet<Charset>();
-		String[] values = accept != null && accept.length() == 0 == false ? accept.split(",") : new String[0];
+		String[] values = accept != null && accept.length() != 0 ? accept.split(",") : new String[0];
 		for (String value : values) {
 			Charset mediaType = Charset.valueOf(value);
 			charsets.add(mediaType);

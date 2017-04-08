@@ -36,7 +36,7 @@ public class Encodings implements Iterable<Encoding>, Cloneable {
 
 	public static Encodings valueOf(String accept) {
 		Set<Encoding> encodings = new TreeSet<Encoding>();
-		String[] values = accept != null && accept.length() == 0 == false ? accept.split(",") : new String[0];
+		String[] values = accept != null && accept.length() != 0 ? accept.split(",") : new String[0];
 		for (String value : values) {
 			Encoding mediaType = Encoding.valueOf(value);
 			encodings.add(mediaType);
