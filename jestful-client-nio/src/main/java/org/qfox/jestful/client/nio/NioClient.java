@@ -141,7 +141,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
             Action action = (Action) key.attachment();
             for (Catcher catcher : catchers.values()) {
                 if (catcher instanceof NioCatcher && catcher.catchable(statusException)) {
-                    catcher.catched(this, action, statusException);
+                    ((NioCatcher) catcher).nioCatched(this, action, statusException);
                     break;
                 }
             }

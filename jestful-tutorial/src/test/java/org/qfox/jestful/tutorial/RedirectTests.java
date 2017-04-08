@@ -2,6 +2,7 @@ package org.qfox.jestful.tutorial;
 
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.commons.Lock;
@@ -39,6 +40,29 @@ public class RedirectTests {
     public void testNioRedirect() {
         Lock lock = new SimpleLock();
         ProxyAPI proxyAPI = NioClient.builder().setFollowRedirection(true).build().create(ProxyAPI.class, "https://merchant.qfoxy.com/index.jsp");
+        proxyAPI.index(new Callback<String>() {
+            @Override
+            public void onCompleted(boolean success, String result, Throwable throwable) {
+                testNioRedirect();
+            }
+
+            @Override
+            public void onSuccess(String result) {
+                System.out.println(result);
+            }
+
+            @Override
+            public void onFail(Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
+        lock.lockOne();
+    }
+
+    @Test
+    public void testAioRedirect() {
+        Lock lock = new SimpleLock();
+        ProxyAPI proxyAPI = AioClient.builder().setFollowRedirection(true).build().create(ProxyAPI.class, "https://merchant.qfoxy.com/index.jsp");
         proxyAPI.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {

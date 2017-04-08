@@ -9,8 +9,8 @@ import java.nio.channels.AsynchronousSocketChannel;
  */
 public class ConnectCompletionHandler extends AioCompletionHandler<Void> {
 
-    ConnectCompletionHandler(AsynchronousSocketChannel channel) {
-        super(channel, 0);
+    ConnectCompletionHandler(AioClient client, AsynchronousSocketChannel channel) {
+        super(client, channel, 0);
     }
 
     @Override
@@ -19,8 +19,8 @@ public class ConnectCompletionHandler extends AioCompletionHandler<Void> {
         AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
         listener.onConnected(action);
 
-        new WriteCompletionHandler(channel, request.getWriteTimeout()).completed(-1, action);
-        new ReadCompletionHandler(channel, request.getReadTimeout()).completed(-1, action);
+        new WriteCompletionHandler(client, channel, request.getWriteTimeout()).completed(-1, action);
+        new ReadCompletionHandler(client, channel, request.getReadTimeout()).completed(-1, action);
     }
 
 }

@@ -13,8 +13,8 @@ import java.util.concurrent.TimeUnit;
 public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
     private final ByteBuffer buffer = ByteBuffer.allocate(4096);
 
-    WriteCompletionHandler(AsynchronousSocketChannel channel, long timeout) {
-        super(channel, timeout);
+    WriteCompletionHandler(AioClient client, AsynchronousSocketChannel channel, long timeout) {
+        super(client, channel, timeout);
     }
 
     @Override

@@ -14,8 +14,8 @@ import java.util.concurrent.TimeUnit;
 public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
     private final ByteBuffer buffer = ByteBuffer.allocate(4096);
 
-    ReadCompletionHandler(AsynchronousSocketChannel channel, long timeout) {
-        super(channel, timeout);
+    ReadCompletionHandler(AioClient client, AsynchronousSocketChannel channel, long timeout) {
+        super(client, channel, timeout);
     }
 
     @Override

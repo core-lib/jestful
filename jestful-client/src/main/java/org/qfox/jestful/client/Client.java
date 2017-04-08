@@ -1058,6 +1058,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         return connectors;
     }
 
+    public Map<String, Catcher> getCatchers() {
+        return catchers;
+    }
+
     public String getProtocol() {
         return protocol;
     }

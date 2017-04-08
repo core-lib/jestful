@@ -58,7 +58,7 @@ public class AioClient extends Client implements AioConnector {
         AioEventListener listener = new JestfulAioEventListener();
         action.getExtra().put(AioEventListener.class, listener);
         AsynchronousSocketChannel channel = AsynchronousSocketChannel.open(aioChannelGroup);
-        channel.connect(address, action, new ConnectCompletionHandler(channel));
+        channel.connect(address, action, new ConnectCompletionHandler(this, channel));
         return null;
     }
 
