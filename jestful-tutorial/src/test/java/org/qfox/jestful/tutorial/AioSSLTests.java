@@ -6,7 +6,9 @@ import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -18,6 +20,14 @@ public class AioSSLTests {
     ProxyAPI proxyAPI = AioClient.builder().setConnTimeout(1000 * 1000).setEndpoint(new URL("https://merchant.qfoxy.com/v4/login")).build().create(ProxyAPI.class);
 
     public AioSSLTests() throws MalformedURLException {
+    }
+
+    public static void main(String[] args) {
+        try {
+            throw new IOException("Not Found");
+        } catch (Exception e) {
+            LoggerFactory.getLogger(NioClient.class).error("unhandled exception", e);
+        }
     }
 
     @Test

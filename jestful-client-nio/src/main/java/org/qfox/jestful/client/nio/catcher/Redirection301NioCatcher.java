@@ -1,10 +1,10 @@
-package org.qfox.jestful.client.catcher;
+package org.qfox.jestful.client.nio.catcher;
 
-import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.catcher.Redirection301Catcher;
+import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.StatusException;
 
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by yangchangpei on 17/4/7.
  */
-public class Redirection301Catcher implements Catcher {
+public class Redirection301NioCatcher extends Redirection301Catcher implements NioCatcher {
 
     @Override
     public boolean catchable(StatusException statusException) {
@@ -20,17 +20,18 @@ public class Redirection301Catcher implements Catcher {
     }
 
     @Override
-    public Object catched(Client client, Action action, StatusException statusException) throws Exception {
+    public void nioCatched(NioClient client, Action action, StatusException statusException) throws Exception {
         if (!client.isFollowRedirection()) throw statusException;
 
         Response response = action.getResponse();
         String location = response.getResponseHeader("Location");
         List<Parameter> parameters = new ArrayList<Parameter>();
-        Type type = action.getResult().getBody().getType();
-        return client.invoker().setEndpoint(new URL(location))
+        List<Parameter> extras = action.getParameters().all((Position) null);
+        parameters.addAll(extras);
+        client.invoker().setEndpoint(new URL(location))
                 .setParameters(new Parameters(parameters))
-                .setRestful(new Restful("GET", false, true, true))
-                .setResult(new Result(type))
+                .setRestful(action.getRestful())
+                .setResult(action.getResult())
                 .invoke();
     }
 
