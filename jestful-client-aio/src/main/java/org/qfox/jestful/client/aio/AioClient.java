@@ -69,11 +69,11 @@ public class AioClient extends Client implements AioConnector {
     }
 
     @Override
-    public Creater<?> creater() {
-        return new Creater();
+    public Creator<?> creator() {
+        return new Creator();
     }
 
-    public class Creater<C extends Creater<C>> extends Client.Creater<C> {
+    public class Creator<C extends Creator<C>> extends Client.Creator<C> {
         @Override
         public <T> T create(Class<T> interfase, URL endpoint) {
             String protocol = endpoint.getProtocol();

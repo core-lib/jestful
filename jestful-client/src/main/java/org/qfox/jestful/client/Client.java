@@ -397,44 +397,54 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     public <T> T create(Class<T> interfase) {
-        return creater().create(interfase);
+        return creator().create(interfase);
     }
 
     public <T> T create(Class<T> interfase, String protocol, String host) {
-        return creater().create(interfase, protocol, host);
+        return creator().create(interfase, protocol, host);
     }
 
     public <T> T create(Class<T> interfase, String protocol, String host, Integer port) {
-        return creater().create(interfase, protocol, host, port);
+        return creator().create(interfase, protocol, host, port);
     }
 
     public <T> T create(Class<T> interfase, String protocol, String host, Integer port, String route) {
-        return creater().create(interfase, protocol, host, port, route);
+        return creator().create(interfase, protocol, host, port, route);
     }
 
     public <T> T create(Class<T> interfase, String endpoint) {
-        return creater().create(interfase, endpoint);
+        return creator().create(interfase, endpoint);
     }
 
     public <T> T create(Class<T> interfase, URL endpoint) {
-        return creater().create(interfase, endpoint);
+        return creator().create(interfase, endpoint);
     }
 
-    public Creater<?> creater() {
-        return new Creater();
+    public Creator<?> creator() {
+        return new Creator();
     }
 
-    public class Creater<C extends Creater<C>> {
-        private String[] forePlugins = new String[0];
-        private String[] backPlugins = new String[0];
+    public class Creator<C extends Creator<C>> {
+        private List<String> forePlugins = new ArrayList<String>();
+        private List<String> backPlugins = new ArrayList<String>();
 
         public C setForePlugins(String... plugins) {
-            this.forePlugins = plugins;
-            return (C) this;
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
         }
 
         public C setBackPlugins(String... plugins) {
-            this.backPlugins = plugins;
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public C addForePlugins(String... plugins) {
+            this.forePlugins.addAll(Arrays.asList(plugins));
+            return (C) this;
+        }
+
+        public C addBackPlugins(String... plugins) {
+            this.backPlugins.addAll(Arrays.asList(plugins));
             return (C) this;
         }
 
@@ -468,7 +478,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             String host = endpoint.getHost();
             Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
             String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
-            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, load(forePlugins), load(backPlugins)).getProxy();
+            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, load(forePlugins.toArray(new String[0])), load(backPlugins.toArray(new String[0]))).getProxy();
         }
 
     }
