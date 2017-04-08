@@ -1,18 +1,18 @@
 package org.qfox.jestful.core;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Command;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.exception.IllegalConfigException;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -31,6 +31,12 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
     private final Object controller;
     private final String expression;
     private final Map<Method, Mapping> mappings = new HashMap<Method, Mapping>();
+
+    public Resource() {
+        super(new Annotation[0]);
+        this.controller = new Object();
+        this.expression = "";
+    }
 
     public Resource(Object controller) throws IllegalConfigException {
         this(controller, controller.getClass());
