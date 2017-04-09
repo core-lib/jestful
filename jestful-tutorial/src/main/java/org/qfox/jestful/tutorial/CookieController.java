@@ -23,7 +23,7 @@ public class CookieController {
         } else {
             response.addCookie(new javax.servlet.http.Cookie("cookie", "test"));
         }
-        return "@:ok";
+        return "status:404 Not Found";
     }
 
 }

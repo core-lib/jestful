@@ -42,9 +42,9 @@ public class ForwardResultRender implements Actor, Initialable {
         if (value instanceof String == false) {
             return value;
         }
-        String string = (String) value;
-        if (string.startsWith(prefix)) {
-            String expression = string.substring(prefix.length());
+        String text = (String) value;
+        if (text.startsWith(prefix)) {
+            String expression = text.substring(prefix.length());
             int index = expression.indexOf(':');
             String ctx = null;
             String path = null;

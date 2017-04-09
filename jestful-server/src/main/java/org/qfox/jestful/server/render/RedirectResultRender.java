@@ -47,9 +47,9 @@ public class RedirectResultRender implements Actor, Initialable {
 		if (response instanceof HttpServletResponse == false) {
 			return value;
 		}
-		String string = (String) value;
-		if (string.startsWith(prefix)) {
-			String path = string.substring(prefix.length());
+		String text = (String) value;
+		if (text.startsWith(prefix)) {
+			String path = text.substring(prefix.length());
 			path = path.contains("://") ? path : ctxpath + path;
 			HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 			httpServletResponse.sendRedirect(path);

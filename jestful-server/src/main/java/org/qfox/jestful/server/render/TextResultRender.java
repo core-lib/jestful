@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * @since 1.0.0
  */
 public class TextResultRender implements Actor {
-    private final Pattern pattern = Pattern.compile("@(\\(([^()]+?)\\))?\\:(.*)");
+    private final Pattern pattern = Pattern.compile("@(\\(([^()]+?)\\))?:(.*)");
 
     public Object react(Action action) throws Exception {
         Object value = action.execute();
@@ -39,34 +39,30 @@ public class TextResultRender implements Actor {
         }
         String text = (String) value;
         if (text.matches(pattern.pattern())) {
+            result.setRendered(true);
+
             Matcher matcher = pattern.matcher(text);
             matcher.find();
             String type = matcher.group(2) != null ? matcher.group(2) : "text/plain";
             String content = matcher.group(3) != null ? matcher.group(3) : "";
-            try {
-                Response response = action.getResponse();
-                switch (action.getDispatcher()) {
-                    case INCLUDE: {
-                        Writer writer = response.getResponseWriter();
-                        writer.write(content);
-                        writer.flush();
-                    }
-                    break;
-                    default: {
-                        String charset = response.getResponseHeader("Content-Charset");
-                        response.setContentType(type + "; charset=" + charset);
-                        OutputStream out = response.getResponseOutputStream();
-                        Writer writer = new OutputStreamWriter(out, charset);
-                        writer.write(content);
-                        writer.flush();
-                        IOKit.close(writer);
-                    }
-                    break;
+            Response response = action.getResponse();
+            switch (action.getDispatcher()) {
+                case INCLUDE: {
+                    Writer writer = response.getResponseWriter();
+                    writer.write(content);
+                    writer.flush();
                 }
-            } catch (Exception e) {
-                throw e;
-            } finally {
-                result.setRendered(true);
+                break;
+                default: {
+                    String charset = response.getResponseHeader("Content-Charset");
+                    response.setContentType(type + "; charset=" + charset);
+                    OutputStream out = response.getResponseOutputStream();
+                    Writer writer = new OutputStreamWriter(out, charset);
+                    writer.write(content);
+                    writer.flush();
+                    IOKit.close(writer);
+                }
+                break;
             }
         }
         return value;
