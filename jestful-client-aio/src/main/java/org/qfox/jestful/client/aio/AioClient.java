@@ -37,7 +37,7 @@ public class AioClient extends Client implements AioConnector {
     private final AsynchronousChannelGroup aioChannelGroup;
     private final SSLContext sslContext;
 
-    private AioClient(Builder<?> builder) {
+    private AioClient(AioBuilder<?> builder) {
         super(builder);
         try {
             this.concurrency = builder.concurrency;
@@ -101,11 +101,11 @@ public class AioClient extends Client implements AioConnector {
     }
 
     @Override
-    public Creator<?> creator() {
-        return new Creator();
+    public AioCreator<?> creator() {
+        return new AioCreator();
     }
 
-    public class Creator<C extends Creator<C>> extends Client.Creator<C> {
+    public class AioCreator<C extends AioCreator<C>> extends Client.Creator<C> {
         @Override
         public <T> T create(Class<T> interfase, URL endpoint) {
             String protocol = endpoint.getProtocol();
@@ -145,15 +145,15 @@ public class AioClient extends Client implements AioConnector {
         }
     }
 
-    public static Builder<?> builder() {
-        return new Builder();
+    public static AioBuilder<?> builder() {
+        return new AioBuilder();
     }
 
-    public static class Builder<B extends Builder<B>> extends Client.Builder<B> {
+    public static class AioBuilder<B extends AioBuilder<B>> extends Client.Builder<B> {
         private int concurrency = Runtime.getRuntime().availableProcessors() * 2;
         private SSLContext sslContext;
 
-        public Builder() {
+        public AioBuilder() {
             this.setConnTimeout(20 * 1000);
             this.setReadTimeout(Integer.MAX_VALUE);
             this.setWriteTimeout(Integer.MAX_VALUE);

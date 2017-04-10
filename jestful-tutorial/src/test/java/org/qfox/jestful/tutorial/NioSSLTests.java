@@ -26,7 +26,7 @@ public class NioSSLTests {
         proxyAPI.index(new Callback<String>() {
             @Override
             public void onCompleted(boolean success, String result, Throwable throwable) {
-
+                lock.openAll();
             }
 
             @Override
