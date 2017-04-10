@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 public class AioClient extends Client implements AioConnector {
     private static AioClient defaultClient;
 
+    private final int concurrency;
     private final ExecutorService executor;
     private final AsynchronousChannelGroup aioChannelGroup;
     private final SSLContext sslContext;
@@ -39,7 +40,8 @@ public class AioClient extends Client implements AioConnector {
     private AioClient(Builder<?> builder) {
         super(builder);
         try {
-            this.executor = builder.concurrent > 0 ? Executors.newFixedThreadPool(builder.concurrent) : Executors.newCachedThreadPool();
+            this.concurrency = builder.concurrency;
+            this.executor = concurrency > 0 ? Executors.newFixedThreadPool(concurrency) : Executors.newCachedThreadPool();
             this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(executor);
             this.sslContext = builder.sslContext;
         } catch (IOException e) {
@@ -148,7 +150,7 @@ public class AioClient extends Client implements AioConnector {
     }
 
     public static class Builder<B extends Builder<B>> extends Client.Builder<B> {
-        private int concurrent = Runtime.getRuntime().availableProcessors() * 2;
+        private int concurrency = Runtime.getRuntime().availableProcessors() * 2;
         private SSLContext sslContext;
 
         public Builder() {
@@ -182,11 +184,11 @@ public class AioClient extends Client implements AioConnector {
             return new AioClient(this);
         }
 
-        public B setConcurrent(int concurrent) {
-            if (concurrent < 0) {
-                throw new IllegalArgumentException("concurrent can not be negative");
+        public B setConcurrency(int concurrency) {
+            if (concurrency < 0) {
+                throw new IllegalArgumentException("concurrency can not be negative");
             }
-            this.concurrent = concurrent;
+            this.concurrency = concurrency;
             return (B) this;
         }
 
