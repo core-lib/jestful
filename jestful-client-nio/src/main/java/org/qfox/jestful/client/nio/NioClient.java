@@ -9,8 +9,9 @@ import org.qfox.jestful.client.nio.catcher.NioCatcher;
 import org.qfox.jestful.client.nio.connection.NioConnection;
 import org.qfox.jestful.client.nio.connection.NioConnector;
 import org.qfox.jestful.client.nio.scheduler.NioScheduler;
+import org.qfox.jestful.client.nio.timeout.SortedTimeoutManager;
+import org.qfox.jestful.client.nio.timeout.SynchronizedTimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
-import org.qfox.jestful.client.nio.timeout.TreeSetTimeoutManager;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
@@ -33,6 +34,10 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by yangchangpei on 17/3/23.
@@ -45,19 +50,26 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
     private static NioClient defaultClient;
     private Selector selector;
     private NioCalls calls;
-    private final ByteBuffer buffer = ByteBuffer.allocate(4096);
     private final long selectTimeout;
     private final TimeoutManager timeoutManager;
     private final SSLContext sslContext;
+    private final int concurrency;
+    private final ExecutorService executor;
+    private final Queue<NioTask> connTaskQueue = new ConcurrentLinkedQueue<NioTask>();
+    private final Queue<NioTask> sendTaskQueue = new ConcurrentLinkedQueue<NioTask>();
+    private final Queue<NioTask> recvTaskQueue = new ConcurrentLinkedQueue<NioTask>();
+
 
     private NioClient(Builder<?> builder) {
         super(builder);
         this.selectTimeout = builder.selectTimeout;
         this.timeoutManager = builder.timeoutManager;
         this.sslContext = builder.sslContext;
+        this.concurrency = builder.concurrency;
+        this.executor = Executors.newFixedThreadPool(concurrency);
         synchronized (startupLock) {
             try {
-                new Thread(this).start();
+                executor.execute(this);
                 startupLock.wait();
                 if (startupException != null) throw startupException;
             } catch (InterruptedException e) {
@@ -112,9 +124,18 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
                     key = iterator.next();
                     iterator.remove();
                     if (!key.isValid()) continue;
-                    if (key.isConnectable()) doChannelConnect(key);
-                    if (key.isWritable()) doChannelWrite(key);
-                    if (key.isReadable()) doChannelRead(key);
+                    if (key.isConnectable()) {
+                        NioTask task = connTaskQueue.poll();
+                        (task != null ? task : new NioConnTask()).execute(key);
+                    }
+                    if (key.isWritable()) {
+                        NioTask task = sendTaskQueue.poll();
+                        (task != null ? task : new NioSendTask()).execute(key);
+                    }
+                    if (key.isReadable()) {
+                        NioTask task = recvTaskQueue.poll();
+                        (task != null ? task : new NioRecvTask()).execute(key);
+                    }
                 }
                 // 异常捕获
             } catch (StatusException e) {
@@ -129,6 +150,81 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         }
         // 关闭
         doSelectorClose();
+    }
+
+    private abstract class NioTask implements Runnable {
+        protected SelectionKey key;
+
+        public void execute(SelectionKey key) {
+            this.key = key;
+            run();
+        }
+
+        protected abstract void onExecuting(SelectionKey key) throws Exception;
+
+        protected abstract void onExecuted(SelectionKey key);
+
+        @Override
+        public final void run() {
+            try {
+                onExecuting(key);
+            } catch (StatusException e) {
+                if (key != null && key.isValid()) doKeyCancel(key);
+                if (key != null) doExceptionCatch(key, e);
+                else logger.warn("unexpected exception", e);
+            } catch (Exception e) {
+                if (key != null && key.isValid()) doKeyCancel(key);
+                if (key != null) doChannelException(key, e);
+                else logger.warn("unexpected exception", e);
+            } finally {
+                onExecuted(key);
+            }
+        }
+
+    }
+
+    private class NioConnTask extends NioTask {
+
+        @Override
+        protected void onExecuting(SelectionKey key) throws Exception {
+            doChannelConn(key);
+        }
+
+        @Override
+        protected void onExecuted(SelectionKey key) {
+            connTaskQueue.offer(this);
+        }
+
+    }
+
+    private class NioSendTask extends NioTask {
+        private final ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+        @Override
+        protected void onExecuting(SelectionKey key) throws Exception {
+            doChannelSend(key, buffer);
+        }
+
+        @Override
+        protected void onExecuted(SelectionKey key) {
+            sendTaskQueue.offer(this);
+        }
+
+    }
+
+    private class NioRecvTask extends NioTask {
+        private final ByteBuffer buffer = ByteBuffer.allocate(4096);
+
+        @Override
+        protected void onExecuting(SelectionKey key) throws Exception {
+            doChannelRecv(key, buffer);
+        }
+
+        @Override
+        protected void onExecuted(SelectionKey key) {
+            recvTaskQueue.offer(this);
+        }
+
     }
 
     private void doKeyCancel(SelectionKey key) {
@@ -183,7 +279,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         }
     }
 
-    private void doChannelRead(SelectionKey key) throws Exception {
+    private void doChannelRecv(SelectionKey key, ByteBuffer buffer) throws Exception {
         SocketChannel channel = (SocketChannel) key.channel();
         Action action = (Action) key.attachment();
         NioResponse response = (NioResponse) action.getExtra().get(NioResponse.class);
@@ -199,7 +295,7 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         }
     }
 
-    private void doChannelWrite(SelectionKey key) throws Exception {
+    private void doChannelSend(SelectionKey key, ByteBuffer buffer) throws Exception {
         SocketChannel channel = (SocketChannel) key.channel();
         Action action = (Action) key.attachment();
         NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
@@ -210,21 +306,21 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
         if (request.move(n)) {
             // 请求发送成功后只注册READ把之前的 WRITE | READ 注销掉 开始计算Read Timeout
             channel.register(selector, SelectionKey.OP_READ, action);
-            timeoutManager.addReadTimeoutHandler(key, request.getReadTimeout());
+            timeoutManager.addRecvTimeoutHandler(key, request.getReadTimeout());
 
             NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
             listener.onRequested(action);
         }
     }
 
-    private void doChannelConnect(SelectionKey key) throws Exception {
+    private void doChannelConn(SelectionKey key) throws Exception {
         SocketChannel channel = (SocketChannel) key.channel();
         Action action = (Action) key.attachment();
         NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
         if (channel.isConnectionPending() && channel.finishConnect()) {
             // 本来HTTP 模式情况下这里只需要注册WRITE即可 但是为了适配SSL模式的握手过程的握手数据读写 这里必须注册成WRITE | READ 但是只计算Write Timeout
             channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
-            timeoutManager.addWriteTimeoutHandler(key, request.getWriteTimeout());
+            timeoutManager.addSendTimeoutHandler(key, request.getWriteTimeout());
 
             NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
             listener.onConnected(action);
@@ -324,8 +420,9 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
 
     public static class Builder<B extends Builder<B>> extends Client.Builder<B> {
         private long selectTimeout = 1000L;
-        private TimeoutManager timeoutManager = new TreeSetTimeoutManager();
+        private TimeoutManager timeoutManager = new SynchronizedTimeoutManager(new SortedTimeoutManager());
         private SSLContext sslContext;
+        private int concurrency = Runtime.getRuntime().availableProcessors() * 2;
 
         public Builder() {
             this.setConnTimeout(20 * 1000);
@@ -379,6 +476,14 @@ public class NioClient extends Client implements Runnable, NioCalls.NioConsumer,
             if (sslContext == null) {
                 throw new IllegalArgumentException("SSLContext can not be null");
             }
+            return (B) this;
+        }
+
+        public B setConcurrency(int concurrency) {
+            if (concurrency < 2) {
+                throw new IllegalArgumentException("concurrency can not lesser than 2");
+            }
+            this.concurrency = concurrency;
             return (B) this;
         }
     }

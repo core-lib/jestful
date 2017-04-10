@@ -8,7 +8,7 @@ import java.util.TreeSet;
 /**
  * Created by yangchangpei on 17/3/27.
  */
-public class TreeSetTimeoutManager implements TimeoutManager {
+public class SortedTimeoutManager implements TimeoutManager {
     private Set<TimeoutHandler> handlers = new TreeSet<TimeoutHandler>();
 
     @Override
@@ -17,13 +17,13 @@ public class TreeSetTimeoutManager implements TimeoutManager {
     }
 
     @Override
-    public void addReadTimeoutHandler(SelectionKey key, long timeout) {
-        handlers.add(new ReadTimeoutHandler(key, timeout));
+    public void addRecvTimeoutHandler(SelectionKey key, long timeout) {
+        handlers.add(new RecvTimeoutHandler(key, timeout));
     }
 
     @Override
-    public void addWriteTimeoutHandler(SelectionKey key, long timeout) {
-        handlers.add(new WriteTimeoutHandler(key, timeout));
+    public void addSendTimeoutHandler(SelectionKey key, long timeout) {
+        handlers.add(new SendTimeoutHandler(key, timeout));
     }
 
     @Override

@@ -9,9 +9,9 @@ public interface TimeoutManager {
 
     void addConnTimeoutHandler(SelectionKey key, long timeout);
 
-    void addReadTimeoutHandler(SelectionKey key, long timeout);
+    void addRecvTimeoutHandler(SelectionKey key, long timeout);
 
-    void addWriteTimeoutHandler(SelectionKey key, long timeout);
+    void addSendTimeoutHandler(SelectionKey key, long timeout);
 
     void fire();
 
