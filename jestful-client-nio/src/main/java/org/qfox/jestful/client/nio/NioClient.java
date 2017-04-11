@@ -220,6 +220,7 @@ public class NioClient extends Client implements NioConnector {
                     else logger.warn("unexpected exception", e);
                 }
             }
+            IOKit.close(this);
         }
 
         @Override
