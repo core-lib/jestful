@@ -8,6 +8,7 @@ import org.qfox.jestful.commons.SimpleLock;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by payne on 2017/4/4.
@@ -22,27 +23,27 @@ public class NioSSLTests {
     @Test
     public void test() throws Exception {
         Lock lock = new SimpleLock();
-
-        proxyAPI.index(new Callback<String>() {
-            @Override
-            public void onCompleted(boolean success, String result, Throwable throwable) {
-                try {
-                    test();
-                } catch (Exception e) {
-                    e.printStackTrace();
+        AtomicInteger ai = new AtomicInteger(100);
+        for (int i = 0; i < 100; i++) {
+            proxyAPI.index(new Callback<String>() {
+                @Override
+                public void onCompleted(boolean success, String result, Throwable throwable) {
+                    if (ai.decrementAndGet() == 0) {
+                        lock.openAll();
+                    }
                 }
-            }
 
-            @Override
-            public void onSuccess(String result) {
-                System.out.println(result);
-            }
+                @Override
+                public void onSuccess(String result) {
+                    System.out.println(result);
+                }
 
-            @Override
-            public void onFail(Throwable throwable) {
-                throwable.printStackTrace();
-            }
-        });
+                @Override
+                public void onFail(Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            });
+        }
         lock.lockOne();
     }
 
