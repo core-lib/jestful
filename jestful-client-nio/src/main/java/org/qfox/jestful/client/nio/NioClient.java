@@ -50,7 +50,7 @@ public class NioClient extends Client implements NioConnector {
     private final SSLContext sslContext;
     private final int concurrency;
     private final ExecutorService executor;
-    private final RunnableNioProcessor[] processors;
+    private final NioProcessor[] processors;
     private final NioBalancer balancer;
 
     private NioClient(NioBuilder<?> builder) {
@@ -74,7 +74,7 @@ public class NioClient extends Client implements NioConnector {
         this.executor.shutdown();
     }
 
-    private class RunnableNioProcessor implements NioProcessor, NioCalls.NioConsumer, Runnable, Closeable {
+    private class RunnableNioProcessor implements NioProcessor, NioCalls.NioConsumer, Closeable {
         private final TimeoutManager timeoutManager;
         private final Selector selector;
         private final ByteBuffer buffer;

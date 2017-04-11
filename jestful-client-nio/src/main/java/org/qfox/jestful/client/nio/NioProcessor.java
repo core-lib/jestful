@@ -7,7 +7,7 @@ import java.net.SocketAddress;
 /**
  * Created by yangchangpei on 17/4/11.
  */
-public interface NioProcessor {
+public interface NioProcessor extends Runnable {
 
     void process(SocketAddress address, Action action);
 
