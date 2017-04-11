@@ -26,6 +26,8 @@ public class Redirection301AioCatcher extends Redirection301Catcher implements A
         String location = response.getResponseHeader("Location");
         List<Parameter> parameters = action.getParameters().all((Position) null);
         client.invoker().setEndpoint(new URL(location))
+                .setProduces(action.getProduces())
+                .setConsumes(action.getConsumes())
                 .setParameters(new Parameters(parameters))
                 .setRestful(new Restful("GET", false, true, true))
                 .setResult(action.getResult())

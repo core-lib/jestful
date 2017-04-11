@@ -27,6 +27,8 @@ public class Redirection307Catcher implements Catcher {
         List<Parameter> parameters = action.getParameters().all(Position.BODY);
         Type type = action.getResult().getBody().getType();
         return client.invoker().setEndpoint(new URL(location))
+                .setProduces(action.getProduces())
+                .setConsumes(action.getConsumes())
                 .setParameters(new Parameters(parameters))
                 .setRestful(action.getRestful())
                 .setResult(new Result(type))

@@ -31,6 +31,8 @@ public class Redirection307AioCatcher extends Redirection307Catcher implements A
         params.addAll(bodies);
         params.addAll(extras);
         client.invoker().setEndpoint(new URL(location))
+                .setProduces(action.getProduces())
+                .setConsumes(action.getConsumes())
                 .setParameters(new Parameters(params))
                 .setRestful(action.getRestful())
                 .setResult(action.getResult())

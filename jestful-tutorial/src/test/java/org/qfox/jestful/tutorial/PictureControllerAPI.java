@@ -13,7 +13,7 @@ import java.io.File;
 @Jestful("/pictures")
 public interface PictureControllerAPI {
 
-    @POST("/")
+    @POST(value = "/", consumes = "multipart/form-data")
     void upload(@Body("picture") File file, OnCompleted<String> onCompleted);
 
 }

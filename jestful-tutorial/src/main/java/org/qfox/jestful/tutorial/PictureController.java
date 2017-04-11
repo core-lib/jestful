@@ -5,8 +5,8 @@ import org.qfox.jestful.core.annotation.Header;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.annotation.POST;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -22,7 +22,7 @@ public class PictureController {
     }
 
     @POST("/v1")
-    public String upload(@Body("picture") File file) throws IOException {
+    public String upload(@Body("picture") MultipartFile file) throws IOException {
         System.out.println(file);
         return "@:success";
     }

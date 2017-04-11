@@ -31,6 +31,8 @@ public class Redirection307NioCatcher extends Redirection307Catcher implements N
         params.addAll(bodies);
         params.addAll(extras);
         client.invoker().setEndpoint(new URL(location))
+                .setProduces(action.getProduces())
+                .setConsumes(action.getConsumes())
                 .setParameters(new Parameters(params))
                 .setRestful(action.getRestful())
                 .setResult(action.getResult())
