@@ -150,7 +150,7 @@ public class AioClient extends Client implements AioConnector {
     }
 
     public static class AioBuilder<B extends AioBuilder<B>> extends Client.Builder<B> {
-        private int concurrency = Runtime.getRuntime().availableProcessors() * 2;
+        private int concurrency = Runtime.getRuntime().availableProcessors();
         private SSLContext sslContext;
 
         public AioBuilder() {

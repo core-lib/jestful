@@ -324,7 +324,7 @@ public class NioClient extends Client implements NioConnector {
     public static class NioBuilder<B extends NioBuilder<B>> extends Client.Builder<B> {
         private long selectTimeout = 1000L;
         private SSLContext sslContext;
-        private int concurrency = Runtime.getRuntime().availableProcessors() * 2;
+        private int concurrency = Runtime.getRuntime().availableProcessors();
         private NioBalancer balancer = new RandomNioBalancer();
 
         public NioBuilder() {
