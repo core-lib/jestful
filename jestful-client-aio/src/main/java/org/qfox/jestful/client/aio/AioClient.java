@@ -44,7 +44,7 @@ public class AioClient extends Client implements AioConnector {
             this.executor = concurrency > 0 ? Executors.newFixedThreadPool(concurrency) : Executors.newCachedThreadPool();
             this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(executor);
             this.sslContext = builder.sslContext;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
