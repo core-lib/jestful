@@ -4,8 +4,8 @@ import org.qfox.jestful.client.Client;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.StatusException;
 
+import java.lang.reflect.Type;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,15 +24,12 @@ public class Redirection307Catcher implements Catcher {
 
         Response response = action.getResponse();
         String location = response.getResponseHeader("Location");
-        List<Parameter> parameters = new ArrayList<Parameter>();
-        List<Parameter> bodies = action.getParameters().all(Position.BODY);
-        parameters.addAll(bodies);
-        List<Parameter> extras = action.getParameters().all((Position) null);
-        parameters.addAll(extras);
+        List<Parameter> parameters = action.getParameters().all(Position.BODY);
+        Type type = action.getResult().getBody().getType();
         return client.invoker().setEndpoint(new URL(location))
                 .setParameters(new Parameters(parameters))
                 .setRestful(action.getRestful())
-                .setResult(action.getResult())
+                .setResult(new Result(type))
                 .invoke();
     }
 }

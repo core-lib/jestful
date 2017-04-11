@@ -6,7 +6,6 @@ import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.StatusException;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,9 +24,7 @@ public class Redirection301AioCatcher extends Redirection301Catcher implements A
 
         Response response = action.getResponse();
         String location = response.getResponseHeader("Location");
-        List<Parameter> parameters = new ArrayList<Parameter>();
-        List<Parameter> extras = action.getParameters().all((Position) null);
-        parameters.addAll(extras);
+        List<Parameter> parameters = action.getParameters().all((Position) null);
         client.invoker().setEndpoint(new URL(location))
                 .setParameters(new Parameters(parameters))
                 .setRestful(new Restful("GET", false, true, true))
