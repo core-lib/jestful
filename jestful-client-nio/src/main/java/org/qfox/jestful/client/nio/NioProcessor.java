@@ -11,4 +11,6 @@ public interface NioProcessor extends Runnable {
 
     void process(SocketAddress address, Action action);
 
+    int tasks();
+
 }

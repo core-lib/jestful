@@ -5,8 +5,8 @@ import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
+import org.qfox.jestful.client.nio.balancer.LoopedNioBalancer;
 import org.qfox.jestful.client.nio.balancer.NioBalancer;
-import org.qfox.jestful.client.nio.balancer.RandomNioBalancer;
 import org.qfox.jestful.client.nio.catcher.NioCatcher;
 import org.qfox.jestful.client.nio.connection.NioConnection;
 import org.qfox.jestful.client.nio.connection.NioConnector;
@@ -60,8 +60,8 @@ public class NioClient extends Client implements NioConnector {
             this.sslContext = builder.sslContext;
             this.concurrency = builder.concurrency;
             this.executor = Executors.newFixedThreadPool(concurrency);
-            this.processors = new RunnableNioProcessor[concurrency];
-            for (int i = 0; i < concurrency; i++) executor.execute(processors[i] = new RunnableNioProcessor());
+            this.processors = new NioProcessorImpl[concurrency];
+            for (int i = 0; i < concurrency; i++) executor.execute(processors[i] = new NioProcessorImpl());
             this.balancer = builder.balancer;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -74,13 +74,13 @@ public class NioClient extends Client implements NioConnector {
         this.executor.shutdown();
     }
 
-    private class RunnableNioProcessor implements NioProcessor, NioCalls.NioConsumer, Closeable {
+    private class NioProcessorImpl implements NioProcessor, NioCalls.NioConsumer, Closeable {
         private final TimeoutManager timeoutManager;
         private final Selector selector;
         private final ByteBuffer buffer;
         private final NioCalls calls;
 
-        public RunnableNioProcessor() throws IOException {
+        public NioProcessorImpl() throws IOException {
             this.timeoutManager = new SortedTimeoutManager();
             this.selector = Selector.open();
             this.buffer = ByteBuffer.allocate(4096);
@@ -106,6 +106,11 @@ public class NioClient extends Client implements NioConnector {
         @Override
         public void process(SocketAddress address, Action action) {
             calls.offer(address, action);
+        }
+
+        @Override
+        public int tasks() {
+            return selector.keys().size();
         }
 
         private void doKeyCancel(SelectionKey key) {
@@ -325,7 +330,7 @@ public class NioClient extends Client implements NioConnector {
         private long selectTimeout = 1000L;
         private SSLContext sslContext;
         private int concurrency = Runtime.getRuntime().availableProcessors();
-        private NioBalancer balancer = new RandomNioBalancer();
+        private NioBalancer balancer = new LoopedNioBalancer();
 
         public NioBuilder() {
             this.setConnTimeout(20 * 1000);
