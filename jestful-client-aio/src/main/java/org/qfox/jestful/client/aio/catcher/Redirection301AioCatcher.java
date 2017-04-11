@@ -30,7 +30,7 @@ public class Redirection301AioCatcher extends Redirection301Catcher implements A
         parameters.addAll(extras);
         client.invoker().setEndpoint(new URL(location))
                 .setParameters(new Parameters(parameters))
-                .setRestful(action.getRestful())
+                .setRestful(new Restful("GET", false, true, true))
                 .setResult(action.getResult())
                 .invoke();
     }
