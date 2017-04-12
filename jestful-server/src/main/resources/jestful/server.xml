@@ -44,11 +44,11 @@
     </jestful:group>
 
     <jestful:group id="render">
-        <bean class="org.qfox.jestful.server.render.DefaultResultRender"/>
-        <bean class="org.qfox.jestful.server.render.TextResultRender"/>
+        <bean class="org.qfox.jestful.server.render.DefaultResultRenderer"/>
+        <bean class="org.qfox.jestful.server.render.TextResultRenderer"/>
         <bean class="org.qfox.jestful.server.render.StatusResultRender"/>
-        <bean class="org.qfox.jestful.server.render.ForwardResultRender"/>
-        <bean class="org.qfox.jestful.server.render.RedirectResultRender"/>
+        <bean class="org.qfox.jestful.server.render.ForwardResultRenderer"/>
+        <bean class="org.qfox.jestful.server.render.RedirectResultRenderer"/>
     </jestful:group>
 
     <bean class="org.qfox.jestful.server.formatting.URLEncodedRequestDeserializer"/>

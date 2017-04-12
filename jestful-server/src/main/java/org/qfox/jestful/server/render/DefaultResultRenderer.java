@@ -22,7 +22,7 @@ import java.util.Map;
  * @date 2016年4月9日 下午3:46:30
  * @since 1.0.0
  */
-public class DefaultResultRender implements Actor, Initialable {
+public class DefaultResultRenderer implements Actor, Initialable {
     private final Map<MediaType, ResponseSerializer> map = new HashMap<MediaType, ResponseSerializer>();
 
     public Object react(Action action) throws Exception {

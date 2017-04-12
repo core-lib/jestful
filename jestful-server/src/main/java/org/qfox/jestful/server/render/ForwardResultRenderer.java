@@ -22,10 +22,10 @@ import javax.servlet.ServletResponse;
  * @date 2016年4月26日 下午5:24:37
  * @since 1.0.0
  */
-public class ForwardResultRender implements Actor, Initialable {
+public class ForwardResultRenderer implements Actor, Initialable {
     private ServletContext servletContext;
     private String ctxpath = "";
-    private String prefix = "forward:";
+    private String prefix = "@forward:";
 
     public void initialize(BeanContainer beanContainer) {
         servletContext = beanContainer.get(ServletContext.class);

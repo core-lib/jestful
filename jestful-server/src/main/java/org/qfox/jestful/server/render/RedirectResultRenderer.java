@@ -25,9 +25,9 @@ import org.qfox.jestful.core.Result;
  *
  * @since 1.0.0
  */
-public class RedirectResultRender implements Actor, Initialable {
+public class RedirectResultRenderer implements Actor, Initialable {
 	private String ctxpath = "";
-	private String prefix = "redirect:";
+	private String prefix = "@redirect:";
 
 	public void initialize(BeanContainer beanContainer) {
 		ServletContext servletContext = beanContainer.get(ServletContext.class);

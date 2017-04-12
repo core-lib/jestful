@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * @date 2016年6月8日 下午12:30:55
  * @since 1.0.0
  */
-public class TextResultRender implements Actor {
+public class TextResultRenderer implements Actor {
     private final Pattern pattern = Pattern.compile("@(\\(([^()]+?)\\))?:(.*)");
 
     public Object react(Action action) throws Exception {
