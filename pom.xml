@@ -22,7 +22,6 @@
         <module>jestful-android</module>
         <module>jestful-RxJava</module>
         <module>jestful-RxAndroid</module>
-        <module>jestful-tutorial</module>
         <module>jestful-client-nio</module>
         <module>jestful-client-aio</module>
     </modules>
