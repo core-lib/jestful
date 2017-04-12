@@ -1,4 +1,4 @@
-package org.qfox.jestful.server.render;
+package org.qfox.jestful.server.renderer;
 
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.MapKit;

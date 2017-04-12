@@ -1,4 +1,4 @@
-package org.qfox.jestful.server.render;
+package org.qfox.jestful.server.renderer;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;

@@ -1,4 +1,4 @@
-package org.qfox.jestful.server.render;
+package org.qfox.jestful.server.renderer;
 
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.ResponseSerializer;

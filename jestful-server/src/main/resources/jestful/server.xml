@@ -14,7 +14,7 @@
         <ref bean="wrapper"/>
         <ref bean="resolver"/>
         <ref bean="handler"/>
-        <ref bean="render"/>
+        <ref bean="renderer"/>
     </jestful:group>
 
     <jestful:group id="decider">
@@ -43,12 +43,12 @@
         <bean class="org.qfox.jestful.server.handler.MappingCacheHandler"/>
     </jestful:group>
 
-    <jestful:group id="render">
-        <bean class="org.qfox.jestful.server.render.DefaultResultRenderer"/>
-        <bean class="org.qfox.jestful.server.render.TextResultRenderer"/>
-        <bean class="org.qfox.jestful.server.render.StatusResultRender"/>
-        <bean class="org.qfox.jestful.server.render.ForwardResultRenderer"/>
-        <bean class="org.qfox.jestful.server.render.RedirectResultRenderer"/>
+    <jestful:group id="renderer">
+        <bean class="org.qfox.jestful.server.renderer.DefaultResultRenderer"/>
+        <bean class="org.qfox.jestful.server.renderer.TextResultRenderer"/>
+        <bean class="org.qfox.jestful.server.renderer.StatusResultRender"/>
+        <bean class="org.qfox.jestful.server.renderer.ForwardResultRenderer"/>
+        <bean class="org.qfox.jestful.server.renderer.RedirectResultRenderer"/>
     </jestful:group>
 
     <bean class="org.qfox.jestful.server.formatting.URLEncodedRequestDeserializer"/>
@@ -64,4 +64,3 @@
     <bean class="org.qfox.jestful.server.codec.NoneResponseEncoder"/>
 
 </beans>
-
