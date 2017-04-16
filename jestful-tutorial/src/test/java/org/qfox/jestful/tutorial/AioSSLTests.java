@@ -1,6 +1,7 @@
 package org.qfox.jestful.tutorial;
 
 import org.junit.Test;
+import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
@@ -23,11 +24,7 @@ public class AioSSLTests {
     }
 
     public static void main(String[] args) {
-        try {
-            throw new IOException("Not Found");
-        } catch (Exception e) {
-            LoggerFactory.getLogger(NioClient.class).error("unhandled exception", e);
-        }
+        Client.builder().setConfigLocations("jestful/client.xml").build();
     }
 
     @Test
