@@ -104,6 +104,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.configLocations = builder.configLocations.toArray(new String[0]);
         DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
+        reader.setValidating(false);
         reader.setBeanClassLoader(classLoader);
         reader.loadBeanDefinitions(configLocations);
         this.beanContainer = defaultListableBeanFactory.getBean(builder.beanContainer, BeanContainer.class);
