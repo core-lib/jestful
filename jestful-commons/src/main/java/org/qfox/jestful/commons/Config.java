@@ -1,12 +1,9 @@
 package org.qfox.jestful.commons;
 
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.HashMap;
@@ -45,29 +42,29 @@ public abstract class Config {
             }
         }
 
-        try {
-            PropertyDescriptor[] descriptors = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
-            for (PropertyDescriptor descriptor : descriptors) {
-                if ("class".equals(descriptor.getName())) {
-                    continue;
-                }
-
-                Method setter = descriptor.getWriteMethod();
-                if (setter == null || setter.getParameterTypes().length != 1 || setter.getParameterTypes()[0] != String.class) {
-                    continue;
-                }
-
-                String name = descriptor.getName();
-                if (!properties.containsKey(name)) {
-                    continue;
-                }
-
-                String value = properties.getProperty(name);
-                setter.invoke(this, value);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            PropertyDescriptor[] descriptors = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+//            for (PropertyDescriptor descriptor : descriptors) {
+//                if ("class".equals(descriptor.getName())) {
+//                    continue;
+//                }
+//
+//                Method setter = descriptor.getWriteMethod();
+//                if (setter == null || setter.getParameterTypes().length != 1 || setter.getParameterTypes()[0] != String.class) {
+//                    continue;
+//                }
+//
+//                String name = descriptor.getName();
+//                if (!properties.containsKey(name)) {
+//                    continue;
+//                }
+//
+//                String value = properties.getProperty(name);
+//                setter.invoke(this, value);
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     public static Properties load(Class<?> clazz) throws IllegalArgumentException {
