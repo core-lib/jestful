@@ -4,7 +4,6 @@ import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.nio.NioProcessor;
 import org.qfox.jestful.core.Action;
 
-import java.net.SocketAddress;
 import java.util.Random;
 
 /**
@@ -18,10 +17,10 @@ public class RandomNioBalancer implements NioBalancer {
     }
 
     @Override
-    public void dispatch(SocketAddress address, Action action, NioClient client, NioProcessor[] processors) {
+    public void dispatch(Action action, NioClient client, NioProcessor[] processors) {
         int index = random.nextInt(processors.length);
         NioProcessor processor = processors[index];
-        processor.process(address, action);
+        processor.process(action);
     }
 
 }

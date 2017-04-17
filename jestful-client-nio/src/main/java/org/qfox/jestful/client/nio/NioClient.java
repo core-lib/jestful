@@ -76,18 +76,28 @@ public class NioClient extends Client implements NioConnector {
 
     private class NioProcessorImpl implements NioProcessor, NioCalls.NioConsumer, Closeable {
         private final TimeoutManager timeoutManager;
+        private final Selector selector;
+        private final ByteBuffer buffer;
         private final NioCalls calls;
-        private Selector selector;
-        private ByteBuffer buffer;
 
         public NioProcessorImpl() throws IOException {
             this.timeoutManager = new SortedTimeoutManager();
-            this.calls = new NioCalls();
+            this.selector = Selector.open();
+            this.buffer = ByteBuffer.allocate(4096);
+            this.calls = new NioCalls(selector);
         }
 
         @Override
-        public void consume(SocketAddress address, Action action) {
+        public void consume(Action action) {
             try {
+                String protocol = action.getProtocol();
+                String host = action.getHost();
+                Integer port = action.getPort();
+                port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
+                Gateway gateway = NioClient.this.getGateway();
+                SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
+                (gateway != null ? gateway : Gateway.NULL).onConnected(action);
+
                 SocketChannel channel = SocketChannel.open();
                 channel.configureBlocking(false);
                 channel.connect(address);
@@ -102,8 +112,8 @@ public class NioClient extends Client implements NioConnector {
         }
 
         @Override
-        public void process(SocketAddress address, Action action) {
-            calls.offer(address, action);
+        public void process(Action action) {
+            calls.offer(action);
         }
 
         @Override
@@ -190,13 +200,6 @@ public class NioClient extends Client implements NioConnector {
 
         @Override
         public void run() {
-            try {
-                this.selector = Selector.open();
-                this.buffer = ByteBuffer.allocate(4096);
-                this.calls.startup(selector);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
             // 运行
             while (!isDestroyed() && selector.isOpen()) {
                 SelectionKey key = null;
@@ -241,16 +244,9 @@ public class NioClient extends Client implements NioConnector {
     }
 
     public Object react(Action action) throws Exception {
-        String protocol = action.getProtocol();
-        String host = action.getHost();
-        Integer port = action.getPort();
-        port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
-        Gateway gateway = this.getGateway();
-        SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
-        (gateway != null ? gateway : Gateway.NULL).onConnected(action);
         NioEventListener listener = new JestfulNioEventListener();
         action.getExtra().put(NioEventListener.class, listener);
-        balancer.dispatch(address, action, this, processors);
+        balancer.dispatch(action, this, processors);
         return null;
     }
 

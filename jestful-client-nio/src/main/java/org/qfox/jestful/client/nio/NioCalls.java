@@ -2,7 +2,6 @@ package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.core.Action;
 
-import java.net.SocketAddress;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -13,53 +12,34 @@ import java.util.List;
  */
 public class NioCalls {
     private final Object lock = new Object();
-    private final List<NioCall> calls = new LinkedList<NioCall>();
-    private Selector selector;
+    private final List<Action> calls = new LinkedList<Action>();
+    private final Selector selector;
 
-    public NioCalls() {
+    public NioCalls(Selector selector) {
+        this.selector = selector;
     }
 
-    public void startup(Selector selector) {
-        if (selector == null) throw new IllegalArgumentException("selector can not be null");
+    public void offer(Action action) {
         synchronized (lock) {
-            if (this.selector != null) throw new IllegalStateException();
-            this.selector = selector;
+            calls.add(action);
             selector.wakeup();
-        }
-    }
-
-    public void offer(SocketAddress channel, Action attachment) {
-        synchronized (lock) {
-            calls.add(new NioCall(channel, attachment));
-            if (selector != null) selector.wakeup();
         }
     }
 
     public void foreach(NioConsumer consumer) {
         synchronized (lock) {
-            Iterator<NioCall> iterator = calls.iterator();
+            Iterator<Action> iterator = calls.iterator();
             while (iterator.hasNext()) {
-                NioCall call = iterator.next();
+                Action action = iterator.next();
                 iterator.remove();
-                consumer.consume(call.address, call.action);
+                consumer.consume(action);
             }
         }
     }
 
-    public static class NioCall {
-        private final SocketAddress address;
-        private final Action action;
-
-        public NioCall(SocketAddress address, Action action) {
-            this.address = address;
-            this.action = action;
-        }
-
-    }
-
     public interface NioConsumer {
 
-        void consume(SocketAddress address, Action attachment);
+        void consume(Action action);
 
     }
 
