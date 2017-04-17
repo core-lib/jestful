@@ -23,10 +23,6 @@ public class AioSSLTests {
     public AioSSLTests() throws MalformedURLException {
     }
 
-    public static void main(String[] args) {
-        Client.builder().setConfigLocations("jestful/client.xml").build();
-    }
-
     @Test
     public void test() throws Exception {
         Lock lock = new SimpleLock();

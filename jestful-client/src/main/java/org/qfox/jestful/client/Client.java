@@ -10,6 +10,7 @@ import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
+import org.qfox.jestful.commons.collection.Enumerator;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
 import org.qfox.jestful.core.exception.StatusException;
@@ -18,13 +19,11 @@ import org.qfox.jestful.core.formatting.ResponseDeserializer;
 import org.qfox.jestful.core.io.RequestLazyOutputStream;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.core.io.UrlResource;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,6 +31,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * <p>
@@ -61,7 +62,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     protected final ClassLoader classLoader;
     protected final Map<Class<?>, Resource> resources;
     protected final BeanContainer beanContainer;
-    protected final String[] configLocations;
+    protected final URL[] configLocations;
     protected final Actor[] plugins;
 
     protected final String[] acceptCharsets;
@@ -101,12 +102,12 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.route = builder.route;
         this.classLoader = builder.classLoader;
         this.resources = new HashMap<Class<?>, Resource>();
-        this.configLocations = builder.configLocations.toArray(new String[0]);
+        this.configLocations = integrate().toArray(new URL[0]);
         DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
         reader.setValidating(false);
         reader.setBeanClassLoader(classLoader);
-        reader.loadBeanDefinitions(configLocations);
+        for (URL url : configLocations) reader.loadBeanDefinitions(new UrlResource(url));
         this.beanContainer = defaultListableBeanFactory.getBean(builder.beanContainer, BeanContainer.class);
         this.plugins = load(builder.plugins);
 
@@ -136,6 +137,54 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.followRedirection = builder.followRedirection;
 
         this.initialize(this.beanContainer);
+    }
+
+    protected Set<URL> integrate() {
+        try {
+            Set<URL> urls = new HashSet<URL>();
+            Enumeration<URL> enumeration = classLoader.getResources("jestful");
+            enumeration = enumeration != null && enumeration.hasMoreElements() ? enumeration : new Enumerator<URL>(classLoader.getResource("jestful/client.xml"));
+            while (enumeration.hasMoreElements()) {
+                URL url = enumeration.nextElement();
+                if (url == null) {
+                    continue;
+                } else if (url.getProtocol().equalsIgnoreCase("file")) {
+                    File file = new File(url.getFile());
+                    if (file.isDirectory()) {
+                        File[] files = file.listFiles();
+                        for (int i = 0; files != null && i < files.length; i++) {
+                            File f = files[i];
+                            if (f.isDirectory()) {
+                                continue;
+                            }
+                            if (f.isFile() && f.getName().endsWith(".xml")) {
+                                urls.add(f.toURI().toURL());
+                            }
+                        }
+                    }
+                } else if (url.getProtocol().equalsIgnoreCase("jar")) {
+                    String file = url.getFile();
+                    String path = file.substring(file.indexOf(":") + 1, file.lastIndexOf("!"));
+                    JarFile jarFile = new JarFile(path);
+                    Enumeration<JarEntry> entries = jarFile.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry jarEntry = entries.nextElement();
+                        if (jarEntry.isDirectory()) {
+                            continue;
+                        }
+                        String name = jarEntry.getName();
+                        if (name.startsWith("jestful/") && name.endsWith(".xml")) {
+                            urls.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
+                        }
+                    }
+                } else {
+                    throw new IOException("unknown protocol " + url.getProtocol());
+                }
+            }
+            return urls;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected Actor[] load(List<String> plugins) {
@@ -704,7 +753,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         private ClassLoader classLoader = this.getClass().getClassLoader();
         private String beanContainer = "defaultBeanContainer";
         private List<String> plugins = new ArrayList<String>(Arrays.asList("client"));
-        private List<String> configLocations = new ArrayList<String>(Arrays.asList("classpath*:/jestful/*.xml"));
 
         private List<String> acceptCharsets = new ArrayList<String>();
         private List<String> acceptEncodings = new ArrayList<String>();
@@ -828,22 +876,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                 throw new IllegalArgumentException("plugins is null");
             }
             this.plugins.addAll(Arrays.asList(plugins));
-            return (B) this;
-        }
-
-        public B setConfigLocations(String... configLocations) {
-            if (configLocations == null || configLocations.length == 0) {
-                throw new IllegalArgumentException("config locations is null or empty");
-            }
-            this.configLocations = new ArrayList<String>(Arrays.asList(configLocations));
-            return (B) this;
-        }
-
-        public B addConfigLocations(String... configLocations) {
-            if (configLocations == null) {
-                throw new IllegalArgumentException("config locations is null");
-            }
-            this.configLocations.addAll(Arrays.asList(configLocations));
             return (B) this;
         }
 
@@ -1091,7 +1123,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         return beanContainer;
     }
 
-    public String[] getConfigLocations() {
+    public URL[] getConfigLocations() {
         return configLocations;
     }
 

@@ -1,5 +1,6 @@
 package org.qfox.jestful.commons.collection;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 
@@ -29,6 +30,11 @@ public class Enumerator<T> implements Enumeration<T> {
 	public Enumerator(Iterable<T> iterable) {
 		super();
 		this.iterator = iterable.iterator();
+	}
+
+	public Enumerator(T ... entities) {
+		super();
+		this.iterator = Arrays.asList(entities).iterator();
 	}
 
 	public boolean hasMoreElements() {
