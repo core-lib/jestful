@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.plugin;
+package org.qfox.jestful.charset;
 
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.Action;

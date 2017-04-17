@@ -48,12 +48,9 @@
     <bean class="org.qfox.jestful.client.scheduler.FutureScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.MessageScheduler"/>
 
-    <bean id="characterEncodingPlugin" class="org.qfox.jestful.client.plugin.CharacterEncodingPlugin"/>
-
     <bean class="org.qfox.jestful.client.catcher.Redirection301Catcher"/>
     <bean class="org.qfox.jestful.client.catcher.Redirection302Catcher"/>
     <bean class="org.qfox.jestful.client.catcher.Redirection303Catcher"/>
     <bean class="org.qfox.jestful.client.catcher.Redirection307Catcher"/>
-
 
 </beans>
