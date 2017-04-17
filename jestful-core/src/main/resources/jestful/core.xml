@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<bean class="org.qfox.jestful.core.converter.primary.BooleanStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.primary.ByteStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.primary.CharacterStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.primary.ShortStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.primary.IntegerStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.primary.FloatStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.primary.LongStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.primary.DoubleStringConverter" />
+
+	<bean class="org.qfox.jestful.core.converter.wrapper.BooleanStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.wrapper.ByteStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.wrapper.CharacterStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.wrapper.ShortStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.wrapper.IntegerStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.wrapper.FloatStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.wrapper.LongStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.wrapper.DoubleStringConverter" />
+
+	<bean class="org.qfox.jestful.core.converter.DefaultStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.EnumStringConverter" />
+	<bean class="org.qfox.jestful.core.converter.DateStringConverter" />
+	
+	<bean id="defaultStringConversion" class="org.qfox.jestful.core.converter.DefaultStringConversion" />
+
+</beans>
+

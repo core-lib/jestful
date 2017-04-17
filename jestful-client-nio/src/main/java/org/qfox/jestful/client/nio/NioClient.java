@@ -76,15 +76,13 @@ public class NioClient extends Client implements NioConnector {
 
     private class NioProcessorImpl implements NioProcessor, NioCalls.NioConsumer, Closeable {
         private final TimeoutManager timeoutManager;
-        private final Selector selector;
-        private final ByteBuffer buffer;
         private final NioCalls calls;
+        private Selector selector;
+        private ByteBuffer buffer;
 
         public NioProcessorImpl() throws IOException {
             this.timeoutManager = new SortedTimeoutManager();
-            this.selector = Selector.open();
-            this.buffer = ByteBuffer.allocate(4096);
-            this.calls = new NioCalls(selector);
+            this.calls = new NioCalls();
         }
 
         @Override
@@ -192,6 +190,13 @@ public class NioClient extends Client implements NioConnector {
 
         @Override
         public void run() {
+            try {
+                this.selector = Selector.open();
+                this.buffer = ByteBuffer.allocate(4096);
+                this.calls.startup(selector);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             // 运行
             while (!isDestroyed() && selector.isOpen()) {
                 SelectionKey key = null;

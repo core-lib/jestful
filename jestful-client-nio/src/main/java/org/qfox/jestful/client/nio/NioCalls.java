@@ -14,16 +14,24 @@ import java.util.List;
 public class NioCalls {
     private final Object lock = new Object();
     private final List<NioCall> calls = new LinkedList<NioCall>();
-    private final Selector selector;
+    private Selector selector;
 
-    public NioCalls(Selector selector) {
-        this.selector = selector;
+    public NioCalls() {
+    }
+
+    public void startup(Selector selector) {
+        if (selector == null) throw new IllegalArgumentException("selector can not be null");
+        synchronized (lock) {
+            if (this.selector != null) throw new IllegalStateException();
+            this.selector = selector;
+            selector.wakeup();
+        }
     }
 
     public void offer(SocketAddress channel, Action attachment) {
         synchronized (lock) {
             calls.add(new NioCall(channel, attachment));
-            selector.wakeup();
+            if (selector != null) selector.wakeup();
         }
     }
 

@@ -15,13 +15,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Version: 1.0
  */
 public class NioSSLTests {
-    ProxyAPI proxyAPI = NioClient.builder().setConnTimeout(1000 * 1000).setEndpoint(new URL("http://merchant.qfoxtech.com/v4/login")).build().create(ProxyAPI.class);
-
     public NioSSLTests() throws MalformedURLException {
     }
 
     @Test
     public void test() throws Exception {
+        ProxyAPI proxyAPI = NioClient.builder().addPlugins("characterEncodingPlugin; charset=UTF-8").setConnTimeout(1000 * 1000).setEndpoint(new URL("http://merchant.qfoxtech.com/v4/login")).build().create(ProxyAPI.class);
+
         Lock lock = new SimpleLock();
         AtomicInteger ai = new AtomicInteger(100);
         for (int i = 0; i < 100; i++) {

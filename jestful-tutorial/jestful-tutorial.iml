@@ -42,6 +42,7 @@
     <orderEntry type="module" module-name="jestful-server" />
     <orderEntry type="module" module-name="jestful-java" />
     <orderEntry type="module" module-name="jestful-json" />
+    <orderEntry type="module" module-name="jestful-charset" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.7.3" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.7.0" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.7.3" level="project" />
