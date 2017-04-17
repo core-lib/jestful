@@ -89,6 +89,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     protected final SSLSocketFactory SSLSocketFactory;
     protected final String userAgent;
     protected final boolean followRedirection;
+    protected final boolean configValidation;
 
     protected boolean destroyed = false;
 
@@ -102,10 +103,11 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.route = builder.route;
         this.classLoader = builder.classLoader;
         this.resources = new HashMap<Class<?>, Resource>();
-        this.configLocations = integrate().toArray(new URL[0]);
+        this.configLocations = integrate(classLoader).toArray(new URL[0]);
+        this.configValidation = builder.configValidation;
         DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
-        reader.setValidating(false);
+        reader.setValidating(configValidation);
         reader.setBeanClassLoader(classLoader);
         for (URL url : configLocations) reader.loadBeanDefinitions(new UrlResource(url));
         this.beanContainer = defaultListableBeanFactory.getBean(builder.beanContainer, BeanContainer.class);
@@ -139,7 +141,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.initialize(this.beanContainer);
     }
 
-    protected Set<URL> integrate() throws IOException {
+    protected Set<URL> integrate(ClassLoader classLoader) throws IOException {
         Set<URL> urls = new HashSet<URL>();
         Enumeration<URL> enumeration = classLoader.getResources("jestful");
         enumeration = enumeration != null && enumeration.hasMoreElements() ? enumeration : new Enumerator<URL>(classLoader.getResource("jestful/client.xml"));
@@ -795,6 +797,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                 + Module.getInstance().getVersion();
 
         private boolean followRedirection = true;
+        private boolean configValidation = false;
 
         public Client build() {
             try {
@@ -1067,6 +1070,11 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
         public B setFollowRedirection(boolean followRedirection) {
             this.followRedirection = followRedirection;
+            return (B) this;
+        }
+
+        public B setConfigValidation(boolean configValidation) {
+            this.configValidation = configValidation;
             return (B) this;
         }
     }
