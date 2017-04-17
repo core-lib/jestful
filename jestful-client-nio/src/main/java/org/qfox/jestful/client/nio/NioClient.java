@@ -132,9 +132,10 @@ public class NioClient extends Client implements NioConnector {
                 for (Catcher catcher : catchers.values()) {
                     if (catcher instanceof NioCatcher && catcher.catchable(statusException)) {
                         ((NioCatcher) catcher).nioCatched(NioClient.this, action, statusException);
-                        break;
+                        return;
                     }
                 }
+                throw statusException;
             } catch (Exception e) {
                 doChannelException(key, e);
             }

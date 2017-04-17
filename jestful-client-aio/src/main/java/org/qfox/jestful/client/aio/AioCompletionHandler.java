@@ -49,9 +49,10 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
                 for (Catcher catcher : catchers.values()) {
                     if (catcher instanceof AioCatcher && catcher.catchable(statusException)) {
                         ((AioCatcher) catcher).aioCatched(client, action, statusException);
-                        break;
+                        return;
                     }
                 }
+                throw statusException;
             } catch (Exception e) {
                 onFailed(e, action);
             }
