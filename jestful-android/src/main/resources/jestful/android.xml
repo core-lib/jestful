@@ -6,9 +6,6 @@
     <bean class="org.qfox.jestful.android.AndroidScheduler"/>
     <bean class="org.qfox.jestful.android.AndroidNioScheduler"/>
 
-    <bean class="org.qfox.jestful.android.GsonRequestSerializer"/>
-    <bean class="org.qfox.jestful.android.GsonResponseDeserializer"/>
-
     <bean id="android-cache" class="org.qfox.jestful.android.AndroidCachePlugin"/>
 
 </beans>
