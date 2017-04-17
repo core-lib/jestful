@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -50,17 +48,11 @@ public class AioClient extends Client implements AioConnector {
     }
 
     public Object react(Action action) throws Exception {
-        String protocol = action.getProtocol();
-        String host = action.getHost();
-        Integer port = action.getPort();
-        port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
-        Gateway gateway = this.getGateway();
-        SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
-        (gateway != null ? gateway : Gateway.NULL).onConnected(action);
         AioEventListener listener = new JestfulAioEventListener();
         action.getExtra().put(AioEventListener.class, listener);
         AsynchronousSocketChannel channel = AsynchronousSocketChannel.open(aioChannelGroup);
-        channel.connect(address, action, new ConnectCompletionHandler(this, channel));
+        PrepareCompletionHandler handler = new PrepareCompletionHandler(this, channel, action);
+        executor.execute(handler);
         return null;
     }
 
