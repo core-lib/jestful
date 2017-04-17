@@ -94,7 +94,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
     protected static Client defaultClient;
 
-    protected Client(Builder<?> builder) {
+    protected Client(Builder<?> builder) throws IOException {
         super();
         this.protocol = builder.protocol;
         this.host = builder.host;
@@ -139,52 +139,48 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.initialize(this.beanContainer);
     }
 
-    protected Set<URL> integrate() {
-        try {
-            Set<URL> urls = new HashSet<URL>();
-            Enumeration<URL> enumeration = classLoader.getResources("jestful");
-            enumeration = enumeration != null && enumeration.hasMoreElements() ? enumeration : new Enumerator<URL>(classLoader.getResource("jestful/client.xml"));
-            while (enumeration.hasMoreElements()) {
-                URL url = enumeration.nextElement();
-                if (url == null) {
-                    continue;
-                } else if (url.getProtocol().equalsIgnoreCase("file")) {
-                    File file = new File(url.getFile());
-                    if (file.isDirectory()) {
-                        File[] files = file.listFiles();
-                        for (int i = 0; files != null && i < files.length; i++) {
-                            File f = files[i];
-                            if (f.isDirectory()) {
-                                continue;
-                            }
-                            if (f.isFile() && f.getName().endsWith(".xml")) {
-                                urls.add(f.toURI().toURL());
-                            }
-                        }
-                    }
-                } else if (url.getProtocol().equalsIgnoreCase("jar")) {
-                    String file = url.getFile();
-                    String path = file.substring(file.indexOf(":") + 1, file.lastIndexOf("!"));
-                    JarFile jarFile = new JarFile(path);
-                    Enumeration<JarEntry> entries = jarFile.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry jarEntry = entries.nextElement();
-                        if (jarEntry.isDirectory()) {
+    protected Set<URL> integrate() throws IOException {
+        Set<URL> urls = new HashSet<URL>();
+        Enumeration<URL> enumeration = classLoader.getResources("jestful");
+        enumeration = enumeration != null && enumeration.hasMoreElements() ? enumeration : new Enumerator<URL>(classLoader.getResource("jestful/client.xml"));
+        while (enumeration.hasMoreElements()) {
+            URL url = enumeration.nextElement();
+            if (url == null) {
+                continue;
+            } else if (url.getProtocol().equalsIgnoreCase("file")) {
+                File file = new File(url.getFile());
+                if (file.isDirectory()) {
+                    File[] files = file.listFiles();
+                    for (int i = 0; files != null && i < files.length; i++) {
+                        File f = files[i];
+                        if (f.isDirectory()) {
                             continue;
                         }
-                        String name = jarEntry.getName();
-                        if (name.startsWith("jestful/") && name.endsWith(".xml")) {
-                            urls.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
+                        if (f.isFile() && f.getName().endsWith(".xml")) {
+                            urls.add(f.toURI().toURL());
                         }
                     }
-                } else {
-                    throw new IOException("unknown protocol " + url.getProtocol());
                 }
+            } else if (url.getProtocol().equalsIgnoreCase("jar")) {
+                String file = url.getFile();
+                String path = file.substring(file.indexOf(":") + 1, file.lastIndexOf("!"));
+                JarFile jarFile = new JarFile(path);
+                Enumeration<JarEntry> entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry jarEntry = entries.nextElement();
+                    if (jarEntry.isDirectory()) {
+                        continue;
+                    }
+                    String name = jarEntry.getName();
+                    if (name.startsWith("jestful/") && name.endsWith(".xml")) {
+                        urls.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
+                    }
+                }
+            } else {
+                throw new IOException("unknown protocol " + url.getProtocol());
             }
-            return urls;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
+        return urls;
     }
 
     protected Actor[] load(List<String> plugins) {
@@ -801,7 +797,11 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         private boolean followRedirection = true;
 
         public Client build() {
-            return new Client(this);
+            try {
+                return new Client(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         public B setEndpoint(URL endpoint) {

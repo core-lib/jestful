@@ -53,19 +53,15 @@ public class NioClient extends Client implements NioConnector {
     private final NioProcessor[] processors;
     private final NioBalancer balancer;
 
-    private NioClient(NioBuilder<?> builder) {
+    private NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
-        try {
-            this.selectTimeout = builder.selectTimeout;
-            this.sslContext = builder.sslContext;
-            this.concurrency = builder.concurrency;
-            this.executor = Executors.newFixedThreadPool(concurrency);
-            this.processors = new NioProcessorImpl[concurrency];
-            for (int i = 0; i < concurrency; i++) executor.execute(processors[i] = new NioProcessorImpl());
-            this.balancer = builder.balancer;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.selectTimeout = builder.selectTimeout;
+        this.sslContext = builder.sslContext;
+        this.concurrency = builder.concurrency;
+        this.executor = Executors.newFixedThreadPool(concurrency);
+        this.processors = new NioProcessorImpl[concurrency];
+        for (int i = 0; i < concurrency; i++) executor.execute(processors[i] = new NioProcessorImpl());
+        this.balancer = builder.balancer;
     }
 
     @Override
@@ -362,7 +358,11 @@ public class NioClient extends Client implements NioConnector {
 
         @Override
         public NioClient build() {
-            return new NioClient(this);
+            try {
+                return new NioClient(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         public B setSelectTimeout(long selectTimeout) {

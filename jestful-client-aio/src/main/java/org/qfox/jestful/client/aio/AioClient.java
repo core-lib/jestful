@@ -35,16 +35,12 @@ public class AioClient extends Client implements AioConnector {
     private final AsynchronousChannelGroup aioChannelGroup;
     private final SSLContext sslContext;
 
-    private AioClient(AioBuilder<?> builder) {
+    private AioClient(AioBuilder<?> builder) throws IOException {
         super(builder);
-        try {
-            this.concurrency = builder.concurrency;
-            this.executor = concurrency > 0 ? Executors.newFixedThreadPool(concurrency) : Executors.newCachedThreadPool();
-            this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(executor);
-            this.sslContext = builder.sslContext;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.concurrency = builder.concurrency;
+        this.executor = concurrency > 0 ? Executors.newFixedThreadPool(concurrency) : Executors.newCachedThreadPool();
+        this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(executor);
+        this.sslContext = builder.sslContext;
     }
 
     public Object react(Action action) throws Exception {
@@ -173,7 +169,11 @@ public class AioClient extends Client implements AioConnector {
 
         @Override
         public AioClient build() {
-            return new AioClient(this);
+            try {
+                return new AioClient(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         public B setConcurrency(int concurrency) {
