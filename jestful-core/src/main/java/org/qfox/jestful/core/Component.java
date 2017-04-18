@@ -1,5 +1,6 @@
 package org.qfox.jestful.core;
 
+import java.util.List;
 import java.util.Map;
 
 import org.qfox.jestful.core.exception.PluginConfigException;
@@ -20,6 +21,13 @@ import org.qfox.jestful.core.exception.PluginConfigException;
  * @since 1.0.0
  */
 public class Component extends Group implements Plugin {
+
+	public Component() {
+	}
+
+	public Component(List<Actor> members) {
+		super(members);
+	}
 
 	public void config(Map<String, String> arguments) throws PluginConfigException {
 		for (Actor member : members) {

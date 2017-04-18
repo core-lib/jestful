@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jestful="http://www.qfoxtech.com/schema/jestful"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-		http://www.qfoxtech.com/schema/jestful http://www.qfoxtech.com/schema/jestful/jestful-1.0.0.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<jestful:component id="cookie">
-		<ref bean="request-cookie" />
-		<ref bean="response-cookie" />
-	</jestful:component>
+    <bean id="cookie" class="org.qfox.jestful.core.Component">
+        <constructor-arg index="0">
+            <list>
+                <ref bean="request-cookie"/>
+                <ref bean="response-cookie"/>
+            </list>
+        </constructor-arg>
+    </bean>
 
-	<bean id="request-cookie" class="org.qfox.jestful.cookie.RequestCookiePlugin" />
-	<bean id="response-cookie" class="org.qfox.jestful.cookie.ResponseCookiePlugin" />
+    <bean id="request-cookie" class="org.qfox.jestful.cookie.RequestCookiePlugin"/>
+    <bean id="response-cookie" class="org.qfox.jestful.cookie.ResponseCookiePlugin"/>
 
 </beans>
