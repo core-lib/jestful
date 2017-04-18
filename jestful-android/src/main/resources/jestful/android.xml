@@ -3,8 +3,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean class="org.qfox.jestful.android.AndroidScheduler"/>
-    <bean class="org.qfox.jestful.android.AndroidNioScheduler"/>
+    <bean class="org.qfox.jestful.android.CallbackScheduler"/>
+    <bean class="org.qfox.jestful.android.CallbackNioScheduler"/>
 
     <bean id="android-cache" class="org.qfox.jestful.android.AndroidCachePlugin"/>
 

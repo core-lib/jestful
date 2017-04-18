@@ -11,7 +11,7 @@ import org.qfox.jestful.core.Parameters;
 /**
  * Created by payne on 2017/3/26.
  */
-public class AndroidNioScheduler extends AndroidScheduler implements NioScheduler {
+public class CallbackNioScheduler extends CallbackScheduler implements NioScheduler {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -31,23 +31,23 @@ public class AndroidNioScheduler extends AndroidScheduler implements NioSchedule
             @Override
             public void run() {
                 Parameters parameters = action.getParameters();
-                Parameter parameter = parameters.unique(Listener.class);
+                Parameter parameter = parameters.unique(Callback.class);
                 @SuppressWarnings("unchecked")
-                Listener<Object> listener = parameter.getValue() != null ? (Listener<Object>) parameter.getValue() : Listener.NULL;
+                Callback<Object> callback = parameter.getValue() != null ? (Callback<Object>) parameter.getValue() : Callback.NULL;
 
                 Object body = action.getResult().getBody().getValue();
                 Exception exception = action.getResult().getException();
                 try {
                     if (exception == null) {
-                        listener.onSuccess(body);
+                        callback.onSuccess(body);
                     } else {
                         throw exception;
                     }
                 } catch (Exception e) {
                     exception = e;
-                    listener.onFail(e);
+                    callback.onFail(e);
                 } finally {
-                    listener.onCompleted(exception == null, body, exception);
+                    callback.onCompleted(exception == null, body, exception);
                 }
             }
         });
