@@ -11,17 +11,17 @@ import org.qfox.jestful.core.Result;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-public class CallbackScheduler implements Scheduler {
+public class UICallbackScheduler implements Scheduler {
 
     public boolean supports(Action action) {
         Parameters parameters = action.getParameters();
         Result result = action.getResult();
-        return parameters.count(Callback.class) == 1 && result.getKlass() == Void.TYPE;
+        return parameters.count(UICallback.class) == 1 && result.getKlass() == Void.TYPE;
     }
 
     public Type getBodyType(Client client, Action action) throws UncertainBodyTypeException {
         Parameters parameters = action.getParameters();
-        Parameter parameter = parameters.unique(Callback.class);
+        Parameter parameter = parameters.unique(UICallback.class);
         Type type = parameter.getType();
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
@@ -33,10 +33,10 @@ public class CallbackScheduler implements Scheduler {
 
     public Object schedule(Client client, Action action) throws Exception {
         Parameters parameters = action.getParameters();
-        Parameter parameter = parameters.unique(Callback.class);
+        Parameter parameter = parameters.unique(UICallback.class);
         @SuppressWarnings("unchecked")
-        Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.NULL;
-        new CallbackTask(action, callback).execute();
+        UICallback callback = parameter.getValue() != null ? (UICallback) parameter.getValue() : UICallback.NULL;
+        new UICallbackTask(action, callback).execute();
         return null;
     }
 

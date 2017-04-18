@@ -9,9 +9,9 @@ import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Parameters;
 
 /**
- * Created by yangchangpei on 17/3/31.
+ * Created by payne on 2017/3/26.
  */
-public class LambdaNioScheduler extends LambdaScheduler implements NioScheduler {
+public class UICallbackNioScheduler extends UICallbackScheduler implements NioScheduler {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -26,33 +26,31 @@ public class LambdaNioScheduler extends LambdaScheduler implements NioScheduler 
     }
 
     @Override
-    public void doCallbackSchedule(final Client client, final Action action) {
+    public void doCallbackSchedule(Client client, final Action action) {
         mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 Parameters parameters = action.getParameters();
-                Parameter success = parameters.first(OnSuccess.class);
-                OnSuccess onSuccess = success != null && success.getValue() != null ? (OnSuccess) success.getValue() : OnSuccess.DEFAULT;
-                Parameter fail = parameters.first(OnFail.class);
-                OnFail onFail = fail != null && fail.getValue() != null ? (OnFail) fail.getValue() : OnFail.DEFAULT;
-                Parameter completed = parameters.first(OnCompleted.class);
-                OnCompleted onCompleted = completed != null && completed.getValue() != null ? (OnCompleted) completed.getValue() : OnCompleted.DEFAULT;
+                Parameter parameter = parameters.unique(UICallback.class);
+                @SuppressWarnings("unchecked")
+                UICallback<Object> callback = parameter.getValue() != null ? (UICallback<Object>) parameter.getValue() : UICallback.NULL;
 
                 Object body = action.getResult().getBody().getValue();
                 Exception exception = action.getResult().getException();
                 try {
                     if (exception == null) {
-                        onSuccess.call(body);
+                        callback.onSuccess(body);
                     } else {
                         throw exception;
                     }
                 } catch (Exception e) {
                     exception = e;
-                    onFail.call(e);
+                    callback.onFail(e);
                 } finally {
-                    onCompleted.call(exception == null, body, exception);
+                    callback.onCompleted(exception == null, body, exception);
                 }
             }
         });
     }
+
 }

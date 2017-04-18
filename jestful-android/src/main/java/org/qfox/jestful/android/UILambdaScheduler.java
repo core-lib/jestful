@@ -15,20 +15,20 @@ import java.util.concurrent.Executors;
 /**
  * Created by yangchangpei on 17/3/31.
  */
-public class LambdaScheduler implements Scheduler, Destroyable {
+public class UILambdaScheduler implements Scheduler, Destroyable {
     protected ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
     public boolean supports(Action action) {
         Parameters parameters = action.getParameters();
         Result result = action.getResult();
-        return parameters.count(OnLambda.class) > 0 && result.getKlass() == Void.TYPE;
+        return parameters.count(UIOnLambda.class) > 0 && result.getKlass() == Void.TYPE;
     }
 
     @Override
     public Type getBodyType(Client client, Action action) throws UncertainBodyTypeException {
         Parameters parameters = action.getParameters();
-        List<Parameter> params = parameters.all(OnLambda.class);
+        List<Parameter> params = parameters.all(UIOnLambda.class);
         for (Parameter param : params) {
             Type type = param.getType();
             if (!(type instanceof ParameterizedType)) {
@@ -52,13 +52,13 @@ public class LambdaScheduler implements Scheduler, Destroyable {
     @Override
     public Object schedule(final Client client, final Action action) throws Exception {
         Parameters parameters = action.getParameters();
-        Parameter success = parameters.first(OnSuccess.class);
-        OnSuccess onSuccess = success != null && success.getValue() != null ? (OnSuccess) success.getValue() : OnSuccess.DEFAULT;
-        Parameter fail = parameters.first(OnFail.class);
-        OnFail onFail = fail != null && fail.getValue() != null ? (OnFail) fail.getValue() : OnFail.DEFAULT;
-        Parameter completed = parameters.first(OnCompleted.class);
-        OnCompleted onCompleted = completed != null && completed.getValue() != null ? (OnCompleted) completed.getValue() : OnCompleted.DEFAULT;
-        new OnLambdaTask(action, onSuccess, onFail, onCompleted).execute();
+        Parameter success = parameters.first(UIOnSuccess.class);
+        UIOnSuccess onSuccess = success != null && success.getValue() != null ? (UIOnSuccess) success.getValue() : UIOnSuccess.DEFAULT;
+        Parameter fail = parameters.first(UIOnFail.class);
+        UIOnFail onFail = fail != null && fail.getValue() != null ? (UIOnFail) fail.getValue() : UIOnFail.DEFAULT;
+        Parameter completed = parameters.first(UIOnCompleted.class);
+        UIOnCompleted onCompleted = completed != null && completed.getValue() != null ? (UIOnCompleted) completed.getValue() : UIOnCompleted.DEFAULT;
+        new UIOnLambdaTask(action, onSuccess, onFail, onCompleted).execute();
         return null;
     }
 

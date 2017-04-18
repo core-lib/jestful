@@ -3,15 +3,22 @@ package org.qfox.jestful.android;
 import android.os.AsyncTask;
 import org.qfox.jestful.core.Action;
 
-class CallbackTask extends AsyncTask<Object, Integer, Object> {
+/**
+ * Created by payne on 2017/4/18.
+ * Version: 1.0
+ */
+class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     private final Action action;
-    private final Callback<Object> callback;
+    private final UIOnSuccess onSuccess;
+    private final UIOnFail onFail;
+    private final UIOnCompleted onCompleted;
     private Throwable throwable;
 
-    CallbackTask(Action action, Callback<Object> callback) {
-        super();
+    UIOnLambdaTask(Action action, UIOnSuccess onSuccess, UIOnFail onFail, UIOnCompleted onCompleted) {
         this.action = action;
-        this.callback = callback;
+        this.onSuccess = onSuccess;
+        this.onFail = onFail;
+        this.onCompleted = onCompleted;
     }
 
     @Override
@@ -28,12 +35,12 @@ class CallbackTask extends AsyncTask<Object, Integer, Object> {
     protected void onPostExecute(Object result) {
         try {
             if (throwable == null) {
-                callback.onSuccess(result);
+                onSuccess.call(result);
             } else {
-                callback.onFail(throwable);
+                onFail.call(throwable);
             }
         } finally {
-            callback.onCompleted(throwable == null, result, throwable);
+            onCompleted.call(throwable == null, result, throwable);
         }
     }
 

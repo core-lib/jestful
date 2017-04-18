@@ -3,9 +3,9 @@ package org.qfox.jestful.android;
 /**
  * Created by yangchangpei on 17/3/31.
  */
-public interface OnCompleted<R> extends OnLambda {
+public interface UIOnCompleted<R> extends UIOnLambda {
 
-    OnCompleted<Object> DEFAULT = new OnCompleted<Object>() {
+    UIOnCompleted<Object> DEFAULT = new UIOnCompleted<Object>() {
 
         @Override
         public void call(boolean success, Object result, Throwable throwable) {

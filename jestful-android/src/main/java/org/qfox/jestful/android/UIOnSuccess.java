@@ -3,9 +3,9 @@ package org.qfox.jestful.android;
 /**
  * Created by yangchangpei on 17/3/31.
  */
-public interface OnSuccess<R> extends OnLambda {
+public interface UIOnSuccess<R> extends UIOnLambda {
 
-    OnSuccess<Object> DEFAULT = new OnSuccess<Object>() {
+    UIOnSuccess<Object> DEFAULT = new UIOnSuccess<Object>() {
 
         @Override
         public void call(Object result) {

@@ -3,9 +3,9 @@ package org.qfox.jestful.android;
 /**
  * Created by yangchangpei on 17/3/31.
  */
-public interface OnFail extends OnLambda {
+public interface UIOnFail extends UIOnLambda {
 
-    OnFail DEFAULT = new OnFail() {
+    UIOnFail DEFAULT = new UIOnFail() {
 
         @Override
         public void call(Throwable throwable) {

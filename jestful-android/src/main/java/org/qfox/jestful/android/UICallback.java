@@ -1,15 +1,15 @@
 package org.qfox.jestful.android;
 
 /**
- * 安卓主线程回调监听器, 后台线程进行网络调用返回后{@link CallbackScheduler}会通过androi的主线程回调该监听器的对应方法
+ * 安卓主线程回调监听器, 后台线程进行网络调用返回后{@link UICallbackScheduler}会通过androi的主线程回调该监听器的对应方法
  * 
  * @author Administrator
  *
  * @param <R>
  */
-public interface Callback<R> {
+public interface UICallback<R> {
 
-	Callback<Object> NULL = new Callback<Object>() {
+	UICallback<Object> NULL = new UICallback<Object>() {
 
 		public void onCompleted(boolean success, Object result, Throwable throwable) {
 
