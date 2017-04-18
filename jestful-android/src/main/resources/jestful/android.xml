@@ -6,6 +6,9 @@
     <bean class="org.qfox.jestful.android.UICallbackScheduler"/>
     <bean class="org.qfox.jestful.android.UICallbackNioScheduler"/>
 
+    <bean class="org.qfox.jestful.android.UILambdaScheduler"/>
+    <bean class="org.qfox.jestful.android.UILambdaNioScheduler"/>
+
     <bean id="android-cache" class="org.qfox.jestful.android.AndroidCachePlugin"/>
 
 </beans>
