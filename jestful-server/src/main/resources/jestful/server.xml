@@ -46,7 +46,7 @@
     <jestful:group id="renderer">
         <bean class="org.qfox.jestful.server.renderer.DefaultResultRenderer"/>
         <bean class="org.qfox.jestful.server.renderer.TextResultRenderer"/>
-        <bean class="org.qfox.jestful.server.renderer.StatusResultRender"/>
+        <bean class="org.qfox.jestful.server.renderer.StatusResultRenderer"/>
         <bean class="org.qfox.jestful.server.renderer.ForwardResultRenderer"/>
         <bean class="org.qfox.jestful.server.renderer.RedirectResultRenderer"/>
     </jestful:group>

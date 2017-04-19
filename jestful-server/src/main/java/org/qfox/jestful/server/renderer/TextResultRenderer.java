@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * @since 1.0.0
  */
 public class TextResultRenderer implements Actor {
-    private final Pattern pattern = Pattern.compile("@(\\(([^()]+?)\\))?:(.*)");
+    private final Pattern pattern = Pattern.compile("@(\\(([^()]+?)\\))?:([\\s\\S]*)");
 
     public Object react(Action action) throws Exception {
         Object value = action.execute();

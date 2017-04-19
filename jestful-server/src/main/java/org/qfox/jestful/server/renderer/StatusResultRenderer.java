@@ -15,13 +15,13 @@ import java.util.regex.Pattern;
 /**
  * Created by Payne on 2017/4/9.
  */
-public class StatusResultRender implements Actor, Initialable {
-    private String prefix = "status:";
+public class StatusResultRenderer implements Actor, Initialable {
+    private String prefix = "@status:";
     private Pattern pattern = null;
 
     @Override
     public void initialize(BeanContainer beanContainer) {
-        this.pattern = Pattern.compile("^" + prefix + ("[ ]?(\\d{3})(?:[ ]([^{}]*))?(?:[ ]\\{([^{}]*)})?(?:[ ](.*))?") + "$");
+        this.pattern = Pattern.compile("^" + prefix + ("[ ]?(\\d{3})(?:[ ]([^{}]*))?(?:[ ]\\{([^{}]*)})?(?:[ ]([\\s\\S]*))?") + "$");
     }
 
     @Override
