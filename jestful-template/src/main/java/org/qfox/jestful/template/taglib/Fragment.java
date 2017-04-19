@@ -22,25 +22,50 @@ public class Fragment extends BodyTagSupport {
 
     @Override
     public int doStartTag() throws JspException {
-        return super.doStartTag();
+        try {
+            // 赋值
+            if (getParent() instanceof Layout) {
+                // 缓存body
+                return EVAL_BODY_BUFFERED;
+            }
+            // 渲染
+            else {
+                ServletRequest request = pageContext.getRequest();
+                String content = (String) request.getAttribute(name);
+                // 如果有值则不需要渲染body了
+                if (content != null) {
+                    pageContext.getOut().print(content);
+                    return SKIP_BODY;
+                }
+                // 否则还是要渲染body
+                else {
+                    return EVAL_BODY_BUFFERED;
+                }
+            }
+        } catch (IOException e) {
+            throw new JspException(e);
+        }
     }
 
     @Override
     public int doEndTag() throws JspException {
         try {
             // 赋值
-            if (bodyContent != null) {
-                String content = bodyContent.getString();
-                pageContext.getRequest().setAttribute(name, content);
+            if (getParent() instanceof Layout) {
+                if (bodyContent != null) {
+                    String content = bodyContent.getString();
+                    pageContext.getRequest().setAttribute(name, content);
+                }
             }
             // 渲染
             else {
-                ServletRequest request = pageContext.getRequest();
-                String content = (String) request.getAttribute(name);
-                pageContext.getOut().print(content);
+                if (bodyContent != null) {
+                    String content = bodyContent.getString();
+                    pageContext.getOut().print(content);
+                }
             }
             // 继续
-            return super.doEndTag();
+            return EVAL_PAGE;
         } catch (IOException e) {
             throw new JspException(e);
         }
