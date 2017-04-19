@@ -9,25 +9,25 @@
     <bean id="jestfulVersionComparator" class="org.qfox.jestful.server.JestfulVersionComparator"/>
     <bean id="jestfulConversionProvider" class="org.qfox.jestful.server.JestfulConversionProvider"/>
 
-    <jestful:group id="jestful">
+    <jestful:component id="jestful">
         <ref bean="decider"/>
         <ref bean="wrapper"/>
         <ref bean="resolver"/>
         <ref bean="handler"/>
         <ref bean="renderer"/>
-    </jestful:group>
+    </jestful:component>
 
-    <jestful:group id="decider">
+    <jestful:component id="decider">
         <bean class="org.qfox.jestful.server.decider.ContentTypeDecider"/>
         <bean class="org.qfox.jestful.server.decider.ContentCharsetDecider"/>
-    </jestful:group>
+    </jestful:component>
 
-    <jestful:group id="wrapper">
+    <jestful:component id="wrapper">
         <bean class="org.qfox.jestful.server.wrapper.RequestDecodeWrapper"/>
         <bean class="org.qfox.jestful.server.wrapper.ResponseEncodeWrapper"/>
-    </jestful:group>
+    </jestful:component>
 
-    <jestful:group id="resolver">
+    <jestful:component id="resolver">
         <bean class="org.qfox.jestful.server.resolver.HeaderParameterResolver"/>
         <bean class="org.qfox.jestful.server.resolver.QueryParameterResolver"/>
         <bean class="org.qfox.jestful.server.resolver.PathParameterResolver"/>
@@ -36,20 +36,20 @@
         <bean class="org.qfox.jestful.server.resolver.SessionParameterResolver"/>
         <bean class="org.qfox.jestful.server.resolver.ExtraParameterResolver"/>
         <bean class="org.qfox.jestful.server.resolver.DefaultParameterResolver"/>
-    </jestful:group>
+    </jestful:component>
 
-    <jestful:group id="handler">
+    <jestful:component id="handler">
         <bean class="org.qfox.jestful.server.handler.ResourceCacheHandler"/>
         <bean class="org.qfox.jestful.server.handler.MappingCacheHandler"/>
-    </jestful:group>
+    </jestful:component>
 
-    <jestful:group id="renderer">
+    <jestful:component id="renderer">
         <bean class="org.qfox.jestful.server.renderer.DefaultResultRenderer"/>
         <bean class="org.qfox.jestful.server.renderer.TextResultRenderer"/>
         <bean class="org.qfox.jestful.server.renderer.StatusResultRenderer"/>
         <bean class="org.qfox.jestful.server.renderer.ForwardResultRenderer"/>
         <bean class="org.qfox.jestful.server.renderer.RedirectResultRenderer"/>
-    </jestful:group>
+    </jestful:component>
 
     <bean class="org.qfox.jestful.server.formatting.URLEncodedRequestDeserializer"/>
     <bean class="org.qfox.jestful.server.formatting.MultipartRequestDeserializer"/>

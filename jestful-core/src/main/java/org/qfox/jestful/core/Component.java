@@ -31,11 +31,10 @@ public class Component extends Group implements Plugin {
 
 	public void config(Map<String, String> arguments) throws PluginConfigException {
 		for (Actor member : members) {
-			if (member instanceof Plugin == false) {
-				continue;
+			if (member instanceof Plugin) {
+				Plugin plugin = (Plugin) member;
+				plugin.config(arguments);
 			}
-			Plugin plugin = (Plugin) member;
-			plugin.config(arguments);
 		}
 	}
 
