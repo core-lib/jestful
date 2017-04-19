@@ -26,12 +26,12 @@ import org.qfox.jestful.core.Result;
  * @since 1.0.0
  */
 public class RedirectResultRenderer implements Actor, Initialable {
-	private String ctxpath = "";
-	private String prefix = "@redirect:";
+	private String context = "";
+	private String command = "@redirect:";
 
 	public void initialize(BeanContainer beanContainer) {
 		ServletContext servletContext = beanContainer.get(ServletContext.class);
-		this.ctxpath = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
+		this.context = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
 	}
 
 	public Object react(Action action) throws Exception {
@@ -48,9 +48,9 @@ public class RedirectResultRenderer implements Actor, Initialable {
 			return value;
 		}
 		String text = (String) value;
-		if (text.startsWith(prefix)) {
-			String path = text.substring(prefix.length());
-			path = path.contains("://") ? path : ctxpath + path;
+		if (text.startsWith(command)) {
+			String path = text.substring(command.length());
+			path = path.contains("://") ? path : context + path;
 			HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 			httpServletResponse.sendRedirect(path);
 			result.setRendered(true);
@@ -58,12 +58,12 @@ public class RedirectResultRenderer implements Actor, Initialable {
 		return value;
 	}
 
-	public String getPrefix() {
-		return prefix;
+	public String getCommand() {
+		return command;
 	}
 
-	public void setPrefix(String prefix) {
-		this.prefix = prefix;
+	public void setCommand(String command) {
+		this.command = command;
 	}
 
 }

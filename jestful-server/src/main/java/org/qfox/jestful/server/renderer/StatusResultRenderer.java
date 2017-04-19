@@ -16,12 +16,12 @@ import java.util.regex.Pattern;
  * Created by Payne on 2017/4/9.
  */
 public class StatusResultRenderer implements Actor, Initialable {
-    private String prefix = "@status:";
+    private String command = "@status:";
     private Pattern pattern = null;
 
     @Override
     public void initialize(BeanContainer beanContainer) {
-        this.pattern = Pattern.compile("^" + prefix + ("[ ]?(\\d{3})(?:[ ]([^{}]*))?(?:[ ]\\{([^{}]*)})?(?:[ ]([\\s\\S]*))?") + "$");
+        this.pattern = Pattern.compile("^" + command + ("[ ]?(\\d{3})(?:[ ]([^{}]*))?(?:[ ]\\{([^{}]*)})?(?:[ ]([\\s\\S]*))?") + "$");
     }
 
     @Override
@@ -79,12 +79,12 @@ public class StatusResultRenderer implements Actor, Initialable {
         return value;
     }
 
-    public String getPrefix() {
-        return prefix;
+    public String getCommand() {
+        return command;
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
+    public void setCommand(String command) {
+        this.command = command;
     }
 
 }
