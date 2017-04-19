@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+    <description>Jestful 1.0.0 template library</description>
+    <display-name>Jestful template</display-name>
+    <tlib-version>1.0.0</tlib-version>
+    <short-name>jtpl</short-name>
+    <uri>http://jestful.qfox.org/jsp/template</uri>
+
+    <tag>
+        <name>layout</name>
+        <tag-class>org.qfox.jestful.template.taglib.Layout</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>path</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>fragment</name>
+        <tag-class>org.qfox.jestful.template.taglib.Fragment</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <name>title</name>
+        <tag-class>org.qfox.jestful.template.taglib.Title</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>body</name>
+        <tag-class>org.qfox.jestful.template.taglib.Body</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+</taglib>
