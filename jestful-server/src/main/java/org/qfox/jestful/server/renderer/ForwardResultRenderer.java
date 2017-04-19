@@ -1,6 +1,7 @@
 package org.qfox.jestful.server.renderer;
 
 import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.exception.PluginConfigException;
 import org.qfox.jestful.server.exception.UnknownContextException;
 import org.qfox.jestful.server.exception.UnsupportedForwardException;
 
@@ -8,6 +9,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import java.util.Map;
 
 /**
  * <p>
@@ -22,15 +24,24 @@ import javax.servlet.ServletResponse;
  * @date 2016年4月26日 下午5:24:37
  * @since 1.0.0
  */
-public class ForwardResultRenderer implements Actor, Initialable {
+public class ForwardResultRenderer implements Plugin, Initialable {
     private ServletContext servletContext;
-    private String ctxpath = "";
-    private String prefix = "@forward:";
+    private String context = "";
+    private String command = "@forward:";
+
+    private String prefix;
+    private String suffix;
 
     public void initialize(BeanContainer beanContainer) {
         servletContext = beanContainer.get(ServletContext.class);
-        this.ctxpath = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
-        this.ctxpath = this.ctxpath.startsWith("/") ? this.ctxpath : "/" + this.ctxpath;
+        this.context = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
+        this.context = this.context.startsWith("/") ? this.context : "/" + this.context;
+    }
+
+    @Override
+    public void config(Map<String, String> arguments) throws PluginConfigException {
+        this.prefix = arguments.containsKey("view-prefix") ? arguments.get("view-prefix") : "";
+        this.suffix = arguments.containsKey("view-suffix") ? arguments.get("view-suffix") : "";
     }
 
     public Object react(Action action) throws Exception {
@@ -43,13 +54,13 @@ public class ForwardResultRenderer implements Actor, Initialable {
             return value;
         }
         String text = (String) value;
-        if (text.startsWith(prefix)) {
-            String expression = text.substring(prefix.length());
+        if (text.startsWith(command)) {
+            String expression = text.substring(command.length());
             int index = expression.indexOf(':');
             String ctx = null;
             String path = null;
             if (index < 0) {
-                ctx = ctxpath;
+                ctx = context;
                 path = expression;
             } else {
                 ctx = expression.substring(0, index);
@@ -57,13 +68,13 @@ public class ForwardResultRenderer implements Actor, Initialable {
             }
             ServletRequest servletRequest = (ServletRequest) action.getExtra().get(ServletRequest.class);
             ServletResponse servletResponse = (ServletResponse) action.getExtra().get(ServletResponse.class);
-            ServletContext context = this.servletContext.getContext(ctx);
-            if (context == null) {
+            ServletContext servletContext = this.servletContext.getContext(ctx);
+            if (servletContext == null) {
                 throw new UnknownContextException(ctx);
             }
-            RequestDispatcher dispatcher = context.getRequestDispatcher(path);
+            RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path.startsWith("/") ? path : prefix + path + suffix);
             if (dispatcher == null) {
-                throw new UnsupportedForwardException(context);
+                throw new UnsupportedForwardException(servletContext);
             }
             switch (servletRequest.getDispatcherType()) {
                 case INCLUDE:
@@ -78,12 +89,12 @@ public class ForwardResultRenderer implements Actor, Initialable {
         return value;
     }
 
-    public String getPrefix() {
-        return prefix;
+    public String getCommand() {
+        return command;
     }
 
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
+    public void setCommand(String command) {
+        this.command = command;
     }
 
 }
