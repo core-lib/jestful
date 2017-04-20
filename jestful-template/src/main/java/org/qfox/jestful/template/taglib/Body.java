@@ -6,7 +6,7 @@ package org.qfox.jestful.template.taglib;
 public class Body extends Fragment {
 
     public Body() {
-        super("body");
+        super(Body.class.getName());
     }
 
 }
