@@ -143,7 +143,7 @@ public class JestfulWebSupport implements Actor {
         logger.info("resource mapping tree\r\n{}", mappingRegistry);
     }
 
-    protected void execute(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+    protected void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
         RequestDescription description = new RequestDescription(httpServletRequest);
         String protocol = description.getProtocol();
         String method = description.getMethod();

@@ -1,6 +1,5 @@
 package org.qfox.jestful.server;
 
-import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
 
@@ -43,7 +42,7 @@ public class JestfulFilterSupport extends JestfulWebSupport implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         try {
-            execute(httpServletRequest, httpServletResponse);
+            handle(httpServletRequest, httpServletResponse);
         } catch (NotFoundStatusException e) {
             chain.doFilter(request, response);
         } catch (StatusException e) {

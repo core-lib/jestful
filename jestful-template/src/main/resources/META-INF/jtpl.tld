@@ -7,7 +7,7 @@
 
     <description>Jestful 1.0.0 template library</description>
     <display-name>Jestful template</display-name>
-    <tlib-version>1.0.0</tlib-version>
+    <tlib-version>1.0</tlib-version>
     <short-name>jtpl</short-name>
     <uri>http://jestful.qfox.org/jsp/template</uri>
 

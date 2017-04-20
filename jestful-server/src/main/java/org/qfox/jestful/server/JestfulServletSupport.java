@@ -48,7 +48,7 @@ public class JestfulServletSupport extends JestfulWebSupport implements Servlet 
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
         try {
-            execute(httpServletRequest, httpServletResponse);
+            handle(httpServletRequest, httpServletResponse);
         } catch (StatusException e) {
             logger.error(e.getMessage(), e);
             httpServletRequest.setAttribute("exception", e);
