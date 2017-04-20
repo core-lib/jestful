@@ -3,6 +3,7 @@ package org.qfox.jestful.template.taglib;
 import javax.servlet.ServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
+import javax.servlet.jsp.tagext.Tag;
 import java.io.IOException;
 
 /**
@@ -20,11 +21,20 @@ public class Fragment extends BodyTagSupport {
         this.name = name;
     }
 
+    protected boolean insideOfLayout() {
+        Tag parent = getParent();
+        while (parent != null) {
+            if (parent instanceof Layout) return true;
+            else parent = parent.getParent();
+        }
+        return false;
+    }
+
     @Override
     public int doStartTag() throws JspException {
         try {
             // 赋值
-            if (getParent() instanceof Layout) {
+            if (insideOfLayout()) {
                 // 缓存body
                 return EVAL_BODY_BUFFERED;
             }
@@ -51,7 +61,7 @@ public class Fragment extends BodyTagSupport {
     public int doEndTag() throws JspException {
         try {
             // 赋值
-            if (getParent() instanceof Layout) {
+            if (insideOfLayout()) {
                 if (bodyContent != null) {
                     String content = bodyContent.getString();
                     pageContext.getRequest().setAttribute(name, content);
