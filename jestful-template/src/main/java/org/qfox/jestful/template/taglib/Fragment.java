@@ -17,7 +17,7 @@ public class Fragment extends BodyTagSupport {
     public Fragment() {
     }
 
-    public Fragment(String name) {
+    protected Fragment(String name) {
         this.name = name;
     }
 
