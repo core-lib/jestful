@@ -47,4 +47,64 @@
         <body-content>JSP</body-content>
     </tag>
 
+    <tag>
+        <name>crumb</name>
+        <tag-class>org.qfox.jestful.template.taglib.Crumb</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>footer</name>
+        <tag-class>org.qfox.jestful.template.taglib.Footer</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>header</name>
+        <tag-class>org.qfox.jestful.template.taglib.Header</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>link</name>
+        <tag-class>org.qfox.jestful.template.taglib.Link</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>Menu</name>
+        <tag-class>org.qfox.jestful.template.taglib.Menu</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>meta</name>
+        <tag-class>org.qfox.jestful.template.taglib.Meta</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>pagination</name>
+        <tag-class>org.qfox.jestful.template.taglib.Pagination</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>script</name>
+        <tag-class>org.qfox.jestful.template.taglib.Script</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>search</name>
+        <tag-class>org.qfox.jestful.template.taglib.Search</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <name>navigation</name>
+        <tag-class>org.qfox.jestful.template.taglib.Navigation</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
 </taglib>
