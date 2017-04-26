@@ -76,6 +76,16 @@ public class ResponseWrapper implements Response {
         response.setCharacterEncoding(env);
     }
 
+    @Override
+    public boolean isCommitted() {
+        return response.isCommitted();
+    }
+
+    @Override
+    public void reset() {
+        response.reset();
+    }
+
     public void close() throws IOException {
         response.close();
     }

@@ -51,4 +51,8 @@ public interface Response extends Closeable, IOConstants {
 
     void setCharacterEncoding(String env) throws UnsupportedEncodingException;
 
+    boolean isCommitted();
+
+    void reset();
+
 }

@@ -118,6 +118,16 @@ public class HttpResponse implements Response {
         }
     }
 
+    @Override
+    public boolean isCommitted() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void reset() {
+        throw new UnsupportedOperationException();
+    }
+
     public void close() throws IOException {
         httpURLConnection.disconnect();
     }

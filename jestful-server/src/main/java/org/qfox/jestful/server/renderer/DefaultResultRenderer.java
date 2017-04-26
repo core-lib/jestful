@@ -28,6 +28,7 @@ public class DefaultResultRenderer implements Actor, Initialable {
     public Object react(Action action) throws Exception {
         Restful restful = action.getRestful();
         Result result = action.getResult();
+        Response response = action.getResponse();
         // 忽略没有回应体和声明void返回值的方法
         if (restful.isReturnBody() == false || result.getKlass() == Void.TYPE) {
             return action.execute();
@@ -35,13 +36,12 @@ public class DefaultResultRenderer implements Actor, Initialable {
 
         Object value = action.execute();
 
-        if (result.isRendered()) {
+        if (result.isRendered() || response.isCommitted()) {
             return value;
         }
 
         switch (action.getDispatcher()) {
             case INCLUDE: {
-                Response response = action.getResponse();
                 MediaType mediaType = (MediaType) action.getExtra().get(MediaType.class);
                 if (mediaType != null) {
                     ResponseSerializer serializer = map.get(mediaType);
@@ -61,7 +61,6 @@ public class DefaultResultRenderer implements Actor, Initialable {
             }
             break;
             default: {
-                Response response = action.getResponse();
                 String charset = response.getResponseHeader("Content-Charset");
                 String contentType = response.getContentType();
                 if (contentType != null) {

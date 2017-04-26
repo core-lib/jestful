@@ -114,10 +114,18 @@ public class JestfulClientResponse implements Response {
         }
     }
 
+    @Override
+    public boolean isCommitted() {
+        return response != null && response.isCommitted();
+    }
+
+    @Override
+    public void reset() {
+        if (response != null) response.reset();
+    }
+
     public void close() throws IOException {
-        if (response != null) {
-            response.close();
-        }
+        if (response != null) response.close();
     }
 
     private synchronized Response getResponse() throws IOException {
