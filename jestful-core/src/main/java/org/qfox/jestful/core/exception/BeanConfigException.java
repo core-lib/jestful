@@ -15,22 +15,22 @@ package org.qfox.jestful.core.exception;
  *
  * @since 1.0.0
  */
-public class PluginConfigException extends JestfulRuntimeException {
+public class BeanConfigException extends JestfulRuntimeException {
 	private static final long serialVersionUID = -342613651593818343L;
 
-	public PluginConfigException() {
+	public BeanConfigException() {
 		super();
 	}
 
-	public PluginConfigException(String message, Throwable cause) {
+	public BeanConfigException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public PluginConfigException(String message) {
+	public BeanConfigException(String message) {
 		super(message);
 	}
 
-	public PluginConfigException(Throwable cause) {
+	public BeanConfigException(Throwable cause) {
 		super(cause);
 	}
 

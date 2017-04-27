@@ -44,12 +44,13 @@
     </jestful:component>
 
     <jestful:component id="renderer">
-        <bean class="org.qfox.jestful.server.renderer.DefaultResultRenderer"/>
-        <bean class="org.qfox.jestful.server.renderer.TextResultRenderer"/>
-        <bean class="org.qfox.jestful.server.renderer.StatusResultRenderer"/>
-        <bean class="org.qfox.jestful.server.renderer.ForwardResultRenderer"/>
-        <bean class="org.qfox.jestful.server.renderer.RedirectResultRenderer"/>
+        <bean class="org.qfox.jestful.server.renderer.ResultRenderer"/>
     </jestful:component>
+
+    <bean class="org.qfox.jestful.server.renderer.TextRenderer"/>
+    <bean class="org.qfox.jestful.server.renderer.StatusRenderer"/>
+    <bean class="org.qfox.jestful.server.renderer.ForwardRenderer"/>
+    <bean class="org.qfox.jestful.server.renderer.RedirectRenderer"/>
 
     <bean class="org.qfox.jestful.server.formatting.URLEncodedRequestDeserializer"/>
     <bean class="org.qfox.jestful.server.formatting.MultipartRequestDeserializer"/>

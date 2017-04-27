@@ -12,7 +12,7 @@ import javax.validation.executable.ExecutableValidator;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Plugin;
-import org.qfox.jestful.core.exception.PluginConfigException;
+import org.qfox.jestful.core.exception.BeanConfigException;
 
 /**
  * <p>
@@ -42,7 +42,7 @@ public class ResultValidationPlugin implements Plugin {
 		this.validatorFactory = validatorFactory;
 	}
 
-	public void config(Map<String, String> arguments) throws PluginConfigException {
+	public void config(Map<String, String> arguments) throws BeanConfigException {
 
 	}
 

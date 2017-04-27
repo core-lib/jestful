@@ -5,7 +5,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
-import org.qfox.jestful.core.exception.PluginConfigException;
+import org.qfox.jestful.core.exception.BeanConfigException;
 
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -18,7 +18,7 @@ public class CharacterEncodingPlugin implements Plugin {
     public String characterEncoding = Charset.defaultCharset().name();
 
     @Override
-    public void config(Map<String, String> arguments) throws PluginConfigException {
+    public void config(Map<String, String> arguments) throws BeanConfigException {
         Map<String, String> args = new CaseInsensitiveMap<String, String>(arguments);
         String charset = args.get("charset");
         charset = charset == null || characterEncoding.trim().length() == 0 ? args.get("characterEncoding") : charset;

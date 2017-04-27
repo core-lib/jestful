@@ -190,15 +190,15 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         for (int i = 0; i < plugins.size(); i++) {
             String[] segments = plugins.get(i).split("\\s*;\\s*");
             Actor actor = beanContainer.get(segments[0], Actor.class);
-            if (actor instanceof Plugin) {
+            if (actor instanceof Configurable) {
                 Map<String, String> arguments = new LinkedHashMap<String, String>();
                 for (int j = 1; j < segments.length; j++) {
                     String segment = segments[j];
                     String[] keyvalue = segment.split("\\s*=\\s*");
                     arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
                 }
-                Plugin plugin = (Plugin) actor;
-                plugin.config(arguments);
+                Configurable configurable = (Plugin) actor;
+                configurable.config(arguments);
             }
             actors[i] = actor;
         }

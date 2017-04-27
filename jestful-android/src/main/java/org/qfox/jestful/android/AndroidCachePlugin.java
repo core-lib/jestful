@@ -11,7 +11,7 @@ import org.qfox.jestful.core.Parameters;
 import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Resource;
-import org.qfox.jestful.core.exception.PluginConfigException;
+import org.qfox.jestful.core.exception.BeanConfigException;
 
 import android.net.http.HttpResponseCache;
 
@@ -34,7 +34,7 @@ public class AndroidCachePlugin implements Plugin {
 	private String directory = System.getProperty("java.io.tmpdir") + "jestful-cache";
 	private String capacity = "10MB";
 
-	public void config(Map<String, String> arguments) throws PluginConfigException {
+	public void config(Map<String, String> arguments) throws BeanConfigException {
 		try {
 			this.directory = arguments.containsKey("directory") ? arguments.get("directory") : this.directory;
 			this.capacity = arguments.containsKey("capacity") ? arguments.get("capacity") : this.capacity;
@@ -42,7 +42,7 @@ public class AndroidCachePlugin implements Plugin {
 			long capacity = Capacity.valueOf(this.capacity).toByteSize();
 			HttpResponseCache.install(directory, capacity);
 		} catch (Exception e) {
-			throw new PluginConfigException(e);
+			throw new BeanConfigException(e);
 		}
 	}
 

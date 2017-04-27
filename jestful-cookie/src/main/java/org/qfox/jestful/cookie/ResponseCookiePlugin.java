@@ -3,7 +3,7 @@ package org.qfox.jestful.cookie;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Plugin;
 import org.qfox.jestful.core.Response;
-import org.qfox.jestful.core.exception.PluginConfigException;
+import org.qfox.jestful.core.exception.BeanConfigException;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -41,7 +41,7 @@ public class ResponseCookiePlugin implements Plugin {
         this.cookieHandler = cookieHandler;
     }
 
-    public void config(Map<String, String> arguments) throws PluginConfigException {
+    public void config(Map<String, String> arguments) throws BeanConfigException {
 
     }
 

@@ -68,14 +68,14 @@ public class JestfulWebSupport implements Actor {
             for (int i = 0; i < plugins.length; i++) {
                 String[] segments = plugins[i].split("\\s*;\\s*");
                 this.plugins[i] = beanContainer.get(segments[0], Actor.class);
-                if (this.plugins[i] instanceof Plugin) {
+                if (this.plugins[i] instanceof Configurable) {
                     Map<String, String> arguments = new LinkedHashMap<String, String>(configuration);
                     for (int j = 1; j < segments.length; j++) {
                         String segment = segments[j];
                         String[] keyvalue = segment.split("\\s*=\\s*");
                         arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
                     }
-                    ((Plugin) this.plugins[i]).config(arguments);
+                    ((Configurable) this.plugins[i]).config(arguments);
                 }
             }
         }
