@@ -21,7 +21,7 @@ public class EnumConverter implements Converter {
             value = URLDecoder.decode(value, charset);
         }
         try {
-            Object result = clazz.getMethod("valueOf", String.class).invoke(null, value);
+            Object result = clazz.getMethod("fromToString", String.class).invoke(null, value);
             return clazz.cast(result);
         } catch (Exception e) {
             throw new IncompatibleConversionException(e, name, clazz, map, provider);

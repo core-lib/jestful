@@ -47,7 +47,7 @@ public class StatusRenderer implements Renderer {
             default: {
                 String charset = response.getResponseHeader("Content-Charset");
                 response.setContentType("text/html; charset=" + charset);
-                Map<String, String> headers = header != null ? MapKit.valueOf(header) : new HashMap<String, String>();
+                Map<String, String> headers = header != null ? MapKit.fromToString(header) : new HashMap<String, String>();
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
                     response.setResponseHeader(entry.getKey(), entry.getValue());
                 }
