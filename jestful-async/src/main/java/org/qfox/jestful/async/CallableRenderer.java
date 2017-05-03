@@ -2,17 +2,12 @@ package org.qfox.jestful.async;
 
 import org.qfox.jestful.async.annotation.Async;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.exception.BeanConfigException;
 import org.qfox.jestful.core.exception.JestfulRuntimeException;
-import org.qfox.jestful.core.formatting.ResponseSerializer;
 import org.qfox.jestful.server.renderer.Renderer;
-import org.qfox.jestful.server.renderer.ResultRenderer;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,8 +15,9 @@ import java.util.concurrent.Executors;
 /**
  * Created by yangchangpei on 17/5/3.
  */
-public class CallableRenderer extends ResultRenderer implements Renderer, Initialable, Destroyable {
+public class CallableRenderer implements Renderer, Initialable, Destroyable {
     private ExecutorService executor;
+    private Actor renderer;
 
     @Override
     public boolean supports(Action action, Object value) {
@@ -48,21 +44,9 @@ public class CallableRenderer extends ResultRenderer implements Renderer, Initia
         executor.execute(new AsyncRunnable(asyncContext, (Callable<?>) value, action));
     }
 
-    @Override
-    public void config(Map<String, String> arguments) throws BeanConfigException {
-
-    }
-
     public void initialize(BeanContainer beanContainer) {
-        Collection<ResponseSerializer> serializers = beanContainer.find(ResponseSerializer.class).values();
-        for (ResponseSerializer serializer : serializers) {
-            String contentType = serializer.getContentType();
-            MediaType mediaType = MediaType.valueOf(contentType);
-            this.serializers.put(mediaType, serializer);
-        }
-
-        this.renderers.addAll(beanContainer.find(Renderer.class).values());
         this.executor = Executors.newCachedThreadPool();
+        this.renderer = (Actor) beanContainer.get("renderer");
     }
 
     @Override
@@ -88,7 +72,7 @@ public class CallableRenderer extends ResultRenderer implements Renderer, Initia
                 value = callable.call();
                 action.intrude(this);
                 action.getResult().setRendered(false);
-                CallableRenderer.this.react(action);
+                renderer.react(action);
             } catch (Exception e) {
                 throw new JestfulRuntimeException(e);
             } finally {
