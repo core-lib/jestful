@@ -1,10 +1,10 @@
 package org.qfox.jestful.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
-import org.qfox.jestful.commons.IOKit;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,6 +46,17 @@ public class JsonResponseSerializer extends ObjectMapper implements ResponseSeri
     @Override
     public void serialize(Action action, MediaType mediaType, Writer writer) throws IOException {
         writeValue(writer, action.getResult().getValue());
+    }
+
+    @Override
+    public void serialize(Object result, MediaType mediaType, String charset, OutputStream out) throws IOException {
+        OutputStreamWriter osw = null;
+        try {
+            osw = new OutputStreamWriter(out, charset);
+            writeValue(osw, result);
+        } finally {
+            IOKit.close(osw);
+        }
     }
 
 }

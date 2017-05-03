@@ -26,4 +26,6 @@ public interface ResponseSerializer extends Formatting {
 
     void serialize(Action action, MediaType mediaType, Writer writer) throws IOException;
 
+    void serialize(Object result, MediaType mediaType, String charset, OutputStream out) throws IOException;
+
 }

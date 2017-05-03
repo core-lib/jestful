@@ -44,4 +44,15 @@ public class ProtobufResponseSerializer implements ResponseSerializer {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void serialize(Object result, MediaType mediaType, String charset, OutputStream out) throws IOException {
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(out);
+            oos.writeObject(result);
+        } finally {
+            IOKit.close(oos);
+        }
+    }
+
 }

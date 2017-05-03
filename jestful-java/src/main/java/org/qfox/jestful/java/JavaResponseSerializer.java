@@ -1,9 +1,9 @@
 package org.qfox.jestful.java;
 
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
-import org.qfox.jestful.commons.IOKit;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -30,18 +30,23 @@ public class JavaResponseSerializer implements ResponseSerializer {
     }
 
     public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(out);
-            oos.writeObject(action.getResult().getValue());
-        } finally {
-            IOKit.close(oos);
-        }
+        serialize(action.getResult().getValue(), mediaType, charset, out);
     }
 
     @Override
     public void serialize(Action action, MediaType mediaType, Writer writer) throws IOException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void serialize(Object result, MediaType mediaType, String charset, OutputStream out) throws IOException {
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(out);
+            oos.writeObject(result);
+        } finally {
+            IOKit.close(oos);
+        }
     }
 
 }

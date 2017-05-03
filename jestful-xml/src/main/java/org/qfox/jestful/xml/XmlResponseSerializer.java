@@ -48,4 +48,15 @@ public class XmlResponseSerializer extends XmlMapper implements ResponseSerializ
         writeValue(writer, action.getResult().getValue());
     }
 
+    @Override
+    public void serialize(Object result, MediaType mediaType, String charset, OutputStream out) throws IOException {
+        OutputStreamWriter osw = null;
+        try {
+            osw = new OutputStreamWriter(out, charset);
+            writeValue(osw, result);
+        } finally {
+            IOKit.close(osw);
+        }
+    }
+
 }
