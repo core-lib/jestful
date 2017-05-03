@@ -27,7 +27,7 @@ public class EnumStringConverter implements StringConverter<Enum<?>> {
 
 	public Enum<?> convert(Class<?> klass, String source) {
 		try {
-			return (Enum<?>) klass.getMethod("fromToString", String.class).invoke(null, source);
+			return (Enum<?>) klass.getMethod("valueOf", String.class).invoke(null, source);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

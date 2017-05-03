@@ -198,7 +198,7 @@ public class Status {
      * {@code 302 Moved Temporarily}.
      *
      * @see <a href="http://tools.ietf.org/html/rfc1945#section-9.3">HTTP/1.0</a>
-     * @deprecated In favor of {@link #FOUND} which will be returned from {@code HttpStatus.fromToString = new Status(302)}
+     * @deprecated In favor of {@link #FOUND} which will be returned from {@code HttpStatus.valueOf = new Status(302)}
      */
     @Deprecated
     public static final Status MOVED_TEMPORARILY = new Status(302, "Moved Temporarily");

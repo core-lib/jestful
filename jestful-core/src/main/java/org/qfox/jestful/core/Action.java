@@ -42,6 +42,10 @@ public class Action {
     private Request request;
     private Response response;
 
+    private Map<String, String[]> queries = Collections.EMPTY_MAP;
+    private Map<String, String[]> headers = Collections.EMPTY_MAP;
+    private Map<String, String[]> cookies = Collections.EMPTY_MAP;
+
     private Accepts consumes;
     private Accepts produces;
 
@@ -229,6 +233,30 @@ public class Action {
 
     public void setResponse(Response response) {
         this.response = response;
+    }
+
+    public Map<String, String[]> getQueries() {
+        return queries;
+    }
+
+    public void setQueries(Map<String, String[]> queries) {
+        this.queries = queries;
+    }
+
+    public Map<String, String[]> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String, String[]> headers) {
+        this.headers = headers;
+    }
+
+    public Map<String, String[]> getCookies() {
+        return cookies;
+    }
+
+    public void setCookies(Map<String, String[]> cookies) {
+        this.cookies = cookies;
     }
 
     public Accepts getConsumes() {

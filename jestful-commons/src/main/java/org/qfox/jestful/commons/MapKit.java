@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class MapKit {
 
-    public static Map<String, String> fromToString(String text) {
+    public static Map<String, String> valueOf(String text) {
         if (text == null) return null;
         String[] sections = text.split(",\\s*");
         Map<String, String> map = new LinkedHashMap<String, String>(sections.length);
@@ -25,7 +25,7 @@ public class MapKit {
         return map;
     }
 
-    public static Map<String, String[]> fromQueryString(String query, String charset) throws UnsupportedEncodingException {
+    public static Map<String, String[]> valueOf(String query, String charset) throws UnsupportedEncodingException {
         String[] pairs = query.split("&+");
         Map<String, String[]> map = new HashMap<String, String[]>();
         for (String pair : pairs) {

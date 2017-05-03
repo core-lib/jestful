@@ -21,17 +21,13 @@ import java.util.*;
  * @date 2016年4月9日 下午3:46:30
  * @since 1.0.0
  */
-public class ResultRenderer implements Actor, Initialable, Configurable {
+public class ResultRenderer implements Actor, Initialable, Destroyable, Configurable {
     private final Map<MediaType, ResponseSerializer> serializers = new HashMap<MediaType, ResponseSerializer>();
     private final List<Renderer> renderers = new ArrayList<Renderer>();
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
-        for (Renderer renderer : renderers) {
-            if (renderer instanceof Configurable) {
-                ((Configurable) renderer).config(arguments);
-            }
-        }
+        for (Renderer r : renderers) if (r instanceof Configurable) ((Configurable) r).config(arguments);
     }
 
     public Object react(Action action) throws Exception {
@@ -110,10 +106,16 @@ public class ResultRenderer implements Actor, Initialable, Configurable {
             String contentType = serializer.getContentType();
             MediaType mediaType = MediaType.valueOf(contentType);
             this.serializers.put(mediaType, serializer);
+
+            if (serializer instanceof Initialable) ((Initialable) serializer).initialize(beanContainer);
         }
 
-        Collection<Renderer> renderers = beanContainer.find(Renderer.class).values();
-        this.renderers.addAll(renderers);
+        this.renderers.addAll(beanContainer.find(Renderer.class).values());
+        for (Renderer r : renderers) if (r instanceof Initialable) ((Initialable) r).initialize(beanContainer);
     }
 
+    @Override
+    public void destroy() {
+        for (Renderer renderer : renderers) if (renderer instanceof Destroyable) ((Destroyable) renderer).destroy();
+    }
 }

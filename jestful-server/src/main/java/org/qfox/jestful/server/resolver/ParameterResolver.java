@@ -1,37 +1,37 @@
 package org.qfox.jestful.server.resolver;
 
 import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.exception.BeanConfigException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
 
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
- * <p>
- * Description:
- * </p>
- * <p>
- * <p>
- * Company: 广州市俏狐信息科技有限公司
- * </p>
- *
- * @author Payne 646742615@qq.com
- * @date 2016年4月8日 下午3:42:21
- * @since 1.0.0
+ * Created by yangchangpei on 17/5/3.
  */
-public class BodyParameterResolver implements Actor, Initialable {
-    private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
+public class ParameterResolver implements Actor, Initialable, Destroyable, Configurable {
+    private final Map<MediaType, RequestDeserializer> deserializers = new HashMap<MediaType, RequestDeserializer>();
+    private final List<Resolver> resolvers = new ArrayList<Resolver>();
 
+    @Override
     public Object react(Action action) throws Exception {
+        Parameters parameters = action.getParameters();
+
+        for (Parameter parameter : parameters) {
+            for (Resolver resolver : resolvers) {
+                if (resolver.supports(action, parameter)) {
+                    resolver.resolve(action, parameter);
+                    break;
+                }
+            }
+        }
+
         Restful restful = action.getRestful();
-        if (restful.isAcceptBody() == false) {
+        if (!restful.isAcceptBody()) {
             return action.execute();
         }
 
-        Parameters parameters = action.getParameters();
         if (parameters.count(Position.BODY) == 0) {
             return action.execute();
         }
@@ -49,7 +49,7 @@ public class BodyParameterResolver implements Actor, Initialable {
         MediaType mediaType = MediaType.valueOf(contentType);
 
         Accepts consumes = action.getConsumes();
-        Accepts supports = new Accepts(map.keySet());
+        Accepts supports = new Accepts(deserializers.keySet());
         if (supports.contains(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
             String charset = mediaType.getCharset();
             if (charset == null || charset.length() == 0) {
@@ -59,9 +59,9 @@ public class BodyParameterResolver implements Actor, Initialable {
                 charset = request.getCharacterEncoding();
             }
             if (charset == null || charset.length() == 0) {
-                charset = Charset.defaultCharset().name();
+                charset = java.nio.charset.Charset.defaultCharset().name();
             }
-            RequestDeserializer deserializer = map.get(mediaType);
+            RequestDeserializer deserializer = deserializers.get(mediaType);
             deserializer.deserialize(action, mediaType, charset, request.getRequestInputStream());
         } else if (consumes.size() == 1) {
             String charset = mediaType.getCharset();
@@ -76,28 +76,44 @@ public class BodyParameterResolver implements Actor, Initialable {
                 charset = request.getCharacterEncoding();
             }
             if (charset == null || charset.length() == 0) {
-                charset = Charset.defaultCharset().name();
+                charset = java.nio.charset.Charset.defaultCharset().name();
             }
-            RequestDeserializer deserializer = map.get(mediaType);
+            RequestDeserializer deserializer = deserializers.get(mediaType);
             deserializer.deserialize(action, mediaType, charset, request.getRequestInputStream());
         } else {
             String URI = action.getURI();
             String method = action.getRestful().getMethod();
-            if (consumes.isEmpty() == false) {
+            if (!consumes.isEmpty()) {
                 supports.retainAll(consumes);
             }
             throw new UnsupportedTypeException(URI, method, mediaType, supports);
         }
+
         return action.execute();
     }
 
+    @Override
     public void initialize(BeanContainer beanContainer) {
         Collection<RequestDeserializer> deserializers = beanContainer.find(RequestDeserializer.class).values();
         for (RequestDeserializer deserializer : deserializers) {
             String contentType = deserializer.getContentType();
             MediaType mediaType = MediaType.valueOf(contentType);
-            map.put(mediaType, deserializer);
+            this.deserializers.put(mediaType, deserializer);
+
+            if (deserializer instanceof Initialable) ((Initialable) deserializer).initialize(beanContainer);
         }
+
+        this.resolvers.addAll(beanContainer.find(Resolver.class).values());
+        for (Resolver r : resolvers) if (r instanceof Initialable) ((Initialable) r).initialize(beanContainer);
     }
 
+    @Override
+    public void destroy() {
+        for (Resolver r : resolvers) if (r instanceof Destroyable) ((Destroyable) r).destroy();
+    }
+
+    @Override
+    public void config(Map<String, String> arguments) throws BeanConfigException {
+        for (Resolver r : resolvers) if (r instanceof Configurable) ((Configurable) r).config(arguments);
+    }
 }

@@ -12,6 +12,7 @@
     <jestful:component id="jestful">
         <ref bean="decider"/>
         <ref bean="wrapper"/>
+        <ref bean="mapper"/>
         <ref bean="resolver"/>
         <ref bean="handler"/>
         <ref bean="renderer"/>
@@ -27,15 +28,14 @@
         <bean class="org.qfox.jestful.server.wrapper.ResponseEncodeWrapper"/>
     </jestful:component>
 
+    <jestful:component id="mapper">
+        <bean class="org.qfox.jestful.server.mapper.QueriesMapper"/>
+        <bean class="org.qfox.jestful.server.mapper.HeadersMapper"/>
+        <bean class="org.qfox.jestful.server.mapper.CookiesMapper"/>
+    </jestful:component>
+
     <jestful:component id="resolver">
-        <bean class="org.qfox.jestful.server.resolver.HeaderParameterResolver"/>
-        <bean class="org.qfox.jestful.server.resolver.QueryParameterResolver"/>
-        <bean class="org.qfox.jestful.server.resolver.PathParameterResolver"/>
-        <bean class="org.qfox.jestful.server.resolver.BodyParameterResolver"/>
-        <bean class="org.qfox.jestful.server.resolver.CookieParameterResolver"/>
-        <bean class="org.qfox.jestful.server.resolver.SessionParameterResolver"/>
-        <bean class="org.qfox.jestful.server.resolver.ExtraParameterResolver"/>
-        <bean class="org.qfox.jestful.server.resolver.DefaultParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.ParameterResolver"/>
     </jestful:component>
 
     <jestful:component id="handler">
@@ -46,6 +46,14 @@
     <jestful:component id="renderer">
         <bean class="org.qfox.jestful.server.renderer.ResultRenderer"/>
     </jestful:component>
+
+    <bean class="org.qfox.jestful.server.resolver.PathResolver"/>
+    <bean class="org.qfox.jestful.server.resolver.QueryResolver"/>
+    <bean class="org.qfox.jestful.server.resolver.HeaderResolver"/>
+    <bean class="org.qfox.jestful.server.resolver.CookieResolver"/>
+    <bean class="org.qfox.jestful.server.resolver.ExtraResolver"/>
+    <bean class="org.qfox.jestful.server.resolver.DefaultResolver"/>
+    <bean class="org.qfox.jestful.server.resolver.SessionResolver"/>
 
     <bean class="org.qfox.jestful.server.renderer.TextRenderer"/>
     <bean class="org.qfox.jestful.server.renderer.StatusRenderer"/>

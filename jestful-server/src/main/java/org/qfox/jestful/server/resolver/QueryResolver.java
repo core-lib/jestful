@@ -1,6 +1,5 @@
 package org.qfox.jestful.server.resolver;
 
-import org.qfox.jestful.commons.MapKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.server.converter.ConversionProvider;
 
@@ -14,19 +13,15 @@ public class QueryResolver implements Resolver, Initialable {
 
     @Override
     public boolean supports(Action action, Parameter parameter) {
-        return parameter.getPosition() == Position.QUERY;
+        return parameter.getPosition() == Position.QUERY && parameter.getValue() == null;
     }
 
     @Override
     public void resolve(Action action, Parameter parameter) throws Exception {
-        if (parameter.getValue() != null) return;
-
-        String query = action.getQuery();
-        if (query == null || query.length() == 0) return;
         String charset = action.getQueryEncodeCharset();
-        Map<String, String[]> map = MapKit.fromQueryString(query, charset);
+        Map<String, String[]> map = action.getQueries();
 
-        boolean decoded = parameter.isCoding() == false || (parameter.isCoding() && parameter.isDecoded());
+        boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
         Object value = conversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, map);
         parameter.setValue(value);
     }
