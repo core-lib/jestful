@@ -283,7 +283,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             request.connect();
             return;
         } else {
-            String charset = null;
+            String charset;
             Charsets options = action.getContentCharsets().clone();
             if (options.isEmpty() == false) {
                 options.retainAll(charsets);

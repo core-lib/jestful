@@ -55,7 +55,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 		Map<String, String[]> fields = new HashMap<String, String[]>();
 		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
-		Multihead multihead = null;
+		Multihead multihead;
 		while ((multihead = mis.getNextMultihead()) != null) {
 			Disposition disposition = multihead.getDisposition();
 			MediaType type = multihead.getType();

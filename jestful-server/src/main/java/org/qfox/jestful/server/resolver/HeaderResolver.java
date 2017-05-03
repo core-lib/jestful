@@ -1,9 +1,6 @@
 package org.qfox.jestful.server.resolver;
 
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.*;
 import org.qfox.jestful.server.converter.ConversionProvider;
 
 import java.util.Map;
@@ -11,7 +8,7 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/5/2.
  */
-public class HeaderResolver implements Resolver {
+public class HeaderResolver implements Resolver, Initialable {
     private ConversionProvider conversionProvider;
 
     @Override
@@ -29,6 +26,7 @@ public class HeaderResolver implements Resolver {
         parameter.setValue(value);
     }
 
+    @Override
     public void initialize(BeanContainer beanContainer) {
         conversionProvider = beanContainer.get(ConversionProvider.class);
     }

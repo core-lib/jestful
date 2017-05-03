@@ -75,7 +75,7 @@ public class BasicProxyGateway extends ProxyGateway {
 		builder.append(super.toString());
 		builder.append("\r\n");
 		String authorization = "Basic " + Base64.encode(username + ":" + password);
-		builder.append("Proxy-Authorization: " + authorization);
+		builder.append("Proxy-Authorization: ").append(authorization);
 		builder.append("\r\n");
 		return builder.toString();
 	}

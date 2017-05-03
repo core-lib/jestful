@@ -8,5 +8,5 @@ public enum Dispatcher {
     INCLUDE,
     REQUEST,
     ASYNC,
-    ERROR;
+    ERROR
 }

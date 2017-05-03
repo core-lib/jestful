@@ -183,7 +183,7 @@ public class Node<K extends Expression<K>, V extends Comparable<V>> implements C
 
     public String toString(String prefix) {
         StringBuilder builder = new StringBuilder();
-        builder.append(separator + key).append(value != null ? " " + value.toString() : "").append("\r\n");
+        builder.append(separator).append(key).append(value != null ? " " + value.toString() : "").append("\r\n");
         if (this.isLeaf() == false) {
             Iterator<Node<K, V>> iterator = branches.iterator();
             while (iterator.hasNext()) {

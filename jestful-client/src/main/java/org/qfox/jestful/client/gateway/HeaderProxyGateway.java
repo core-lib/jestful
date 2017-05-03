@@ -80,7 +80,7 @@ public class HeaderProxyGateway extends ProxyGateway {
 		builder.append(super.toString());
 		builder.append("\r\n");
 		for (Entry<String, String> entry : header.entrySet()) {
-			builder.append(entry.getKey() + ": " + entry.getValue());
+			builder.append(entry.getKey()).append(": ").append(entry.getValue());
 			builder.append("\r\n");
 		}
 		return builder.toString();

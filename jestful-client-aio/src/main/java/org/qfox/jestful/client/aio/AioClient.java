@@ -100,7 +100,7 @@ public class AioClient extends Client implements AioConnector {
             String host = endpoint.getHost();
             Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
             String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
-            return new JestfulAioInvocationHandler<T>(interfase, protocol, host, port, route, AioClient.this, load(forePlugins), load(backPlugins)).getProxy();
+            return new JestfulAioInvocationHandler<>(interfase, protocol, host, port, route, AioClient.this, load(forePlugins), load(backPlugins)).getProxy();
         }
     }
 
@@ -243,7 +243,7 @@ public class AioClient extends Client implements AioConnector {
             if (restful.isReturnBody()) {
                 deserialize(action);
             } else {
-                Map<String, String> header = new CaseInsensitiveMap<String, String>();
+                Map<String, String> header = new CaseInsensitiveMap<>();
                 for (String key : response.getHeaderKeys()) {
                     String name = key != null ? key : "";
                     String value = response.getResponseHeader(key);

@@ -5,6 +5,8 @@ package org.qfox.jestful.template.taglib;
  */
 public class Title extends Fragment {
 
+    private static final long serialVersionUID = 8089798364127793992L;
+
     public Title() {
         super(Title.class.getName());
     }

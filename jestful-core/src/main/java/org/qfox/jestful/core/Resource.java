@@ -56,7 +56,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
             if (method.isSynthetic()) {
                 continue;
             }
-            Method configuration = null;
+            Method configuration;
             if ((configuration = getRestfulMethodFromClasses(method, klass)) != null) {
                 this.mappings.put(method, new Mapping(this, controller, method, configuration));
                 continue;

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
  * @date 2016年4月9日 上午11:12:52
  * @since 1.0.0
  */
+@SuppressWarnings("ALL")
 public class MediaType implements Weighted<MediaType> {
     private static final MediaType NULL = new MediaType("", new HashMap<String, String>());
 

@@ -44,7 +44,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
             Map<String, String[]> map = new HashMap<String, String[]>();
             isr = new InputStreamReader(in);
             br = new BufferedReader(isr);
-            String line = null;
+            String line;
             while ((line = br.readLine()) != null) {
                 map.putAll(MapKit.valueOf(line, charset));
             }

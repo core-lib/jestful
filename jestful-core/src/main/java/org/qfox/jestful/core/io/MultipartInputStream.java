@@ -82,7 +82,7 @@ public class MultipartInputStream extends InputStream {
 		if (end == true || start == false) {
 			return -1;
 		}
-		int b = 0;
+		int b;
 		if (length > 0) {
 			b = buffer[0] & 0xff;
 			length--;

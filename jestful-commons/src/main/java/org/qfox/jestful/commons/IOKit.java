@@ -99,7 +99,7 @@ public class IOKit {
             return;
         }
         StringReader reader = new StringReader(line);
-        int b = 0;
+        int b;
         while ((b = reader.read()) != -1) {
             out.write(b);
         }
@@ -112,7 +112,7 @@ public class IOKit {
             return;
         }
         StringReader reader = new StringReader(line);
-        int b = 0;
+        int b;
         while ((b = reader.read()) != -1) {
             writer.write(b);
         }
@@ -123,7 +123,7 @@ public class IOKit {
     public static long transfer(InputStream in, int length, OutputStream out) throws IOException {
         int total = 0;
         byte[] buffer = new byte[4096];
-        int len = 0;
+        int len;
         while ((len = in.read(buffer, 0, Math.min(length - total, buffer.length))) != -1) {
             out.write(buffer, 0, len);
             total += len;
@@ -137,7 +137,7 @@ public class IOKit {
     public static long transfer(InputStream in, OutputStream out) throws IOException {
         long total = 0;
         byte[] buffer = new byte[4096];
-        int length = 0;
+        int length;
         while ((length = in.read(buffer)) != -1) {
             out.write(buffer, 0, length);
             total += length;
@@ -148,7 +148,7 @@ public class IOKit {
     public static long transfer(Reader reader, Writer writer) throws IOException {
         long total = 0;
         char[] buffer = new char[4096];
-        int length = 0;
+        int length;
         while ((length = reader.read(buffer)) != -1) {
             writer.write(buffer, 0, length);
             total += length;

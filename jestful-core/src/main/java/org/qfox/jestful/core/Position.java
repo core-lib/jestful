@@ -41,6 +41,6 @@ public enum Position {
 	/**
 	 * 会话
 	 */
-	SESSION;
+	SESSION
 
 }

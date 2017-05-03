@@ -1,6 +1,5 @@
 package org.qfox.jestful.client.nio.catcher;
 
-import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.core.Action;
