@@ -6,6 +6,7 @@ import org.qfox.jestful.core.formatting.ResponseSerializer;
 import org.qfox.jestful.server.NoClosePrintWriter;
 import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.*;
@@ -22,8 +23,8 @@ import java.util.*;
  * @since 1.0.0
  */
 public class ResultRenderer implements Actor, Initialable, Destroyable, Configurable {
-    private final Map<MediaType, ResponseSerializer> serializers = new HashMap<MediaType, ResponseSerializer>();
-    private final List<Renderer> renderers = new ArrayList<Renderer>();
+    protected final Map<MediaType, ResponseSerializer> serializers = new HashMap<MediaType, ResponseSerializer>();
+    protected final List<Renderer> renderers = new ArrayList<Renderer>();
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
@@ -36,7 +37,7 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
         Request request = action.getRequest();
         Response response = action.getResponse();
         // 忽略没有回应体和声明void返回值的方法
-        if (restful.isReturnBody() == false || result.getKlass() == Void.TYPE) {
+        if (!restful.isReturnBody() || result.getKlass() == Void.TYPE) {
             return action.execute();
         }
 
@@ -63,16 +64,10 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
                     serializer.serialize(action, mediaType, writer);
                     writer.flush();
                 } else {
-                    String accept = request.getRequestHeader("Accept");
-                    Accepts accepts = accept == null || accept.length() == 0 ? new Accepts(serializers.keySet()) : Accepts.valueOf(accept);
-                    Accepts produces = action.getProduces();
-                    Accepts supports = new Accepts(serializers.keySet());
-                    String URI = action.getURI();
-                    String method = action.getRestful().getMethod();
-                    throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? supports : produces);
+                    throwNotAcceptableStatusException(action);
                 }
+                break;
             }
-            break;
             default: {
                 String charset = response.getResponseHeader("Content-Charset");
                 String contentType = response.getContentType();
@@ -83,21 +78,26 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
                     serializer.serialize(action, mediaType, charset, out);
                     out.flush();
                 } else {
-                    String accept = request.getRequestHeader("Accept");
-                    Accepts accepts = accept == null || accept.length() == 0 ? new Accepts(serializers.keySet()) : Accepts.valueOf(accept);
-                    Accepts produces = action.getProduces();
-                    Accepts supports = new Accepts(serializers.keySet());
-                    String URI = action.getURI();
-                    String method = action.getRestful().getMethod();
-                    throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? supports : produces);
+                    throwNotAcceptableStatusException(action);
                 }
+                break;
             }
-            break;
         }
 
         result.setRendered(true);
 
         return value;
+    }
+
+    private void throwNotAcceptableStatusException(Action action) throws NotAcceptableStatusException {
+        Request request = action.getRequest();
+        String accept = request.getRequestHeader("Accept");
+        Accepts accepts = accept == null || accept.length() == 0 ? new Accepts(serializers.keySet()) : Accepts.valueOf(accept);
+        Accepts produces = action.getProduces();
+        Accepts supports = new Accepts(serializers.keySet());
+        String URI = action.getURI();
+        String method = action.getRestful().getMethod();
+        throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? supports : produces);
     }
 
     public void initialize(BeanContainer beanContainer) {
