@@ -7,11 +7,14 @@ import org.qfox.jestful.server.renderer.Renderer;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by yangchangpei on 17/5/3.
  */
-public class RunnableRenderer implements Renderer {
+public class RunnableRenderer implements Renderer, Initialable, Destroyable {
+    private ExecutorService executor;
 
     @Override
     public boolean supports(Action action, Object value) {
@@ -38,4 +41,15 @@ public class RunnableRenderer implements Renderer {
         AsyncContext asyncContext = req.startAsync(req, resp);
         asyncContext.start((Runnable) value);
     }
+
+    @Override
+    public void initialize(BeanContainer beanContainer) {
+        executor = Executors.newCachedThreadPool();
+    }
+
+    @Override
+    public void destroy() {
+        if (executor != null) executor.shutdown();
+    }
+
 }

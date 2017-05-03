@@ -13,11 +13,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by yangchangpei on 17/5/3.
  */
-public class CallableRenderer implements Renderer, Initialable {
+public class CallableRenderer implements Renderer, Initialable, Destroyable {
+    private ExecutorService executor;
     private final Map<MediaType, ResponseSerializer> serializers = new HashMap<MediaType, ResponseSerializer>();
 
     @Override
@@ -42,7 +45,12 @@ public class CallableRenderer implements Renderer, Initialable {
         HttpServletResponse resp = (HttpServletResponse) response;
 
         AsyncContext asyncContext = req.startAsync(req, resp);
-        asyncContext.start(new AsyncRunnable(asyncContext, (Callable<?>) value));
+        executor.execute(new AsyncRunnable(asyncContext, (Callable<?>) value));
+    }
+
+    @Override
+    public void destroy() {
+        if (executor != null) executor.shutdown();
     }
 
     private class AsyncRunnable implements Runnable {
@@ -85,6 +93,8 @@ public class CallableRenderer implements Renderer, Initialable {
             MediaType mediaType = MediaType.valueOf(contentType);
             this.serializers.put(mediaType, serializer);
         }
+
+        executor = Executors.newCachedThreadPool();
     }
 
 }
