@@ -91,7 +91,7 @@ public class CallableRenderer implements Renderer, Initialable, Destroyable {
             } catch (Exception e) {
                 throw new JestfulRuntimeException(e);
             } finally {
-                asyncContext.complete();
+                if (asyncContext.getRequest().isAsyncStarted()) asyncContext.complete();
             }
         }
 

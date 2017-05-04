@@ -58,7 +58,14 @@ public class ForwardRenderer implements Renderer, Initialable, Configurable {
         if (servletContext == null) {
             throw new UnknownContextException(ctx);
         }
-        RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path.startsWith("/") ? path : prefix + path + suffix);
+        path = path.startsWith("/") ? path : prefix + path + suffix;
+
+        if (servletRequest.isAsyncStarted()) {
+            servletRequest.getAsyncContext().dispatch(servletContext, path);
+            return;
+        }
+
+        RequestDispatcher dispatcher = servletContext.getRequestDispatcher(path);
         if (dispatcher == null) {
             throw new UnsupportedForwardException(servletContext);
         }
