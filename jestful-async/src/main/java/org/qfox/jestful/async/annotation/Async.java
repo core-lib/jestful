@@ -12,4 +12,6 @@ public @interface Async {
 
     boolean value() default true;
 
+    long timeout() default 0;
+
 }

@@ -33,7 +33,7 @@ public class ProtobufResponseSerializer implements ResponseSerializer {
         ObjectOutputStream oos = null;
         try {
             oos = new ObjectOutputStream(out);
-            oos.writeObject(action.getResult().getValue());
+            oos.writeObject(action.getResult().getBody().getValue());
         } finally {
             IOKit.close(oos);
         }

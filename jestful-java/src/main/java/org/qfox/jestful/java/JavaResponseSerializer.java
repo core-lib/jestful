@@ -30,7 +30,7 @@ public class JavaResponseSerializer implements ResponseSerializer {
     }
 
     public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {
-        serialize(action.getResult().getValue(), mediaType, charset, out);
+        serialize(action.getResult().getBody().getValue(), mediaType, charset, out);
     }
 
     @Override

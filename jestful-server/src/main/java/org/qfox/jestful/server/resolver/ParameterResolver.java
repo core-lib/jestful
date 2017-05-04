@@ -69,12 +69,9 @@ public class ParameterResolver implements Actor, Initialable, Destroyable, Confi
             String contentType = deserializer.getContentType();
             MediaType mediaType = MediaType.valueOf(contentType);
             this.deserializers.put(mediaType, deserializer);
-
-            if (deserializer instanceof Initialable) ((Initialable) deserializer).initialize(beanContainer);
         }
 
         this.resolvers.addAll(beanContainer.find(Resolver.class).values());
-        for (Resolver r : resolvers) if (r instanceof Initialable) ((Initialable) r).initialize(beanContainer);
     }
 
     @Override

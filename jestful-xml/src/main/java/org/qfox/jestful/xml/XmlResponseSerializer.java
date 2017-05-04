@@ -45,7 +45,7 @@ public class XmlResponseSerializer extends XmlMapper implements ResponseSerializ
 
     @Override
     public void serialize(Action action, MediaType mediaType, Writer writer) throws IOException {
-        writeValue(writer, action.getResult().getValue());
+        writeValue(writer, action.getResult().getBody().getValue());
     }
 
     @Override

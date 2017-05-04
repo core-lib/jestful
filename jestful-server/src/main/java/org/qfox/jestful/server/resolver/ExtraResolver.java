@@ -31,9 +31,7 @@ public class ExtraResolver implements Resolver, Initialable, Destroyable, Config
 
     public void initialize(BeanContainer beanContainer) {
         obtainers.addAll(beanContainer.find(Obtainer.class).values());
-        for (Obtainer o : obtainers) if (o instanceof Initialable) ((Initialable) o).initialize(beanContainer);
     }
-
 
     @Override
     public void destroy() {

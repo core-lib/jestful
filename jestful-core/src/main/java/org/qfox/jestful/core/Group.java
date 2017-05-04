@@ -16,7 +16,7 @@ import java.util.List;
  * @date 2016年4月7日 下午12:14:34
  * @since 1.0.0
  */
-public class Group implements Actor, Initialable, Destroyable {
+public class Group implements Actor, Destroyable {
     protected List<Actor> members = new ArrayList<Actor>();
 
     public Group() {
@@ -39,11 +39,6 @@ public class Group implements Actor, Initialable, Destroyable {
 
     public void setMembers(List<Actor> members) {
         this.members = members;
-    }
-
-    @Override
-    public void initialize(BeanContainer beanContainer) {
-        for (Actor m : members) if (m instanceof Initialable) ((Initialable) m).initialize(beanContainer);
     }
 
     @Override

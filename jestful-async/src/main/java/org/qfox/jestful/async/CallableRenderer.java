@@ -41,6 +41,16 @@ public class CallableRenderer implements Renderer, Initialable, Destroyable {
         HttpServletResponse resp = (HttpServletResponse) response;
 
         AsyncContext asyncContext = req.startAsync(req, resp);
+
+        Mapping mapping = action.getMapping();
+        Resource resource = action.getResource();
+        Async async = mapping.isAnnotationPresent(Async.class)
+                ? mapping.getAnnotation(Async.class)
+                : resource.isAnnotationPresent(Async.class)
+                ? resource.getAnnotation(Async.class)
+                : null;
+        asyncContext.setTimeout(async != null ? async.timeout() : 0);
+
         executor.execute(new AsyncRunnable(asyncContext, (Callable<?>) value, action));
     }
 
@@ -58,18 +68,23 @@ public class CallableRenderer implements Renderer, Initialable, Destroyable {
         private final AsyncContext asyncContext;
         private final Callable<?> callable;
         private final Action action;
+        private final Result result;
+        private final Body body;
         private Object value;
 
         public AsyncRunnable(AsyncContext asyncContext, Callable<?> callable, Action action) {
             this.asyncContext = asyncContext;
             this.callable = callable;
             this.action = action;
+            this.result = action.getResult();
+            this.body = result.getBody();
         }
 
         @Override
         public void run() {
             try {
                 value = callable.call();
+                body.setValue(value);
                 action.intrude(this);
                 action.getResult().setRendered(false);
                 renderer.react(action);

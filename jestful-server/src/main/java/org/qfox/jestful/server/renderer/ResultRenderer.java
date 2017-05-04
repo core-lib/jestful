@@ -6,7 +6,6 @@ import org.qfox.jestful.core.formatting.ResponseSerializer;
 import org.qfox.jestful.server.NoClosePrintWriter;
 import org.qfox.jestful.server.exception.NotAcceptableStatusException;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.*;
@@ -64,7 +63,7 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
                     serializer.serialize(action, mediaType, writer);
                     writer.flush();
                 } else {
-                    throwNotAcceptableStatusException(action);
+                    reject(action);
                 }
                 break;
             }
@@ -78,7 +77,7 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
                     serializer.serialize(action, mediaType, charset, out);
                     out.flush();
                 } else {
-                    throwNotAcceptableStatusException(action);
+                    reject(action);
                 }
                 break;
             }
@@ -89,7 +88,7 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
         return value;
     }
 
-    private void throwNotAcceptableStatusException(Action action) throws NotAcceptableStatusException {
+    private void reject(Action action) throws NotAcceptableStatusException {
         Request request = action.getRequest();
         String accept = request.getRequestHeader("Accept");
         Accepts accepts = accept == null || accept.length() == 0 ? new Accepts(serializers.keySet()) : Accepts.valueOf(accept);
@@ -106,12 +105,9 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
             String contentType = serializer.getContentType();
             MediaType mediaType = MediaType.valueOf(contentType);
             this.serializers.put(mediaType, serializer);
-
-            if (serializer instanceof Initialable) ((Initialable) serializer).initialize(beanContainer);
         }
 
         this.renderers.addAll(beanContainer.find(Renderer.class).values());
-        for (Renderer r : renderers) if (r instanceof Initialable) ((Initialable) r).initialize(beanContainer);
     }
 
     @Override
