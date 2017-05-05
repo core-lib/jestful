@@ -1,9 +1,6 @@
 package org.qfox.jestful.commons.tree;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * <p>
@@ -105,7 +102,10 @@ public class Node<K extends Expression<K>, V extends Comparable<V>> implements C
         }
 
         if (node.isLeaf() == false) {
-            this.value = node.value;
+            if (this.value instanceof Collection<?> && node.value instanceof Collection<?>)
+                ((Collection) this.value).addAll((Collection) node.value);
+            else
+                this.value = node.value;
         }
 
         Set<Node<K, V>> branches = new TreeSet<Node<K, V>>();

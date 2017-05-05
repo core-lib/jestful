@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 public class Action {
     private final BeanContainer beanContainer;
     private final List<Actor> actors;
-    private int index = 0;
+    private volatile int index = 0;
 
     private Resource resource;
     private Mapping mapping;
@@ -79,7 +79,7 @@ public class Action {
      * @throws Exception all type exception may be thrown
      */
     public Object execute() throws Exception {
-        if (index == actors.size()) {
+        if (index >= actors.size()) {
             throw new DuplicateExecuteException(this);
         }
         return actors.get(index++).react(this);
