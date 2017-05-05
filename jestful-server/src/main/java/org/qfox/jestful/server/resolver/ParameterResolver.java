@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class ParameterResolver implements Actor, Initialable, Destroyable, Configurable {
     private final Map<MediaType, RequestDeserializer> deserializers = new HashMap<MediaType, RequestDeserializer>();
-    private final List<Resolver> resolvers = new ArrayList<Resolver>();
+    private final Set<Resolver> resolvers = new LinkedHashSet<Resolver>();
 
     @Override
     public Object react(Action action) throws Exception {

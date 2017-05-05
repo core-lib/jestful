@@ -26,6 +26,7 @@
 	<bean class="org.qfox.jestful.core.converter.DateStringConverter" />
 	
 	<bean id="defaultStringConversion" class="org.qfox.jestful.core.converter.DefaultStringConversion" />
+	<bean id="defaultBeanContainer" class="org.qfox.jestful.core.DefaultBeanContainer"/>
 
 </beans>
 

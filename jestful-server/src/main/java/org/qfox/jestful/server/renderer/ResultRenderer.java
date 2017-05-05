@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class ResultRenderer implements Actor, Initialable, Destroyable, Configurable {
     protected final Map<MediaType, ResponseSerializer> serializers = new HashMap<MediaType, ResponseSerializer>();
-    protected final List<Renderer> renderers = new ArrayList<Renderer>();
+    protected final Set<Renderer> renderers = new LinkedHashSet<Renderer>();
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {

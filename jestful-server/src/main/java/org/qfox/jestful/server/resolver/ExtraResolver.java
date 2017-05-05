@@ -5,16 +5,16 @@ import org.qfox.jestful.core.annotation.Variable;
 import org.qfox.jestful.core.exception.BeanConfigException;
 import org.qfox.jestful.server.obtainer.Obtainer;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by yangchangpei on 17/5/3.
  */
 public class ExtraResolver implements Resolver, Initialable, Destroyable, Configurable {
-    private final List<Obtainer> obtainers = new ArrayList<Obtainer>();
+    private final Set<Obtainer> obtainers = new LinkedHashSet<Obtainer>();
 
     @Override
     public boolean supports(Action action, Parameter parameter) {

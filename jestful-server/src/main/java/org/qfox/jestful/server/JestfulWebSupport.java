@@ -47,7 +47,7 @@ public class JestfulWebSupport implements Actor {
         ApplicationContext applicationContext = (ApplicationContext) servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         {
             String name = configuration.get("beanContainer");
-            name = name == null || name.length() == 0 ? "jestfulBeanContainer" : name;
+            name = name == null || name.length() == 0 ? "defaultBeanContainer" : name;
             beanContainer = applicationContext.getBean(name, BeanContainer.class);
         }
         {
