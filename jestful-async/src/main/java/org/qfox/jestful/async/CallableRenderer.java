@@ -2,21 +2,20 @@ package org.qfox.jestful.async;
 
 import org.qfox.jestful.async.annotation.Async;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.exception.JestfulRuntimeException;
-import org.qfox.jestful.server.renderer.Renderer;
+import org.qfox.jestful.core.exception.StatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by yangchangpei on 17/5/3.
  */
-public class CallableRenderer implements Renderer, Initialable, Destroyable {
-    private ExecutorService executor;
+public class CallableRenderer extends AsyncRenderer {
     private Actor renderer;
 
     @Override
@@ -40,7 +39,7 @@ public class CallableRenderer implements Renderer, Initialable, Destroyable {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        AsyncContext asyncContext = req.startAsync(req, resp);
+        AsyncContext context = req.startAsync(req, resp);
 
         Mapping mapping = action.getMapping();
         Resource resource = action.getResource();
@@ -49,22 +48,18 @@ public class CallableRenderer implements Renderer, Initialable, Destroyable {
                 : resource.isAnnotationPresent(Async.class)
                 ? resource.getAnnotation(Async.class)
                 : null;
-        asyncContext.setTimeout(async != null ? async.timeout() : 0);
 
-        executor.execute(new AsyncRunnable(asyncContext, (Callable<?>) value, action));
+        context.setTimeout(async != null ? async.timeout() : 0);
+
+        executor.execute(new Task(context, (Callable<?>) value, action));
     }
 
     public void initialize(BeanContainer beanContainer) {
-        this.executor = Executors.newCachedThreadPool();
+        super.initialize(beanContainer);
         this.renderer = (Actor) beanContainer.get("renderer");
     }
 
-    @Override
-    public void destroy() {
-        if (executor != null) executor.shutdown();
-    }
-
-    private class AsyncRunnable implements Runnable, Actor {
+    private class Task implements Runnable, Actor {
         private final AsyncContext asyncContext;
         private final Callable<?> callable;
         private final Action action;
@@ -72,7 +67,7 @@ public class CallableRenderer implements Renderer, Initialable, Destroyable {
         private final Body body;
         private Object value;
 
-        public AsyncRunnable(AsyncContext asyncContext, Callable<?> callable, Action action) {
+        public Task(AsyncContext asyncContext, Callable<?> callable, Action action) {
             this.asyncContext = asyncContext;
             this.callable = callable;
             this.action = action;
@@ -88,8 +83,26 @@ public class CallableRenderer implements Renderer, Initialable, Destroyable {
                 action.intrude(this);
                 action.getResult().setRendered(false);
                 renderer.react(action);
-            } catch (Exception e) {
-                throw new JestfulRuntimeException(e);
+            } catch (StatusException exception) {
+                try {
+                    logger.error(exception.getMessage(), exception);
+                    HttpServletRequest httpServletRequest = (HttpServletRequest) asyncContext.getRequest();
+                    HttpServletResponse httpServletResponse = (HttpServletResponse) asyncContext.getResponse();
+                    httpServletRequest.setAttribute("exception", exception);
+                    httpServletResponse.sendError(exception.getStatus(), exception.getMessage());
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            } catch (Exception exception) {
+                try {
+                    logger.error(exception.getMessage(), exception);
+                    HttpServletRequest httpServletRequest = (HttpServletRequest) asyncContext.getRequest();
+                    HttpServletResponse httpServletResponse = (HttpServletResponse) asyncContext.getResponse();
+                    httpServletRequest.setAttribute("exception", exception);
+                    httpServletResponse.sendError(500, exception.getMessage());
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
             } finally {
                 if (asyncContext.getRequest().isAsyncStarted()) asyncContext.complete();
             }
@@ -99,6 +112,7 @@ public class CallableRenderer implements Renderer, Initialable, Destroyable {
         public Object react(Action action) throws Exception {
             return value;
         }
+
     }
 
 }
