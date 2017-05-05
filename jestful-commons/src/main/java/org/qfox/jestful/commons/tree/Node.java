@@ -98,7 +98,12 @@ public class Node<K extends Expression<K>, V extends Comparable<V>> implements C
      */
     public void merge(Node<K, V> node) throws AlreadyValuedException {
         if (this.isLeaf() && node.isLeaf()) {
-            throw new AlreadyValuedException(node, this);
+            if (this.value instanceof Collection<?> && node.value instanceof Collection<?>)
+                ((Collection) this.value).addAll((Collection) node.value);
+            else if (this.value == null && node.value instanceof Collection<?>)
+                this.value = node.value;
+            else
+                throw new AlreadyValuedException(node, this);
         }
 
         if (node.isLeaf() == false) {
