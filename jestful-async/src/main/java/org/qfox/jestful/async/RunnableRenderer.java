@@ -70,9 +70,9 @@ public class RunnableRenderer extends AsyncRenderer {
                     ((HttpServletResponse) asyncContext.getResponse()).sendError(500, exception.getMessage());
                 } catch (IOException e) {
                     logger.error(e.getMessage(), e);
+                } finally {
+                    if (asyncContext.getRequest().isAsyncStarted()) asyncContext.complete();
                 }
-            } finally {
-                if (asyncContext.getRequest().isAsyncStarted()) asyncContext.complete();
             }
         }
 
