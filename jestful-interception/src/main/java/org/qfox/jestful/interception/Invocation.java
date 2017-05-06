@@ -3,6 +3,8 @@ package org.qfox.jestful.interception;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.interception.exception.DuplicateInvokeException;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -11,25 +13,30 @@ import java.util.regex.Pattern;
  * Created by Payne on 2017/5/5.
  */
 public class Invocation {
-    private final Action action;
-    private final Interceptor[] interceptors;
+    private final List<Interceptor> interceptors;
     private volatile int index;
+    private volatile Action action;
 
-    public Invocation(Action action, Interceptor... interceptors) {
-        this.action = action;
-        this.interceptors = interceptors;
-        this.index = 0;
+    Invocation() {
+        this.interceptors = new ArrayList<Interceptor>();
     }
 
     public Object invoke() throws Exception {
-        if (index >= interceptors.length) {
+        if (index >= interceptors.size()) {
             throw new DuplicateInvokeException(this);
         }
-        return interceptors[index++].intercept(this);
+        return interceptors.get(index++).intercept(this);
     }
 
     Object execute() throws Exception {
         return action.execute();
+    }
+
+    void reset(Action action, Collection<Interceptor> interceptors) {
+        this.action = action;
+        this.interceptors.clear();
+        this.interceptors.addAll(interceptors);
+        this.index = 0;
     }
 
     public void intrude(Actor... intruders) {

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by Payne on 2017/5/5.
@@ -19,6 +20,7 @@ public class Interception implements Plugin, Initialable, Destroyable {
             return invocation.execute();
         }
     };
+    private final ConcurrentLinkedQueue<Invocation> queue = new ConcurrentLinkedQueue<Invocation>();
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
@@ -26,12 +28,22 @@ public class Interception implements Plugin, Initialable, Destroyable {
     }
 
     @Override
-    public Object react(final Action action) throws Exception {
-        List<Interceptor> listeners = new ArrayList<Interceptor>();
-        for (Listener listener : this.listeners) if (listener.matches(action)) listeners.add(listener);
-        listeners.add(interceptor);
-        Invocation invocation = new Invocation(action, listeners.toArray(new Interceptor[listeners.size()]));
-        return invocation.invoke();
+    public Object react(Action action) throws Exception {
+        Invocation invocation = queue.poll();
+        if (invocation == null) invocation = new Invocation();
+        try {
+            List<Interceptor> interceptors = new ArrayList<Interceptor>();
+            for (Listener listener : this.listeners) if (listener.matches(action)) interceptors.add(listener);
+            interceptors.add(interceptor);
+            invocation.reset(action, interceptors);
+            Object value = invocation.invoke();
+            action.getResult().getBody().setValue(value);
+            return value;
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            queue.offer(invocation);
+        }
     }
 
     @Override
