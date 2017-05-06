@@ -3,6 +3,7 @@ package org.qfox.jestful.interception;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.interception.exception.DuplicateInvokeException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -25,6 +26,18 @@ public class Invocation {
             throw new DuplicateInvokeException(this);
         }
         return interceptors[index++].intercept(this);
+    }
+
+    Object execute() throws Exception {
+        return action.execute();
+    }
+
+    public void intrude(Actor... intruders) {
+        action.intrude(intruders);
+    }
+
+    public void intrude(List<Actor> intruders) {
+        action.intrude(intruders);
     }
 
     public BeanContainer getBeanContainer() {
@@ -253,5 +266,45 @@ public class Invocation {
 
     public void setAllowEncode(boolean allowEncode) {
         action.setAllowEncode(allowEncode);
+    }
+
+    public boolean isAcceptEncode() {
+        return action.isAcceptEncode();
+    }
+
+    public void setAcceptEncode(boolean acceptEncode) {
+        action.setAcceptEncode(acceptEncode);
+    }
+
+    public String getPathEncodeCharset() {
+        return action.getPathEncodeCharset();
+    }
+
+    public void setPathEncodeCharset(String pathEncodeCharset) {
+        action.setPathEncodeCharset(pathEncodeCharset);
+    }
+
+    public String getQueryEncodeCharset() {
+        return action.getQueryEncodeCharset();
+    }
+
+    public void setQueryEncodeCharset(String queryEncodeCharset) {
+        action.setQueryEncodeCharset(queryEncodeCharset);
+    }
+
+    public String getHeaderEncodeCharset() {
+        return action.getHeaderEncodeCharset();
+    }
+
+    public void setHeaderEncodeCharset(String headerEncodeCharset) {
+        action.setHeaderEncodeCharset(headerEncodeCharset);
+    }
+
+    public Map<Object, Object> getExtra() {
+        return action.getExtra();
+    }
+
+    public void setExtra(Map<Object, Object> extra) {
+        action.setExtra(extra);
     }
 }

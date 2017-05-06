@@ -1,6 +1,9 @@
 package org.qfox.jestful.commons.tree;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * <p>
@@ -98,19 +101,11 @@ public class Node<K extends Expression<K>, V extends Comparable<V>> implements C
      */
     public void merge(Node<K, V> node) throws AlreadyValuedException {
         if (this.isLeaf() && node.isLeaf()) {
-            if (this.value instanceof Collection<?> && node.value instanceof Collection<?>)
-                ((Collection) this.value).addAll((Collection) node.value);
-            else if (this.value == null && node.value instanceof Collection<?>)
-                this.value = node.value;
-            else
-                throw new AlreadyValuedException(node, this);
+            throw new AlreadyValuedException(node, this);
         }
 
-        if (node.isLeaf() == false) {
-            if (this.value instanceof Collection<?> && node.value instanceof Collection<?>)
-                ((Collection) this.value).addAll((Collection) node.value);
-            else
-                this.value = node.value;
+        if (!node.isLeaf()) {
+            this.value = node.value;
         }
 
         Set<Node<K, V>> branches = new TreeSet<Node<K, V>>();
@@ -189,7 +184,7 @@ public class Node<K extends Expression<K>, V extends Comparable<V>> implements C
     public String toString(String prefix) {
         StringBuilder builder = new StringBuilder();
         builder.append(separator).append(key).append(value != null ? " " + value.toString() : "").append("\r\n");
-        if (this.isLeaf() == false) {
+        if (!this.isLeaf()) {
             Iterator<Node<K, V>> iterator = branches.iterator();
             while (iterator.hasNext()) {
                 Node<K, V> branch = iterator.next();

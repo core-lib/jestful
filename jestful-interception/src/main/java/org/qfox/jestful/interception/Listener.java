@@ -1,23 +1,26 @@
 package org.qfox.jestful.interception;
 
-import org.qfox.jestful.commons.tree.Hierarchical;
-import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
+import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Configurable;
+import org.qfox.jestful.core.Destroyable;
 import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.exception.BeanConfigException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Payne on 2017/5/5.
  */
-class NodeInterceptor implements Interceptor, Comparable<NodeInterceptor>, Hierarchical<PathExpression, Interceptors> {
+class Listener implements Interceptor, Configurable, Destroyable {
     private final List<PathExpression> expressions = new ArrayList<PathExpression>();
     private final Interceptor interceptor;
 
-    NodeInterceptor(Interceptor interceptor) {
+    Listener(Interceptor interceptor) {
         try {
             Method method = interceptor.getClass().getMethod("intercept", Invocation.class);
             Annotation[] annotations = method.getAnnotations();
@@ -37,14 +40,11 @@ class NodeInterceptor implements Interceptor, Comparable<NodeInterceptor>, Hiera
         }
     }
 
-    public Node<PathExpression, Interceptors> toNode() {
-        Node<PathExpression, Interceptors> tree = new Node<PathExpression, Interceptors>(new PathExpression(null));
-        for (PathExpression expression : expressions) {
-            Node<PathExpression, Interceptors> node = new Node<PathExpression, Interceptors>(expression);
-            node.setValue(new Interceptors(interceptor));
-            tree.merge(node);
-        }
-        return tree;
+    boolean matches(Action action) {
+        String URI = action.getURI();
+        String method = action.getRestful().getMethod();
+        for (PathExpression e : expressions) if (e.match(URI) && e.getMethod().equalsIgnoreCase(method)) return true;
+        return false;
     }
 
     @Override
@@ -53,8 +53,12 @@ class NodeInterceptor implements Interceptor, Comparable<NodeInterceptor>, Hiera
     }
 
     @Override
-    public int compareTo(NodeInterceptor o) {
-        return 0;
+    public void config(Map<String, String> arguments) throws BeanConfigException {
+        if (interceptor instanceof Configurable) ((Configurable) interceptor).config(arguments);
     }
 
+    @Override
+    public void destroy() {
+        if (interceptor instanceof Destroyable) ((Destroyable) interceptor).destroy();
+    }
 }
