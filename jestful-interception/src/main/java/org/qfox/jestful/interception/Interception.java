@@ -33,7 +33,7 @@ public class Interception implements Plugin, Initialable, Destroyable {
         if (invocation == null) invocation = new Invocation();
         try {
             List<Interceptor> interceptors = new ArrayList<Interceptor>();
-            for (Listener listener : this.listeners) if (listener.matches(action)) interceptors.add(listener);
+            for (Listener listener : listeners) if (listener.matches(action)) interceptors.add(listener);
             interceptors.add(interceptor);
             invocation.reset(action, interceptors);
             Object value = invocation.invoke();
