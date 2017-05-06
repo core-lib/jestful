@@ -18,7 +18,7 @@ public class Invocation {
     public Invocation(Action action, Interceptor... interceptors) {
         this.action = action;
         this.interceptors = interceptors;
-        this.index = -1;
+        this.index = 0;
     }
 
     public Object invoke() throws Exception {

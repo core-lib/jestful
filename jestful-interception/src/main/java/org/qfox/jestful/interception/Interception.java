@@ -11,8 +11,14 @@ import java.util.Map;
 /**
  * Created by Payne on 2017/5/5.
  */
-public class Interception implements Plugin, Interceptor, Initialable, Destroyable {
+public class Interception implements Plugin, Initialable, Destroyable {
     private final Collection<Listener> listeners = new ArrayList<Listener>();
+    private final Interceptor interceptor = new Interceptor() {
+        @Override
+        public Object intercept(Invocation invocation) throws Exception {
+            return invocation.execute();
+        }
+    };
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
@@ -20,17 +26,12 @@ public class Interception implements Plugin, Interceptor, Initialable, Destroyab
     }
 
     @Override
-    public Object react(Action action) throws Exception {
+    public Object react(final Action action) throws Exception {
         List<Interceptor> listeners = new ArrayList<Interceptor>();
         for (Listener listener : this.listeners) if (listener.matches(action)) listeners.add(listener);
-        listeners.add(this);
+        listeners.add(interceptor);
         Invocation invocation = new Invocation(action, listeners.toArray(new Interceptor[listeners.size()]));
         return invocation.invoke();
-    }
-
-    @Override
-    public Object intercept(Invocation invocation) throws Exception {
-        return invocation.execute();
     }
 
     @Override

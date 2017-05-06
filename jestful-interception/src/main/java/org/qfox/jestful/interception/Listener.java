@@ -43,7 +43,7 @@ class Listener implements Interceptor, Configurable, Destroyable {
     boolean matches(Action action) {
         String URI = action.getURI();
         String method = action.getRestful().getMethod();
-        for (PathExpression e : expressions) if (e.match(URI) && e.getMethod().equalsIgnoreCase(method)) return true;
+        for (PathExpression e : expressions) if (e.getMethod().equalsIgnoreCase(method) && e.match(URI)) return true;
         return false;
     }
 
