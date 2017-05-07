@@ -14,12 +14,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class Interception implements Plugin, Initialable, Destroyable {
     private final Collection<Listener> listeners = new ArrayList<Listener>();
-    private final Interceptor interceptor = new Interceptor() {
-        @Override
-        public Object intercept(Invocation invocation) throws Exception {
-            return invocation.execute();
-        }
-    };
     private final Queue<Invocation> queue = new ConcurrentLinkedQueue<Invocation>();
 
     @Override
@@ -32,17 +26,11 @@ public class Interception implements Plugin, Initialable, Destroyable {
         Invocation invocation = queue.poll();
         if (invocation == null) invocation = new Invocation();
         try {
-            Result result = action.getResult();
-            Body body = result.getBody();
-
             invocation.reset(action);
             for (Listener listener : listeners) if (listener.matches(action)) invocation.accept(listener);
-            invocation.accept(interceptor);
             Object value = invocation.invoke();
-
-            result.setValue(value);
-            body.setValue(value);
-
+            action.getResult().setValue(value);
+            action.getResult().getBody().setValue(value);
             return value;
         } catch (Exception e) {
             throw e;

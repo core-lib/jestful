@@ -21,14 +21,14 @@ public class Invocation {
     }
 
     public Object invoke() throws Exception {
-        if (index >= interceptors.size()) {
+        if (index == interceptors.size()) {
+            index++;
+            return action.execute();
+        } else if (index < interceptors.size()) {
+            return interceptors.get(index++).intercept(this);
+        } else {
             throw new DuplicateInvokeException(this);
         }
-        return interceptors.get(index++).intercept(this);
-    }
-
-    Object execute() throws Exception {
-        return action.execute();
     }
 
     void reset(Action action) {
