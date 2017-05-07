@@ -32,11 +32,17 @@ public class Interception implements Plugin, Initialable, Destroyable {
         Invocation invocation = queue.poll();
         if (invocation == null) invocation = new Invocation();
         try {
+            Result result = action.getResult();
+            Body body = result.getBody();
+
             invocation.reset(action);
             for (Listener listener : listeners) if (listener.matches(action)) invocation.accept(listener);
             invocation.accept(interceptor);
             Object value = invocation.invoke();
-            action.getResult().getBody().setValue(value);
+
+            result.setValue(value);
+            body.setValue(value);
+
             return value;
         } catch (Exception e) {
             throw e;
