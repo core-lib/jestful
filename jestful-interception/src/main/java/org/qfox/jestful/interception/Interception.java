@@ -5,8 +5,8 @@ import org.qfox.jestful.core.exception.BeanConfigException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -20,7 +20,7 @@ public class Interception implements Plugin, Initialable, Destroyable {
             return invocation.execute();
         }
     };
-    private final ConcurrentLinkedQueue<Invocation> queue = new ConcurrentLinkedQueue<Invocation>();
+    private final Queue<Invocation> queue = new ConcurrentLinkedQueue<Invocation>();
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
@@ -32,10 +32,9 @@ public class Interception implements Plugin, Initialable, Destroyable {
         Invocation invocation = queue.poll();
         if (invocation == null) invocation = new Invocation();
         try {
-            List<Interceptor> interceptors = new ArrayList<Interceptor>();
-            for (Listener listener : listeners) if (listener.matches(action)) interceptors.add(listener);
-            interceptors.add(interceptor);
-            invocation.reset(action, interceptors);
+            invocation.reset(action);
+            for (Listener listener : listeners) if (listener.matches(action)) invocation.accept(listener);
+            invocation.accept(interceptor);
             Object value = invocation.invoke();
             action.getResult().getBody().setValue(value);
             return value;

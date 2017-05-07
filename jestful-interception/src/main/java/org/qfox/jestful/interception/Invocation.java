@@ -4,7 +4,6 @@ import org.qfox.jestful.core.*;
 import org.qfox.jestful.interception.exception.DuplicateInvokeException;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -32,11 +31,14 @@ public class Invocation {
         return action.execute();
     }
 
-    void reset(Action action, Collection<Interceptor> interceptors) {
+    void reset(Action action) {
         this.action = action;
         this.interceptors.clear();
-        this.interceptors.addAll(interceptors);
         this.index = 0;
+    }
+
+    void accept(Interceptor interceptor) {
+        this.interceptors.add(interceptor);
     }
 
     public void intrude(Actor... intruders) {
