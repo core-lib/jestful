@@ -75,31 +75,38 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
                 Annotation restful = getAnnotationWith(Command.class);
                 Command command = restful.annotationType().getAnnotation(Command.class);
                 this.restful = new Restful(command);
-                {
-                    Set<MediaType> mediaTypes = new TreeSet<MediaType>();
-                    String[] consumes = command.acceptBody() ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful) : new String[0];
-                    for (String consume : consumes) {
-                        mediaTypes.add(MediaType.valueOf(consume));
-                    }
-                    this.consumes = new Accepts(mediaTypes);
-                }
-                {
-                    Set<MediaType> mediaTypes = new TreeSet<MediaType>();
-                    String[] produces = command.returnBody() ? (String[]) restful.annotationType().getMethod("produces").invoke(restful) : new String[0];
-                    for (String produce : produces) {
-                        mediaTypes.add(MediaType.valueOf(produce));
-                    }
-                    this.produces = new Accepts(mediaTypes);
-                }
+
+                Set<MediaType> consumeMediaTypes = new TreeSet<MediaType>();
+                String[] consumes = command.acceptBody()
+                        ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful)
+                        : new String[0];
+                for (String consume : consumes) consumeMediaTypes.add(MediaType.valueOf(consume));
+                this.consumes = new Accepts(consumeMediaTypes);
+
+                Set<MediaType> produceMediaTypes = new TreeSet<MediaType>();
+                String[] produces = command.returnBody()
+                        ? (String[]) restful.annotationType().getMethod("produces").invoke(restful)
+                        : new String[0];
+                for (String produce : produces) produceMediaTypes.add(MediaType.valueOf(produce));
+                this.produces = new Accepts(produceMediaTypes);
+
                 String value = restful.annotationType().getMethod("value").invoke(restful).toString();
                 this.expression = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
                 this.regex = bind(resource.getExpression() + expression);
                 this.pattern = Pattern.compile(regex);
 
-                Version version = this.isAnnotationPresent(Version.class) ? this.getAnnotation(Version.class) : resource.isAnnotationPresent(Version.class) ? resource.getAnnotation(Version.class) : null;
+                Version version = this.isAnnotationPresent(Version.class)
+                        ? this.getAnnotation(Version.class)
+                        : resource.isAnnotationPresent(Version.class)
+                        ? resource.getAnnotation(Version.class)
+                        : null;
                 this.version = version != null ? version.value() : null;
             } else {
-                throw new AmbiguousMappingException("Ambiguous mapping " + configuration.toGenericString() + " which has " + commands.length + " http method kind annotations " + Arrays.toString(commands), controller, method, this);
+                String message = String.format("Ambiguous mapping %s which has %d http method kind annotations %s",
+                        configuration.toGenericString(),
+                        commands.length,
+                        Arrays.toString(commands));
+                throw new AmbiguousMappingException(message, controller, method, this);
             }
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
@@ -109,8 +116,8 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
     /**
      * 将路径上的变量和参数绑定
      *
-     * @param path
-     * @return
+     * @param path 映射路径
+     * @return 正则化的路径表达式
      */
     private String bind(String path) {
         Map<String, Parameter> map = new LinkedHashMap<String, Parameter>();
@@ -145,17 +152,14 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
         Set<Parameter> parameters = new LinkedHashSet<Parameter>();
         for (int index = 0; index < method.getParameterTypes().length; index++) {
             Parameter parameter = new Parameter(this, method, index);
-            if (parameters.contains(parameter)) {
-                throw new DuplicateParameterException(controller, method, index);
-            } else {
-                parameters.add(parameter);
-            }
+            if (parameters.contains(parameter)) throw new DuplicateParameterException(controller, method, index);
+            else parameters.add(parameter);
         }
         return new Parameters(parameters);
     }
 
     public Node<PathExpression, Mapping> toNode() {
-        String[] hierarchies = regex.split("\\/+");
+        String[] hierarchies = regex.split("/+");
         Iterator<String> iterator = Arrays.asList(hierarchies).iterator();
         Node<PathExpression, Mapping> result = null;
         Node<PathExpression, Mapping> parent = null;
@@ -192,18 +196,14 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
             return comparation;
         } else {
             // 有版本号比没版本号更新
-            if (version == null && o.version == null) {
-                return 0;
-            } else if (version == null) {
-                return 1;
-            } else if (o.version == null) {
-                return -1;
-            } else {
-                return version.compareTo(o.version);
-            }
+            if (version == null && o.version == null) return 0;
+            else if (version == null) return 1;
+            else if (o.version == null) return -1;
+            else return version.compareTo(o.version);
         }
     }
 
+    @SuppressWarnings("CloneDoesntCallSuperClone")
     @Override
     public Mapping clone() {
         return new Mapping(resource, controller, method, configuration);

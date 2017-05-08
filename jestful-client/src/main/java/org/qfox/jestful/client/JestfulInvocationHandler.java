@@ -40,13 +40,13 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
     }
 
     public Object invoke(Object target, Method method, Object[] args) throws Throwable {
-        if (resource.getMappings().containsKey(method) == false) {
+        if (!resource.getMappings().containsKey(method)) {
             // Object 方法
             if (method.getDeclaringClass() == Object.class) {
                 return method.invoke(resource, args);
             }
             // JDK 1.8 default 方法
-            else if (Modifier.isAbstract(method.getModifiers()) == false) {
+            else if (!Modifier.isAbstract(method.getModifiers())) {
                 Class<?> klass = client.getClassLoader().loadClass("java.lang.invoke.MethodHandles$Lookup");
                 Constructor<?> constructor = klass.getDeclaredConstructor(Class.class, int.class);
                 constructor.setAccessible(true);

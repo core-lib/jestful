@@ -9,6 +9,7 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
@@ -29,12 +30,14 @@ import java.util.Map;
  */
 public class Resource extends Configuration implements Hierarchical<PathExpression, Mapping> {
     private final Object controller;
+    private final Class<?> klass;
     private final String expression;
     private final Map<Method, Mapping> mappings = new HashMap<Method, Mapping>();
 
     public Resource() {
         super(new Annotation[0]);
         this.controller = new Object();
+        this.klass = Object.class;
         this.expression = "";
     }
 
@@ -45,9 +48,13 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
     public Resource(Object controller, Class<?> klass) throws IllegalConfigException {
         super(klass.getAnnotations());
         this.controller = controller;
+        this.klass = klass;
         Jestful jestful = this.getAnnotation(Jestful.class);
         if (jestful == null) {
-            throw new IllegalConfigException(klass + " is not a resource controller because it did not annatated @" + Jestful.class.getSimpleName(), controller);
+            String message = String.format("%s is not a resource controller because it did not annotated @%s",
+                    klass.getName(),
+                    Jestful.class.getSimpleName());
+            throw new IllegalConfigException(message, controller);
         }
         String value = jestful.value();
         this.expression = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
@@ -63,7 +70,6 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
             }
             if ((configuration = getRestfulMethodFromInterfaces(method, klass)) != null) {
                 this.mappings.put(method, new Mapping(this, controller, method, configuration));
-                continue;
             }
         }
     }
@@ -79,7 +85,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                     for (int i = 0; i < m.getGenericParameterTypes().length; i++) {
                         Type actual = m.getGenericParameterTypes()[i];
                         Type expect = method.getGenericParameterTypes()[i];
-                        if (actual.equals(expect) == false && actual instanceof TypeVariable<?> == false) {
+                        if (!actual.equals(expect) && !(actual instanceof TypeVariable<?>)) {
                             continue flag;
                         }
                     }
@@ -109,7 +115,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                         for (int i = 0; i < m.getGenericParameterTypes().length; i++) {
                             Type actual = m.getGenericParameterTypes()[i];
                             Type expect = method.getGenericParameterTypes()[i];
-                            if (actual.equals(expect) == false && actual instanceof TypeVariable<?> == false) {
+                            if (!actual.equals(expect) && !(actual instanceof TypeVariable<?>)) {
                                 continue flag;
                             }
                         }
@@ -180,7 +186,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 
     @Override
     public String toString() {
-        return "{" + expression + " : " + controller + "}";
+        return "{" + expression + " : " + (Proxy.isProxyClass(controller.getClass()) ? klass.getName() : controller) + "}";
     }
 
 }
