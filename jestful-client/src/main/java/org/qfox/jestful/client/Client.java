@@ -588,7 +588,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
 
         public Object invoke(Object... args) throws Exception {
-            if (args.length > 0) parameters.arguments(args);
+            if (args != null && args.length > 0) parameters.arguments(args);
 
             if (resource == null) resource = new Resource();
             if (mapping == null) mapping = new Mapping(resource, parameters, result, restful, consumes, produces);
