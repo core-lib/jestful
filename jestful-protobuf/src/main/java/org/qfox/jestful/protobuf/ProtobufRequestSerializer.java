@@ -41,6 +41,7 @@ public class ProtobufRequestSerializer implements RequestSerializer {
     public void serialize(Action action, String charset, OutputStream out) throws IOException {
         List<Parameter> parameters = action.getParameters().all(Position.BODY);
         for (Parameter parameter : parameters) {
+            action.getRequest().setContentType(contentType);
             AbstractMessage message = (AbstractMessage) parameter.getValue();
             if (message != null) message.writeTo(out);
             break;
