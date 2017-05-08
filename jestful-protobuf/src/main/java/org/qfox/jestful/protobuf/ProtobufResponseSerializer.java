@@ -1,5 +1,6 @@
 package org.qfox.jestful.protobuf;
 
+import com.google.protobuf.AbstractMessage;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
@@ -26,17 +27,11 @@ import java.io.Writer;
 public class ProtobufResponseSerializer implements ResponseSerializer {
 
     public String getContentType() {
-        return "application/x-java-serialized-object";
+        return "application/protobuf";
     }
 
     public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(out);
-            oos.writeObject(action.getResult().getBody().getValue());
-        } finally {
-            IOKit.close(oos);
-        }
+        serialize(action.getResult().getBody().getValue(), mediaType, charset, out);
     }
 
     @Override
@@ -46,13 +41,8 @@ public class ProtobufResponseSerializer implements ResponseSerializer {
 
     @Override
     public void serialize(Object result, MediaType mediaType, String charset, OutputStream out) throws IOException {
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(out);
-            oos.writeObject(result);
-        } finally {
-            IOKit.close(oos);
-        }
+        AbstractMessage message = (AbstractMessage) result;
+        if (message != null) message.writeTo(out);
     }
 
 }

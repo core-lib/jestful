@@ -1,16 +1,15 @@
 package org.qfox.jestful.protobuf;
 
-import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Body;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Result;
-import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.Reader;
+import java.lang.reflect.Method;
 
 /**
  * <p>
@@ -28,20 +27,19 @@ import java.io.Reader;
 public class ProtobufResponseDeserializer implements ResponseDeserializer {
 
     public String getContentType() {
-        return "application/x-java-serialized-object";
+        return "application/protobuf";
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
-        ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream(in);
             Result result = action.getResult();
-            Object value = ois.readObject();
-            result.getBody().setValue(value);
-        } catch (ClassNotFoundException e) {
-            throw new JestfulIOException(e);
-        } finally {
-            IOKit.close(ois);
+            Body body = result.getBody();
+            Class<?> klass = (Class<?>) body.getType();
+            Method method = klass.getMethod("parseFrom", InputStream.class);
+            Object value = method.invoke(null, in);
+            body.setValue(value);
+        } catch (Exception e) {
+            throw new IOException(e);
         }
     }
 
