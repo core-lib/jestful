@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Commands
 public @interface Heads {
 
-    HEAD[] value() default {};
+    HEAD[] value();
 
 }

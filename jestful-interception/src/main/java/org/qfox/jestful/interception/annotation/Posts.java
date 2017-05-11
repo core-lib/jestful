@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Commands
 public @interface Posts {
 
-    POST[] value() default {};
+    POST[] value();
 
 }

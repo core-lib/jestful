@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Commands
 public @interface Deletes {
 
-    DELETE[] value() default {};
+    DELETE[] value();
 
 }

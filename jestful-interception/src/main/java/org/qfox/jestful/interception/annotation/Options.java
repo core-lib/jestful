@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Commands
 public @interface Options {
 
-    OPTIONS[] value() default {};
+    OPTIONS[] value();
 
 }

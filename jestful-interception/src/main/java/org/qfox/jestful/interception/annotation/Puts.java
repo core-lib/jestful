@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Commands
 public @interface Puts {
 
-    PUT[] value() default {};
+    PUT[] value();
 
 }

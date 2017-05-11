@@ -13,6 +13,6 @@ import java.lang.annotation.*;
 @Commands
 public @interface Gets {
 
-    GET[] value() default {};
+    GET[] value();
 
 }
