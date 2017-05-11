@@ -107,4 +107,10 @@
         <body-content>JSP</body-content>
     </tag>
 
+    <tag>
+        <name>payload</name>
+        <tag-class>org.qfox.jestful.template.taglib.Payload</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
 </taglib>
