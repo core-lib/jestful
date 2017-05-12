@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-	<bean class="org.qfox.jestful.server.converter.PrimitiveConverter" />
-	<bean class="org.qfox.jestful.server.converter.WrapperConverter" />
-	<bean class="org.qfox.jestful.server.converter.StringConverter" />
-	<bean class="org.qfox.jestful.server.converter.EnumConverter" />
-	<bean class="org.qfox.jestful.server.converter.DateConverter" />
-	<bean class="org.qfox.jestful.server.converter.ArrayConverter" />
-	<bean class="org.qfox.jestful.server.converter.CollectionConverter" />
-	<bean class="org.qfox.jestful.server.converter.MapConverter" />
-	<bean class="org.qfox.jestful.server.converter.BeanConverter" />
+    <bean class="org.qfox.jestful.server.converter.PrimitiveConverter"/>
+    <bean class="org.qfox.jestful.server.converter.WrapperConverter"/>
+    <bean class="org.qfox.jestful.server.converter.BigDecimalConverter"/>
+    <bean class="org.qfox.jestful.server.converter.BigIntegerConverter"/>
+    <bean class="org.qfox.jestful.server.converter.StringConverter"/>
+    <bean class="org.qfox.jestful.server.converter.StringBuilderConverter"/>
+    <bean class="org.qfox.jestful.server.converter.StringBufferConverter"/>
+    <bean class="org.qfox.jestful.server.converter.EnumConverter"/>
+    <bean class="org.qfox.jestful.server.converter.DateConverter"/>
+    <bean class="org.qfox.jestful.server.converter.ArrayConverter"/>
+    <bean class="org.qfox.jestful.server.converter.CollectionConverter"/>
+    <bean class="org.qfox.jestful.server.converter.MapConverter"/>
+    <bean class="org.qfox.jestful.server.converter.BeanConverter"/>
 
 </beans>
 
