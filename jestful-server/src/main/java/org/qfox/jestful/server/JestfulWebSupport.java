@@ -16,6 +16,8 @@ import java.lang.reflect.Method;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 
+import static java.nio.charset.Charset.isSupported;
+
 /**
  * Created by payne on 2017/4/19.
  * Version: 1.0
@@ -49,35 +51,25 @@ public class JestfulWebSupport implements Actor {
             String name = configuration.get("beanContainer");
             name = name == null || name.length() == 0 ? "defaultBeanContainer" : name;
             beanContainer = applicationContext.getBean(name, BeanContainer.class);
+            if (beanContainer instanceof Configurable) ((Configurable) beanContainer).config(configuration);
         }
         {
             String name = configuration.get("mappingRegistry");
             name = name == null || name.length() == 0 ? "jestfulMappingRegistry" : name;
             mappingRegistry = applicationContext.getBean(name, MappingRegistry.class);
+            if (mappingRegistry instanceof Configurable) ((Configurable) mappingRegistry).config(configuration);
         }
         {
             String name = configuration.get("versionComparator");
             name = name == null || name.length() == 0 ? "jestfulVersionComparator" : name;
             versionComparator = applicationContext.getBean(name, VersionComparator.class);
+            if (versionComparator instanceof Configurable) ((Configurable) versionComparator).config(configuration);
         }
         {
             String plugin = configuration.get("plugin");
             plugin = plugin == null || plugin.length() == 0 ? "jestful" : plugin;
             String[] plugins = plugin.split("\\s*,\\s*");
-            this.plugins = new Actor[plugins.length];
-            for (int i = 0; i < plugins.length; i++) {
-                String[] segments = plugins[i].split("\\s*;\\s*");
-                this.plugins[i] = beanContainer.get(segments[0], Actor.class);
-                if (this.plugins[i] instanceof Configurable) {
-                    Map<String, String> arguments = new LinkedHashMap<String, String>(configuration);
-                    for (int j = 1; j < segments.length; j++) {
-                        String segment = segments[j];
-                        String[] keyvalue = segment.split("\\s*=\\s*");
-                        arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
-                    }
-                    ((Configurable) this.plugins[i]).config(arguments);
-                }
-            }
+            this.plugins = load(configuration, plugins);
         }
         {
             String value = configuration.get("acceptCharset");
@@ -116,31 +108,44 @@ public class JestfulWebSupport implements Actor {
             this.acceptEncode = acceptEncode == null || acceptEncode.length() == 0 ? true : Boolean.valueOf(acceptEncode);
         }
         {
-            String pathEncodeCharset = configuration.get("pathEncodeCharset");
-            this.pathEncodeCharset = pathEncodeCharset == null || pathEncodeCharset.length() == 0 ? "UTF-8" : pathEncodeCharset;
-            if (!java.nio.charset.Charset.isSupported(this.pathEncodeCharset)) {
-                throw new UnsupportedCharsetException(this.pathEncodeCharset);
-            }
+            String charset = configuration.get("pathEncodeCharset");
+            this.pathEncodeCharset = charset == null || charset.length() == 0 ? "UTF-8" : charset;
+            if (!isSupported(this.pathEncodeCharset)) throw new UnsupportedCharsetException(this.pathEncodeCharset);
         }
         {
-            String queryEncodeCharset = configuration.get("queryEncodeCharset");
-            this.queryEncodeCharset = queryEncodeCharset == null || queryEncodeCharset.length() == 0 ? "UTF-8" : queryEncodeCharset;
-            if (!java.nio.charset.Charset.isSupported(this.queryEncodeCharset)) {
-                throw new UnsupportedCharsetException(this.queryEncodeCharset);
-            }
+            String charset = configuration.get("queryEncodeCharset");
+            this.queryEncodeCharset = charset == null || charset.length() == 0 ? "UTF-8" : charset;
+            if (!isSupported(this.queryEncodeCharset)) throw new UnsupportedCharsetException(this.queryEncodeCharset);
         }
         {
-            String headerEncodeCharset = configuration.get("headerEncodeCharset");
-            this.headerEncodeCharset = headerEncodeCharset == null || headerEncodeCharset.length() == 0 ? "UTF-8" : headerEncodeCharset;
-            if (!java.nio.charset.Charset.isSupported(this.headerEncodeCharset)) {
-                throw new UnsupportedCharsetException(this.headerEncodeCharset);
+            String charset = configuration.get("headerEncodeCharset");
+            this.headerEncodeCharset = charset == null || charset.length() == 0 ? "UTF-8" : charset;
+            if (!isSupported(this.headerEncodeCharset)) throw new UnsupportedCharsetException(this.headerEncodeCharset);
+        }
+        {
+            Collection<?> controllers = beanContainer.with(Jestful.class).values();
+            for (Object controller : controllers) mappingRegistry.register(controller);
+        }
+
+        if (logger.isDebugEnabled()) logger.debug("", mappingRegistry);
+    }
+
+    protected Actor[] load(Map<String, String> configuration, String[] plugins) {
+        Actor[] actors = new Actor[plugins.length];
+        for (int i = 0; i < plugins.length; i++) {
+            String[] segments = plugins[i].split("\\s*;\\s*");
+            actors[i] = beanContainer.get(segments[0], Actor.class);
+            if (actors[i] instanceof Configurable) {
+                Map<String, String> arguments = new LinkedHashMap<String, String>(configuration);
+                for (int j = 1; j < segments.length; j++) {
+                    String segment = segments[j];
+                    String[] keyvalue = segment.split("\\s*=\\s*");
+                    arguments.put(keyvalue[0], keyvalue.length > 1 ? keyvalue[1] : null);
+                }
+                ((Configurable) actors[i]).config(arguments);
             }
         }
-        Collection<?> controllers = beanContainer.with(Jestful.class).values();
-        for (Object controller : controllers) {
-            mappingRegistry.register(controller);
-        }
-        logger.info("resource mapping tree\r\n{}", mappingRegistry);
+        return actors;
     }
 
     protected void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
@@ -211,9 +216,7 @@ public class JestfulWebSupport implements Actor {
 
     public void destroy() {
         Collection<Destroyable> destroyables = beanContainer.find(Destroyable.class).values();
-        for (Destroyable destroyable : destroyables) {
-            destroyable.destroy();
-        }
+        for (Destroyable destroyable : destroyables) destroyable.destroy();
     }
 
 }
