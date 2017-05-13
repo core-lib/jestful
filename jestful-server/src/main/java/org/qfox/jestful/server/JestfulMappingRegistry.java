@@ -46,7 +46,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable, Con
     }
 
     public Collection<Mapping> lookup(String URI) throws NotFoundStatusException {
-        if (pathExtensionIgnored) URI = URI.substring(0, URI.lastIndexOf('.'));
+        if (pathExtensionIgnored && URI.contains(".")) URI = URI.substring(0, URI.lastIndexOf('.'));
         String path = URI.substring(context.length());
         Collection<Mapping> mappings = tree.match(path);
         if (mappings.isEmpty()) {
