@@ -7,8 +7,8 @@
         <artifactId>jestful</artifactId>
         <version>1.0.0</version>
     </parent>
-    <artifactId>jestful-multiform</artifactId>
-    <name>jestful-multiform</name>
+    <artifactId>jestful-multiview</artifactId>
+    <name>jestful-multiview</name>
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

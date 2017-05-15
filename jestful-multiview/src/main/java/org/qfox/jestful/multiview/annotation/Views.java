@@ -1,4 +1,4 @@
-package org.qfox.jestful.multiform.annotation;
+package org.qfox.jestful.multiview.annotation;
 
 import java.lang.annotation.*;
 
@@ -8,8 +8,8 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Multiform {
+public @interface Views {
 
-    Form[] value() default {};
+    View[] value() default {};
 
 }

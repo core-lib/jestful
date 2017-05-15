@@ -1,4 +1,4 @@
-package org.qfox.jestful.multiform.annotation;
+package org.qfox.jestful.multiview.annotation;
 
 import java.lang.annotation.*;
 
@@ -8,10 +8,14 @@ import java.lang.annotation.*;
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Form {
+public @interface View {
 
     String extension();
 
-    String mime();
+    String mime() default "";
+
+    String path() default "";
+
+    String attribute() default "";
 
 }

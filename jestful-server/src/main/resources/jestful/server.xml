@@ -51,7 +51,6 @@
     <bean class="org.qfox.jestful.server.resolver.HeaderResolver"/>
     <bean class="org.qfox.jestful.server.resolver.CookieResolver"/>
     <bean class="org.qfox.jestful.server.resolver.ExtraResolver"/>
-    <bean class="org.qfox.jestful.server.resolver.DefaultResolver"/>
     <bean class="org.qfox.jestful.server.resolver.SessionResolver"/>
 
     <bean class="org.qfox.jestful.server.renderer.TextRenderer"/>

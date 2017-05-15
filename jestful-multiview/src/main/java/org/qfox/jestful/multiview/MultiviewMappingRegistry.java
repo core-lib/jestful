@@ -1,4 +1,4 @@
-package org.qfox.jestful.multiform;
+package org.qfox.jestful.multiview;
 
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.server.JestfulMappingRegistry;
@@ -19,7 +19,7 @@ import java.util.Collection;
  * @date 2016年4月1日 下午3:09:22
  * @since 1.0.0
  */
-public class MultiformMappingRegistry extends JestfulMappingRegistry {
+public class MultiviewMappingRegistry extends JestfulMappingRegistry {
 
     @Override
     public Collection<Mapping> lookup(String URI) throws NotFoundStatusException {

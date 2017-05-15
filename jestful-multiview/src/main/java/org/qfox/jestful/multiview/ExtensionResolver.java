@@ -1,11 +1,11 @@
-package org.qfox.jestful.multiform;
+package org.qfox.jestful.multiview;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.converter.StringConversion;
-import org.qfox.jestful.multiform.annotation.Extension;
+import org.qfox.jestful.multiview.annotation.Extension;
 import org.qfox.jestful.server.resolver.Resolver;
 
 import java.net.URLDecoder;

@@ -1,4 +1,4 @@
-package org.qfox.jestful.multiform.annotation;
+package org.qfox.jestful.multiview.annotation;
 
 import org.qfox.jestful.core.annotation.Variable;
 

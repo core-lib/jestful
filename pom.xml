@@ -30,7 +30,7 @@
         <module>jestful-protobuf</module>
         <module>jestful-interception</module>
         <module>jestful-async</module>
-        <module>jestful-multiform</module>
+        <module>jestful-multiview</module>
     </modules>
 
     <build>
