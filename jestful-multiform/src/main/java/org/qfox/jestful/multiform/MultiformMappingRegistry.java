@@ -1,6 +1,5 @@
 package org.qfox.jestful.multiform;
 
-import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.server.JestfulMappingRegistry;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
@@ -21,9 +20,6 @@ import java.util.Collection;
  * @since 1.0.0
  */
 public class MultiformMappingRegistry extends JestfulMappingRegistry {
-
-    public void initialize(BeanContainer beanContainer) {
-    }
 
     @Override
     public Collection<Mapping> lookup(String URI) throws NotFoundStatusException {
