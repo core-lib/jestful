@@ -26,7 +26,7 @@ public class Parameters implements List<Parameter> {
         this.parameters = new ArrayList<Parameter>(parameters);
     }
 
-    public List<Parameter> all(Position position) {
+    public List<Parameter> all(int position) {
         List<Parameter> all = new ArrayList<Parameter>();
         for (Parameter parameter : parameters) {
             if (parameter.getPosition() == position) {
@@ -36,7 +36,7 @@ public class Parameters implements List<Parameter> {
         return all;
     }
 
-    public int count(Position position) {
+    public int count(int position) {
         int total = 0;
         for (Parameter parameter : parameters) {
             if (parameter.getPosition() == position) {

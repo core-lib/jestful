@@ -4,7 +4,6 @@ import org.qfox.jestful.commons.tree.AlreadyValuedException;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.exception.BeanConfigException;
 import org.qfox.jestful.core.exception.DuplicateMappingException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
@@ -27,10 +26,9 @@ import java.util.*;
  * @date 2016年4月1日 下午3:09:22
  * @since 1.0.0
  */
-public class JestfulMappingRegistry implements MappingRegistry, Initialable, Configurable {
+public class JestfulMappingRegistry implements MappingRegistry, Initialable {
     private String context = "";
     private Node<PathExpression, Mapping> tree;
-    private boolean pathExtensionIgnored = false;
 
     public void initialize(BeanContainer beanContainer) {
         ServletContext servletContext = beanContainer.get(ServletContext.class);
@@ -38,15 +36,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable, Con
         this.tree = new Node<PathExpression, Mapping>(new PathExpression(null));
     }
 
-    @Override
-    public void config(Map<String, String> arguments) throws BeanConfigException {
-        pathExtensionIgnored = arguments.containsKey("path-extension-ignored")
-                ? Boolean.valueOf(arguments.get("path-extension-ignored"))
-                : pathExtensionIgnored;
-    }
-
     public Collection<Mapping> lookup(String URI) throws NotFoundStatusException {
-        if (pathExtensionIgnored && URI.contains(".")) URI = URI.substring(0, URI.lastIndexOf('.'));
         String path = URI.substring(context.length());
         Collection<Mapping> mappings = tree.match(path);
         if (mappings.isEmpty()) {

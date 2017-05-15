@@ -1,46 +1,47 @@
 package org.qfox.jestful.core;
 
 /**
- * 
  * <p>
  * Description: 定义参数序列化后的所在位置
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月12日 上午10:39:41
- *
  * @since 1.0.0
  */
-public enum Position {
+public interface Position {
 
-	/**
-	 * 请求头
-	 */
-	HEADER,
-	/**
-	 * 请求路径
-	 */
-	PATH,
-	/**
-	 * 查询字符串
-	 */
-	QUERY,
-	/**
-	 * 请求体
-	 */
-	BODY,
-	/**
-	 * Cookie
-	 */
-	COOKIE,
-	/**
-	 * 会话
-	 */
-	SESSION
+    /**
+     * 未知位置
+     */
+    int UNKNOWN = -1;
+    /**
+     * 请求头
+     */
+    int HEADER = 0;
+    /**
+     * 请求路径
+     */
+    int PATH = 1;
+    /**
+     * 查询字符串
+     */
+    int QUERY = 2;
+    /**
+     * 请求体
+     */
+    int BODY = 3;
+    /**
+     * Cookie
+     */
+    int COOKIE = 4;
+    /**
+     * 会话
+     */
+    int SESSION = 5;
 
 }

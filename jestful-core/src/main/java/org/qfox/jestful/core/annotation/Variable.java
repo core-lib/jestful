@@ -28,7 +28,7 @@ public @interface Variable {
      * @return 参数所在位置
      * @see {@link Position}
      */
-    Position position();
+    int position();
 
     /**
      * 参数是否可进行URL编码

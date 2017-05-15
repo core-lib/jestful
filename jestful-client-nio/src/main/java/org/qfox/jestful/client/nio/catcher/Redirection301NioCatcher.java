@@ -24,7 +24,7 @@ public class Redirection301NioCatcher extends Redirection301Catcher implements N
 
         Response response = action.getResponse();
         String location = response.getResponseHeader("Location");
-        List<Parameter> parameters = action.getParameters().all((Position) null);
+        List<Parameter> parameters = action.getParameters().all(Position.UNKNOWN);
         client.invoker().setEndpoint(new URL(location))
                 .setProduces(action.getProduces())
                 .setConsumes(action.getConsumes())

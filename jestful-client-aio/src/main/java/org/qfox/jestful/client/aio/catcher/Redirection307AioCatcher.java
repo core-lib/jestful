@@ -27,7 +27,7 @@ public class Redirection307AioCatcher extends Redirection307Catcher implements A
         String location = response.getResponseHeader("Location");
         List<Parameter> params = new ArrayList<>();
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
-        List<Parameter> extras = action.getParameters().all((Position) null);
+        List<Parameter> extras = action.getParameters().all(Position.UNKNOWN);
         params.addAll(bodies);
         params.addAll(extras);
         client.invoker().setEndpoint(new URL(location))

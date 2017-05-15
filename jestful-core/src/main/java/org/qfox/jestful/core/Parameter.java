@@ -30,7 +30,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
     private final Class<?> klass;
     private final int index;
     private final String name;
-    private final Position position;
+    private final int position;
     private Object value;
     private int group;
     private String regex;
@@ -61,7 +61,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
                 this.decoded = variable.coding() ? (Boolean) annotation.annotationType().getMethod("decoded").invoke(annotation) : false;
             } else if (variables.length == 0) {
                 this.name = String.valueOf(index);
-                this.position = null;
+                this.position = -1;
                 this.coding = false;
                 this.encoded = false;
                 this.decoded = false;
@@ -149,7 +149,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
         return name;
     }
 
-    public Position getPosition() {
+    public int getPosition() {
         return position;
     }
 
