@@ -3,6 +3,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+    <bean class="org.qfox.jestful.multiform.ExtensionResolver"/>
     <bean id="multiformMappingRegistry" class="org.qfox.jestful.multiform.MultiformMappingRegistry"/>
 
 </beans>
