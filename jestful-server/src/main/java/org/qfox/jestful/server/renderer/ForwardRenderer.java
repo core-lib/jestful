@@ -2,6 +2,7 @@ package org.qfox.jestful.server.renderer;
 
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.BeanConfigException;
+import org.qfox.jestful.server.View;
 import org.qfox.jestful.server.exception.UnknownContextException;
 import org.qfox.jestful.server.exception.UnsupportedForwardException;
 
@@ -9,7 +10,9 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Payne on 2017/4/27.
@@ -18,6 +21,7 @@ public class ForwardRenderer implements Renderer, Initialable, Configurable {
     private ServletContext servletContext;
     private String context = "";
     private String command = "@forward:";
+    private Set<View> views = new LinkedHashSet<View>();
 
     private String prefix;
     private String suffix;
@@ -60,6 +64,16 @@ public class ForwardRenderer implements Renderer, Initialable, Configurable {
         }
         path = path.startsWith("/") ? path : prefix + path + suffix;
 
+        // 多视图支持
+        String extension = path.contains(".") ? path.substring(path.lastIndexOf('.')) : "";
+        for (View view : views) {
+            if (view.supports(action, extension)) {
+                view.render(servletContext, path, action, request, response);
+                return;
+            }
+        }
+
+        // 否则直接盲目跳转
         if (servletRequest.isAsyncStarted()) {
             servletRequest.getAsyncContext().dispatch(servletContext, path);
             return;
