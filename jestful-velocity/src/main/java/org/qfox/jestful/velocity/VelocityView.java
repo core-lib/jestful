@@ -13,7 +13,6 @@ import org.qfox.jestful.server.View;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
