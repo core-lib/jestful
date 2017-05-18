@@ -31,6 +31,7 @@
         <module>jestful-interception</module>
         <module>jestful-async</module>
         <module>jestful-multiview</module>
+        <module>jestful-velocity</module>
     </modules>
 
     <build>

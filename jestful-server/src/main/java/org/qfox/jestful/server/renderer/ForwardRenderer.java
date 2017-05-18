@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Created by Payne on 2017/4/27.
  */
-public class ForwardRenderer implements Renderer, Initialable, Configurable {
+public class ForwardRenderer implements Renderer, Initialable, Destroyable, Configurable {
     private ServletContext servletContext;
     private String context = "";
     private String command = "@forward:";
@@ -27,15 +27,17 @@ public class ForwardRenderer implements Renderer, Initialable, Configurable {
     private String suffix;
 
     public void initialize(BeanContainer beanContainer) {
-        servletContext = beanContainer.get(ServletContext.class);
+        this.servletContext = beanContainer.get(ServletContext.class);
         this.context = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
         this.context = this.context.startsWith("/") ? this.context : "/" + this.context;
+        this.views.addAll(beanContainer.find(View.class).values());
     }
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
         this.prefix = arguments.containsKey("view-prefix") ? arguments.get("view-prefix") : "";
         this.suffix = arguments.containsKey("view-suffix") ? arguments.get("view-suffix") : "";
+        for (View view : views) if (view instanceof Configurable) ((Configurable) view).config(arguments);
     }
 
     @Override
@@ -91,5 +93,10 @@ public class ForwardRenderer implements Renderer, Initialable, Configurable {
                 dispatcher.forward(servletRequest, servletResponse);
                 break;
         }
+    }
+
+    @Override
+    public void destroy() {
+        for (View view : views) if (view instanceof Destroyable) ((Destroyable) view).destroy();
     }
 }

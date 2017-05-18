@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jestful="http://www.qfoxtech.com/schema/jestful"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jestful="http://www.qfoxtech.com/schema/jestful"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 		http://www.qfoxtech.com/schema/jestful http://www.qfoxtech.com/schema/jestful/jestful-1.0.0.xsd">
 
-	<jestful:component id="validation">
-		<ref bean="parameter-validation" />
-		<ref bean="result-validation" />
-	</jestful:component>
+    <jestful:component id="validation">
+        <ref bean="parameter-validation"/>
+        <ref bean="result-validation"/>
+    </jestful:component>
 
-	<bean id="parameter-validation" class="org.qfox.jestful.validation.ParameterValidationPlugin" />
-	<bean id="result-validation" class="org.qfox.jestful.validation.ResultValidationPlugin" />
+    <bean id="parameter-validation" class="org.qfox.jestful.validation.ParameterValidationPlugin"/>
+    <bean id="result-validation" class="org.qfox.jestful.validation.ResultValidationPlugin"/>
 
 </beans>
