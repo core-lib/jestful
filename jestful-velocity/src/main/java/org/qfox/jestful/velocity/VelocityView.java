@@ -13,9 +13,11 @@ import org.qfox.jestful.server.View;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URL;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -62,14 +64,22 @@ public class VelocityView implements View, Configurable {
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
-        Properties properties = new Properties();
-        for (Map.Entry<String, String> entry : arguments.entrySet()) {
-            if (!entry.getKey().startsWith("velocity.")) continue;
-            String key = entry.getKey().substring("velocity.".length());
-            String value = entry.getValue();
-            properties.put(key, value);
+        InputStream in = null;
+        try {
+            String path = arguments.get("velocity.configLocation");
+            ClassLoader classLoader = VelocityView.class.getClassLoader();
+            Properties properties = new Properties();
+            URL url = null;
+            if (path != null) url = classLoader.getResource(path);
+            if (path != null && url == null) throw new IllegalArgumentException("can't load resource from " + path);
+            if (url == null) url = classLoader.getResource("velocity.properties");
+            if (url == null) url = classLoader.getResource("jestful/velocity.properties");
+            if (url != null) properties.load(in = url.openStream());
+            engine.init(properties);
+        } catch (Exception e) {
+            throw new BeanConfigException(e);
+        } finally {
+            IOKit.close(in);
         }
-        engine.init(properties);
     }
-
 }
