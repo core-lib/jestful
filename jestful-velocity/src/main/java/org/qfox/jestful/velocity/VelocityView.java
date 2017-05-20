@@ -13,6 +13,7 @@ import org.qfox.jestful.server.View;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -27,6 +28,7 @@ import java.util.Properties;
  */
 public class VelocityView implements View, Configurable {
     private final VelocityEngine engine = new VelocityEngine();
+    private String contentType;
 
     @Override
     public boolean supports(Action action, String extension) {
@@ -38,6 +40,7 @@ public class VelocityView implements View, Configurable {
         Template template = engine.getTemplate(path);
         VelocityContext vc = new VelocityContext();
         ServletRequest req = (ServletRequest) request;
+        ServletResponse resp = (ServletResponse) response;
         Enumeration<String> names = req.getAttributeNames();
         while (names != null && names.hasMoreElements()) {
             String name = names.nextElement();
@@ -52,6 +55,7 @@ public class VelocityView implements View, Configurable {
             }
             break;
             default: {
+                if (contentType != null) resp.setContentType(contentType);
                 OutputStream out = response.getResponseOutputStream();
                 Writer writer = new OutputStreamWriter(out);
                 template.merge(vc, writer);
@@ -66,6 +70,7 @@ public class VelocityView implements View, Configurable {
     public void config(Map<String, String> arguments) throws BeanConfigException {
         InputStream in = null;
         try {
+            contentType = arguments.get("velocity.contentType");
             String path = arguments.get("velocity.configLocation");
             ClassLoader classLoader = VelocityView.class.getClassLoader();
             Properties properties = new Properties();
