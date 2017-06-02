@@ -1,8 +1,9 @@
 package org.qfox.jestful.swagger;
 
+import io.swagger.annotations.Scope;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.models.*;
-import io.swagger.models.auth.SecuritySchemeDefinition;
+import io.swagger.models.auth.*;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
@@ -36,7 +37,31 @@ public class SpringSwaggerScanner {
     }
 
     private Map<String, SecuritySchemeDefinition> doReadSwaggerDefinitionSecurityDefinitions(SwaggerDefinition definition) {
-        return new HashMap<>();
+        Map<String, SecuritySchemeDefinition> map = new LinkedHashMap<>();
+        for (io.swagger.annotations.ApiKeyAuthDefinition apiKeyAuthDefinition : definition.securityDefinition().apiKeyAuthDefinitions()) {
+            ApiKeyAuthDefinition define = new ApiKeyAuthDefinition();
+            define.setName(apiKeyAuthDefinition.name());
+            define.setIn(In.forValue(apiKeyAuthDefinition.in().toValue()));
+            define.setDescription(apiKeyAuthDefinition.description());
+            map.put(apiKeyAuthDefinition.key(), define);
+        }
+        for (io.swagger.annotations.OAuth2Definition oAuth2Definition : definition.securityDefinition().oAuth2Definitions()) {
+            OAuth2Definition define = new OAuth2Definition();
+            define.setAuthorizationUrl(oAuth2Definition.authorizationUrl());
+            define.setTokenUrl(oAuth2Definition.tokenUrl());
+            define.setFlow(oAuth2Definition.flow().name());
+            define.setDescription(oAuth2Definition.description());
+            Map<String, String> scopes = define.getScopes();
+            for (Scope scope : oAuth2Definition.scopes()) scopes.put(scope.name(), scope.description());
+            define.setScopes(scopes);
+            map.put(oAuth2Definition.key(), define);
+        }
+        for (io.swagger.annotations.BasicAuthDefinition basicAuthDefinition : definition.securityDefinition().basicAuthDefinitions()) {
+            BasicAuthDefinition define = new BasicAuthDefinition();
+            define.setDescription(basicAuthDefinition.description());
+            map.put(basicAuthDefinition.key(), define);
+        }
+        return map;
     }
 
     private List<SecurityRequirement> doReadSwaggerDefinitionSecurity(SwaggerDefinition definition) {
