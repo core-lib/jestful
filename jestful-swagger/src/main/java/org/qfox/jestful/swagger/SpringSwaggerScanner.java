@@ -12,6 +12,7 @@ import io.swagger.models.auth.BasicAuthDefinition;
 import io.swagger.models.auth.*;
 import io.swagger.models.auth.OAuth2Definition;
 import io.swagger.models.parameters.*;
+import io.swagger.models.properties.Property;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.Parameters;
@@ -19,6 +20,9 @@ import org.qfox.jestful.core.Position;
 import org.qfox.jestful.server.MappingRegistry;
 import org.springframework.context.ApplicationContext;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,10 +75,39 @@ public class SpringSwaggerScanner {
 
             Response response = new Response();
             response.setDescription(apiResponse.message());
+
+            if ("List".equalsIgnoreCase(apiResponse.responseContainer())) {
+
+            }
+
             map.put(String.valueOf(apiResponse.code()), response);
         }
 
         return map;
+    }
+
+    private Model toModel(Class<?> clazz) {
+        try {
+            Model model = new ModelImpl();
+            ApiModel apiModel = clazz.getAnnotation(ApiModel.class);
+            model.setTitle(apiModel.value());
+            model.setDescription(apiModel.description());
+            model.setReference(apiModel.reference());
+            PropertyDescriptor[] descriptors = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+            for (PropertyDescriptor descriptor : descriptors) {
+                if (descriptor.getName().equals("class")) continue;
+                ApiModelProperty apiModelProperty = descriptor.getReadMethod().getAnnotation(ApiModelProperty.class);
+                if (apiModelProperty != null && apiModelProperty.hidden()) continue;
+
+            }
+            return model;
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Property toProperty(PropertyDescriptor descriptor) {
+        return null;
     }
 
     private List<io.swagger.models.parameters.Parameter> toParameters(Parameters parameters) {
