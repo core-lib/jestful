@@ -1,20 +1,150 @@
 package org.qfox.jestful.swagger;
 
-import io.swagger.annotations.Scope;
-import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.*;
+import io.swagger.models.Contact;
+import io.swagger.models.ExternalDocs;
+import io.swagger.models.Info;
+import io.swagger.models.License;
 import io.swagger.models.*;
+import io.swagger.models.Tag;
+import io.swagger.models.auth.ApiKeyAuthDefinition;
+import io.swagger.models.auth.BasicAuthDefinition;
 import io.swagger.models.auth.*;
+import io.swagger.models.auth.OAuth2Definition;
+import io.swagger.models.parameters.*;
+import org.qfox.jestful.core.Mapping;
+import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
+import org.qfox.jestful.core.Position;
+import org.qfox.jestful.server.MappingRegistry;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by yangchangpei on 17/6/1.
  */
 public class SpringSwaggerScanner {
+    private final Pattern pattern = Pattern.compile("\\(.*?\\)");
 
-    public Swagger scan(ApplicationContext applicationContext) {
-        return doReadSwaggerDefinition(applicationContext);
+    public Swagger scan(ApplicationContext applicationContext, MappingRegistry mappingRegistry) {
+        Swagger swagger = doReadSwaggerDefinition(applicationContext);
+        Map<String, Path> paths = new LinkedHashMap<>();
+        Enumeration<Mapping> enumeration = mappingRegistry.enumeration();
+
+        while (enumeration.hasMoreElements()) {
+            Mapping mapping = enumeration.nextElement();
+            if (!mapping.isAnnotationPresent(ApiOperation.class)) continue;
+
+            String expression = getPathExpression(mapping);
+            Path path = paths.get(expression);
+            if (path == null) paths.put(expression, path = new Path());
+            String method = mapping.getRestful().getMethod();
+            Operation operation = new Operation();
+            ApiOperation api = mapping.getAnnotation(ApiOperation.class);
+            operation.summary(api.value())
+                    .tags(Arrays.equals(new String[]{""}, api.tags()) ? new ArrayList<String>() : Arrays.asList(api.tags()))
+                    .description(api.notes())
+                    .operationId(api.nickname())
+                    .schemes(toSchemes(api.protocols()))
+                    .consumes(api.consumes().trim().equals("") ? new ArrayList<String>() : Arrays.asList(api.consumes().split("\\s*,\\s*")))
+                    .produces(api.produces().trim().equals("") ? new ArrayList<String>() : Arrays.asList(api.produces().split("\\s*,\\s*")))
+                    .deprecated(mapping.isAnnotationPresent(Deprecated.class));
+
+            operation.setResponses(toResponse(mapping.getAnnotation(ApiResponses.class)));
+            operation.setParameters(toParameters(mapping.getParameters()));
+
+            path.set(method.toLowerCase(), operation);
+
+        }
+        swagger.setPaths(paths);
+        return swagger;
+    }
+
+    private Map<String, Response> toResponse(ApiResponses apiResponses) {
+        Map<String, Response> map = new HashMap<>();
+
+        for (int i = 0; apiResponses != null && i < apiResponses.value().length; i++) {
+            ApiResponse apiResponse = apiResponses.value()[i];
+
+            Response response = new Response();
+            response.setDescription(apiResponse.message());
+            map.put(String.valueOf(apiResponse.code()), response);
+        }
+
+        return map;
+    }
+
+    private List<io.swagger.models.parameters.Parameter> toParameters(Parameters parameters) {
+        List<io.swagger.models.parameters.Parameter> list = new ArrayList<>();
+        for (Parameter parameter : parameters) {
+            io.swagger.models.parameters.Parameter param = null;
+            switch (parameter.getPosition()) {
+                case Position.UNKNOWN:
+                    break;
+                case Position.HEADER:
+                    param = new HeaderParameter();
+                    break;
+                case Position.PATH:
+                    param = new PathParameter();
+                    break;
+                case Position.QUERY:
+                    param = new QueryParameter();
+                    break;
+                case Position.BODY:
+                    param = new BodyParameter();
+                    break;
+                case Position.COOKIE:
+                    param = new CookieParameter();
+                    break;
+                case Position.SESSION:
+                    break;
+            }
+            ApiParam api = parameter.getAnnotation(ApiParam.class);
+            param.setName(api == null || api.name().trim().equals("") ? parameter.getName() : api.name().trim());
+            param.setDescription(api == null ? null : api.value());
+            param.setRequired(api != null && api.required());
+            param.setAccess(api == null ? null : api.access());
+            param.setAllowEmptyValue(api == null ? null : api.allowEmptyValue());
+            param.setReadOnly(api == null ? null : api.readOnly());
+            if (param instanceof AbstractSerializableParameter<?>) {
+                ((AbstractSerializableParameter<?>) param).setType(api == null ? null : api.type());
+                ((AbstractSerializableParameter<?>) param).setFormat(api == null ? null : api.format());
+                ((AbstractSerializableParameter<?>) param).setCollectionFormat(api == null ? null : api.collectionFormat());
+                ((AbstractSerializableParameter<?>) param).setExample(api == null ? null : api.example());
+            }
+            list.add(param);
+        }
+        return list;
+    }
+
+    private List<Scheme> toSchemes(String text) {
+        if (text == null || text.trim().equals("")) return new ArrayList<>();
+        String[] protocols = text.split("\\s*,\\s*");
+        List<Scheme> schemes = new ArrayList<>();
+        for (String protocol : protocols) {
+            Scheme scheme = Scheme.forValue(protocol);
+            if (scheme != null) schemes.add(scheme);
+        }
+        return schemes;
+    }
+
+    private String getPathExpression(Mapping mapping) {
+        String regex = mapping.getRegex();
+        Matcher matcher = pattern.matcher(regex);
+        int group = 0;
+        while (matcher.find()) {
+            group++;
+            for (Parameter parameter : mapping.getParameters()) {
+                if (parameter.getGroup() == group) {
+                    regex = regex.replace(matcher.group(), "{" + parameter.getName() + "}");
+                    break;
+                }
+            }
+        }
+        return regex;
     }
 
     private Swagger doReadSwaggerDefinition(ApplicationContext applicationContext) {

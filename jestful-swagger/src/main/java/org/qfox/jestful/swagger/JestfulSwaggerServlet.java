@@ -1,9 +1,9 @@
 package org.qfox.jestful.swagger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import io.swagger.models.Swagger;
 import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.server.MappingRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -26,9 +26,10 @@ public class JestfulSwaggerServlet implements Servlet {
     private ApplicationContext applicationContext;
     private SpringSwaggerScanner springSwaggerScanner;
     private Swagger swagger;
-    private ObjectMapper jsonMapper;
-    private ObjectMapper yamlMapper;
+    private ObjectMapper swaggerJsonMapper;
+    private ObjectMapper swaggerYamlMapper;
     private Map<String, URL> cache = new HashMap<>();
+    private MappingRegistry mappingRegistry;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -37,9 +38,12 @@ public class JestfulSwaggerServlet implements Servlet {
         this.classLoader = servletContext.getClassLoader();
         this.applicationContext = (ApplicationContext) servletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
         this.springSwaggerScanner = new SpringSwaggerScanner();
-        this.swagger = springSwaggerScanner.scan(applicationContext);
-        this.jsonMapper = new ObjectMapper();
-        this.yamlMapper = new YAMLMapper();
+        this.swaggerJsonMapper = new SwaggerJsonMapper();
+        this.swaggerYamlMapper = new SwaggerYamlMapper();
+        String name = config.getInitParameter("mappingRegistry");
+        name = name == null || name.length() == 0 ? "jestfulMappingRegistry" : name;
+        mappingRegistry = applicationContext.getBean(name, MappingRegistry.class);
+        this.swagger = springSwaggerScanner.scan(applicationContext, mappingRegistry);
     }
 
     @Override
@@ -54,11 +58,11 @@ public class JestfulSwaggerServlet implements Servlet {
         String requestURI = request.getRequestURI();
         String name = requestURI.substring(requestURI.lastIndexOf('/') + 1);
         if ("swagger.json".equals(name)) {
-            jsonMapper.writeValue(response.getOutputStream(), swagger);
+            swaggerJsonMapper.writeValue(response.getOutputStream(), swagger);
             return;
         }
         if ("swagger.yaml".equals(name)) {
-            yamlMapper.writeValue(response.getOutputStream(), swagger);
+            swaggerYamlMapper.writeValue(response.getOutputStream(), swagger);
             return;
         }
         URL resource = cache.get(name);
