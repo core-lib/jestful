@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean class="org.qfox.jestful.swagger.properties.ObjectPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.PrimaryPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.WrapperPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.StringPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.DatePropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.FilePropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.ArrayPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.CollectionPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.MapPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.UUIDPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.BigDecimalPropertyConverter"/>
+    <bean class="org.qfox.jestful.swagger.properties.BigIntegerPropertyConverter"/>
+
+</beans>
+

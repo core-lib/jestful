@@ -12,6 +12,6 @@ public interface PropertyConverter {
 
     boolean supports(Type type);
 
-    Property convert(Type type, ApiModelProperty apiModelProperty);
+    Property convert(Type type, ApiModelProperty property, PropertyConversionProvider provider) throws Exception;
 
 }

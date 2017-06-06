@@ -4,14 +4,23 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
+import io.swagger.models.properties.RefProperty;
+import org.qfox.jestful.core.BeanContainer;
+import org.qfox.jestful.core.Initialable;
 
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * Created by yangchangpei on 17/6/5.
  */
-public class ObjectPropertyConverter implements PropertyConverter {
+public class ObjectPropertyConverter extends AbstractPropertyConverter implements PropertyConverter, PropertyConversionProvider, Initialable {
+    private final Set<PropertyConverter> converters = new LinkedHashSet<>();
+
+    private final Map<Class<?>, String> cache = new HashMap<>();
 
     @Override
     public boolean supports(Type type) {
@@ -19,29 +28,52 @@ public class ObjectPropertyConverter implements PropertyConverter {
     }
 
     @Override
-    public Property convert(Type type, ApiModelProperty amp) {
-        Class<?> clazz = null;
+    public Property convert(Type type, ApiModelProperty property, PropertyConversionProvider provider) throws Exception {
+        Class<?> clazz;
         if (type instanceof Class<?>) clazz = (Class<?>) type;
-        if (type instanceof ParameterizedType) clazz = (Class<?>) ((ParameterizedType) type).getRawType();
+        else if (type instanceof ParameterizedType) clazz = (Class<?>) ((ParameterizedType) type).getRawType();
+        else throw new UnsupportedOperationException();
 
-        ApiModel am = clazz.getAnnotation(ApiModel.class);
+        if (cache.containsKey(clazz)) return new RefProperty(cache.get(clazz));
+
+        ApiModel model = clazz.getAnnotation(ApiModel.class);
         ObjectProperty p = new ObjectProperty();
         p.setName(clazz.getName());
 
-        p.setName(am == null || am.value().trim().equals("") ? p.getName() : am.value());
-        p.setDescription(am == null || am.description().trim().equals("") ? p.getDescription() : am.description());
+        p.setName(model == null || model.value().trim().equals("") ? p.getName() : model.value());
+        p.setDescription(model == null || model.description().trim().equals("") ? p.getDescription() : model.description());
 
-        p.setName(amp == null || amp.name().trim().equals("") ? p.getName() : amp.name());
-        p.setDescription(amp == null || amp.value().trim().equals("") ? p.getDescription() : amp.value());
-        p.setRequired(amp == null ? p.getRequired() : amp.required());
-        p.setPosition(amp == null ? p.getPosition() : amp.position());
-        p.setAllowEmptyValue(amp == null ? p.getAllowEmptyValue() : amp.allowEmptyValue());
-        p.setReadOnly(amp == null ? p.getReadOnly() : amp.readOnly());
-        p.setAccess(amp == null ? p.getAccess() : amp.access());
-        p.setExample(amp == null ? p.getExample() : amp.example());
+        convert(property, p);
 
+        Map<String, Property> properties = new LinkedHashMap<>();
+        PropertyDescriptor[] descriptors = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+        for (PropertyDescriptor descriptor : descriptors) {
+            String name = descriptor.getName();
+            if (name.equals("class")) continue;
+            property = descriptor.getReadMethod().getAnnotation(ApiModelProperty.class);
+            if (property != null && property.hidden()) continue;
+            Type returnType = descriptor.getReadMethod().getReturnType();
+            Property prop = provider.convert(returnType, property);
+            properties.put(name, prop);
+        }
+        p.setProperties(properties);
 
+        cache.put(clazz, p.getName());
 
-        return null;
+        return p;
+    }
+
+    @Override
+    public Property convert(Type type, ApiModelProperty property) throws Exception {
+        for (PropertyConverter c : converters) if (c.supports(type)) return c.convert(type, property, this);
+        throw new UnsupportedConversionException(type);
+    }
+
+    @Override
+    public void initialize(BeanContainer beanContainer) {
+        Map<String, PropertyConverter> map = beanContainer.find(PropertyConverter.class);
+        converters.addAll(map.values());
+        converters.remove(this);
+        converters.add(this);
     }
 }

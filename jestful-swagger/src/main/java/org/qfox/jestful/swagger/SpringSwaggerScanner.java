@@ -77,7 +77,6 @@ public class SpringSwaggerScanner {
             response.setDescription(apiResponse.message());
 
             if ("List".equalsIgnoreCase(apiResponse.responseContainer())) {
-
             }
 
             map.put(String.valueOf(apiResponse.code()), response);
@@ -147,6 +146,7 @@ public class SpringSwaggerScanner {
                 ((AbstractSerializableParameter<?>) param).setFormat(api == null ? null : api.format());
                 ((AbstractSerializableParameter<?>) param).setCollectionFormat(api == null ? null : api.collectionFormat());
                 ((AbstractSerializableParameter<?>) param).setExample(api == null ? null : api.example());
+
             }
             list.add(param);
         }
