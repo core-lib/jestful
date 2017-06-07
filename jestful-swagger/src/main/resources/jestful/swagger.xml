@@ -16,5 +16,7 @@
     <bean class="org.qfox.jestful.swagger.properties.BigDecimalPropertyConverter"/>
     <bean class="org.qfox.jestful.swagger.properties.BigIntegerPropertyConverter"/>
 
+    <bean class="org.qfox.jestful.swagger.models.SwaggerModelConverter"/>
+
 </beans>
 
