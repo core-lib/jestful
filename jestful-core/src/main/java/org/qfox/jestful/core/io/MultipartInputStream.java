@@ -77,7 +77,7 @@ public class MultipartInputStream extends InputStream implements IOConstants {
     @Override
     public int read() throws IOException {
         if (end == true || start == false) {
-            return -1;
+            return EOF;
         }
         int b;
         if (length > 0) {
@@ -97,13 +97,13 @@ public class MultipartInputStream extends InputStream implements IOConstants {
             if (len == buffer.length && line.equals("\r\n" + boundary + "\r\n")) {
                 start = false;
                 length = 0;
-                return -1;
+                return EOF;
             }
             // 如果跟的是 "--" 证明已经读完了
             else if (len == buffer.length && line.equals("\r\n" + boundary + "--")) {
                 end = true;
                 length = 0;
-                return -1;
+                return EOF;
             }
             // 都不是那就是数据本身带有'\r'
             else {
