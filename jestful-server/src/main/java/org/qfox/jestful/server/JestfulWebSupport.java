@@ -128,7 +128,7 @@ public class JestfulWebSupport implements Actor {
             for (Object controller : controllers) mappingRegistry.register(controller);
         }
 
-        if (logger.isDebugEnabled()) logger.debug("", mappingRegistry);
+        if (logger.isDebugEnabled()) logger.debug(mappingRegistry.toString());
     }
 
     protected Actor[] load(Map<String, String> configuration, String[] plugins) {
