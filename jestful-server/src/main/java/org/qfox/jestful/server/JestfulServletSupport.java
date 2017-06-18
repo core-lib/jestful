@@ -53,7 +53,7 @@ public class JestfulServletSupport extends JestfulWebSupport implements Servlet 
             logger.error(e.getMessage(), e);
             httpServletRequest.setAttribute("exception", e);
             httpServletResponse.sendError(e.getStatus(), e.getMessage());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error(e.getMessage(), e);
             httpServletRequest.setAttribute("exception", e);
             httpServletResponse.sendError(500, e.getMessage());

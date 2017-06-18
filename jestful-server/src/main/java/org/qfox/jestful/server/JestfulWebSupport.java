@@ -12,6 +12,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
@@ -127,7 +128,7 @@ public class JestfulWebSupport implements Actor {
             for (Object controller : controllers) mappingRegistry.register(controller);
         }
 
-        if (logger.isDebugEnabled()) logger.debug("", mappingRegistry);
+        if (logger.isDebugEnabled()) logger.debug(mappingRegistry.toString());
     }
 
     protected Actor[] load(Map<String, String> configuration, String[] plugins) {
@@ -148,57 +149,65 @@ public class JestfulWebSupport implements Actor {
         return actors;
     }
 
-    protected void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
-        RequestDescription description = new RequestDescription(httpServletRequest);
-        String protocol = description.getProtocol();
-        String method = description.getMethod();
-        String URI = description.getRequestURI();
-        String query = description.getQuery();
-        String accept = httpServletRequest.getHeader("Accept");
+    protected void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Throwable {
+        try {
+            RequestDescription description = new RequestDescription(httpServletRequest);
+            String protocol = description.getProtocol();
+            String method = description.getMethod();
+            String URI = description.getRequestURI();
+            String query = description.getQuery();
+            String accept = httpServletRequest.getHeader("Accept");
 
-        Mapping mapping = mappingRegistry.lookup(method, URI, accept, versionComparator).clone();
-        Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
-        actors.add(this);
-        Action action = new Action(beanContainer, actors);
+            Mapping mapping = mappingRegistry.lookup(method, URI, accept, versionComparator).clone();
+            Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
+            actors.add(this);
+            Action action = new Action(beanContainer, actors);
 
-        action.setResource(mapping.getResource());
-        action.setMapping(mapping);
-        action.setParameters(mapping.getParameters());
-        action.setResult(mapping.getResult());
-        action.setPattern(mapping.getPattern());
+            action.setResource(mapping.getResource());
+            action.setMapping(mapping);
+            action.setParameters(mapping.getParameters());
+            action.setResult(mapping.getResult());
+            action.setPattern(mapping.getPattern());
 
-        action.setRestful(mapping.getRestful());
-        action.setURI(URI);
-        action.setQuery(query);
-        action.setProtocol(protocol);
-        action.setDispatcher(Dispatcher.valueOf(description.getDispatcherType().name()));
+            action.setRestful(mapping.getRestful());
+            action.setURI(URI);
+            action.setQuery(query);
+            action.setProtocol(protocol);
+            action.setDispatcher(Dispatcher.valueOf(description.getDispatcherType().name()));
 
-        action.setRequest(new JestfulServletRequest(httpServletRequest));
-        action.setResponse(new JestfulServletResponse(httpServletResponse));
+            action.setRequest(new JestfulServletRequest(httpServletRequest));
+            action.setResponse(new JestfulServletResponse(httpServletResponse));
 
-        action.setConsumes(mapping.getConsumes());
-        action.setProduces(mapping.getProduces());
+            action.setConsumes(mapping.getConsumes());
+            action.setProduces(mapping.getProduces());
 
-        action.setAcceptCharsets(acceptCharsets.clone());
-        action.setAcceptEncodings(acceptEncodings.clone());
-        action.setAcceptLanguages(acceptLanguages.clone());
-        action.setContentCharsets(contentCharsets.clone());
-        action.setContentEncodings(contentEncodings.clone());
-        action.setContentLanguages(contentLanguages.clone());
+            action.setAcceptCharsets(acceptCharsets.clone());
+            action.setAcceptEncodings(acceptEncodings.clone());
+            action.setAcceptLanguages(acceptLanguages.clone());
+            action.setContentCharsets(contentCharsets.clone());
+            action.setContentEncodings(contentEncodings.clone());
+            action.setContentLanguages(contentLanguages.clone());
 
-        action.setAllowEncode(allowEncode);
-        action.setAcceptEncode(acceptEncode);
+            action.setAllowEncode(allowEncode);
+            action.setAcceptEncode(acceptEncode);
 
-        action.setPathEncodeCharset(pathEncodeCharset);
-        action.setQueryEncodeCharset(queryEncodeCharset);
-        action.setHeaderEncodeCharset(headerEncodeCharset);
+            action.setPathEncodeCharset(pathEncodeCharset);
+            action.setQueryEncodeCharset(queryEncodeCharset);
+            action.setHeaderEncodeCharset(headerEncodeCharset);
 
-        action.getExtra().put(ServletRequest.class, httpServletRequest);
-        action.getExtra().put(ServletResponse.class, httpServletResponse);
-        action.getExtra().put(HttpServletRequest.class, httpServletRequest);
-        action.getExtra().put(HttpServletResponse.class, httpServletResponse);
+            action.getExtra().put(ServletRequest.class, httpServletRequest);
+            action.getExtra().put(ServletResponse.class, httpServletResponse);
+            action.getExtra().put(HttpServletRequest.class, httpServletRequest);
+            action.getExtra().put(HttpServletResponse.class, httpServletResponse);
 
-        action.execute();
+            action.execute();
+        } catch (InvocationTargetException e) {
+            Throwable t = e;
+            while (t instanceof InvocationTargetException) t = ((InvocationTargetException) t).getTargetException();
+            throw t;
+        } catch (Throwable t) {
+            throw t;
+        }
     }
 
     public Object react(Action action) throws Exception {

@@ -1,5 +1,6 @@
 package org.qfox.jestful.server;
 
+import org.qfox.jestful.commons.collection.Enumerator;
 import org.qfox.jestful.commons.tree.AlreadyValuedException;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
@@ -117,6 +118,18 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
             resources.add(resource);
         }
         return resources;
+    }
+
+    @Override
+    public Enumeration<Mapping> enumeration() {
+        return new Enumerator<Mapping>(all(tree));
+    }
+
+    private List<Mapping> all(Node<PathExpression, Mapping> node) {
+        List<Mapping> mappings = new ArrayList<Mapping>();
+        if (node.getValue() != null) mappings.add(node.getValue());
+        for (Node<PathExpression, Mapping> branch : node.getBranches()) mappings.addAll(all(branch));
+        return mappings;
     }
 
     @Override
