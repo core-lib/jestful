@@ -73,7 +73,7 @@ public class ParameterResolver implements Actor, Initialable, Destroyable, Confi
 
         for (Parameter parameter : parameters) {
             Class<?> klass = parameter.getKlass();
-            if (!defaults.containsKey(klass)) continue;
+            if (!defaults.containsKey(klass) || parameter.getValue() != null) continue;
             Object value = defaults.get(klass);
             parameter.setValue(value);
         }
