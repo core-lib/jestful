@@ -1,5 +1,8 @@
 package org.qfox.jestful.server.converter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.beans.PropertyDescriptor;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Modifier;
@@ -12,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BeanConverter implements Converter {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public boolean supports(Class<?> clazz) {
         return !(clazz.isInterface() || clazz.isAnnotation() || clazz.isEnum() || clazz.isArray() || Modifier.isAbstract(clazz.getModifiers()));
@@ -38,7 +42,7 @@ public class BeanConverter implements Converter {
                 } catch (ConversionException e) {
                     throw e;
                 } catch (Exception e) {
-                    throw new UnknownConversionException(e, name, clazz, map, provider);
+                    logger.warn("fail to convert property [" + property + "] of class [" + clazz + "] with values " + Arrays.toString(values), e);
                 }
             }
         }
