@@ -67,7 +67,7 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 	public void serialize(Action action, Parameter parameter, String charset, MultipartOutputStream out) throws IOException {
 		OutputStreamWriter osw = null;
 		try {
-			Disposition disposition = Disposition.valueOf("form-data; name=\"" + parameter.getName() + "\"");
+			Disposition disposition = new Disposition("form-data", parameter.getName());
 			MediaType type = MediaType.valueOf(contentType + ";charset=" + charset);
 			Multihead multihead = new Multihead(disposition, type);
 			out.setNextMultihead(multihead);

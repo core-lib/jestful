@@ -78,7 +78,7 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
         String[] values = urlStringConversion.convert(parameter);
         for (int i = 0; values != null && i < values.length; i++) {
             String value = values[i];
-            Disposition disposition = Disposition.valueOf("form-data; name=\"" + name + "\"");
+            Disposition disposition = new Disposition("form-data", name);
             Multihead multihead = new Multihead(disposition, null);
             out.setNextMultihead(multihead);
             out.write(URLEncoder.encode(value, charset).getBytes());
