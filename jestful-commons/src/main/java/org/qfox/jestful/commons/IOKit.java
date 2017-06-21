@@ -53,6 +53,10 @@ public class IOKit {
     }
 
     public static String readln(InputStream in) throws IOException {
+        return readln(in, null);
+    }
+
+    public static String readln(InputStream in, String charset) throws IOException {
         int b = in.read();
         if (b == -1) {
             return null;
@@ -70,10 +74,14 @@ public class IOKit {
             }
             b = in.read();
         }
-        return baos.toString();
+        return charset != null ? baos.toString(charset) : baos.toString();
     }
 
     public static String readln(Reader reader) throws Exception {
+        return readln(reader, null);
+    }
+
+    public static String readln(Reader reader, String charset) throws Exception {
         int b = reader.read();
         if (b == -1) {
             return null;
@@ -91,7 +99,7 @@ public class IOKit {
             }
             b = reader.read();
         }
-        return baos.toString();
+        return charset != null ? baos.toString(charset) : baos.toString();
     }
 
     public static void writeln(String line, OutputStream out) throws IOException {
@@ -215,16 +223,48 @@ public class IOKit {
         }
     }
 
+    public static long transfer(InputStream in, Writer writer) throws IOException {
+        Reader reader = null;
+        try {
+            return transfer(reader = new InputStreamReader(in), writer);
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            close(reader);
+        }
+    }
+
+    public static long transfer(Reader reader, OutputStream out) throws IOException {
+        Writer writer = null;
+        try {
+            long total = transfer(reader, writer = new OutputStreamWriter(out));
+            writer.flush();
+            return total;
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            writer.close();
+        }
+    }
+
     public static String toString(InputStream in) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        transfer(in, baos);
-        return baos.toString();
+        return toString(in, null);
     }
 
     public static String toString(Reader reader) throws IOException {
-        StringWriter writer = new StringWriter();
-        transfer(reader, writer);
-        return writer.toString();
+        return toString(reader, null);
+    }
+
+    public static String toString(InputStream in, String charset) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        transfer(in, baos);
+        return charset != null ? baos.toString(charset) : baos.toString();
+    }
+
+    public static String toString(Reader reader, String charset) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        transfer(reader, baos);
+        return charset != null ? baos.toString(charset) : baos.toString();
     }
 
 }
