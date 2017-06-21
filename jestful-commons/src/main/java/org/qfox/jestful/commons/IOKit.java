@@ -57,20 +57,20 @@ public class IOKit {
         if (b == -1) {
             return null;
         }
-        StringWriter writer = new StringWriter();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         while (b != -1) {
             switch (b) {
                 case '\r':
                     break;
                 case '\n':
-                    return writer.toString();
+                    return baos.toString();
                 default:
-                    writer.write(b);
+                    baos.write(b);
                     break;
             }
             b = in.read();
         }
-        return writer.toString();
+        return baos.toString();
     }
 
     public static String readln(Reader reader) throws Exception {
@@ -78,29 +78,29 @@ public class IOKit {
         if (b == -1) {
             return null;
         }
-        StringWriter writer = new StringWriter();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         while (b != -1) {
             switch (b) {
                 case '\r':
                     break;
                 case '\n':
-                    return writer.toString();
+                    return baos.toString();
                 default:
-                    writer.write(b);
+                    baos.write(b);
                     break;
             }
             b = reader.read();
         }
-        return writer.toString();
+        return baos.toString();
     }
 
     public static void writeln(String line, OutputStream out) throws IOException {
         if (line == null) {
             return;
         }
-        StringReader reader = new StringReader(line);
+        ByteArrayInputStream bais = new ByteArrayInputStream(line.getBytes());
         int b;
-        while ((b = reader.read()) != -1) {
+        while ((b = bais.read()) != -1) {
             out.write(b);
         }
         out.write('\r');
@@ -111,9 +111,9 @@ public class IOKit {
         if (line == null) {
             return;
         }
-        StringReader reader = new StringReader(line);
+        ByteArrayInputStream bais = new ByteArrayInputStream(line.getBytes());
         int b;
-        while ((b = reader.read()) != -1) {
+        while ((b = bais.read()) != -1) {
             writer.write(b);
         }
         writer.write('\r');
