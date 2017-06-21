@@ -52,6 +52,7 @@ public class NioClient extends Client implements NioConnector {
     private final ExecutorService executor;
     private final NioProcessor[] processors;
     private final NioBalancer balancer;
+    private final boolean reuseAddress;
 
     private NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
@@ -62,6 +63,7 @@ public class NioClient extends Client implements NioConnector {
         this.processors = new NioProcessorImpl[concurrency];
         for (int i = 0; i < concurrency; i++) executor.execute(processors[i] = new NioProcessorImpl());
         this.balancer = builder.balancer;
+        this.reuseAddress = builder.reuseAddress;
     }
 
     @Override
@@ -186,6 +188,8 @@ public class NioClient extends Client implements NioConnector {
             Action action = (Action) key.attachment();
             NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
             if (channel.isConnectionPending() && channel.finishConnect()) {
+                channel.socket().setReuseAddress(reuseAddress);
+
                 // 本来HTTP 模式情况下这里只需要注册WRITE即可 但是为了适配SSL模式的握手过程的握手数据读写 这里必须注册成WRITE | READ 但是只计算Write Timeout
                 channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
                 timeoutManager.addSendTimeoutHandler(key, request.getWriteTimeout());
@@ -329,6 +333,7 @@ public class NioClient extends Client implements NioConnector {
         private SSLContext sslContext;
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private NioBalancer balancer = new LoopedNioBalancer();
+        private boolean reuseAddress = true;
 
         public NioBuilder() {
             this.setConnTimeout(20 * 1000);
@@ -394,6 +399,11 @@ public class NioClient extends Client implements NioConnector {
                 throw new IllegalArgumentException("balancer can not be null");
             }
             this.balancer = balancer;
+            return (B) this;
+        }
+
+        public B setReuseAddress(boolean reuseAddress) {
+            this.reuseAddress = reuseAddress;
             return (B) this;
         }
     }
