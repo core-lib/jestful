@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -52,7 +53,16 @@ public class NioClient extends Client implements NioConnector {
     private final ExecutorService executor;
     private final NioProcessor[] processors;
     private final NioBalancer balancer;
-    private final boolean reuseAddress;
+    private final Boolean keepAlive;
+    private final Boolean oobInline;
+    private final Performance performance;
+    private final Boolean reuseAddress;
+    private final Integer recvBufferSize;
+    private final Integer sendBufferSize;
+    private final SoLinger soLinger;
+    private final Integer soTimeout;
+    private final Boolean tcpNoDelay;
+    private final Integer trafficClass;
 
     private NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
@@ -63,7 +73,16 @@ public class NioClient extends Client implements NioConnector {
         this.processors = new NioProcessorImpl[concurrency];
         for (int i = 0; i < concurrency; i++) executor.execute(processors[i] = new NioProcessorImpl());
         this.balancer = builder.balancer;
+        this.keepAlive = builder.keepAlive;
+        this.oobInline = builder.oobInline;
+        this.performance = builder.performance;
         this.reuseAddress = builder.reuseAddress;
+        this.recvBufferSize = builder.recvBufferSize;
+        this.sendBufferSize = builder.sendBufferSize;
+        this.soLinger = builder.soLinger;
+        this.soTimeout = builder.soTimeout;
+        this.tcpNoDelay = builder.tcpNoDelay;
+        this.trafficClass = builder.trafficClass;
     }
 
     @Override
@@ -98,6 +117,7 @@ public class NioClient extends Client implements NioConnector {
 
                 SocketChannel channel = SocketChannel.open();
                 channel.configureBlocking(false);
+                doChannelConf(channel);
                 channel.connect(address);
                 SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT, action);
                 NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
@@ -188,8 +208,6 @@ public class NioClient extends Client implements NioConnector {
             Action action = (Action) key.attachment();
             NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
             if (channel.isConnectionPending() && channel.finishConnect()) {
-                channel.socket().setReuseAddress(reuseAddress);
-
                 // 本来HTTP 模式情况下这里只需要注册WRITE即可 但是为了适配SSL模式的握手过程的握手数据读写 这里必须注册成WRITE | READ 但是只计算Write Timeout
                 channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
                 timeoutManager.addSendTimeoutHandler(key, request.getWriteTimeout());
@@ -197,6 +215,22 @@ public class NioClient extends Client implements NioConnector {
                 NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                 listener.onConnected(action);
             }
+        }
+
+        private void doChannelConf(SocketChannel channel) throws IOException {
+            Socket socket = channel.socket();
+            if (socket == null) return;
+
+            if (keepAlive != null) socket.setKeepAlive(keepAlive);
+            if (oobInline != null) socket.setOOBInline(oobInline);
+            if (performance != null) socket.setPerformancePreferences(performance.connectionTime, performance.latency, performance.bandwidth);
+            if (reuseAddress != null) socket.setReuseAddress(reuseAddress);
+            if (recvBufferSize != null) socket.setReceiveBufferSize(recvBufferSize);
+            if (sendBufferSize != null) socket.setSendBufferSize(sendBufferSize);
+            if (soLinger != null) socket.setSoLinger(soLinger.on, soLinger.linger);
+            if (soTimeout != null) socket.setSoTimeout(soTimeout);
+            if (tcpNoDelay != null) socket.setTcpNoDelay(tcpNoDelay);
+            if (trafficClass != null) socket.setTrafficClass(trafficClass);
         }
 
         @Override
@@ -333,7 +367,16 @@ public class NioClient extends Client implements NioConnector {
         private SSLContext sslContext;
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private NioBalancer balancer = new LoopedNioBalancer();
-        private boolean reuseAddress = true;
+        private Boolean keepAlive;
+        private Boolean oobInline;
+        private Performance performance;
+        private Boolean reuseAddress;
+        private Integer recvBufferSize;
+        private Integer sendBufferSize;
+        private SoLinger soLinger;
+        private Integer soTimeout;
+        private Boolean tcpNoDelay;
+        private Integer trafficClass;
 
         public NioBuilder() {
             this.setConnTimeout(20 * 1000);
@@ -402,8 +445,53 @@ public class NioClient extends Client implements NioConnector {
             return (B) this;
         }
 
-        public B setReuseAddress(boolean reuseAddress) {
+        public B setKeepAlive(Boolean keepAlive) {
+            this.keepAlive = keepAlive;
+            return (B) this;
+        }
+
+        public B setOobInline(Boolean oobInline) {
+            this.oobInline = oobInline;
+            return (B) this;
+        }
+
+        public B setPerformance(Performance performance) {
+            this.performance = performance;
+            return (B) this;
+        }
+
+        public B setReuseAddress(Boolean reuseAddress) {
             this.reuseAddress = reuseAddress;
+            return (B) this;
+        }
+
+        public B setRecvBufferSize(Integer recvBufferSize) {
+            this.recvBufferSize = recvBufferSize;
+            return (B) this;
+        }
+
+        public B setSendBufferSize(Integer sendBufferSize) {
+            this.sendBufferSize = sendBufferSize;
+            return (B) this;
+        }
+
+        public B setSoLinger(SoLinger soLinger) {
+            this.soLinger = soLinger;
+            return (B) this;
+        }
+
+        public B setSoTimeout(Integer soTimeout) {
+            this.soTimeout = soTimeout;
+            return (B) this;
+        }
+
+        public B setTcpNoDelay(Boolean tcpNoDelay) {
+            this.tcpNoDelay = tcpNoDelay;
+            return (B) this;
+        }
+
+        public B setTrafficClass(Integer trafficClass) {
+            this.trafficClass = trafficClass;
             return (B) this;
         }
     }
