@@ -10,8 +10,6 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,29 +79,12 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
             Method[] methods = superclass.getDeclaredMethods();
             flag:
             for (Method m : methods) {
-//                if (m.getName().equals(method.getName()) && m.getGenericParameterTypes().length == method.getGenericParameterTypes().length) {
-//                    for (int i = 0; i < m.getGenericParameterTypes().length; i++) {
-//                        Type actual = m.getGenericParameterTypes()[i];
-//                        Type expect = method.getGenericParameterTypes()[i];
-//                        if (!actual.equals(expect) && !(actual instanceof TypeVariable<?>)) {
-//                            continue flag;
-//                        }
-//                    }
-//                    // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
-//                    for (Annotation annotation : m.getAnnotations()) {
-//                        if (annotation.annotationType().isAnnotationPresent(Command.class)) {
-//                            return m;
-//                        }
-//                    }
-//                }
-
-                if (method.equals(m)) {
-                    for (Annotation annotation : m.getAnnotations()) {
-                        if (annotation.annotationType().isAnnotationPresent(Command.class)) {
-                            return m;
-                        }
-                    }
-                }
+                // 如果方法名或参数个数不一致都是不相等
+                if (!m.getName().equals(method.getName()) || m.getParameterTypes().length != method.getParameterTypes().length) continue;
+                // 查找被重写的方法
+                for (int i = 0; i < m.getParameterTypes().length; i++) if (m.getParameterTypes()[i] != method.getParameterTypes()[i]) continue flag;
+                // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
+                for (Annotation annotation : m.getAnnotations()) if (annotation.annotationType().isAnnotationPresent(Command.class)) return m;
             }
             superclass = superclass.getSuperclass();
         }
@@ -119,25 +100,16 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                 Method[] methods = interfase.getDeclaredMethods();
                 flag:
                 for (Method m : methods) {
-                    if (m.getName().equals(method.getName()) && m.getGenericParameterTypes().length == method.getGenericParameterTypes().length) {
-                        for (int i = 0; i < m.getGenericParameterTypes().length; i++) {
-                            Type actual = m.getGenericParameterTypes()[i];
-                            Type expect = method.getGenericParameterTypes()[i];
-                            if (!actual.equals(expect) && !(actual instanceof TypeVariable<?>)) {
-                                continue flag;
-                            }
-                        }
-                        // 在接口中找到了对应的被实现的方法, 判断是否有restful的注解
-                        for (Annotation annotation : m.getAnnotations()) {
-                            if (annotation.annotationType().isAnnotationPresent(Command.class)) {
-                                return m;
-                            }
-                        }
-                        m = getRestfulMethodFromInterfaces(method, interfase);
-                        if (m != null) {
-                            return m;
-                        }
-                    }
+                    // 如果方法名或参数个数不一致都是不相等
+                    if (!m.getName().equals(method.getName()) || m.getParameterTypes().length != method.getParameterTypes().length) continue;
+                    // 查找被重写的方法
+                    for (int i = 0; i < m.getParameterTypes().length; i++) if (m.getParameterTypes()[i] != method.getParameterTypes()[i]) continue flag;
+                    // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
+                    for (Annotation annotation : m.getAnnotations()) if (annotation.annotationType().isAnnotationPresent(Command.class)) return m;
+                    // 深度递归优先
+                    m = getRestfulMethodFromInterfaces(method, interfase);
+                    // 如果找到了就返回
+                    if (m != null) return m;
                 }
             }
             superclass = superclass.getSuperclass();
