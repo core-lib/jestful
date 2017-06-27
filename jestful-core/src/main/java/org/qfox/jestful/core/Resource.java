@@ -81,15 +81,23 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
             Method[] methods = superclass.getDeclaredMethods();
             flag:
             for (Method m : methods) {
-                if (m.getName().equals(method.getName()) && m.getGenericParameterTypes().length == method.getGenericParameterTypes().length) {
-                    for (int i = 0; i < m.getGenericParameterTypes().length; i++) {
-                        Type actual = m.getGenericParameterTypes()[i];
-                        Type expect = method.getGenericParameterTypes()[i];
-                        if (!actual.equals(expect) && !(actual instanceof TypeVariable<?>)) {
-                            continue flag;
-                        }
-                    }
-                    // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
+//                if (m.getName().equals(method.getName()) && m.getGenericParameterTypes().length == method.getGenericParameterTypes().length) {
+//                    for (int i = 0; i < m.getGenericParameterTypes().length; i++) {
+//                        Type actual = m.getGenericParameterTypes()[i];
+//                        Type expect = method.getGenericParameterTypes()[i];
+//                        if (!actual.equals(expect) && !(actual instanceof TypeVariable<?>)) {
+//                            continue flag;
+//                        }
+//                    }
+//                    // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
+//                    for (Annotation annotation : m.getAnnotations()) {
+//                        if (annotation.annotationType().isAnnotationPresent(Command.class)) {
+//                            return m;
+//                        }
+//                    }
+//                }
+
+                if (method.equals(m)) {
                     for (Annotation annotation : m.getAnnotations()) {
                         if (annotation.annotationType().isAnnotationPresent(Command.class)) {
                             return m;
