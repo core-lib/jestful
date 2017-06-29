@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.qfox</groupId>
         <artifactId>jestful</artifactId>
-        <version>1.0.0</version>
+        <version>v1.0.19</version>
     </parent>
     <artifactId>jestful-server</artifactId>
     <name>jestful-server</name>
@@ -23,12 +23,12 @@
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-core</artifactId>
-            <version>1.0.0</version>
+            <version>v1.0.19</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-spring</artifactId>
-            <version>1.0.0</version>
+            <version>v1.0.19</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

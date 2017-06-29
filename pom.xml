@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.qfox</groupId>
     <artifactId>jestful</artifactId>
-    <version>1.0.0</version>
+    <version>v1.0.19</version>
     <packaging>pom</packaging>
     <name>Jestful</name>
     <description>A Powerful And Easy To Use RESTful Framework For Java</description>
@@ -34,6 +34,14 @@
         <module>jestful-velocity</module>
         <module>jestful-swagger</module>
     </modules>
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://nexus.qfoxtech.com/nexus/content/repositories/releases/</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <resources>
