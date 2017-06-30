@@ -7,11 +7,11 @@ import org.qfox.jestful.server.JestfulServletRequest;
 import org.qfox.jestful.server.exception.DisallowEncodeException;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class RequestDecodeWrapper implements Actor, Initialable {
-    private final Map<Encoding, RequestDecoder> map = new HashMap<Encoding, RequestDecoder>();
+    private final Map<Encoding, RequestDecoder> map = new LinkedHashMap<Encoding, RequestDecoder>();
 
     public Object react(Action action) throws Exception {
         Request source = action.getRequest();

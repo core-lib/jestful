@@ -20,7 +20,7 @@ import java.util.*;
 public class ObjectPropertyConverter extends AbstractPropertyConverter implements PropertyConverter, PropertyConversionProvider, Initialable {
     private final Set<PropertyConverter> converters = new LinkedHashSet<>();
 
-    private final Map<Class<?>, String> cache = new HashMap<>();
+    private final Map<Class<?>, String> cache = new LinkedHashMap<>();
 
     @Override
     public boolean supports(Type type) {

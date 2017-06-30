@@ -13,7 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +41,7 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
         InputStreamReader isr = null;
         BufferedReader br = null;
         try {
-            Map<String, String[]> map = new HashMap<String, String[]>();
+            Map<String, String[]> map = new LinkedHashMap<String, String[]>();
             isr = new InputStreamReader(in);
             br = new BufferedReader(isr);
             String line;

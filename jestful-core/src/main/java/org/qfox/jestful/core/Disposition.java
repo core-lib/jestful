@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -71,7 +71,7 @@ public class Disposition {
         if (disposition == null) throw new NullPointerException();
 
         // 如果是空字符串
-        if (disposition.trim().length() == 0) return new Disposition(null, new HashMap<String, String>());
+        if (disposition.trim().length() == 0) return new Disposition(null, new LinkedHashMap<String, String>());
 
         String type = URLDecoder.decode(disposition.split(";")[0].trim(), charset);
         Map<String, String> parameters = new LinkedHashMap<String, String>();

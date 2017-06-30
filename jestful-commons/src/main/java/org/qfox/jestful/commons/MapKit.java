@@ -2,7 +2,7 @@ package org.qfox.jestful.commons;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,7 +27,7 @@ public class MapKit {
 
     public static Map<String, String[]> valueOf(String query, String charset) throws UnsupportedEncodingException {
         String[] pairs = query.split("&+");
-        Map<String, String[]> map = new HashMap<String, String[]>();
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
         for (String pair : pairs) {
             String[] keyvalue = pair.split("=+");
             String key = URLDecoder.decode(keyvalue[0], charset);

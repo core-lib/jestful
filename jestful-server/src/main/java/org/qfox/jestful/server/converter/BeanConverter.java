@@ -10,7 +10,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public class BeanConverter implements Converter {
                 int index = key.indexOf('.');
                 String property = key.substring(index + 1);
                 String[] values = map.get(key) != null ? map.get(key).clone() : new String[0];
-                Map<String, String[]> _map = new HashMap<String, String[]>();
+                Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
                 _map.put(property, values);
                 try {
                     PropertyDescriptor descriptor = new PropertyDescriptor(property.split("\\.")[0], clazz);
@@ -67,7 +67,7 @@ public class BeanConverter implements Converter {
                 int index = key.indexOf('.');
                 String property = key.substring(index + 1);
                 String[] values = map.get(key) != null ? map.get(key).clone() : new String[0];
-                Map<String, String[]> _map = new HashMap<String, String[]>();
+                Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
                 _map.put(property, values);
                 try {
                     PropertyDescriptor descriptor = new PropertyDescriptor(property.split("\\.")[0], clazz);

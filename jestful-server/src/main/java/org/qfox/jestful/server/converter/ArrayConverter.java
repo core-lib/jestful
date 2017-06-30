@@ -3,7 +3,7 @@ package org.qfox.jestful.server.converter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.qfox.jestful.commons.ArrayKit;
@@ -20,7 +20,7 @@ public class ArrayConverter implements Converter {
 			if (key.equals(name) || key.startsWith(name + ".")) {
 				String[] values = map.get(key) != null ? map.get(key).clone() : new String[0];
 				for (int i = 0; i < values.length; i++) {
-					Map<String, String[]> _map = new HashMap<String, String[]>();
+					Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
 					_map.put(name, ArrayKit.copyOfRange(values, i, i + 1));
 					Object object = provider.convert(name, clazz.getComponentType(), decoded, charset, _map);
 					int index = Array.getLength(array);

@@ -6,11 +6,11 @@ import org.qfox.jestful.core.exception.NoSuchCodecException;
 import org.qfox.jestful.server.JestfulServletResponse;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ResponseEncodeWrapper implements Actor, Initialable {
-    private final Map<Encoding, ResponseEncoder> map = new HashMap<Encoding, ResponseEncoder>();
+    private final Map<Encoding, ResponseEncoder> map = new LinkedHashMap<Encoding, ResponseEncoder>();
 
     public Object react(Action action) throws Exception {
         if (action.isAllowEncode()) {

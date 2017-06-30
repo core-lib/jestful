@@ -4,7 +4,7 @@ import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -21,7 +21,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class ContentTypeDecider implements Actor, Initialable {
-    private final Map<MediaType, ResponseSerializer> map = new HashMap<MediaType, ResponseSerializer>();
+    private final Map<MediaType, ResponseSerializer> map = new LinkedHashMap<MediaType, ResponseSerializer>();
 
     public Object react(Action action) throws Exception {
         Request request = action.getRequest();

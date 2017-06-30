@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -28,7 +28,7 @@ public class JestfulSwaggerServlet implements Servlet {
     private Swagger swagger;
     private ObjectMapper swaggerJsonMapper;
     private ObjectMapper swaggerYamlMapper;
-    private Map<String, URL> cache = new HashMap<>();
+    private Map<String, URL> cache = new LinkedHashMap<>();
     private MappingRegistry mappingRegistry;
 
     @Override

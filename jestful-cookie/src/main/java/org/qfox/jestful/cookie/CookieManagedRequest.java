@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +26,7 @@ public class CookieManagedRequest extends RequestWrapper {
 
     @Override
     public void connect() throws IOException {
-        Map<String, List<String>> header = new HashMap<String, List<String>>();
+        Map<String, List<String>> header = new LinkedHashMap<String, List<String>>();
         String[] keys = getHeaderKeys();
         for (String key : keys) {
             String[] values = getRequestHeaders(key);

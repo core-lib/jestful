@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.gateway;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,7 +34,7 @@ public class HeaderProxyGateway extends ProxyGateway {
 
 	public HeaderProxyGateway(String host, int port, Map<String, String> header) {
 		super(host, port);
-		this.header = new CaseInsensitiveMap<String, String>(header != null ? header : new HashMap<String, String>());
+		this.header = new CaseInsensitiveMap<String, String>(header != null ? header : new LinkedHashMap<String, String>());
 	}
 
 	@Override

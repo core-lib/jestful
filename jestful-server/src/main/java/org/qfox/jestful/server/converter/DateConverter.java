@@ -7,13 +7,13 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 public class DateConverter implements Converter {
-    private final Map<Pattern, DateFormat> formats = new HashMap<Pattern, DateFormat>();
+    private final Map<Pattern, DateFormat> formats = new LinkedHashMap<Pattern, DateFormat>();
 
     {
         formats.put(Pattern.compile("\\d{1,2}\\/\\d{1,2}\\/\\d{4,}"), new SimpleDateFormat("MM/dd/yyyy"));

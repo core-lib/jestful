@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.accept;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.qfox.jestful.core.Action;
@@ -30,7 +30,7 @@ import org.qfox.jestful.core.exception.NoSuchCodecException;
  * @since 1.0.0
  */
 public class AcceptContentEncodingDecider implements Actor, Initialable {
-	private final Map<Encoding, ResponseDecoder> map = new HashMap<Encoding, ResponseDecoder>();
+	private final Map<Encoding, ResponseDecoder> map = new LinkedHashMap<Encoding, ResponseDecoder>();
 
 	public Object react(Action action) throws Exception {
 		if (action.isAcceptEncode()) {

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +42,7 @@ import org.qfox.jestful.server.converter.IncompatibleConversionException;
  * @since 1.0.0
  */
 public class MultipartRequestDeserializer implements RequestDeserializer, Initialable {
-	private final Map<MediaType, RequestDeserializer> map = new HashMap<MediaType, RequestDeserializer>();
+	private final Map<MediaType, RequestDeserializer> map = new LinkedHashMap<MediaType, RequestDeserializer>();
 	private ConversionProvider multipartConversionProvider;
 
 	public String getContentType() {
@@ -52,7 +52,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 	public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
 		String boundary = mediaType.getParameters().get("boundary");
 		List<Multipart> multiparts = new ArrayList<Multipart>();
-		Map<String, String[]> fields = new HashMap<String, String[]>();
+		Map<String, String[]> fields = new LinkedHashMap<String, String[]>();
 		List<Parameter> parameters = action.getParameters().all(Position.BODY);
 		MultipartInputStream mis = new MultipartInputStream(in, boundary);
 		Multihead multihead;

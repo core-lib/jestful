@@ -4,14 +4,14 @@ import io.swagger.annotations.ApiModelProperty;
 import io.swagger.models.properties.*;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Created by yangchangpei on 17/6/6.
  */
 public class PrimaryPropertyConverter extends AbstractPropertyConverter implements PropertyConverter {
-    private final Map<Class<?>, Class<? extends Property>> map = new HashMap<>();
+    private final Map<Class<?>, Class<? extends Property>> map = new LinkedHashMap<>();
 
     {
         map.put(boolean.class, BooleanProperty.class);

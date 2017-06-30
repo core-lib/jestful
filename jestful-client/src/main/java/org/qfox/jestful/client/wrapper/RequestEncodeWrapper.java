@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.wrapper;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.qfox.jestful.core.Action;
@@ -30,7 +30,7 @@ import org.qfox.jestful.core.exception.NoSuchCodecException;
  * @since 1.0.0
  */
 public class RequestEncodeWrapper implements Actor, Initialable {
-	private final Map<Encoding, RequestEncoder> map = new HashMap<Encoding, RequestEncoder>();
+	private final Map<Encoding, RequestEncoder> map = new LinkedHashMap<Encoding, RequestEncoder>();
 
 	public Object react(Action action) throws Exception {
 		if (action.isAllowEncode()) {

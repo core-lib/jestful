@@ -10,7 +10,7 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -30,7 +30,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
     private final Object controller;
     private final Class<?> klass;
     private final String expression;
-    private final Map<Method, Mapping> mappings = new HashMap<Method, Mapping>();
+    private final Map<Method, Mapping> mappings = new LinkedHashMap<Method, Mapping>();
 
     public Resource() {
         super(new Annotation[0]);

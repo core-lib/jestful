@@ -3,7 +3,7 @@ package org.qfox.jestful.core;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  */
 @SuppressWarnings("ALL")
 public class MediaType implements Weighted<MediaType> {
-    private static final MediaType NULL = new MediaType("", new HashMap<String, String>());
+    private static final MediaType NULL = new MediaType("", new LinkedHashMap<String, String>());
 
     private final String name;
     private final String type;

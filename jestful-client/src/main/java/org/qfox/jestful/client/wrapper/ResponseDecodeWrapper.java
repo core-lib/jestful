@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.wrapper;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.qfox.jestful.core.Action;
@@ -30,14 +30,14 @@ import org.qfox.jestful.core.codec.ResponseDecoder;
  * @since 1.0.0
  */
 public class ResponseDecodeWrapper implements Actor, Initialable {
-	private final Map<Encoding, ResponseDecoder> map = new HashMap<Encoding, ResponseDecoder>();
+	private final Map<Encoding, ResponseDecoder> map = new LinkedHashMap<Encoding, ResponseDecoder>();
 
 	public Object react(Action action) throws Exception {
 		if (action.isAcceptEncode()) {
 			Request request = action.getRequest();
 			String acceptEncoding = request.getRequestHeader("Accept-Encoding");
 			Encodings encodings = Encodings.valueOf(acceptEncoding);
-			Map<Encoding, ResponseDecoder> decoders = new HashMap<Encoding, ResponseDecoder>();
+			Map<Encoding, ResponseDecoder> decoders = new LinkedHashMap<Encoding, ResponseDecoder>();
 			for (Encoding encoding : encodings) {
 				decoders.put(encoding, map.get(encoding));
 			}

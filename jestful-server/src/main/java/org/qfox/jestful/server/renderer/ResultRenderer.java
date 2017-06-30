@@ -22,7 +22,7 @@ import java.util.*;
  * @since 1.0.0
  */
 public class ResultRenderer implements Actor, Initialable, Destroyable, Configurable {
-    protected final Map<MediaType, ResponseSerializer> serializers = new HashMap<MediaType, ResponseSerializer>();
+    protected final Map<MediaType, ResponseSerializer> serializers = new LinkedHashMap<MediaType, ResponseSerializer>();
     protected final Set<Renderer> renderers = new LinkedHashSet<Renderer>();
 
     @Override

@@ -3,12 +3,12 @@ package org.qfox.jestful.server.converter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLDecoder;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MapConverter implements Converter {
-    private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
+    private final Map<Class<?>, Class<?>> implementations = new LinkedHashMap<Class<?>, Class<?>>();
 
     {
         implementations.put(Map.class, LinkedHashMap.class);

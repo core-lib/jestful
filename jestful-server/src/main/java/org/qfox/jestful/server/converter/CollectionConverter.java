@@ -6,7 +6,7 @@ import java.net.URLDecoder;
 import java.util.*;
 
 public class CollectionConverter implements Converter {
-    private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
+    private final Map<Class<?>, Class<?>> implementations = new LinkedHashMap<Class<?>, Class<?>>();
 
     {
         implementations.put(Collection.class, List.class);
@@ -50,7 +50,7 @@ public class CollectionConverter implements Converter {
         for (String key : map.keySet()) {
             if (key.equals(name)) {
                 String[] values = map.get(key).clone();
-                Map<String, String[]> _map = new HashMap<String, String[]>();
+                Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
                 String[] _values = new String[1];
                 for (String value : values) {
                     _values[0] = value;
@@ -61,7 +61,7 @@ public class CollectionConverter implements Converter {
             }
             if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
                 String[] values = map.get(key).clone();
-                Map<String, String[]> _map = new HashMap<String, String[]>();
+                Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
                 String[] _values = new String[1];
                 for (String value : values) {
                     _values[0] = value;

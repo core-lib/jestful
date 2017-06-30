@@ -28,7 +28,7 @@ import java.util.Map.Entry;
  * @since 1.0.0
  */
 public class MultipartRequestSerializer implements RequestSerializer, Initialable {
-    private final Map<MediaType, RequestSerializer> map = new HashMap<MediaType, RequestSerializer>();
+    private final Map<MediaType, RequestSerializer> map = new LinkedHashMap<MediaType, RequestSerializer>();
     private final String contentType = "multipart/form-data";
 
     public String getContentType() {

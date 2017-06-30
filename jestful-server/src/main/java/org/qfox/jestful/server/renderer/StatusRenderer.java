@@ -10,7 +10,7 @@ import org.qfox.jestful.core.Status;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,7 +47,7 @@ public class StatusRenderer implements Renderer {
             default: {
                 String charset = response.getResponseHeader("Content-Charset");
                 response.setContentType("text/html; charset=" + charset);
-                Map<String, String> headers = header != null ? MapKit.valueOf(header) : new HashMap<String, String>();
+                Map<String, String> headers = header != null ? MapKit.valueOf(header) : new LinkedHashMap<String, String>();
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
                     response.setResponseHeader(entry.getKey(), entry.getValue());
                 }

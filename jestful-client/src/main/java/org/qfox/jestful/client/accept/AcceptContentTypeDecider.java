@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.accept;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.qfox.jestful.core.Accepts;
@@ -29,7 +29,7 @@ import org.qfox.jestful.core.formatting.ResponseDeserializer;
  * @since 1.0.0
  */
 public class AcceptContentTypeDecider implements Actor, Initialable {
-	private final Map<MediaType, ResponseDeserializer> map = new HashMap<MediaType, ResponseDeserializer>();
+	private final Map<MediaType, ResponseDeserializer> map = new LinkedHashMap<MediaType, ResponseDeserializer>();
 
 	public Object react(Action action) throws Exception {
 		Accepts produces = action.getProduces();

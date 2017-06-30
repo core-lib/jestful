@@ -11,9 +11,9 @@ import java.util.*;
  * Created by yangchangpei on 17/5/3.
  */
 public class ParameterResolver implements Actor, Initialable, Destroyable, Configurable {
-    private final Map<MediaType, RequestDeserializer> deserializers = new HashMap<MediaType, RequestDeserializer>();
+    private final Map<MediaType, RequestDeserializer> deserializers = new LinkedHashMap<MediaType, RequestDeserializer>();
     private final Set<Resolver> resolvers = new LinkedHashSet<Resolver>();
-    private final Map<Class<?>, Object> defaults = new HashMap<Class<?>, Object>();
+    private final Map<Class<?>, Object> defaults = new LinkedHashMap<Class<?>, Object>();
 
     {
         defaults.put(boolean.class, false);

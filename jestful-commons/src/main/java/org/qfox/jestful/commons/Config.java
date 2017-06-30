@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -14,7 +14,7 @@ import java.util.Properties;
  * Created by yangchangpei on 17/3/28.
  */
 public abstract class Config {
-    private static Map<String, Properties> cache = new HashMap<String, Properties>();
+    private static Map<String, Properties> cache = new LinkedHashMap<String, Properties>();
 
     protected Config() {
         Class<?> clazz = this.getClass();

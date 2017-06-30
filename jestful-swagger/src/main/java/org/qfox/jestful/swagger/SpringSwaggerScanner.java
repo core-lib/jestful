@@ -68,7 +68,7 @@ public class SpringSwaggerScanner {
     }
 
     private Map<String, Response> toResponse(ApiResponses apiResponses) {
-        Map<String, Response> map = new HashMap<>();
+        Map<String, Response> map = new LinkedHashMap<>();
 
         for (int i = 0; apiResponses != null && i < apiResponses.value().length; i++) {
             ApiResponse apiResponse = apiResponses.value()[i];

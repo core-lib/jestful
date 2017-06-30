@@ -49,11 +49,11 @@ import java.util.jar.JarFile;
  */
 public class Client implements Actor, Connector, Initialable, Destroyable {
     protected final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
-    protected final Map<MediaType, RequestSerializer> serializers = new HashMap<MediaType, RequestSerializer>();
-    protected final Map<MediaType, ResponseDeserializer> deserializers = new HashMap<MediaType, ResponseDeserializer>();
-    protected final Map<String, Scheduler> schedulers = new HashMap<String, Scheduler>();
-    protected final Map<String, Connector> connectors = new HashMap<String, Connector>();
-    protected final Map<String, Catcher> catchers = new HashMap<String, Catcher>();
+    protected final Map<MediaType, RequestSerializer> serializers = new LinkedHashMap<MediaType, RequestSerializer>();
+    protected final Map<MediaType, ResponseDeserializer> deserializers = new LinkedHashMap<MediaType, ResponseDeserializer>();
+    protected final Map<String, Scheduler> schedulers = new LinkedHashMap<String, Scheduler>();
+    protected final Map<String, Connector> connectors = new LinkedHashMap<String, Connector>();
+    protected final Map<String, Catcher> catchers = new LinkedHashMap<String, Catcher>();
 
     protected final String protocol;
     protected final String host;
@@ -102,7 +102,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         this.port = builder.port;
         this.route = builder.route;
         this.classLoader = builder.classLoader;
-        this.resources = new HashMap<Class<?>, Resource>();
+        this.resources = new LinkedHashMap<Class<?>, Resource>();
         this.configLocations = integrate(classLoader).toArray(new URL[0]);
         this.configValidation = builder.configValidation;
         DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
@@ -142,7 +142,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     protected Set<URL> integrate(ClassLoader classLoader) throws IOException {
-        Set<URL> urls = new HashSet<URL>();
+        Set<URL> urls = new LinkedHashSet<URL>();
         Enumeration<URL> enumeration = classLoader.getResources("jestful");
         enumeration = enumeration != null && enumeration.hasMoreElements() ? enumeration : new Enumerator<URL>(classLoader.getResource("jestful/client.xml"));
         while (enumeration.hasMoreElements()) {
