@@ -11,7 +11,7 @@ public class MapConverter implements Converter {
     private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
 
     {
-        implementations.put(Map.class, HashMap.class);
+        implementations.put(Map.class, LinkedHashMap.class);
     }
 
     public boolean supports(Class<?> clazz) {

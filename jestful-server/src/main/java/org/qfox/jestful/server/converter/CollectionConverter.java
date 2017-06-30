@@ -11,7 +11,7 @@ public class CollectionConverter implements Converter {
     {
         implementations.put(Collection.class, List.class);
         implementations.put(List.class, ArrayList.class);
-        implementations.put(Set.class, HashSet.class);
+        implementations.put(Set.class, LinkedHashSet.class);
         implementations.put(SortedSet.class, TreeSet.class);
         implementations.put(Queue.class, PriorityQueue.class);
     }
