@@ -1,5 +1,7 @@
 package org.qfox.jestful.server.converter;
 
+import org.qfox.jestful.core.converter.EnumCreator;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -17,7 +19,7 @@ public class EnumConverter implements Converter {
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
-            if (!method.isAnnotationPresent(EnumMatcher.class)) continue;
+            if (!method.isAnnotationPresent(EnumCreator.class)) continue;
             if (!Modifier.isStatic(method.getModifiers())) continue;
             if (method.getReturnType() != clazz) continue;
             if (method.getGenericParameterTypes().length != 1) continue;

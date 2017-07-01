@@ -1,36 +1,45 @@
 package org.qfox.jestful.core.converter;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月8日 上午10:58:17
- *
  * @since 1.0.0
  */
 public class EnumStringConverter implements StringConverter<Enum<?>> {
 
-	public boolean support(Class<?> klass) {
-		return Enum.class.isAssignableFrom(klass);
-	}
+    public boolean support(Class<?> klass) {
+        return Enum.class.isAssignableFrom(klass);
+    }
 
-	public String convert(Class<?> klass, Enum<?> source) {
-		return source.name();
-	}
+    public String convert(Class<?> klass, Enum<?> source) {
+        return source.name();
+    }
 
-	public Enum<?> convert(Class<?> klass, String source) {
-		try {
-			return (Enum<?>) klass.getMethod("valueOf", String.class).invoke(null, source);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    public Enum<?> convert(Class<?> klass, String source) {
+        try {
+            Method[] methods = klass.getMethods();
+            for (Method method : methods) {
+                if (!method.isAnnotationPresent(EnumCreator.class)) continue;
+                if (!Modifier.isStatic(method.getModifiers())) continue;
+                if (method.getReturnType() != klass) continue;
+                if (method.getParameterTypes().length != 1 || method.getParameterTypes()[0] != String.class) continue;
+                return (Enum<?>) method.invoke(null, source);
+            }
+            return (Enum<?>) klass.getMethod("valueOf", String.class).invoke(null, source);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }
