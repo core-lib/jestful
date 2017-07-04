@@ -1,12 +1,14 @@
 package org.qfox.jestful.server.converter;
 
-import org.qfox.jestful.core.converter.ValueConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.beans.PropertyDescriptor;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.*;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,33 +22,8 @@ public class BeanConverter implements Converter {
     }
 
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
-        Method[] methods = clazz.getMethods();
-        for (Method method : methods) {
-            if (!method.isAnnotationPresent(ValueConverter.class)) continue;
-            if (!Modifier.isStatic(method.getModifiers())) continue;
-            if (method.getReturnType() != clazz) continue;
-            if (method.getGenericParameterTypes().length != 1) continue;
-            Type type = method.getGenericParameterTypes()[0];
-            Object value = provider.convert(name, type, decoded, charset, map);
-            try {
-                return clazz.cast(method.invoke(null, value));
-            } catch (Exception e) {
-                throw new IncompatibleConversionException(e, name, clazz, map, provider);
-            }
-        }
-
-        Constructor<?>[] constructors = clazz.getConstructors();
-        for (Constructor<?> constructor : constructors) {
-            if (!constructor.isAnnotationPresent(ValueConverter.class)) continue;
-            if (constructor.getParameterTypes().length != 1) continue;
-            Type type = constructor.getGenericParameterTypes()[0];
-            Object value = provider.convert(name, type, decoded, charset, map);
-            try {
-                return clazz.cast(constructor.newInstance(value));
-            } catch (Exception e) {
-                throw new IncompatibleConversionException(e, name, clazz, map, provider);
-            }
-        }
+        Object result = provider.getExtendConversionResult(name, clazz, decoded, charset, map);
+        if (result != null) return clazz.cast(result);
 
         T bean;
         try {
@@ -81,34 +58,8 @@ public class BeanConverter implements Converter {
 
     public Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         Class<?> clazz = (Class<?>) type.getRawType();
-
-        Method[] methods = clazz.getMethods();
-        for (Method method : methods) {
-            if (!method.isAnnotationPresent(ValueConverter.class)) continue;
-            if (!Modifier.isStatic(method.getModifiers())) continue;
-            if (method.getReturnType() != clazz) continue;
-            if (method.getGenericParameterTypes().length != 1) continue;
-            Type parameterType = method.getGenericParameterTypes()[0];
-            Object value = provider.convert(name, parameterType, decoded, charset, map);
-            try {
-                return clazz.cast(method.invoke(null, value));
-            } catch (Exception e) {
-                throw new IncompatibleConversionException(e, name, clazz, map, provider);
-            }
-        }
-
-        Constructor<?>[] constructors = clazz.getConstructors();
-        for (Constructor<?> constructor : constructors) {
-            if (!constructor.isAnnotationPresent(ValueConverter.class)) continue;
-            if (constructor.getParameterTypes().length != 1) continue;
-            Type parameterType = constructor.getGenericParameterTypes()[0];
-            Object value = provider.convert(name, parameterType, decoded, charset, map);
-            try {
-                return clazz.cast(constructor.newInstance(value));
-            } catch (Exception e) {
-                throw new IncompatibleConversionException(e, name, clazz, map, provider);
-            }
-        }
+        Object result = provider.getExtendConversionResult(name, clazz, decoded, charset, map);
+        if (result != null) return clazz.cast(result);
 
         Object bean;
         try {
