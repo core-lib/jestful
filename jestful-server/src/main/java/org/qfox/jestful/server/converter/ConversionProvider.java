@@ -13,6 +13,6 @@ public interface ConversionProvider {
 
     Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map) throws ConversionException, UnsupportedEncodingException;
 
-    Object getExtendConversionResult(String name, Class<?> clazz, boolean decoded, String charset, Map<String, String[]> map) throws ConversionException, UnsupportedEncodingException;
+    Object extend(String name, Class<?> clazz, boolean decoded, String charset, Map<String, String[]> map) throws ConversionException, UnsupportedEncodingException;
 
 }

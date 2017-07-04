@@ -12,7 +12,7 @@ public class EnumConverter implements Converter {
     }
 
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
-        Object result = provider.getExtendConversionResult(name, clazz, decoded, charset, map);
+        Object result = provider.extend(name, clazz, decoded, charset, map);
         if (result != null) return clazz.cast(result);
 
         String[] values = map.get(name) != null ? map.get(name).clone() : null;

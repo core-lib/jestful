@@ -43,7 +43,7 @@ public class JestfulConversionProvider implements ConversionProvider, Initialabl
         throw new UnsupportedConversionException("unsupported parameterized type " + type, name, type, map, this);
     }
 
-    public Object getExtendConversionResult(String name, Class<?> clazz, boolean decoded, String charset, Map<String, String[]> map) throws ConversionException, UnsupportedEncodingException {
+    public Object extend(String name, Class<?> clazz, boolean decoded, String charset, Map<String, String[]> map) throws ConversionException, UnsupportedEncodingException {
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
             if (!method.isAnnotationPresent(ValueConverter.class)) continue;
