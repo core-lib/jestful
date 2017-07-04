@@ -8,7 +8,6 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -50,20 +49,7 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             }
         }
         // 支持复合类型 当他有对应的转换器方法
-        return getSerializeMethod(klass) != null;
-    }
-
-    protected Method getSerializeMethod(Class<?> klass) {
-        // 1. 有标注有ValueConverter注解的, 公开的, 静态的, 返回值类型为自身的, 只接收一个参数而且为String类型的方法
-        Method[] methods = klass.getMethods();
-        for (Method method : methods) {
-            if (!method.isAnnotationPresent(ValueConverter.class)) continue;
-            if (Modifier.isStatic(method.getModifiers())) continue;
-            if (method.getReturnType() != String.class) continue;
-            if (method.getParameterTypes().length > 0) continue;
-            return method;
-        }
-        return null;
+        return ValueConversion.getSerializeMethod(klass) != null;
     }
 
     public boolean deserializable(Parameter parameter) {
@@ -79,31 +65,7 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             }
         }
         // 支持复合类型 当他有对应的转换器方法
-        return getDeserializeMethod(klass) != null || getDeserializeConstructor(klass) != null;
-    }
-
-    protected Method getDeserializeMethod(Class<?> klass) {
-        // 1. 有标注有ValueConverter注解的, 公开的, 静态的, 返回值类型为自身的, 只接收一个参数而且为String类型的方法
-        Method[] methods = klass.getMethods();
-        for (Method method : methods) {
-            if (!method.isAnnotationPresent(ValueConverter.class)) continue;
-            if (!Modifier.isStatic(method.getModifiers())) continue;
-            if (method.getReturnType() != klass) continue;
-            if (method.getParameterTypes().length != 1 || method.getParameterTypes()[0] != String.class) continue;
-            return method;
-        }
-        return null;
-    }
-
-    protected Constructor<?> getDeserializeConstructor(Class<?> klass) {
-        // 2. 有标注有ValueConverter注解的, 公开的, 只接收一个参数而且为String类型的构造方法
-        Constructor<?>[] constructors = klass.getConstructors();
-        for (Constructor<?> constructor : constructors) {
-            if (!constructor.isAnnotationPresent(ValueConverter.class)) continue;
-            if (constructor.getParameterTypes().length != 1 || constructor.getParameterTypes()[0] != String.class) continue;
-            return constructor;
-        }
-        return null;
+        return ValueConversion.getDeserializeMethod(klass) != null || ValueConversion.getDeserializeConstructor(klass) != null;
     }
 
     public void convert(Parameter parameter, String source) throws NoSuchConverterException {
@@ -120,7 +82,7 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             }
 
             // 匹配转换方法
-            Method method = getDeserializeMethod(klass);
+            Method method = ValueConversion.getDeserializeMethod(klass);
             if (method != null) {
                 try {
                     Object value = method.invoke(null, source);
@@ -132,7 +94,7 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             }
 
             // 匹配转换构造器
-            Constructor<?> constructor = getDeserializeConstructor(klass);
+            Constructor<?> constructor = ValueConversion.getDeserializeConstructor(klass);
             if (constructor != null) {
                 try {
                     Object value = constructor.newInstance(source);
@@ -154,7 +116,7 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             }
 
             // 匹配转换方法
-            Method method = getDeserializeMethod(klass);
+            Method method = ValueConversion.getDeserializeMethod(klass);
             if (method != null) {
                 try {
                     Object value = method.invoke(null, source);
@@ -166,7 +128,7 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             }
 
             // 匹配转换构造器
-            Constructor<?> constructor = getDeserializeConstructor(klass);
+            Constructor<?> constructor = ValueConversion.getDeserializeConstructor(klass);
             if (constructor != null) {
                 try {
                     Object value = constructor.newInstance(source);
@@ -225,7 +187,7 @@ public class DefaultStringConversion implements StringConversion, Initialable {
                 }
 
                 // 匹配转换方法
-                Method method = getSerializeMethod(klass);
+                Method method = ValueConversion.getSerializeMethod(klass);
                 if (method != null) {
                     try {
                         int length = Array.getLength(array);
@@ -255,7 +217,7 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             }
 
             // 匹配转换方法
-            Method method = getSerializeMethod(klass);
+            Method method = ValueConversion.getSerializeMethod(klass);
             if (method != null) {
                 try {
                     Object source = parameter.getValue();
