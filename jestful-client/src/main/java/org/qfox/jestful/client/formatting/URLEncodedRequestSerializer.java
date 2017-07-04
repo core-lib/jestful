@@ -33,16 +33,12 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 
     public boolean supports(Action action) {
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
-        for (Parameter body : bodies) {
-            if (supports(body) == false) {
-                return false;
-            }
-        }
+        for (Parameter body : bodies) if (!supports(body)) return false;
         return true;
     }
 
     public boolean supports(Parameter parameter) {
-        return urlStringConversion.supports(parameter);
+        return urlStringConversion.serializable(parameter);
     }
 
     public void serialize(Action action, String charset, OutputStream out) throws IOException {

@@ -1,8 +1,5 @@
 package org.qfox.jestful.core.converter;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
 /**
  * <p>
  * Description:
@@ -28,14 +25,6 @@ public class EnumStringConverter implements StringConverter<Enum<?>> {
 
     public Enum<?> convert(Class<?> klass, String source) {
         try {
-            Method[] methods = klass.getMethods();
-            for (Method method : methods) {
-                if (!method.isAnnotationPresent(EnumCreator.class)) continue;
-                if (!Modifier.isStatic(method.getModifiers())) continue;
-                if (method.getReturnType() != klass) continue;
-                if (method.getParameterTypes().length != 1 || method.getParameterTypes()[0] != String.class) continue;
-                return (Enum<?>) method.invoke(null, source);
-            }
             return (Enum<?>) klass.getMethod("valueOf", String.class).invoke(null, source);
         } catch (Exception e) {
             throw new RuntimeException(e);

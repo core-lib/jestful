@@ -9,7 +9,7 @@ public class NoSuchCharsetException extends JestfulException {
 	private final Charsets actuals;
 
 	public NoSuchCharsetException(Charsets expects, Charsets actuals) {
-		super("can not find the acceptable charsets cause you specified accepting charsets [" + expects + "] but the system only supports [" + actuals + "]");
+		super("can not find the acceptable charsets cause you specified accepting charsets [" + expects + "] but the system only serializable [" + actuals + "]");
 		this.expects = expects;
 		this.actuals = actuals;
 	}

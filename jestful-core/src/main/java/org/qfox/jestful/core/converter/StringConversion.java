@@ -7,23 +7,23 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年5月5日 上午10:39:31
- *
  * @since 1.0.0
  */
 public interface StringConversion {
 
-	boolean supports(Parameter parameter);
+    boolean serializable(Parameter parameter);
 
-	void convert(Parameter parameter, String source) throws NoSuchConverterException;
+    boolean deserializable(Parameter parameter);
 
-	String[] convert(Parameter parameter) throws NoSuchConverterException;
+    void convert(Parameter parameter, String source) throws NoSuchConverterException;
+
+    String[] convert(Parameter parameter) throws NoSuchConverterException;
 
 }
