@@ -81,6 +81,35 @@ public class BeanConverter implements Converter {
 
     public Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         Class<?> clazz = (Class<?>) type.getRawType();
+
+        Method[] methods = clazz.getMethods();
+        for (Method method : methods) {
+            if (!method.isAnnotationPresent(ValueConverter.class)) continue;
+            if (!Modifier.isStatic(method.getModifiers())) continue;
+            if (method.getReturnType() != clazz) continue;
+            if (method.getGenericParameterTypes().length != 1) continue;
+            Type parameterType = method.getGenericParameterTypes()[0];
+            Object value = provider.convert(name, parameterType, decoded, charset, map);
+            try {
+                return clazz.cast(method.invoke(null, value));
+            } catch (Exception e) {
+                throw new IncompatibleConversionException(e, name, clazz, map, provider);
+            }
+        }
+
+        Constructor<?>[] constructors = clazz.getConstructors();
+        for (Constructor<?> constructor : constructors) {
+            if (!constructor.isAnnotationPresent(ValueConverter.class)) continue;
+            if (constructor.getParameterTypes().length != 1) continue;
+            Type parameterType = constructor.getGenericParameterTypes()[0];
+            Object value = provider.convert(name, parameterType, decoded, charset, map);
+            try {
+                return clazz.cast(constructor.newInstance(value));
+            } catch (Exception e) {
+                throw new IncompatibleConversionException(e, name, clazz, map, provider);
+            }
+        }
+
         Object bean;
         try {
             bean = clazz.newInstance();
