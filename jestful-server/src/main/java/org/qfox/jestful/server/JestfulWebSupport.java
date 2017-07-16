@@ -126,6 +126,8 @@ public class JestfulWebSupport implements Actor {
         {
             Collection<?> controllers = beanContainer.with(Jestful.class).values();
             for (Object controller : controllers) mappingRegistry.register(controller);
+            Map<String, MappingRegistryAware> map = beanContainer.find(MappingRegistryAware.class);
+            for (MappingRegistryAware aware : map.values()) aware.setMappingRegistry(mappingRegistry);
         }
 
         if (logger.isDebugEnabled()) logger.debug(mappingRegistry.toString());
