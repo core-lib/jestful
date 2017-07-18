@@ -10,4 +10,9 @@ public class Link extends Fragment {
     public Link() {
         super(Link.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

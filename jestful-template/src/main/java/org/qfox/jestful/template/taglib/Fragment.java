@@ -81,6 +81,16 @@ public class Fragment extends BodyTagSupport {
         }
     }
 
+    protected void reset() {
+        name = null;
+    }
+
+    @Override
+    public void release() {
+        reset();
+        super.release();
+    }
+
     public String getName() {
         return name;
     }

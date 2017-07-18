@@ -10,4 +10,9 @@ public class Meta extends Fragment {
     public Meta() {
         super(Meta.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

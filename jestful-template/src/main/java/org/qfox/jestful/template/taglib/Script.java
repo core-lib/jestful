@@ -10,4 +10,9 @@ public class Script extends Fragment {
     public Script() {
         super(Script.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

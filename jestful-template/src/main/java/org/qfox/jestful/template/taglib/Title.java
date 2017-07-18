@@ -11,4 +11,9 @@ public class Title extends Fragment {
         super(Title.class.getName());
     }
 
+    @Override
+    protected void reset() {
+
+    }
+
 }

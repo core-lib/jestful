@@ -10,4 +10,9 @@ public class Menu extends Fragment {
     public Menu() {
         super(Menu.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

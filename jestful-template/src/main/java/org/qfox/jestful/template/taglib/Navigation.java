@@ -10,4 +10,9 @@ public class Navigation extends Fragment {
     public Navigation() {
         super(Navigation.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

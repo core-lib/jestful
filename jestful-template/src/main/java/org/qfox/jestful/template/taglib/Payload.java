@@ -9,4 +9,9 @@ public class Payload extends Fragment {
     public Payload() {
         super(Payload.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

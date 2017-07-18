@@ -10,4 +10,9 @@ public class Footer extends Fragment {
     public Footer() {
         super(Footer.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

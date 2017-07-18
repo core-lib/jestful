@@ -10,4 +10,9 @@ public class Header extends Fragment {
     public Header() {
         super(Header.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

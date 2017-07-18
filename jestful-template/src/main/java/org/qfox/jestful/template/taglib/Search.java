@@ -10,4 +10,9 @@ public class Search extends Fragment {
     public Search() {
         super(Search.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

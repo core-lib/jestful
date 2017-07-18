@@ -10,4 +10,9 @@ public class Pagination extends Fragment {
     public Pagination() {
         super(Pagination.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }

@@ -11,4 +11,9 @@ public class Body extends Fragment {
         super(Body.class.getName());
     }
 
+    @Override
+    protected void reset() {
+
+    }
+
 }

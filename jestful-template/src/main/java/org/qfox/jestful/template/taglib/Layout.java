@@ -26,6 +26,12 @@ public class Layout extends TagSupport {
         }
     }
 
+    @Override
+    public void release() {
+        path = null;
+        super.release();
+    }
+
     public String getPath() {
         return path;
     }

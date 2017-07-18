@@ -10,4 +10,9 @@ public class Crumb extends Fragment {
     public Crumb() {
         super(Crumb.class.getName());
     }
+
+    @Override
+    protected void reset() {
+
+    }
 }
