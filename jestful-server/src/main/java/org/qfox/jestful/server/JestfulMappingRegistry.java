@@ -27,7 +27,7 @@ import java.util.*;
  * @date 2016年4月1日 下午3:09:22
  * @since 1.0.0
  */
-public class JestfulMappingRegistry implements MappingRegistry, Initialable {
+public class JestfulMappingRegistry implements MappingRegistry, Initialable, Comparator<Mapping> {
     private String context = "";
     private Node<PathExpression, Mapping> tree;
 
@@ -58,7 +58,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
         if (matches.isEmpty()) {
             throw new BadMethodStatusException(URI, method, mappings);
         } else {
-            Collections.sort(matches);
+            Collections.sort(matches, this);
             return matches;
         }
     }
@@ -138,4 +138,8 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
         return tree.toString();
     }
 
+    @Override
+    public int compare(Mapping a, Mapping b) {
+        return a.getExpression().compareTo(b.getExpression());
+    }
 }
