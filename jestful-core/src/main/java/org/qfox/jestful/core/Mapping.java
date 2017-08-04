@@ -190,7 +190,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
 
     public int compareTo(Mapping o) {
         int comparation;
-        if ((comparation = regex.compareTo(o.regex)) != 0) {
+        if ((comparation = expression.compareTo(o.expression)) != 0) {
             return comparation;
         } else if ((comparation = restful.getMethod().compareTo(o.restful.getMethod())) != 0) {
             return comparation;

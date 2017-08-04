@@ -48,7 +48,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
     }
 
     public Collection<Mapping> lookup(String method, String URI) throws NotFoundStatusException, BadMethodStatusException {
-        Collection<Mapping> matches = new ArrayList<Mapping>();
+        List<Mapping> matches = new ArrayList<Mapping>();
         Collection<Mapping> mappings = lookup(URI);
         for (Mapping mapping : mappings) {
             if (mapping.getRestful().getMethod().equalsIgnoreCase(method)) {
@@ -58,6 +58,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable {
         if (matches.isEmpty()) {
             throw new BadMethodStatusException(URI, method, mappings);
         } else {
+            Collections.sort(matches);
             return matches;
         }
     }
