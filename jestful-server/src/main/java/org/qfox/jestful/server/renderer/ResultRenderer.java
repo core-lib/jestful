@@ -42,9 +42,10 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
 
         Object value = action.execute();
 
-        if (result.isRendered() || response.isCommitted()) {
-            return value;
-        }
+        // 如果已经渲染了则不需要再渲染
+        if (result.isRendered()) return value;
+        // 如果Dispatcher == REQUEST 而且又是 committed 的也不需要再渲染了
+        if(action.getDispatcher() == Dispatcher.REQUEST && response.isCommitted()) return value;
 
         for (Renderer renderer : renderers) {
             if (renderer.supports(action, value)) {
