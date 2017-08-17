@@ -5,6 +5,7 @@ import org.qfox.jestful.commons.MapKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
+import org.qfox.jestful.server.JestfulServletRequest;
 import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.IncompatibleConversionException;
@@ -48,6 +49,8 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
             while ((line = br.readLine()) != null) {
                 map.putAll(MapKit.valueOf(line, charset));
             }
+            Request request = new URLEncodedServletRequest((JestfulServletRequest) action.getRequest(), map);
+            action.setRequest(request);
             List<Parameter> parameters = action.getParameters().all(Position.BODY);
             for (Parameter parameter : parameters) {
                 if (parameter.getValue() != null) continue;
