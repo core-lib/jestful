@@ -42,9 +42,10 @@ public class ConcurrentHashMapTokenManager implements TokenManager {
                             iterator.remove();
                         }
                     }
-
                 } catch (Exception e) {
                     logger.warn("error occur when cleaning form tokens:", e);
+                } finally {
+
                 }
             }
         }
@@ -67,14 +68,14 @@ public class ConcurrentHashMapTokenManager implements TokenManager {
 
     @Override
     public String create(long duration, TimeUnit unit) throws TokenExceedException {
-        if (size.get() < maxBuffSize) {
-
+        if (size.getAndIncrement() < maxBuffSize) {
             String key = generator.generate();
             long timeExpired = System.currentTimeMillis() + unit.toMillis(duration);
             Token token = factory.produce(key, timeExpired);
             map.put(key, token);
             return key;
         } else {
+            size.getAndDecrement();
             throw new TokenExceedException();
         }
     }
@@ -82,9 +83,13 @@ public class ConcurrentHashMapTokenManager implements TokenManager {
     @Override
     public void verify(String key) throws TokenExpiredException, TokenMissedException {
         Token token = map.remove(key);
+
         if (token == null) throw new TokenMissedException(key);
-        if (token.expired()) throw new TokenExpiredException(key);
+
+        size.getAndDecrement();
         factory.recover(token);
+
+        if (token.expired()) throw new TokenExpiredException(key);
     }
 
     public long getDuration() {
