@@ -228,6 +228,8 @@ public class SpringSwaggerScanner {
     }
 
     private List<SecurityRequirement> doReadSwaggerDefinitionSecurity(SwaggerDefinition definition) {
+
+
         return new ArrayList<>();
     }
 
