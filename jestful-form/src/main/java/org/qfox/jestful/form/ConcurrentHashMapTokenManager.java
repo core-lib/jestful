@@ -3,7 +3,9 @@ package org.qfox.jestful.form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -35,17 +37,21 @@ public class ConcurrentHashMapTokenManager implements TokenManager {
             while (true) {
                 try {
                     Thread.sleep(cleanInterval);
+                    List<String> keys = new ArrayList<String>();
                     Iterator<Map.Entry<String, Token>> iterator = map.entrySet().iterator();
                     while (iterator.hasNext()) {
                         Map.Entry<String, Token> entry = iterator.next();
-                        if (entry.getValue().expired()) {
-                            iterator.remove();
+                        if (entry.getValue().expired()) keys.add(entry.getKey());
+                    }
+                    for (String key : keys) {
+                        Token token = map.remove(key);
+                        if (token != null) {
+                            size.getAndDecrement();
+                            factory.recover(token);
                         }
                     }
                 } catch (Exception e) {
                     logger.warn("error occur when cleaning form tokens:", e);
-                } finally {
-
                 }
             }
         }
