@@ -1,48 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>jestful</artifactId>
+        <groupId>org.qfox</groupId>
+        <version>v1.1.5</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.qfox</groupId>
-    <artifactId>jestful</artifactId>
-    <version>v1.1.5</version>
-    <packaging>pom</packaging>
-    <name>Jestful</name>
-    <description>A Powerful And Easy To Use RESTful Framework For Java</description>
-    <modules>
-        <module>jestful-core</module>
-        <module>jestful-client</module>
-        <module>jestful-commons</module>
-        <module>jestful-server</module>
-        <module>jestful-json</module>
-        <module>jestful-xml</module>
-        <module>jestful-java</module>
-        <module>jestful-spring</module>
-        <module>jestful-validation</module>
-        <module>jestful-cookie</module>
-        <module>jestful-android</module>
-        <module>jestful-RxJava</module>
-        <module>jestful-RxAndroid</module>
-        <module>jestful-client-nio</module>
-        <module>jestful-client-aio</module>
-        <module>jestful-charset</module>
-        <module>jestful-gson</module>
-        <module>jestful-template</module>
-        <module>jestful-protobuf</module>
-        <module>jestful-interception</module>
-        <module>jestful-async</module>
-        <module>jestful-multiview</module>
-        <module>jestful-velocity</module>
-        <module>jestful-swagger</module>
-        <module>jestful-form</module>
-    </modules>
 
-    <distributionManagement>
-        <repository>
-            <id>releases</id>
-            <name>Nexus Release Repository</name>
-            <url>http://nexus.qfoxtech.com/nexus/content/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
+    <artifactId>jestful-form</artifactId>
+    <packaging>jar</packaging>
+
+    <name>jestful-form</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <resources>
@@ -57,8 +43,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                     <fork>true</fork>
                     <verbose>true</verbose>
                     <encoding>UTF-8</encoding>
@@ -87,5 +73,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
