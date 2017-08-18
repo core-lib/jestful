@@ -6,24 +6,37 @@ package org.qfox.jestful.form;
 public class TokenExpiredException extends Exception {
     private static final long serialVersionUID = 7243292560207579646L;
 
-    private final String token;
+    private final String key;
+    private final long timeExpired;
 
-    public TokenExpiredException(String token) {
-        this.token = token;
+    public TokenExpiredException(String key, long timeExpired) {
+        this.key = key;
+        this.timeExpired = timeExpired;
     }
 
-    public TokenExpiredException(String message, String token) {
+    public TokenExpiredException(String message, String key, long timeExpired) {
         super(message);
-        this.token = token;
+        this.key = key;
+        this.timeExpired = timeExpired;
     }
 
-    public TokenExpiredException(String message, Throwable cause, String token) {
+    public TokenExpiredException(String message, Throwable cause, String key, long timeExpired) {
         super(message, cause);
-        this.token = token;
+        this.key = key;
+        this.timeExpired = timeExpired;
     }
 
-    public TokenExpiredException(Throwable cause, String token) {
+    public TokenExpiredException(Throwable cause, String key, long timeExpired) {
         super(cause);
-        this.token = token;
+        this.key = key;
+        this.timeExpired = timeExpired;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public long getTimeExpired() {
+        return timeExpired;
     }
 }

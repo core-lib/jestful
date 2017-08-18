@@ -6,24 +6,28 @@ package org.qfox.jestful.form;
 public class TokenMissedException extends Exception {
     private static final long serialVersionUID = -8523228185096211033L;
 
-    private final String token;
+    private final String key;
 
-    public TokenMissedException(String token) {
-        this.token = token;
+    public TokenMissedException(String key) {
+        this.key = key;
     }
 
-    public TokenMissedException(String message, String token) {
+    public TokenMissedException(String message, String key) {
         super(message);
-        this.token = token;
+        this.key = key;
     }
 
-    public TokenMissedException(String message, Throwable cause, String token) {
+    public TokenMissedException(String message, Throwable cause, String key) {
         super(message, cause);
-        this.token = token;
+        this.key = key;
     }
 
-    public TokenMissedException(Throwable cause, String token) {
+    public TokenMissedException(Throwable cause, String key) {
         super(cause);
-        this.token = token;
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
     }
 }
