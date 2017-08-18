@@ -51,8 +51,9 @@ public class MapTokenManager implements TokenManager {
     @Override
     public void verify(String key) throws TokenExpiredException, TokenMissedException {
         if (key == null) throw new NullPointerException("key can not be null");
-        Token token = map.get(key);
+        Token token = map.remove(key);
         if (token == null) throw new TokenMissedException(key);
+        factory.recover(token);
         if (token.expired()) throw new TokenExpiredException(token.getKey(), token.getTimeExpired());
     }
 
@@ -65,13 +66,7 @@ public class MapTokenManager implements TokenManager {
                 try {
                     Thread.sleep(interval);
                     Iterator<Map.Entry<String, Token>> iterator = map.entrySet().iterator();
-                    while (iterator.hasNext()) {
-                        Token token = iterator.next().getValue();
-                        if (token.expired()) {
-                            iterator.remove();
-                            factory.recover(token);
-                        }
-                    }
+                    while (iterator.hasNext()) if (iterator.next().getValue().expired()) iterator.remove();
                 } catch (Exception e) {
                     logger.warn("exception occur while cleaning expired tokens", e);
                 }
