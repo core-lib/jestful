@@ -3,7 +3,8 @@ package org.qfox.jestful.form;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -59,16 +60,20 @@ public class MapTokenManager implements TokenManager {
 
     private class Cleaner implements Runnable {
         private boolean loop = true;
+        private List<String> expires = new LinkedList<String>();
 
         @Override
         public void run() {
             while (loop) {
                 try {
                     Thread.sleep(interval);
-                    Iterator<Map.Entry<String, Token>> iterator = map.entrySet().iterator();
-                    while (iterator.hasNext()) if (iterator.next().getValue().expired()) iterator.remove();
+                    for (Map.Entry<String, Token> entry : map.entrySet()) if (entry.getValue().expired()) expires.add(entry.getKey());
+                    Token token;
+                    for (String expire : expires) if ((token = map.remove(expire)) != null) factory.recover(token);
                 } catch (Exception e) {
                     logger.warn("exception occur while cleaning expired tokens", e);
+                } finally {
+                    expires.clear();
                 }
             }
         }
@@ -114,4 +119,5 @@ public class MapTokenManager implements TokenManager {
     public void setInterval(long interval) {
         this.interval = interval;
     }
+
 }

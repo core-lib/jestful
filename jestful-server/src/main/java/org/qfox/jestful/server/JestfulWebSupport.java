@@ -53,6 +53,7 @@ public class JestfulWebSupport implements Actor {
             name = name == null || name.length() == 0 ? "defaultBeanContainer" : name;
             beanContainer = applicationContext.getBean(name, BeanContainer.class);
             if (beanContainer instanceof Configurable) ((Configurable) beanContainer).config(configuration);
+            servletContext.setAttribute(BeanContainer.ROOT_BEAN_CONTAINER_CONTEXT_ATTRIBUTE, beanContainer);
         }
         {
             String name = configuration.get("mappingRegistry");
