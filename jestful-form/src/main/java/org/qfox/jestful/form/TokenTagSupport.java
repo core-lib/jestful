@@ -11,7 +11,7 @@ import javax.servlet.jsp.tagext.TagSupport;
 public class TokenTagSupport extends TagSupport {
     private static final long serialVersionUID = 8901103747024632711L;
 
-    private static final String DEFAULT_TOKEN_NAME = "token";
+    private static final String DEFAULT_TOKEN_NAME = "form-token";
 
     private String name = DEFAULT_TOKEN_NAME;
 
@@ -21,7 +21,7 @@ public class TokenTagSupport extends TagSupport {
             BeanContainer beanContainer = (BeanContainer) pageContext.getServletContext().getAttribute(BeanContainer.ROOT_BEAN_CONTAINER_CONTEXT_ATTRIBUTE);
             TokenManager tokenManager = beanContainer.get(TokenManager.class);
             String token = tokenManager.create();
-            String input = "<input type='hidden' name='" + name + "' value='" + token + "' />";
+            String input = "<input type=\"hidden\" name=\"" + name + "\" value=\"" + token + "\" />";
             pageContext.getOut().write(input);
             return SKIP_BODY;
         } catch (Exception e) {
