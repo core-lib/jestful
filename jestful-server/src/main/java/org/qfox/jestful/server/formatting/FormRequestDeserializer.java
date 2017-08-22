@@ -31,7 +31,7 @@ import java.util.Map;
  * @date 2016年4月8日 下午5:23:18
  * @since 1.0.0
  */
-public class URLEncodedRequestDeserializer implements RequestDeserializer, Initialable {
+public class FormRequestDeserializer implements RequestDeserializer, Initialable {
     private ConversionProvider conversionProvider;
 
     public String getContentType() {
@@ -63,8 +63,8 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
                 }
             }
             JestfulServletRequest jestfulServletRequest = (JestfulServletRequest) action.getRequest();
-            URLEncodedServletRequest urlEncodedServletRequest = new URLEncodedServletRequest(jestfulServletRequest, map);
-            action.setRequest(urlEncodedServletRequest);
+            FormServletRequest formServletRequest = new FormServletRequest(jestfulServletRequest, map);
+            action.setRequest(formServletRequest);
         } finally {
             IOKit.close(br);
             IOKit.close(isr);

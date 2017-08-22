@@ -8,9 +8,9 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/8/22.
  */
-public class URLEncodedServletRequest extends ParamServletRequest {
+public class FormServletRequest extends ParamServletRequest {
 
-    public URLEncodedServletRequest(JestfulServletRequest request, Map<String, String[]> parameters) {
+    public FormServletRequest(JestfulServletRequest request, Map<String, String[]> parameters) {
         super(request, parameters);
     }
 }

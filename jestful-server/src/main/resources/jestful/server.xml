@@ -58,7 +58,7 @@
     <bean class="org.qfox.jestful.server.renderer.ForwardRenderer"/>
     <bean class="org.qfox.jestful.server.renderer.RedirectRenderer"/>
 
-    <bean class="org.qfox.jestful.server.formatting.URLEncodedRequestDeserializer"/>
+    <bean class="org.qfox.jestful.server.formatting.FormRequestDeserializer"/>
     <bean class="org.qfox.jestful.server.formatting.MultipartRequestDeserializer"/>
 
     <bean class="org.qfox.jestful.server.codec.DeflateRequestDecoder"/>
