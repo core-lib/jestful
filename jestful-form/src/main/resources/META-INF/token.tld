@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+    <description>Jestful 1.0.0 token library</description>
+    <display-name>Jestful token</display-name>
+    <tlib-version>1.0</tlib-version>
+    <short-name>token</short-name>
+    <uri>http://jestful.qfox.org/jsp/token</uri>
+
+    <tag>
+        <name>input</name>
+        <tag-class>org.qfox.jestful.form.TokenInput</tag-class>
+        <body-content>empty</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
+    </tag>
+
+    <tag>
+        <name>value</name>
+        <tag-class>org.qfox.jestful.form.TokenValue</tag-class>
+        <body-content>empty</body-content>
+        <dynamic-attributes>false</dynamic-attributes>
+    </tag>
+
+</taglib>
