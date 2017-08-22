@@ -21,11 +21,10 @@ public class TokenInput extends TagSupport implements DynamicAttributes {
         try {
             BeanContainer beanContainer = (BeanContainer) pageContext.getServletContext().getAttribute(BeanContainer.ROOT_BEAN_CONTAINER_CONTEXT_ATTRIBUTE);
             TokenManager tokenManager = beanContainer.get(TokenManager.class);
-            String token = tokenManager.create();
 
             if (!attributes.containsKey("name")) attributes.put("name", "form-token");
             if (!attributes.containsKey("type")) attributes.put("type", "hidden");
-            if (!attributes.containsKey("value")) attributes.put("value", token);
+            if (!attributes.containsKey("value")) attributes.put("value", tokenManager.create());
 
             StringBuilder sb = new StringBuilder();
             sb.append("<input");
