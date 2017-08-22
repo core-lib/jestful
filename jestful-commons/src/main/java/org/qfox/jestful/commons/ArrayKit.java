@@ -32,4 +32,25 @@ public class ArrayKit {
         return array;
     }
 
+    public static <T> T[] join(T[] array, T[]... arrays) {
+        if (array == null) throw new NullPointerException();
+        int len = array.length;
+        int pos = 0;
+        for (T[] arr : arrays) {
+            if (arr == null) throw new NullPointerException();
+            else len += arr.length;
+        }
+
+        @SuppressWarnings("unchecked")
+        T[] joined = (T[]) Array.newInstance(array.getClass().getComponentType(), len);
+        System.arraycopy(array, 0, joined, pos, array.length);
+        pos += array.length;
+        for (T[] arr : arrays) {
+            System.arraycopy(arr, 0, joined, pos, arr.length);
+            pos += arr.length;
+        }
+
+        return joined;
+    }
+
 }
