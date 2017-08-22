@@ -1,6 +1,8 @@
 package org.qfox.jestful.server.resolver;
 
 import org.qfox.jestful.core.*;
+import org.qfox.jestful.server.JestfulServletRequest;
+import org.qfox.jestful.server.ParamServletRequest;
 import org.qfox.jestful.server.converter.ConversionProvider;
 
 import java.util.Map;
@@ -24,6 +26,10 @@ public class QueryResolver implements Resolver, Initialable {
         boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
         Object value = conversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, map);
         parameter.setValue(value);
+
+        JestfulServletRequest jestfulServletRequest = (JestfulServletRequest) action.getRequest();
+        ParamServletRequest paramServletRequest = new ParamServletRequest(jestfulServletRequest, map);
+        action.setRequest(paramServletRequest);
     }
 
     public void initialize(BeanContainer beanContainer) {

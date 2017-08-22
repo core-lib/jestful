@@ -1,22 +1,14 @@
 package org.qfox.jestful.server;
 
 import org.qfox.jestful.core.Request;
-import org.qfox.jestful.server.formatting.Multipart;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
 import java.io.*;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 /**
  * <p>
@@ -31,9 +23,8 @@ import java.util.Map.Entry;
  * @date 2016年4月8日 下午4:12:32
  * @since 1.0.0
  */
-public class JestfulServletRequest extends HttpServletRequestWrapper implements Request, MultipartHttpServletRequest {
+public class JestfulServletRequest extends HttpServletRequestWrapper implements Request {
     private final HttpServletRequest request;
-    private List<Multipart> multiparts = new ArrayList<Multipart>();
     private HttpSession session;
 
     public JestfulServletRequest(HttpServletRequest request) {
@@ -146,107 +137,6 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 
     public void connect(int timeout) throws IOException {
         throw new UnsupportedOperationException();
-    }
-
-    public Iterator<String> getFileNames() {
-        Set<String> names = new LinkedHashSet<String>();
-        for (Multipart multipart : multiparts) {
-            names.add(multipart.getName());
-        }
-        return names.iterator();
-    }
-
-    public MultipartFile getFile(String name) {
-        List<MultipartFile> files = getFiles(name);
-        return files.isEmpty() ? null : files.get(0);
-    }
-
-    public List<MultipartFile> getFiles(String name) {
-        List<MultipartFile> files = new ArrayList<MultipartFile>();
-        for (Multipart multipart : multiparts) {
-            if (multipart.getName().equals(name)) {
-                files.add(multipart);
-            }
-        }
-        return files;
-    }
-
-    public Map<String, MultipartFile> getFileMap() {
-        Map<String, MultipartFile> map = new LinkedHashMap<String, MultipartFile>();
-        Iterator<String> iterator = getFileNames();
-        while (iterator.hasNext()) {
-            String name = iterator.next();
-            MultipartFile value = getFile(name);
-            map.put(name, value);
-        }
-        return map;
-    }
-
-    public MultiValueMap<String, MultipartFile> getMultiFileMap() {
-        MultiValueMap<String, MultipartFile> map = new LinkedMultiValueMap<String, MultipartFile>();
-        Iterator<String> iterator = getFileNames();
-        while (iterator.hasNext()) {
-            String name = iterator.next();
-            List<MultipartFile> value = getFiles(name);
-            map.put(name, value);
-        }
-        return map;
-    }
-
-    public String getMultipartContentType(String paramOrFileName) {
-
-        return null;
-    }
-
-    public HttpMethod getRequestMethod() {
-        String method = getMethod().toUpperCase();
-        return HttpMethod.valueOf(method);
-    }
-
-    public HttpHeaders getRequestHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        String[] keys = getHeaderKeys();
-        for (String key : keys) {
-            String[] values = getRequestHeaders(key);
-            headers.put(key, Arrays.asList(values));
-        }
-        return headers;
-    }
-
-    public HttpHeaders getMultipartHeaders(String name) {
-        Multipart multipart = (Multipart) getFile(name);
-        if (multipart == null) {
-            return null;
-        }
-        HttpHeaders headers = new HttpHeaders();
-        Map<String, String> header = multipart.getMultihead().getHeader();
-        for (Entry<String, String> entry : header.entrySet()) {
-            headers.add(entry.getKey(), entry.getValue());
-        }
-        return headers;
-    }
-
-    public List<Multipart> getMultiparts() {
-        return multiparts;
-    }
-
-    public void setMultiparts(List<Multipart> multiparts) {
-        this.multiparts = multiparts;
-    }
-
-    @Override
-    public Collection<Part> getParts() throws IOException, ServletException {
-        return new ArrayList<Part>(multiparts);
-    }
-
-    @Override
-    public Part getPart(String name) throws IOException, ServletException {
-        for (Part part : multiparts) {
-            if (name == null ? part.getName() == null : name.equals(part.getName())) {
-                return part;
-            }
-        }
-        return null;
     }
 
 }

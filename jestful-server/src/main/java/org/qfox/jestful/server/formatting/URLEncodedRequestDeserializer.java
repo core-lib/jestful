@@ -5,6 +5,7 @@ import org.qfox.jestful.commons.MapKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
+import org.qfox.jestful.server.JestfulServletRequest;
 import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
 import org.qfox.jestful.server.converter.IncompatibleConversionException;
@@ -61,6 +62,9 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
                     continue;
                 }
             }
+            JestfulServletRequest jestfulServletRequest = (JestfulServletRequest) action.getRequest();
+            URLEncodedServletRequest urlEncodedServletRequest = new URLEncodedServletRequest(jestfulServletRequest, map);
+            action.setRequest(urlEncodedServletRequest);
         } finally {
             IOKit.close(br);
             IOKit.close(isr);
