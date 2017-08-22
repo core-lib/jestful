@@ -110,11 +110,16 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 
     @Override
     public HttpSession getSession() {
-        if (session != null) {
-            return session;
-        }
-        session = new JestfulServletSession(super.getSession());
-        return session;
+        return getSession(true);
+    }
+
+    @Override
+    public HttpSession getSession(boolean create) {
+        if (session != null) return session;
+        HttpSession s = super.getSession(create);
+        if (s == null) return null;
+        else if (s instanceof JestfulServletSession) return s;
+        else return session = new JestfulServletSession(s);
     }
 
     public InputStream getRequestInputStream() throws IOException {
