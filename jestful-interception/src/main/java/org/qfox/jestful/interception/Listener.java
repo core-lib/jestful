@@ -45,7 +45,11 @@ class Listener implements Interceptor, Configurable, Destroyable, Sequential {
                 }
             }
             this.interceptor = interceptor;
-
+            this.sequence = interceptor.getClass().isAnnotationPresent(Sequence.class)
+                    ? interceptor.getClass().getAnnotation(Sequence.class).value()
+                    : interceptor instanceof Sequential
+                    ? ((Sequential) interceptor).getSequence()
+                    : 0;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

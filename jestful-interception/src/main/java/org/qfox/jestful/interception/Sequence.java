@@ -10,6 +10,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface Sequence {
 
-    int value();
+    int value() default 0;
 
 }

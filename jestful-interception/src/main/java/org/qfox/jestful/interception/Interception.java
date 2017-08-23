@@ -3,17 +3,14 @@ package org.qfox.jestful.interception;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.BeanConfigException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by Payne on 2017/5/5.
  */
 public class Interception implements Plugin, Initialable, Destroyable {
-    private final Collection<Listener> listeners = new ArrayList<Listener>();
+    private final List<Listener> listeners = new ArrayList<Listener>();
     private final Queue<Invocation> queue = new ConcurrentLinkedQueue<Invocation>();
 
     @Override
@@ -43,6 +40,7 @@ public class Interception implements Plugin, Initialable, Destroyable {
     public void initialize(BeanContainer beanContainer) {
         Collection<Interceptor> interceptors = beanContainer.find(Interceptor.class).values();
         for (Interceptor interceptor : interceptors) listeners.add(new Listener(interceptor));
+        Collections.sort(listeners, Sequential.COMPARATOR);
     }
 
     @Override

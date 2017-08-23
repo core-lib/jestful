@@ -28,7 +28,6 @@ public class TokenInput extends TagSupport implements DynamicAttributes {
 
             StringBuilder sb = new StringBuilder();
             sb.append("<input");
-
             for (Map.Entry<String, Object> entry : attributes.entrySet()) {
                 String name = entry.getKey();
                 Object value = entry.getValue();
@@ -36,12 +35,14 @@ public class TokenInput extends TagSupport implements DynamicAttributes {
                 else sb.append(" ");
                 sb.append(name).append("=").append("\"").append(value.toString()).append("\"");
             }
-
             sb.append("/>");
+
             pageContext.getOut().write(sb.toString());
             return SKIP_BODY;
         } catch (Exception e) {
             throw new JspException(e);
+        } finally {
+            attributes.clear();
         }
     }
 
