@@ -58,9 +58,4 @@ public class Hex {
         return bytes;
     }
 
-    public static void main(String[] args) {
-        System.out.println(encode("杨昌沛"));
-        System.out.println(decode(encode("杨昌沛")));
-    }
-
 }
