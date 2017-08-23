@@ -34,12 +34,12 @@ public class MapTokenManager implements TokenManager {
     }
 
     @Override
-    public String create() throws TokenExceedException {
-        return create(duration, unit);
+    public String grant() throws TokenExceedException {
+        return grant(duration, unit);
     }
 
     @Override
-    public String create(long duration, TimeUnit unit) throws TokenExceedException {
+    public String grant(long duration, TimeUnit unit) throws TokenExceedException {
         if (duration <= 0) throw new IllegalArgumentException("duration must greater than zero");
         if (unit == null) throw new NullPointerException("unit can not be null");
         String key = generator.generate();

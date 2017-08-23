@@ -24,7 +24,7 @@ public class TokenInput extends TagSupport implements DynamicAttributes {
 
             if (!attributes.containsKey("name")) attributes.put("name", "form-token");
             if (!attributes.containsKey("type")) attributes.put("type", "hidden");
-            if (!attributes.containsKey("value")) attributes.put("value", tokenManager.create());
+            if (!attributes.containsKey("value")) attributes.put("value", tokenManager.grant());
 
             StringBuilder sb = new StringBuilder();
             sb.append("<input");

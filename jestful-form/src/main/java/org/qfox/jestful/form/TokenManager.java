@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
  */
 public interface TokenManager {
 
-    String create() throws TokenExceedException;
+    String grant() throws TokenExceedException;
 
-    String create(long duration, TimeUnit unit) throws TokenExceedException;
+    String grant(long duration, TimeUnit unit) throws TokenExceedException;
 
     void verify(String key) throws TokenExpiredException, TokenMissedException;
 

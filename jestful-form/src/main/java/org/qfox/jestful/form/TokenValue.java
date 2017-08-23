@@ -15,7 +15,7 @@ public class TokenValue extends TagSupport {
         try {
             BeanContainer beanContainer = (BeanContainer) pageContext.getServletContext().getAttribute(BeanContainer.ROOT_BEAN_CONTAINER_CONTEXT_ATTRIBUTE);
             TokenManager tokenManager = beanContainer.get(TokenManager.class);
-            String token = tokenManager.create();
+            String token = tokenManager.grant();
             pageContext.getOut().write(token);
             return SKIP_BODY;
         } catch (Exception e) {
