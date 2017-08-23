@@ -15,7 +15,7 @@ import javax.servlet.ServletRequest;
  * Created by yangchangpei on 17/8/23.
  */
 public class TokenInterceptor implements Interceptor, Initialable {
-    private String name = "form-token";
+    private String tokenName = "form-token";
     private TokenManager tokenManager;
 
     @Override
@@ -32,19 +32,18 @@ public class TokenInterceptor implements Interceptor, Initialable {
         boolean needed = invocation.getMapping().isAnnotationPresent(TokenValidate.class);
         if (needed) {
             ServletRequest request = (ServletRequest) invocation.getRequest();
-            String token = request.getParameter(name);
+            String token = request.getParameter(tokenName);
             if (token == null) throw new TokenRequiredException();
             tokenManager.verify(token);
         }
         return invocation.invoke();
     }
 
-    public String getName() {
-        return name;
+    public String getTokenName() {
+        return tokenName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTokenName(String tokenName) {
+        this.tokenName = tokenName;
     }
-
 }
