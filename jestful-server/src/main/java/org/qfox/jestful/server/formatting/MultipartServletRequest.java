@@ -1,7 +1,6 @@
 package org.qfox.jestful.server.formatting;
 
 import org.qfox.jestful.server.JestfulServletRequest;
-import org.qfox.jestful.server.ParamServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -18,7 +17,7 @@ import java.util.*;
 /**
  * Created by yangchangpei on 17/8/22.
  */
-public class MultipartServletRequest extends ParamServletRequest implements MultipartHttpServletRequest {
+public class MultipartServletRequest extends URLEncodedServletRequest implements MultipartHttpServletRequest {
     private final List<Multipart> multiparts;
 
     public MultipartServletRequest(JestfulServletRequest request, Map<String, String[]> parameters, List<Multipart> multiparts) {

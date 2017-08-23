@@ -135,9 +135,9 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 continue;
             }
         }
-        JestfulServletRequest jestfulServletRequest = (JestfulServletRequest) action.getRequest();
-        MultipartServletRequest multipartServletRequest = new MultipartServletRequest(jestfulServletRequest, fields, multiparts);
-        action.setRequest(multipartServletRequest);
+        Request oldRequest = action.getRequest();
+        Request newRequest = new MultipartServletRequest((JestfulServletRequest) oldRequest, fields, multiparts);
+        action.setRequest(newRequest);
         mis.close();
     }
 

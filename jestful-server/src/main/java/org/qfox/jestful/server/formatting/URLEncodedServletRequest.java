@@ -1,17 +1,19 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.server.formatting;
 
 import org.qfox.jestful.commons.ArrayKit;
 import org.qfox.jestful.commons.collection.Enumerator;
+import org.qfox.jestful.server.JestfulServletRequest;
+import org.qfox.jestful.server.JestfulServletRequestWrapper;
 
 import java.util.*;
 
 /**
  * Created by yangchangpei on 17/8/22.
  */
-public class ParamServletRequest extends JestfulServletRequestWrapper {
+public class URLEncodedServletRequest extends JestfulServletRequestWrapper {
     private final Map<String, String[]> parameters;
 
-    public ParamServletRequest(JestfulServletRequest request, Map<String, String[]> parameters) {
+    public URLEncodedServletRequest(JestfulServletRequest request, Map<String, String[]> parameters) {
         super(request);
         this.parameters = parameters != null ? new LinkedHashMap<String, String[]>(parameters) : new LinkedHashMap<String, String[]>();
     }
@@ -53,4 +55,5 @@ public class ParamServletRequest extends JestfulServletRequestWrapper {
         if (values != null) return values;
         return parameters.get(name).clone();
     }
+
 }
