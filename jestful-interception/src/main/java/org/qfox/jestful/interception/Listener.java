@@ -16,9 +16,10 @@ import java.util.Map;
 /**
  * Created by Payne on 2017/5/5.
  */
-class Listener implements Interceptor, Configurable, Destroyable {
+class Listener implements Interceptor, Configurable, Destroyable, Sequential {
     private final List<PathExpression> expressions = new ArrayList<PathExpression>();
     private final Interceptor interceptor;
+    private int sequence = 0;
 
     Listener(Interceptor interceptor) {
         try {
@@ -44,6 +45,7 @@ class Listener implements Interceptor, Configurable, Destroyable {
                 }
             }
             this.interceptor = interceptor;
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -69,5 +71,10 @@ class Listener implements Interceptor, Configurable, Destroyable {
     @Override
     public void destroy() {
         if (interceptor instanceof Destroyable) ((Destroyable) interceptor).destroy();
+    }
+
+    @Override
+    public int getSequence() {
+        return sequence;
     }
 }
