@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean class="org.qfox.jestful.cache.conversion.ArrayKeyConverter"/>
+    <bean class="org.qfox.jestful.cache.conversion.BooleanKeyConverter"/>
+    <bean class="org.qfox.jestful.cache.conversion.CollectionKeyConverter"/>
+    <bean class="org.qfox.jestful.cache.conversion.DateKeyConverter"/>
+    <bean class="org.qfox.jestful.cache.conversion.MapKeyConverter"/>
+    <bean class="org.qfox.jestful.cache.conversion.NumberKeyConverter"/>
+    <bean class="org.qfox.jestful.cache.conversion.StringKeyConverter"/>
+
+    <bean class="org.qfox.jestful.cache.conversion.SimpleConversion"/>
+
+</beans>
