@@ -7,8 +7,6 @@ import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by yangchangpei on 17/9/6.
@@ -18,19 +16,16 @@ public class SimpleGenerator implements Generator, Initialable {
     private Conversion conversion;
 
     @Override
-    public String generate(Object object, Method method, Object... args) throws IllegalTypeException, RefreshRequiredException {
+    public String generate(Object object, Method method, Parameter... parameters) throws IllegalTypeException, RefreshRequiredException {
         StringBuilder key = new StringBuilder();
         addObjectCacheKey(object, method, key);
         addMethodCacheKey(method, key);
-        addParamsCacheKey(method, key, args);
+        addParamsCacheKey(parameters, key);
         return key.toString();
     }
 
-    protected void addParamsCacheKey(Method method, StringBuilder key, Object[] args) {
+    protected void addParamsCacheKey(Parameter[] parameters, StringBuilder key) {
         key.append("(");
-        int len = method.getParameterTypes().length;
-        List<Parameter> parameters = new ArrayList<Parameter>();
-        for (int i = 0; i < len; i++) parameters.add(new Parameter(method, i, args[i]));
         boolean first = true;
         for (Parameter parameter : parameters) {
             if (parameter.isIgnored() || parameter.isRefresh() || parameter.isDuration()) continue;

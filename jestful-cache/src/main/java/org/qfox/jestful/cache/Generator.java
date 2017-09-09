@@ -10,12 +10,12 @@ import java.lang.reflect.Method;
  */
 public interface Generator {
 
-    String generate(Object object, Method method, Object... args) throws IllegalTypeException, RefreshRequiredException;
+    String generate(Object object, Method method, Parameter... parameters) throws IllegalTypeException, RefreshRequiredException;
 
     final class DEFAULT implements Generator {
 
         @Override
-        public String generate(Object object, Method method, Object... args) {
+        public String generate(Object object, Method method, Parameter... parameters) {
             throw new IllegalStateException();
         }
     }
