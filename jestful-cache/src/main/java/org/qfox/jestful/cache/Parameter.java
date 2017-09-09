@@ -69,6 +69,7 @@ public class Parameter implements AnnotatedElement {
     }
 
     public String convert(Conversion conversion) {
+        if (value instanceof Caching) return Caching.class.cast(value).toCacheKey();
         Key key = getAnnotation(Key.class);
         if (key != null && key.converter() != Converter.DEFAULT.class) {
             Converter converter = conversion.construct(key.converter());
