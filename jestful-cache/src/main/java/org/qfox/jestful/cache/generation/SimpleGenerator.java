@@ -52,10 +52,12 @@ public class SimpleGenerator implements Generator, Initialable {
     protected void addMethodCacheKey(Method method, StringBuilder key) {
         // 方法前面加 #
         key.append("#");
-
+        // 重写方法名
         if (method.isAnnotationPresent(Cacheable.class) && method.getAnnotation(Cacheable.class).value().length() > 0) {
             key.append(method.getAnnotation(Cacheable.class).value());
-        } else {
+        }
+        // 默认方法名
+        else {
             key.append(method.getName());
         }
     }
