@@ -7,4 +7,6 @@ public interface Conversion {
 
     String convert(Object source);
 
+    <T, C extends Converter<T>> C construct(Class<C> clazz);
+
 }
