@@ -34,7 +34,6 @@
         <module>jestful-velocity</module>
         <module>jestful-swagger</module>
         <module>jestful-form</module>
-        <module>jestful-cache</module>
     </modules>
 
     <distributionManagement>
