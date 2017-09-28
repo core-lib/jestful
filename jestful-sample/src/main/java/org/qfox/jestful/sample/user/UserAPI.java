@@ -5,6 +5,8 @@ import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Header;
 import org.qfox.jestful.core.annotation.Jestful;
 
+import java.util.Map;
+
 /**
  * Created by yangchangpei on 17/9/27.
  */
@@ -18,6 +20,6 @@ public interface UserAPI {
             .create(UserAPI.class);
 
     @GET("/user")
-    String user(@Header(value = "Authorization", encoded = true) String authorization);
+    Map<String, Object> user(@Header(value = "Authorization", encoded = true) String authorization);
 
 }
