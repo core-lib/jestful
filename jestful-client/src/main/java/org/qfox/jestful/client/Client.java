@@ -6,8 +6,6 @@ import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
-import org.qfox.jestful.client.filter.Filter;
-import org.qfox.jestful.client.filter.Filtration;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOKit;
@@ -67,8 +65,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     protected final URL[] configLocations;
     protected final Actor[] plugins;
 
-    protected final Filter[] filters;
-
     protected final String[] acceptCharsets;
     protected final String[] acceptEncodings;
     protected final String[] acceptLanguages;
@@ -116,7 +112,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         for (URL url : configLocations) reader.loadBeanDefinitions(new UrlResource(url));
         this.beanContainer = defaultListableBeanFactory.getBean(builder.beanContainer, BeanContainer.class);
         this.plugins = load(builder.plugins);
-        this.filters = builder.filters.toArray(new Filter[0]);
 
         this.acceptCharsets = builder.acceptCharsets.toArray(new String[0]);
         this.acceptEncodings = builder.acceptEncodings.toArray(new String[0]);
@@ -450,52 +445,25 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     protected Object doSchedule(Action action) throws Exception {
-        List<Filter> filters = new ArrayList<Filter>();
-        Collections.addAll(filters, this.filters);
+        Result result = action.getResult();
+        Body body = result.getBody();
 
         for (Scheduler scheduler : schedulers.values()) {
             if (scheduler.supports(action)) {
-                filters.add(new ScheduledFilter(scheduler));
-                return new Filtration(filters).filtrate(this, action);
+                Type type = scheduler.getBodyType(this, action);
+                body.setType(type);
+                Object value = scheduler.schedule(this, action);
+                result.setValue(value);
+                return value;
             }
         }
 
-        filters.add(new SimpleFilter());
-        return new Filtration(filters).filtrate(this, action);
-    }
+        Type type = result.getType();
+        body.setType(type);
+        Object value = action.execute();
+        result.setValue(value);
 
-    private static class ScheduledFilter implements Filter {
-        private final Scheduler scheduler;
-
-        ScheduledFilter(Scheduler scheduler) {
-            this.scheduler = scheduler;
-        }
-
-        @Override
-        public Object filtrate(Client client, Action action, Filtration filtration) throws Exception {
-            Result result = action.getResult();
-            Body body = result.getBody();
-            Type type = scheduler.getBodyType(client, action);
-            body.setType(type);
-            Object value = scheduler.schedule(client, action);
-            result.setValue(value);
-            return value;
-        }
-    }
-
-    private static class SimpleFilter implements Filter {
-
-        @Override
-        public Object filtrate(Client client, Action action, Filtration filtration) throws Exception {
-            Result result = action.getResult();
-            Body body = result.getBody();
-            Type type = result.getType();
-            body.setType(type);
-            Object value = action.execute();
-            result.setValue(value);
-            return value;
-        }
-
+        return value;
     }
 
     protected Request newRequest(Action action) throws Exception {
@@ -786,7 +754,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         private ClassLoader classLoader = this.getClass().getClassLoader();
         private String beanContainer = "defaultBeanContainer";
         private List<String> plugins = new ArrayList<String>(Arrays.asList("client"));
-        private List<Filter> filters = new ArrayList<Filter>();
 
         private List<String> acceptCharsets = new ArrayList<String>();
         private List<String> acceptEncodings = new ArrayList<String>();
@@ -915,18 +882,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                 throw new IllegalArgumentException("plugins is null");
             }
             this.plugins.addAll(Arrays.asList(plugins));
-            return (B) this;
-        }
-
-        public B setFilters(Filter... filters) {
-            if (filters == null) throw new NullPointerException();
-            this.filters = new ArrayList<Filter>(Arrays.asList(filters));
-            return (B) this;
-        }
-
-        public B addFilters(Filter... filters) {
-            if (filters == null) throw new NullPointerException();
-            this.filters.addAll(Arrays.asList(filters));
             return (B) this;
         }
 
