@@ -11,6 +11,6 @@ public interface Catcher {
 
     boolean catchable(StatusException statusException);
 
-    Object catched(Client client, Action action, StatusException statusException) throws Exception;
+    Object caught(Client client, Action action, StatusException statusException) throws Exception;
 
 }

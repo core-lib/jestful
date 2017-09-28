@@ -19,7 +19,7 @@ public class Redirection307Catcher implements Catcher {
     }
 
     @Override
-    public Object catched(Client client, Action action, StatusException statusException) throws Exception {
+    public Object caught(Client client, Action action, StatusException statusException) throws Exception {
         if (!client.isFollowRedirection()) throw statusException;
 
         Response response = action.getResponse();

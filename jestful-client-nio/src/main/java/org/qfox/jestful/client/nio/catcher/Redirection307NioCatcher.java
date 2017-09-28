@@ -20,7 +20,7 @@ public class Redirection307NioCatcher extends Redirection307Catcher implements N
     }
 
     @Override
-    public void nioCatched(NioClient client, Action action, StatusException statusException) throws Exception {
+    public void nioCaught(NioClient client, Action action, StatusException statusException) throws Exception {
         if (!client.isFollowRedirection()) throw statusException;
 
         Response response = action.getResponse();

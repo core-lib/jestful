@@ -434,7 +434,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         } catch (StatusException statusException) {
             for (Catcher catcher : catchers.values()) {
                 if (catcher.catchable(statusException)) {
-                    return catcher.catched(this, action, statusException);
+                    return catcher.caught(this, action, statusException);
                 }
             }
             throw statusException;

@@ -11,6 +11,6 @@ import org.qfox.jestful.core.exception.StatusException;
  */
 public interface NioCatcher extends Catcher {
 
-    void nioCatched(NioClient client, Action action, StatusException statusException) throws Exception;
+    void nioCaught(NioClient client, Action action, StatusException statusException) throws Exception;
 
 }

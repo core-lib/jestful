@@ -11,6 +11,6 @@ import org.qfox.jestful.core.exception.StatusException;
  */
 public interface AioCatcher extends Catcher {
 
-    void aioCatched(AioClient client, Action action, StatusException statusException) throws Exception;
+    void aioCaught(AioClient client, Action action, StatusException statusException) throws Exception;
 
 }

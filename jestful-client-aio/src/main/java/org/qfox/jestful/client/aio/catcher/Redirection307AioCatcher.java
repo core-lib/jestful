@@ -20,7 +20,7 @@ public class Redirection307AioCatcher extends Redirection307Catcher implements A
     }
 
     @Override
-    public void aioCatched(AioClient client, Action action, StatusException statusException) throws Exception {
+    public void aioCaught(AioClient client, Action action, StatusException statusException) throws Exception {
         if (!client.isFollowRedirection()) throw statusException;
 
         Response response = action.getResponse();
