@@ -492,8 +492,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         private Accepts consumes = Accepts.valueOf("");
         private Accepts produces = Accepts.valueOf("");
 
-        private Actor[] forePlugins = new Actor[0];
-        private Actor[] backPlugins = new Actor[0];
+        protected List<Actor> forePlugins = new ArrayList<Actor>();
+        protected List<Actor> backPlugins = new ArrayList<Actor>();
 
         public I setEndpoint(URL endpoint) {
             if (endpoint == null) {
@@ -580,13 +580,65 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             return (I) this;
         }
 
-        public I setForePlugins(Actor[] forePlugins) {
-            this.forePlugins = forePlugins;
+        public I setForePlugins(String... plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
+
+        public I setBackPlugins(String... plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public I addForePlugins(String... plugins) {
+            Collections.addAll(forePlugins, load(Arrays.asList(plugins)));
             return (I) this;
         }
 
-        public I setBackPlugins(Actor[] backPlugins) {
-            this.backPlugins = backPlugins;
+        public I addBackPlugins(String... plugins) {
+            Collections.addAll(backPlugins, load(Arrays.asList(plugins)));
+            return (I) this;
+        }
+
+        public I setForePlugins(Actor... plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
+
+        public I setBackPlugins(Actor... plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public I addForePlugins(Actor... plugins) {
+            Collections.addAll(forePlugins, plugins);
+            return (I) this;
+        }
+
+        public I addBackPlugins(Actor... plugins) {
+            Collections.addAll(backPlugins, plugins);
+            return (I) this;
+        }
+
+        public I setForePlugins(Iterable<Actor> plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
+
+        public I setBackPlugins(Iterable<Actor> plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public I addForePlugins(Iterable<Actor> plugins) {
+            Iterator<Actor> iterable = plugins.iterator();
+            while (iterable.hasNext()) this.forePlugins.add(iterable.next());
+            return (I) this;
+        }
+
+        public I addBackPlugins(Iterable<Actor> plugins) {
+            Iterator<Actor> iterable = plugins.iterator();
+            while (iterable.hasNext()) this.backPlugins.add(iterable.next());
             return (I) this;
         }
 
@@ -597,9 +649,9 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             if (mapping == null) mapping = new Mapping(resource, parameters, result, restful, consumes, produces);
 
             Collection<Actor> actors = new ArrayList<Actor>();
-            actors.addAll(Arrays.asList(forePlugins));
+            actors.addAll(forePlugins);
             actors.addAll(Arrays.asList(plugins));
-            actors.addAll(Arrays.asList(backPlugins));
+            actors.addAll(backPlugins);
             actors.add(Client.this);
 
             Action action = new Action(beanContainer, actors);
@@ -672,8 +724,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     public class Creator<C extends Creator<C>> {
-        protected List<String> forePlugins = new ArrayList<String>();
-        protected List<String> backPlugins = new ArrayList<String>();
+        protected List<Actor> forePlugins = new ArrayList<Actor>();
+        protected List<Actor> backPlugins = new ArrayList<Actor>();
 
         public C setForePlugins(String... plugins) {
             this.forePlugins.clear();
@@ -686,12 +738,54 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
 
         public C addForePlugins(String... plugins) {
-            this.forePlugins.addAll(Arrays.asList(plugins));
+            Collections.addAll(forePlugins, load(Arrays.asList(plugins)));
             return (C) this;
         }
 
         public C addBackPlugins(String... plugins) {
-            this.backPlugins.addAll(Arrays.asList(plugins));
+            Collections.addAll(backPlugins, load(Arrays.asList(plugins)));
+            return (C) this;
+        }
+
+        public C setForePlugins(Actor... plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
+
+        public C setBackPlugins(Actor... plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public C addForePlugins(Actor... plugins) {
+            Collections.addAll(forePlugins, plugins);
+            return (C) this;
+        }
+
+        public C addBackPlugins(Actor... plugins) {
+            Collections.addAll(backPlugins, plugins);
+            return (C) this;
+        }
+
+        public C setForePlugins(Iterable<Actor> plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
+
+        public C setBackPlugins(Iterable<Actor> plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public C addForePlugins(Iterable<Actor> plugins) {
+            Iterator<Actor> iterable = plugins.iterator();
+            while (iterable.hasNext()) this.forePlugins.add(iterable.next());
+            return (C) this;
+        }
+
+        public C addBackPlugins(Iterable<Actor> plugins) {
+            Iterator<Actor> iterable = plugins.iterator();
+            while (iterable.hasNext()) this.backPlugins.add(iterable.next());
             return (C) this;
         }
 
@@ -725,7 +819,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             String host = endpoint.getHost();
             Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
             String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
-            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, load(forePlugins), load(backPlugins)).getProxy();
+            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, forePlugins, backPlugins).getProxy();
         }
 
     }

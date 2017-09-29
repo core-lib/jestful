@@ -5,6 +5,9 @@ import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Resource;
 
 import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by payne on 2017/3/19.
@@ -17,14 +20,14 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
     protected final Client client;
     protected final T proxy;
     protected final Resource resource;
-    protected final Actor[] forePlugins;
-    protected final Actor[] backPlugins;
+    protected final List<Actor> forePlugins = new ArrayList<Actor>();
+    protected final List<Actor> backPlugins = new ArrayList<Actor>();
 
     protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client) {
-        this(interfase, protocol, host, port, route, client, new Actor[0], new Actor[0]);
+        this(interfase, protocol, host, port, route, client, Collections.<Actor>emptyList(), Collections.<Actor>emptyList());
     }
 
-    protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client, Actor[] forePlugins, Actor[] backPlugins) {
+    protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client, List<Actor> forePlugins, List<Actor> backPlugins) {
         if (client.isDestroyed()) {
             throw new IllegalStateException("Client has been destroyed");
         }
@@ -35,8 +38,8 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         this.client = client;
         this.proxy = interfase.cast(Proxy.newProxyInstance(client.getClassLoader(), new Class<?>[]{interfase}, this));
         this.resource = new Resource(proxy, interfase);
-        this.forePlugins = forePlugins;
-        this.backPlugins = backPlugins;
+        this.forePlugins.addAll(forePlugins);
+        this.backPlugins.addAll(backPlugins);
     }
 
     public Object invoke(Object target, Method method, Object[] args) throws Throwable {
@@ -110,11 +113,11 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         return resource;
     }
 
-    public Actor[] getForePlugins() {
+    public List<Actor> getForePlugins() {
         return forePlugins;
     }
 
-    public Actor[] getBackPlugins() {
+    public List<Actor> getBackPlugins() {
         return backPlugins;
     }
 }
