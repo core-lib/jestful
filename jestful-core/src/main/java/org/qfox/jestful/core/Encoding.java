@@ -40,7 +40,7 @@ public class Encoding implements Weighted<Encoding> {
 			throw new NullPointerException();
 		}
 		encoding = encoding.replace(" ", "");
-		if (encoding.matches("[^;]+(;[^;=]+=[^;=]+)*") == false) {
+		if (!encoding.matches("[^;]+(;[^;=]+=[^;=]+)*")) {
 			throw new IllegalArgumentException(encoding);
 		}
 		String name = encoding.split(";")[0];
@@ -103,7 +103,7 @@ public class Encoding implements Weighted<Encoding> {
 	public String toString(boolean weighted) {
 		StringBuilder builder = new StringBuilder(name);
 		for (Entry<String, String> entry : parameters.entrySet()) {
-			if (weighted == false && "q".equalsIgnoreCase(entry.getKey())) {
+			if (!weighted && "q".equalsIgnoreCase(entry.getKey())) {
 				continue;
 			}
 			builder.append(";").append(entry.getKey()).append("=").append(entry.getValue());

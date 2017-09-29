@@ -38,7 +38,7 @@ public class DateConverter implements Converter {
         if (value == null) {
             return null;
         }
-        if (decoded == false) {
+        if (!decoded) {
             value = URLDecoder.decode(value, charset);
         }
         if (value.matches("\\d+")) {

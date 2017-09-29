@@ -96,7 +96,8 @@ public class SpringSwaggerScanner {
             for (PropertyDescriptor descriptor : descriptors) {
                 if (descriptor.getName().equals("class")) continue;
                 ApiModelProperty apiModelProperty = descriptor.getReadMethod().getAnnotation(ApiModelProperty.class);
-                if (apiModelProperty != null && apiModelProperty.hidden()) continue;
+                if (apiModelProperty != null && apiModelProperty.hidden()) {
+                }
 
             }
             return model;

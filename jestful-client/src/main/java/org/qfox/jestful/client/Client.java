@@ -9,6 +9,7 @@ import org.qfox.jestful.client.exception.UnexpectedTypeException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.commons.collection.Enumerator;
 import org.qfox.jestful.core.*;
@@ -148,7 +149,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         while (enumeration.hasMoreElements()) {
             URL url = enumeration.nextElement();
             if (url == null) {
-                continue;
             } else if (url.getProtocol().equalsIgnoreCase("file")) {
                 File file = new File(url.getFile());
                 if (file.isDirectory()) {
@@ -281,11 +281,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
         if (bodies.isEmpty()) {
             request.connect();
-            return;
         } else {
             String charset;
             Charsets options = action.getContentCharsets().clone();
-            if (options.isEmpty() == false) {
+            if (!options.isEmpty()) {
                 options.retainAll(charsets);
                 if (options.isEmpty()) {
                     throw new NoSuchCharsetException(action.getContentCharsets().clone(), charsets.clone());
@@ -319,39 +318,24 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     protected void deserialize(Action action) throws Exception {
         Response response = action.getResponse();
         Body body = action.getResult().getBody();
-        if (body.getType() == Void.TYPE) {
-            return;
-        } else {
+        if (body.getType() != Void.TYPE) {
             String contentType = response.getContentType();
             Accepts produces = action.getProduces();
             Accepts supports = new Accepts(deserializers.keySet());
             MediaType mediaType = MediaType.valueOf(contentType);
             if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
                 String charset = mediaType.getCharset();
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getResponseHeader("Content-Charset");
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getCharacterEncoding();
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = Charset.defaultCharset().name();
-                }
+                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
                 ResponseDeserializer deserializer = deserializers.get(mediaType);
                 InputStream in = response.getResponseInputStream();
                 deserializer.deserialize(action, mediaType, charset, in);
-                return;
             } else if (body.getType() == String.class) {
                 String charset = mediaType.getCharset();
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getResponseHeader("Content-Charset");
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getCharacterEncoding();
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = Charset.defaultCharset().name();
-                }
+                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
                 InputStream in = response.getResponseInputStream();
                 InputStreamReader reader = new InputStreamReader(in, charset);
                 String value = IOKit.toString(reader);
@@ -359,26 +343,15 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             } else if (produces.size() == 1) {
                 String charset = mediaType.getCharset();
                 mediaType = produces.iterator().next();
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getResponseHeader("Content-Charset");
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getCharacterEncoding();
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = mediaType.getCharset();
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = Charset.defaultCharset().name();
-                }
+                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+                if (StringKit.isBlank(charset)) charset = mediaType.getCharset();
+                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
                 ResponseDeserializer deserializer = deserializers.get(mediaType);
                 InputStream in = response.getResponseInputStream();
                 deserializer.deserialize(action, mediaType, charset, in);
-                return;
             } else {
-                if (produces.isEmpty() == false) {
-                    supports.retainAll(produces);
-                }
+                if (!produces.isEmpty()) supports.retainAll(produces);
                 throw new UnexpectedTypeException(mediaType, supports);
             }
         }
@@ -390,25 +363,16 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         try {
             Restful restful = action.getRestful();
 
-            if (restful.isAcceptBody()) {
-                serialize(action);
-            } else {
-                request.connect();
-            }
+            if (restful.isAcceptBody()) serialize(action);
+            else request.connect();
 
             if (!response.isResponseSuccess()) {
                 String contentType = response.getContentType();
                 MediaType mediaType = MediaType.valueOf(contentType);
                 String charset = mediaType.getCharset();
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getResponseHeader("Content-Charset");
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getCharacterEncoding();
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = Charset.defaultCharset().name();
-                }
+                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
                 Status status = response.getResponseStatus();
                 InputStream in = response.getResponseInputStream();
                 InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
@@ -417,30 +381,21 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             }
 
             // 回应
-            if (restful.isReturnBody()) {
-                deserialize(action);
-            } else {
+            if (restful.isReturnBody()) deserialize(action);
+            else {
                 Map<String, String> header = new CaseInsensitiveMap<String, String>();
-                for (String key : response.getHeaderKeys()) {
-                    String name = key != null ? key : "";
-                    String value = response.getResponseHeader(key);
-                    header.put(name, value);
-                }
+                for (String key : response.getHeaderKeys()) header.put(key != null ? key : "", response.getResponseHeader(key));
                 return header;
             }
 
             // 返回
             return action.getResult().getBody().getValue();
         } catch (StatusException statusException) {
-            for (Catcher catcher : catchers.values()) {
-                if (catcher.catchable(statusException)) {
-                    return catcher.caught(this, action, statusException);
-                }
-            }
+            for (Catcher catcher : catchers.values()) if (catcher.catchable(statusException)) return catcher.caught(this, action, statusException);
             throw statusException;
         } finally {
-            request.close();
-            response.close();
+            IOKit.close(request);
+            IOKit.close(response);
         }
     }
 
@@ -531,7 +486,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
 
         public I setRoute(String route) {
-            if (route != null && route.length() == 0 == false && route.startsWith("/") == false) {
+            if (route != null && route.length() == 0 == false && !route.startsWith("/")) {
                 throw new IllegalArgumentException("route should starts with /");
             }
             this.route = route;
@@ -847,7 +802,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         private String route = null;
         private ClassLoader classLoader = this.getClass().getClassLoader();
         private String beanContainer = "defaultBeanContainer";
-        private List<String> plugins = new ArrayList<String>(Arrays.asList("client"));
+        private List<String> plugins = new ArrayList<String>(Collections.singletonList("client"));
 
         private List<String> acceptCharsets = new ArrayList<String>();
         private List<String> acceptEncodings = new ArrayList<String>();
@@ -940,7 +895,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
 
         public B setRoute(String route) {
-            if (route != null && route.length() == 0 == false && route.startsWith("/") == false) {
+            if (route != null && route.length() == 0 == false && !route.startsWith("/")) {
                 throw new IllegalArgumentException("route should starts with /");
             }
             this.route = route;
@@ -1086,7 +1041,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
 
         public B setPathEncodeCharset(String pathEncodeCharset) {
-            if (Charset.isSupported(pathEncodeCharset) == false) {
+            if (!Charset.isSupported(pathEncodeCharset)) {
                 throw new UnsupportedCharsetException(pathEncodeCharset);
             }
             this.pathEncodeCharset = pathEncodeCharset;
@@ -1094,7 +1049,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
 
         public B setQueryEncodeCharset(String queryEncodeCharset) {
-            if (Charset.isSupported(queryEncodeCharset) == false) {
+            if (!Charset.isSupported(queryEncodeCharset)) {
                 throw new UnsupportedCharsetException(queryEncodeCharset);
             }
             this.queryEncodeCharset = queryEncodeCharset;
@@ -1102,7 +1057,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
 
         public B setHeaderEncodeCharset(String headerEncodeCharset) {
-            if (Charset.isSupported(headerEncodeCharset) == false) {
+            if (!Charset.isSupported(headerEncodeCharset)) {
                 throw new UnsupportedCharsetException(headerEncodeCharset);
             }
             this.headerEncodeCharset = headerEncodeCharset;

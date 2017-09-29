@@ -93,7 +93,6 @@ public class Parameters implements List<Parameter> {
         for (Parameter parameter : parameters) {
             if (klass.isAssignableFrom(parameter.getKlass())) {
                 last = parameter;
-                continue;
             }
         }
         return last;

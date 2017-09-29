@@ -2,7 +2,6 @@ package org.qfox.jestful.server.converter;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.util.Map;
@@ -24,7 +23,7 @@ public class BigIntegerConverter implements Converter {
         if (value == null) {
             return null;
         }
-        if (decoded == false) {
+        if (!decoded) {
             value = URLDecoder.decode(value, charset);
         }
         return clazz.cast(new BigInteger(value));

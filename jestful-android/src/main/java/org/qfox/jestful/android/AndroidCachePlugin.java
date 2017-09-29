@@ -51,7 +51,7 @@ public class AndroidCachePlugin implements Plugin {
 
 		Parameters parameters = action.getParameters();
 		for (Parameter parameter : parameters) {
-			if (parameter.isAnnotationPresent(Refresh.class) == false) {
+			if (!parameter.isAnnotationPresent(Refresh.class)) {
 				continue;
 			}
 			Class<?> klass = parameter.getKlass();

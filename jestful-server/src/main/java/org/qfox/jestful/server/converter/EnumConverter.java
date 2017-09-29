@@ -20,7 +20,7 @@ public class EnumConverter implements Converter {
         if (value == null) {
             return null;
         }
-        if (decoded == false) {
+        if (!decoded) {
             value = URLDecoder.decode(value, charset);
         }
         try {

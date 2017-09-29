@@ -63,7 +63,7 @@ public class MultipartInputStream extends InputStream implements IOConstants {
         if (end) {
             return null;
         }
-        while (end == false && start == true) {
+        while (!end && start) {
             read();
         }
         if (end) {
@@ -76,7 +76,7 @@ public class MultipartInputStream extends InputStream implements IOConstants {
 
     @Override
     public int read() throws IOException {
-        if (end == true || start == false) {
+        if (end || !start) {
             return EOF;
         }
         int b;

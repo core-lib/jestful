@@ -31,7 +31,7 @@ public class WrapperConverter implements Converter {
 		if (value == null) {
 			return null;
 		}
-		if (decoded == false) {
+		if (!decoded) {
 			value = URLDecoder.decode(value, charset);
 		}
 		Object result = null;

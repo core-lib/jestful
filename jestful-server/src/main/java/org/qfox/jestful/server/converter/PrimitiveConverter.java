@@ -29,7 +29,7 @@ public class PrimitiveConverter implements Converter {
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         String[] values = map.get(name) != null ? map.get(name).clone() : null;
         String value = values != null && values.length > 0 ? values[0] : "0";
-        if (decoded == false) {
+        if (!decoded) {
             value = URLDecoder.decode(value, charset);
         }
         Object result = null;

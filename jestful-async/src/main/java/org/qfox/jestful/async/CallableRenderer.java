@@ -3,8 +3,6 @@ package org.qfox.jestful.async;
 import org.qfox.jestful.async.annotation.Async;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.StatusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;

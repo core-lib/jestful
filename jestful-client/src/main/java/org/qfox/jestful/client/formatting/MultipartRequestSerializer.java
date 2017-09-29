@@ -67,7 +67,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
                     RequestSerializer serializer = this;
                     if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(body)) {
                         serializer.serialize(action, body, charset, mos);
-                        continue flag;
+                        continue;
                     }
                 }
                 for (Entry<MediaType, RequestSerializer> entry : map.entrySet()) {

@@ -34,7 +34,7 @@ public class AcceptContentTypeDecider implements Actor, Initialable {
 	public Object react(Action action) throws Exception {
 		Accepts produces = action.getProduces();
 		Accepts supports = new Accepts(map.keySet());
-		if (produces.isEmpty() == false) {
+		if (!produces.isEmpty()) {
 			supports.retainAll(produces);
 		}
 		Request request = action.getRequest();

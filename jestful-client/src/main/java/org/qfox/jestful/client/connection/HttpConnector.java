@@ -38,7 +38,7 @@ public class HttpConnector implements Connector {
             error = true;
             throw new JestfulIOException(e);
         } finally {
-            if (error != false && httpURLConnection != null) {
+            if (error && httpURLConnection != null) {
                 httpURLConnection.disconnect();
             } else {
                 gateway.onConnected(action);

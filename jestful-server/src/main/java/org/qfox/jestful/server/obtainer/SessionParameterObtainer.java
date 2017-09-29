@@ -26,7 +26,7 @@ public class SessionParameterObtainer implements Obtainer {
 
 	public Object obtain(Action action, Parameter parameter) {
 		Request request = action.getRequest();
-		if (request instanceof HttpServletRequest == false) {
+		if (!(request instanceof HttpServletRequest)) {
 			return null;
 		}
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;

@@ -9,6 +9,7 @@ import javax.servlet.http.Part;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * <p>
@@ -102,7 +103,7 @@ public class Multipart implements MultipartFile, Part, Cloneable {
     }
 
     public Collection<String> getHeaders(String name) {
-        return Arrays.asList(getHeader(name));
+        return Collections.singletonList(getHeader(name));
     }
 
     public Collection<String> getHeaderNames() {

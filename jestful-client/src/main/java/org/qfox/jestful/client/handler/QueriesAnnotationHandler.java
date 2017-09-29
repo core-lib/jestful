@@ -43,7 +43,7 @@ public class QueriesAnnotationHandler implements Actor {
 				String k = keyvalue[0];
 				String v = keyvalue[1];
 				k = URLEncoder.encode(k, charset);
-				if (queries.encoded() == false) {
+				if (!queries.encoded()) {
 					v = URLEncoder.encode(v, charset);
 				}
 				query += (query.length() == 0 ? "" : "&") + k + "=" + v;
@@ -61,7 +61,7 @@ public class QueriesAnnotationHandler implements Actor {
 				}
 				String k = keyvalue[0];
 				String v = keyvalue[1];
-				if (queries.encoded() == false) {
+				if (!queries.encoded()) {
 					k = URLEncoder.encode(k, charset);
 					v = URLEncoder.encode(v, charset);
 				}

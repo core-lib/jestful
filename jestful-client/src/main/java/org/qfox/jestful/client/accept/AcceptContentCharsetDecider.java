@@ -28,7 +28,7 @@ public class AcceptContentCharsetDecider implements Actor {
 
 	public Object react(Action action) throws Exception {
 		Charsets charsets = action.getAcceptCharsets().clone();
-		if (charsets.isEmpty() == false) {
+		if (!charsets.isEmpty()) {
 			charsets.retainAll(supports);
 			if (charsets.isEmpty()) {
 				throw new NoSuchCharsetException(action.getAcceptCharsets().clone(), supports.clone());

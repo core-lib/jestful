@@ -43,7 +43,7 @@ public class HeadersAnnotationHandler implements Actor {
 				String k = keyvalue[0];
 				String v = keyvalue[1];
 				k = URLEncoder.encode(k, charset);
-				if (headers.encoded() == false) {
+				if (!headers.encoded()) {
 					v = URLEncoder.encode(v, charset);
 				}
 				request.setRequestHeader(k, v);
@@ -61,7 +61,7 @@ public class HeadersAnnotationHandler implements Actor {
 				}
 				String k = keyvalue[0];
 				String v = keyvalue[1];
-				if (headers.encoded() == false) {
+				if (!headers.encoded()) {
 					k = URLEncoder.encode(k, charset);
 					v = URLEncoder.encode(v, charset);
 				}

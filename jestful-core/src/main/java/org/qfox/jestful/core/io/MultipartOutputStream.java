@@ -136,7 +136,7 @@ public class MultipartOutputStream extends OutputStream {
 	 * @see {@link MultipartOutputStream#close()}
 	 */
 	public void close(boolean force) throws IOException {
-		if (force == false) {
+		if (!force) {
 			return;
 		}
 		if (closed) {

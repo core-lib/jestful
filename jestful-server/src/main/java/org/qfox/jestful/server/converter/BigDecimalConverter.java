@@ -23,7 +23,7 @@ public class BigDecimalConverter implements Converter {
         if (value == null) {
             return null;
         }
-        if (decoded == false) {
+        if (!decoded) {
             value = URLDecoder.decode(value, charset);
         }
         return clazz.cast(new BigDecimal(value));

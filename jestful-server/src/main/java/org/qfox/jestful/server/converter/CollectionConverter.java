@@ -22,7 +22,7 @@ public class CollectionConverter implements Converter {
 
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         String[] values = map.get(name) != null ? map.get(name).clone() : new String[0];
-        for (int i = 0; decoded == false && values != null && i < values.length; i++) {
+        for (int i = 0; !decoded && values != null && i < values.length; i++) {
             values[i] = values[i] == null ? null : URLDecoder.decode(values[i], charset);
         }
         Class<?> _class = clazz;

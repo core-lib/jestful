@@ -39,11 +39,11 @@
             <artifactId>jestful-json</artifactId>
             <version>v1.1.6</version>
         </dependency>
-        <dependency>
-            <groupId>org.codehaus.httpcache4j</groupId>
-            <artifactId>httpcache4j</artifactId>
-            <version>5.0.0-M3</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.httpcache4j</groupId>-->
+            <!--<artifactId>httpcache4j</artifactId>-->
+            <!--<version>5.0.0-M3</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>

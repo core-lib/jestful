@@ -39,7 +39,7 @@ public class HeaderParameterProcessor implements Actor, Initialable {
                     continue;
                 }
                 String regex = parameter.getRegex();
-                if (regex != null && value.matches(regex) == false) {
+                if (regex != null && !value.matches(regex)) {
                     throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
                 }
                 if (parameter.isCoding() && !parameter.isEncoded()) {
@@ -47,7 +47,7 @@ public class HeaderParameterProcessor implements Actor, Initialable {
                 }
                 list.add(value);
             }
-            if (list.isEmpty() == false) {
+            if (!list.isEmpty()) {
                 request.setRequestHeaders(URLEncoder.encode(name, charset), list.toArray(new String[list.size()]));
             }
         }

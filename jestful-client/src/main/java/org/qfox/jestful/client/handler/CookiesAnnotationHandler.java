@@ -38,7 +38,7 @@ public class CookiesAnnotationHandler implements Actor {
                 String k = keyvalue[0];
                 String v = keyvalue[1];
                 k = URLEncoder.encode(k, charset);
-                if (cookies.encoded() == false) {
+                if (!cookies.encoded()) {
                     v = URLEncoder.encode(v, charset);
                 }
                 cookie += (cookie.length() == 0 ? "" : "; ") + k + "=" + v;
@@ -56,7 +56,7 @@ public class CookiesAnnotationHandler implements Actor {
                 }
                 String k = keyvalue[0];
                 String v = keyvalue[1];
-                if (cookies.encoded() == false) {
+                if (!cookies.encoded()) {
                     k = URLEncoder.encode(k, charset);
                     v = URLEncoder.encode(v, charset);
                 }

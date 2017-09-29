@@ -40,7 +40,7 @@ public class Charset implements Weighted<Charset> {
 			throw new NullPointerException();
 		}
 		charset = charset.replace(" ", "");
-		if (charset.matches("[^;]+(;[^;=]+=[^;=]+)*") == false) {
+		if (!charset.matches("[^;]+(;[^;=]+=[^;=]+)*")) {
 			throw new IllegalArgumentException(charset);
 		}
 		String name = charset.split(";")[0];
@@ -103,7 +103,7 @@ public class Charset implements Weighted<Charset> {
 	public String toString(boolean weighted) {
 		StringBuilder builder = new StringBuilder(name);
 		for (Entry<String, String> entry : parameters.entrySet()) {
-			if (weighted == false && "q".equalsIgnoreCase(entry.getKey())) {
+			if (!weighted && "q".equalsIgnoreCase(entry.getKey())) {
 				continue;
 			}
 			builder.append(";").append(entry.getKey()).append("=").append(entry.getValue());

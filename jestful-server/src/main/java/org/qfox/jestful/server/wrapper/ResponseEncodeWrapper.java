@@ -16,7 +16,7 @@ public class ResponseEncodeWrapper implements Actor, Initialable {
         if (action.isAllowEncode()) {
             Encodings encodings = action.getContentEncodings().clone();
             Encodings availables = new Encodings(map.keySet());
-            if (encodings.isEmpty() == false) {
+            if (!encodings.isEmpty()) {
                 encodings.retainAll(availables);
             } else {
                 encodings = availables;

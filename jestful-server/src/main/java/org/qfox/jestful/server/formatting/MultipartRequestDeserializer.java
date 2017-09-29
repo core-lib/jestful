@@ -55,7 +55,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 Multipart multipart = new Multipart(multihead, multibody);
                 multiparts.add(multipart);
                 for (Parameter parameter : parameters) {
-                    if (parameter.getName().equals(name) == false) {
+                    if (!parameter.getName().equals(name)) {
                         continue;
                     }
                     if (type == null) {
@@ -83,7 +83,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 }
             } else if (type != null) {
                 for (Parameter parameter : parameters) {
-                    if (parameter.getName().equals(name) == false) {
+                    if (!parameter.getName().equals(name)) {
                         continue;
                     }
                     if (map.containsKey(type)) {
@@ -126,13 +126,12 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 continue;
             }
             try {
-                boolean decoded = parameter.isCoding() == false || (parameter.isCoding() && parameter.isDecoded());
+                boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
                 Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, fields);
                 parameter.setValue(value);
             } catch (IncompatibleConversionException e) {
                 throw new JestfulIOException(e);
             } catch (ConversionException e) {
-                continue;
             }
         }
         Request oldRequest = action.getRequest();

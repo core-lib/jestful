@@ -24,7 +24,7 @@ public class AcceptContentLanguageDecider implements Actor {
 
 	public Object react(Action action) throws Exception {
 		Languages languages = action.getAcceptLanguages();
-		if (languages.isEmpty() == false) {
+		if (!languages.isEmpty()) {
 			Request request = action.getRequest();
 			request.setRequestHeader("Accept-Language", languages.toString());
 		}

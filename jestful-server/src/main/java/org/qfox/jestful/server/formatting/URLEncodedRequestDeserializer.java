@@ -53,13 +53,12 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
             for (Parameter parameter : parameters) {
                 if (parameter.getValue() != null) continue;
                 try {
-                    boolean decoded = parameter.isCoding() == false || (parameter.isCoding() && parameter.isDecoded());
+                    boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
                     Object value = conversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, map);
                     parameter.setValue(value);
                 } catch (IncompatibleConversionException e) {
                     throw new JestfulIOException(e);
                 } catch (ConversionException e) {
-                    continue;
                 }
             }
             Request oldRequest = action.getRequest();

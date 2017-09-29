@@ -36,7 +36,7 @@ public class AcceptContentEncodingDecider implements Actor, Initialable {
 		if (action.isAcceptEncode()) {
 			Encodings encodings = action.getAcceptEncodings().clone();
 			Encodings availables = new Encodings(map.keySet());
-			if (encodings.isEmpty() == false) {
+			if (!encodings.isEmpty()) {
 				encodings.retainAll(availables);
 			} else {
 				encodings = availables;

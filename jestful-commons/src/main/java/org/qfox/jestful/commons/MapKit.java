@@ -3,7 +3,6 @@ package org.qfox.jestful.commons;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -32,7 +31,7 @@ public class MapKit {
             String[] keyvalue = pair.split("=+");
             String key = URLDecoder.decode(keyvalue[0], charset);
             String value = keyvalue.length > 1 ? keyvalue[1] : "";
-            if (map.containsKey(key) == false) {
+            if (!map.containsKey(key)) {
                 map.put(key, new String[0]);
             }
             String[] values = map.get(key);

@@ -40,7 +40,7 @@ public class Language implements Weighted<Language> {
 			throw new NullPointerException();
 		}
 		language = language.replace(" ", "");
-		if (language.matches("[^;]+(;[^;=]+=[^;=]+)*") == false) {
+		if (!language.matches("[^;]+(;[^;=]+=[^;=]+)*")) {
 			throw new IllegalArgumentException(language);
 		}
 		String name = language.split(";")[0];
@@ -103,7 +103,7 @@ public class Language implements Weighted<Language> {
 	public String toString(boolean weighted) {
 		StringBuilder builder = new StringBuilder(name);
 		for (Entry<String, String> entry : parameters.entrySet()) {
-			if (weighted == false && "q".equalsIgnoreCase(entry.getKey())) {
+			if (!weighted && "q".equalsIgnoreCase(entry.getKey())) {
 				continue;
 			}
 			builder.append(";").append(entry.getKey()).append("=").append(entry.getValue());

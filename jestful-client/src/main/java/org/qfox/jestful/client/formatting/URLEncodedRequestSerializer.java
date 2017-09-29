@@ -57,7 +57,7 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
                 }
                 builder.append(URLEncoder.encode(name, charset));
                 builder.append("=");
-                builder.append(body.isCoding() && body.isEncoded() == false ? URLEncoder.encode(value, charset) : value);
+                builder.append(body.isCoding() && !body.isEncoded() ? URLEncoder.encode(value, charset) : value);
             }
         }
         if (builder.length() > 0) {

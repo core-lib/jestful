@@ -33,7 +33,7 @@ public class Capacity {
 			throw new IllegalArgumentException("string can not be null");
 		}
 		String regex = "\\s*(\\d+)\\s*((?i)(K|M|G|T|P)?B(?i))\\s*";
-		if (string.matches(regex) == false) {
+		if (!string.matches(regex)) {
 			throw new IllegalArgumentException("invalid capacity string " + string);
 		}
 		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);

@@ -36,7 +36,7 @@ public class CookieParameterProcessor implements Actor, Initialable {
                     continue;
                 }
                 String regex = parameter.getRegex();
-                if (regex != null && value.matches(regex) == false) {
+                if (regex != null && !value.matches(regex)) {
                     throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
                 }
                 String name = parameter.getName();

@@ -22,13 +22,13 @@ public class RequestDecodeWrapper implements Actor, Initialable {
         if (action.isAcceptEncode()) {
             Encodings encodings = action.getAcceptEncodings().clone();
             Encodings availables = new Encodings(map.keySet());
-            if (encodings.isEmpty() == false) {
+            if (!encodings.isEmpty()) {
                 encodings.retainAll(availables);
             } else {
                 encodings = availables;
             }
             Encoding encoding = Encoding.valueOf(contentEncoding);
-            if (encodings.contains(encoding) == false) {
+            if (!encodings.contains(encoding)) {
                 Encodings expects = Encodings.valueOf(contentEncoding);
                 Encodings actuals = encodings;
                 throw new NoSuchCodecException(expects, actuals);

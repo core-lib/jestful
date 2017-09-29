@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLDecoder;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MapConverter implements Converter {
@@ -25,7 +24,7 @@ public class MapConverter implements Converter {
                 int index = key.indexOf('.');
                 String _key = key.substring(index + 1);
                 String[] values = map.get(key).clone();
-                if (decoded == false) {
+                if (!decoded) {
                     _key = _key == null ? null : URLDecoder.decode(_key, charset);
                     for (int i = 0; values != null && i < values.length; i++) {
                         values[i] = values[i] == null ? null : URLDecoder.decode(values[i], charset);
