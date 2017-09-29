@@ -274,6 +274,10 @@ public class AioClient extends Client implements AioConnector {
         }
     }
 
+    public int getConcurrency() {
+        return concurrency;
+    }
+
     public SSLContext getSslContext() {
         return sslContext;
     }
