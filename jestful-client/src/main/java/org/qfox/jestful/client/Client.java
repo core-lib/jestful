@@ -381,8 +381,9 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             }
 
             // 回应
-            if (restful.isReturnBody()) deserialize(action);
-            else {
+            if (restful.isReturnBody()) {
+                deserialize(action);
+            } else {
                 Map<String, String> header = new CaseInsensitiveMap<String, String>();
                 for (String key : response.getHeaderKeys()) header.put(key != null ? key : "", response.getResponseHeader(key));
                 return header;

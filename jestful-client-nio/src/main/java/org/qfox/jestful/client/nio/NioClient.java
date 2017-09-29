@@ -15,6 +15,7 @@ import org.qfox.jestful.client.nio.timeout.SortedTimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.StatusException;
@@ -503,11 +504,8 @@ public class NioClient extends Client implements NioConnector {
             Request request = action.getRequest();
             Restful restful = action.getRestful();
 
-            if (restful.isAcceptBody()) {
-                serialize(action);
-            } else {
-                request.connect();
-            }
+            if (restful.isAcceptBody()) serialize(action);
+            else request.connect();
         }
 
         @Override
@@ -517,15 +515,9 @@ public class NioClient extends Client implements NioConnector {
                 String contentType = response.getContentType();
                 MediaType mediaType = MediaType.valueOf(contentType);
                 String charset = mediaType.getCharset();
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getResponseHeader("Content-Charset");
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = response.getCharacterEncoding();
-                }
-                if (charset == null || charset.length() == 0) {
-                    charset = java.nio.charset.Charset.defaultCharset().name();
-                }
+                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+                if (StringKit.isBlank(charset)) charset = java.nio.charset.Charset.defaultCharset().name();
                 Status status = response.getResponseStatus();
                 InputStream in = response.getResponseInputStream();
                 InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
@@ -548,11 +540,7 @@ public class NioClient extends Client implements NioConnector {
                 deserialize(action);
             } else {
                 Map<String, String> header = new CaseInsensitiveMap<String, String>();
-                for (String key : response.getHeaderKeys()) {
-                    String name = key != null ? key : "";
-                    String value = response.getResponseHeader(key);
-                    header.put(name, value);
-                }
+                for (String key : response.getHeaderKeys()) header.put(key != null ? key : "", response.getResponseHeader(key));
                 action.getResult().getBody().setValue(header);
             }
 
