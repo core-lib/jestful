@@ -79,9 +79,7 @@ public class ProxyGateway implements Gateway {
                 return false;
         } else if (!host.equals(other.host))
             return false;
-        if (port != other.port)
-            return false;
-        return true;
+        return port == other.port;
     }
 
     @Override
