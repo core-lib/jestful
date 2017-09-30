@@ -72,6 +72,7 @@ public class AioClient extends Client implements AioConnector {
 
     protected Request newRequest(Action action) throws Exception {
         AioRequest request = aioConnect(action, gateway, this).getRequest();
+        request.setRequestHeader("User-Agent", userAgent);
         action.getExtra().put(AioRequest.class, request);
         return request;
     }

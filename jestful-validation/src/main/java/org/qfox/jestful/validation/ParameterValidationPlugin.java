@@ -49,7 +49,7 @@ public class ParameterValidationPlugin implements Plugin {
 	public Object react(Action action) throws Exception {
 		Object target = action.getResource().getController();
 		Method method = action.getMapping().getMethod();
-		Object[] parameters = action.getParameters().arguments();
+		Object[] parameters = action.getParameters().values();
 
 		// 校验参数
 		ExecutableValidator validator = validatorFactory.getValidator().forExecutables();

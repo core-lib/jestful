@@ -10,6 +10,8 @@ import org.qfox.jestful.client.nio.balancer.NioBalancer;
 import org.qfox.jestful.client.nio.catcher.NioCatcher;
 import org.qfox.jestful.client.nio.connection.NioConnection;
 import org.qfox.jestful.client.nio.connection.NioConnector;
+import org.qfox.jestful.client.nio.filter.NioFilter;
+import org.qfox.jestful.client.nio.filter.NioFiltration;
 import org.qfox.jestful.client.nio.scheduler.NioScheduler;
 import org.qfox.jestful.client.nio.timeout.SortedTimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
@@ -36,7 +38,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -288,23 +292,45 @@ public class NioClient extends Client implements NioConnector {
 
     @Override
     protected Object doSchedule(Action action) throws Exception {
-        Result result = action.getResult();
-        Body body = result.getBody();
         for (Scheduler scheduler : schedulers.values()) {
             if (scheduler instanceof NioScheduler && scheduler.supports(action)) {
-                action.getExtra().put(Scheduler.class, scheduler);
-                Type type = scheduler.getBodyType(this, action);
-                body.setType(type);
-                Object value = ((NioScheduler) scheduler).doMotivateSchedule(this, action);
-                result.setValue(value);
-                return value;
+                List<NioFilter> filters = new ArrayList<NioFilter>();
+                filters.add(new ScheduledNioFilter((NioScheduler) scheduler));
+                NioFiltration filtration = new NioFiltration(filters);
+                action.getExtra().put(NioFiltration.class, filtration);
+                return filtration.doInvoke(this, action);
             }
         }
         throw new UnsupportedOperationException();
     }
 
+    private static class ScheduledNioFilter implements NioFilter {
+        private final NioScheduler scheduler;
+
+        ScheduledNioFilter(NioScheduler scheduler) {
+            this.scheduler = scheduler;
+        }
+
+        @Override
+        public Object doInvoke(NioClient client, Action action, NioFiltration filtration) throws Exception {
+            Result result = action.getResult();
+            Body body = result.getBody();
+            Type type = scheduler.getBodyType(client, action);
+            body.setType(type);
+            Object value = scheduler.doMotivateSchedule(client, action);
+            result.setValue(value);
+            return value;
+        }
+
+        @Override
+        public void doReturn(NioClient client, Action action, NioFiltration filtration) throws Exception {
+            scheduler.doCallbackSchedule(client, action);
+        }
+    }
+
     protected Request newRequest(Action action) throws Exception {
         NioRequest request = nioConnect(action, gateway, this).getRequest();
+        request.setRequestHeader("User-Agent", userAgent);
         action.getExtra().put(NioRequest.class, request);
         return request;
     }
@@ -544,8 +570,8 @@ public class NioClient extends Client implements NioConnector {
                 action.getResult().getBody().setValue(header);
             }
 
-            NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
-            scheduler.doCallbackSchedule(NioClient.this, action);
+            NioFiltration filtration = (NioFiltration) action.getExtra().get(NioFiltration.class);
+            filtration.doReturn(NioClient.this, action);
         }
 
         @Override
@@ -558,8 +584,8 @@ public class NioClient extends Client implements NioConnector {
             try {
                 action.getResult().setException(exception);
 
-                NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
-                scheduler.doCallbackSchedule(NioClient.this, action);
+                NioFiltration filtration = (NioFiltration) action.getExtra().get(NioFiltration.class);
+                filtration.doReturn(NioClient.this, action);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -423,7 +423,9 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     protected Request newRequest(Action action) throws Exception {
-        return new JestfulClientRequest(action, this, gateway, connTimeout, readTimeout, writeTimeout);
+        Request request = new JestfulClientRequest(action, this, gateway, connTimeout, readTimeout, writeTimeout);
+        request.setRequestHeader("User-Agent", userAgent);
+        return request;
     }
 
     protected Response newResponse(Action action) throws Exception {
@@ -448,8 +450,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         private Accepts consumes = Accepts.valueOf("");
         private Accepts produces = Accepts.valueOf("");
 
-        protected List<Actor> forePlugins = new ArrayList<Actor>();
-        protected List<Actor> backPlugins = new ArrayList<Actor>();
+        private List<Actor> forePlugins = new ArrayList<Actor>();
+        private List<Actor> backPlugins = new ArrayList<Actor>();
+
+        private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
         public I setEndpoint(URL endpoint) {
             if (endpoint == null) {
@@ -587,22 +591,39 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         }
 
         public I addForePlugins(Iterable<Actor> plugins) {
-            Iterator<Actor> iterable = plugins.iterator();
-            while (iterable.hasNext()) this.forePlugins.add(iterable.next());
+            for (Actor plugin : plugins) this.forePlugins.add(plugin);
             return (I) this;
         }
 
         public I addBackPlugins(Iterable<Actor> plugins) {
-            Iterator<Actor> iterable = plugins.iterator();
-            while (iterable.hasNext()) this.backPlugins.add(iterable.next());
+            for (Actor plugin : plugins) this.backPlugins.add(plugin);
+            return (I) this;
+        }
+
+        public I setExtra(Map<Object, Object> extra) {
+            this.extra.clear();
+            return addExtra(extra);
+        }
+
+        public I addExtra(Map<Object, Object> extra) {
+            this.extra.putAll(extra);
+            return (I) this;
+        }
+
+        public I setExtra(Object key, Object value) {
+            this.extra.clear();
+            return addExtra(key, value);
+        }
+
+        public I addExtra(Object key, Object value) {
+            this.extra.put(key, value);
             return (I) this;
         }
 
         public Object invoke(Object... args) throws Exception {
-            if (args != null && args.length > 0) parameters.arguments(args);
-
             if (resource == null) resource = new Resource();
             if (mapping == null) mapping = new Mapping(resource, parameters, result, restful, consumes, produces);
+            for (int i = 0; args != null && parameters != null && i < args.length && i < parameters.size(); i++) parameters.get(i).setValue(args[i]);
 
             Collection<Actor> actors = new ArrayList<Actor>();
             actors.addAll(forePlugins);
@@ -622,12 +643,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             action.setPort(port);
             action.setRoute(route);
 
-            Request request = newRequest(action);
-            request.setRequestHeader("User-Agent", userAgent);
-            action.setRequest(request);
-
-            Response response = newResponse(action);
-            action.setResponse(response);
+            action.setRequest(newRequest(action));
+            action.setResponse(newResponse(action));
 
             action.setConsumes(consumes);
             action.setProduces(produces);
@@ -645,6 +662,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             action.setPathEncodeCharset(pathEncodeCharset);
             action.setQueryEncodeCharset(queryEncodeCharset);
             action.setHeaderEncodeCharset(headerEncodeCharset);
+
+            action.getExtra().putAll(extra);
+
+            if (!forePlugins.isEmpty() || !backPlugins.isEmpty()) action = new PluginAction(action, forePlugins, backPlugins);
 
             return doSchedule(action);
         }

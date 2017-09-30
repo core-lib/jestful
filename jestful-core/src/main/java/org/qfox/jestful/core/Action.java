@@ -42,9 +42,9 @@ public class Action {
     private Request request;
     private Response response;
 
-    private Map<String, String[]> queries = Collections.EMPTY_MAP;
-    private Map<String, String[]> headers = Collections.EMPTY_MAP;
-    private Map<String, String[]> cookies = Collections.EMPTY_MAP;
+    private Map<String, String[]> queries = Collections.emptyMap();
+    private Map<String, String[]> headers = Collections.emptyMap();
+    private Map<String, String[]> cookies = Collections.emptyMap();
 
     private Accepts consumes;
     private Accepts produces;
@@ -65,6 +65,11 @@ public class Action {
     private String headerEncodeCharset;
 
     private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
+
+    protected Action() {
+        this.beanContainer = null;
+        this.actors = new ArrayList<Actor>();
+    }
 
     public Action(BeanContainer beanContainer, Collection<Actor> actors) {
         super();

@@ -219,7 +219,7 @@ public class JestfulWebSupport implements Actor {
         Object controller = action.getResource().getController();
         Method method = action.getMapping().getMethod();
         Parameters parameters = action.getParameters();
-        Object[] arguments = parameters.arguments();
+        Object[] arguments = parameters.values();
         Object value = method.invoke(controller, arguments);
         result.setValue(value);
         body.setValue(value);

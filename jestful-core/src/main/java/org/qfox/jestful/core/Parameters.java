@@ -98,21 +98,10 @@ public class Parameters implements List<Parameter> {
         return last;
     }
 
-    public Object[] arguments() {
+    public Object[] values() {
         Object[] arguments = new Object[size()];
-        for (int i = 0; i < size(); i++) {
-            arguments[i] = parameters.get(i).getValue();
-        }
+        for (int i = 0; i < size(); i++) arguments[i] = parameters.get(i).getValue();
         return arguments;
-    }
-
-    public void arguments(Object[] arguments) {
-        if (arguments.length != size()) {
-            throw new IllegalArgumentException("Unexpected array length " + arguments.length);
-        }
-        for (int i = 0; i < size(); i++) {
-            parameters.get(i).setValue(arguments[i]);
-        }
     }
 
     public int size() {
