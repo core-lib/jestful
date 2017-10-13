@@ -52,16 +52,13 @@ public final class Message<T> implements Serializable {
         return status;
     }
 
-
     public Map<String, String> getHeader() {
         return header;
     }
 
-
     public T getEntity() {
         return entity;
     }
-
 
     public Throwable getThrowable() {
         return throwable;
