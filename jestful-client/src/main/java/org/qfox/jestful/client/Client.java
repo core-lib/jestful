@@ -665,8 +665,6 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
             action.getExtra().putAll(extra);
 
-            if (!forePlugins.isEmpty() || !backPlugins.isEmpty()) action = new PluginAction(action, forePlugins, backPlugins);
-
             return doSchedule(action);
         }
 
