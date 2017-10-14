@@ -16,7 +16,7 @@ public class UserAPITest {
     @Test
     public void getUserSynchronously() throws Exception {
         final Lock lock = new SimpleLock();
-        UserAPI.BIO.user("Basic " + Base64.encode("core-lib:wan201001012"), new Callback<Map<String, Object>>() {
+        UserAPI.BIO.user("Basic " + Base64.encode("core-lib:wan20100101"), new Callback<Map<String, Object>>() {
             @Override
             public void onCompleted(boolean success, Map<String, Object> result, Throwable throwable) {
                 lock.openAll();

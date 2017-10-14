@@ -305,6 +305,7 @@ public class NioClient extends Client implements NioConnector {
 
     protected Request newRequest(Action action) throws Exception {
         NioRequest request = nioConnect(action, gateway, this).getRequest();
+        request.setRequestHeader("User-Agent", userAgent);
         action.getExtra().put(NioRequest.class, request);
         return request;
     }
