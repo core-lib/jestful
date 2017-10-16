@@ -98,7 +98,7 @@ public class NioClient extends Client implements NioConnector {
         private final ByteBuffer buffer;
         private final NioCalls calls;
 
-        public NioProcessorImpl() throws IOException {
+        NioProcessorImpl() throws IOException {
             this.timeoutManager = new SortedTimeoutManager();
             this.selector = Selector.open();
             this.buffer = ByteBuffer.allocate(4096);
