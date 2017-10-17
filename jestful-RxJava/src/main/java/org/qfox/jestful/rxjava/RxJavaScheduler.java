@@ -41,8 +41,7 @@ public class RxJavaScheduler implements Scheduler {
 		Type type = result.getType();
 		if (type instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = (ParameterizedType) type;
-			Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
-			return actualTypeArgument;
+			return parameterizedType.getActualTypeArguments()[0];
 		} else {
 			throw new UncertainBodyTypeException(client, action);
 		}

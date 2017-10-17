@@ -1,6 +1,7 @@
 package org.qfox.jestful.client.scheduler;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.exception.UncertainBodyTypeException;
 import org.qfox.jestful.core.*;
 
@@ -14,8 +15,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by yangchangpei on 17/3/31.
  */
-public class LambdaScheduler implements Scheduler, Destroyable {
-    protected ExecutorService executor = Executors.newCachedThreadPool();
+public class LambdaScheduler implements Scheduler {
 
     @Override
     public boolean supports(Action action) {
@@ -50,36 +50,31 @@ public class LambdaScheduler implements Scheduler, Destroyable {
 
     @Override
     public Object schedule(final Client client, final Action action) throws Exception {
-        executor.execute(new Runnable() {
-
-            public void run() {
-                Parameters parameters = action.getParameters();
-                Parameter success = parameters.first(OnSuccess.class);
-                OnSuccess onSuccess = success != null && success.getValue() != null ? (OnSuccess) success.getValue() : OnSuccess.DEFAULT;
-                Parameter fail = parameters.first(OnFail.class);
-                OnFail onFail = fail != null && fail.getValue() != null ? (OnFail) fail.getValue() : OnFail.DEFAULT;
-                Parameter completed = parameters.first(OnCompleted.class);
-                OnCompleted onCompleted = completed != null && completed.getValue() != null ? (OnCompleted) completed.getValue() : OnCompleted.DEFAULT;
-
-                Object result = null;
-                Throwable throwable = null;
-                try {
-                    result = action.execute();
-                    onSuccess.call(result);
-                } catch (Throwable t) {
-                    throwable = t;
-                    onFail.call(throwable);
-                } finally {
-                    onCompleted.call(throwable == null, result, throwable);
-                }
+        Parameters parameters = action.getParameters();
+        Parameter success = parameters.first(OnSuccess.class);
+        final OnSuccess onSuccess = success != null && success.getValue() != null ? (OnSuccess) success.getValue() : OnSuccess.DEFAULT;
+        Parameter fail = parameters.first(OnFail.class);
+        final OnFail onFail = fail != null && fail.getValue() != null ? (OnFail) fail.getValue() : OnFail.DEFAULT;
+        Parameter completed = parameters.first(OnCompleted.class);
+        final OnCompleted onCompleted = completed != null && completed.getValue() != null ? (OnCompleted) completed.getValue() : OnCompleted.DEFAULT;
+        Promise promise = (Promise) action.execute();
+        promise.get(new Callback<Object>() {
+            @Override
+            public void onCompleted(boolean success, Object result, Throwable throwable) {
+                onCompleted.call(success, result, throwable);
             }
 
+            @Override
+            public void onSuccess(Object result) {
+                onSuccess.call(result);
+            }
+
+            @Override
+            public void onFail(Throwable throwable) {
+                onFail.call(throwable);
+            }
         });
         return null;
     }
 
-    @Override
-    public void destroy() {
-        executor.shutdown();
-    }
 }

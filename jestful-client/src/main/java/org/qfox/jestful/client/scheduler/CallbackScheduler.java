@@ -1,14 +1,16 @@
 package org.qfox.jestful.client.scheduler;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.exception.UncertainBodyTypeException;
-import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.Action;
+import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.Parameters;
+import org.qfox.jestful.core.Result;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * <p>
@@ -23,8 +25,7 @@ import java.util.concurrent.Executors;
  * @date 2016年5月6日 下午12:01:41
  * @since 1.0.0
  */
-public class CallbackScheduler implements Scheduler, Destroyable {
-    protected ExecutorService executor = Executors.newCachedThreadPool();
+public class CallbackScheduler implements Scheduler {
 
     public boolean supports(Action action) {
         Parameters parameters = action.getParameters();
@@ -53,32 +54,12 @@ public class CallbackScheduler implements Scheduler, Destroyable {
     }
 
     public Object schedule(final Client client, final Action action) throws Exception {
-        executor.execute(new Runnable() {
-
-            public void run() {
-                Parameters parameters = action.getParameters();
-                Parameter parameter = parameters.unique(Callback.class);
-                Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.DEFAULT;
-
-                Object result = null;
-                Throwable throwable = null;
-                try {
-                    result = action.execute();
-                    callback.onSuccess(result);
-                } catch (Throwable t) {
-                    throwable = t;
-                    callback.onFail(throwable);
-                } finally {
-                    callback.onCompleted(throwable == null, result, throwable);
-                }
-            }
-
-        });
+        Parameters parameters = action.getParameters();
+        Parameter parameter = parameters.unique(Callback.class);
+        Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.DEFAULT;
+        Promise promise = (Promise) action.execute();
+        promise.get(callback);
         return null;
     }
 
-    @Override
-    public void destroy() {
-        executor.shutdown();
-    }
 }

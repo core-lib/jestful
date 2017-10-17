@@ -7,7 +7,7 @@ import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
 import org.qfox.jestful.client.gateway.Gateway;
-import org.qfox.jestful.client.scheduler.Scheduler;
+import org.qfox.jestful.client.scheduler.*;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
@@ -18,6 +18,8 @@ import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
 import org.qfox.jestful.core.io.RequestLazyOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.UrlResource;
@@ -32,6 +34,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -49,6 +53,9 @@ import java.util.jar.JarFile;
  * @since 1.0.0
  */
 public class Client implements Actor, Connector, Initialable, Destroyable {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    protected final ExecutorService executor = Executors.newCachedThreadPool();
     protected final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
     protected final Map<MediaType, RequestSerializer> serializers = new LinkedHashMap<MediaType, RequestSerializer>();
     protected final Map<MediaType, ResponseDeserializer> deserializers = new LinkedHashMap<MediaType, ResponseDeserializer>();
@@ -358,45 +365,141 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     }
 
     public Object react(Action action) throws Exception {
-        Request request = action.getRequest();
-        Response response = action.getResponse();
-        try {
-            Restful restful = action.getRestful();
+        return new BioPromise(action);
+    }
 
-            if (restful.isAcceptBody()) serialize(action);
-            else request.connect();
+    private class BioPromise implements Promise {
+        private final Action action;
+        private volatile Boolean success;
+        private volatile Object result;
+        private volatile Exception exception;
 
-            if (!response.isResponseSuccess()) {
-                String contentType = response.getContentType();
-                MediaType mediaType = MediaType.valueOf(contentType);
-                String charset = mediaType.getCharset();
-                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
-                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
-                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
-                Status status = response.getResponseStatus();
-                InputStream in = response.getResponseInputStream();
-                InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
-                String body = reader != null ? IOKit.toString(reader) : "";
-                throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, body);
-            }
+        BioPromise(Action action) {
+            this.action = action;
+        }
 
-            // 回应
-            if (restful.isReturnBody()) {
-                deserialize(action);
+        @Override
+        public synchronized Object get() throws Exception {
+            if (success == null) {
+                result = null;
+                exception = null;
+            } else if (success) {
+                return result;
             } else {
-                Map<String, String> header = new CaseInsensitiveMap<String, String>();
-                for (String key : response.getHeaderKeys()) header.put(key != null ? key : "", response.getResponseHeader(key));
-                return header;
+                throw exception;
             }
 
-            // 返回
-            return action.getResult().getBody().getValue();
-        } catch (StatusException statusException) {
-            for (Catcher catcher : catchers.values()) if (catcher.catchable(statusException)) return catcher.caught(this, action, statusException);
-            throw statusException;
-        } finally {
-            IOKit.close(request);
-            IOKit.close(response);
+            Request request = action.getRequest();
+            Response response = action.getResponse();
+            try {
+                Restful restful = action.getRestful();
+
+                if (restful.isAcceptBody()) serialize(action);
+                else request.connect();
+
+                if (!response.isResponseSuccess()) {
+                    String contentType = response.getContentType();
+                    MediaType mediaType = MediaType.valueOf(contentType);
+                    String charset = mediaType.getCharset();
+                    if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+                    if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+                    if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
+                    Status status = response.getResponseStatus();
+                    InputStream in = response.getResponseInputStream();
+                    InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
+                    String body = reader != null ? IOKit.toString(reader) : "";
+                    throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, body);
+                }
+
+                // 回应
+                if (restful.isReturnBody()) {
+                    deserialize(action);
+                } else {
+                    Map<String, String> header = new CaseInsensitiveMap<String, String>();
+                    for (String key : response.getHeaderKeys()) header.put(key != null ? key : "", response.getResponseHeader(key));
+                    return result = header;
+                }
+
+                // 返回
+                return result = action.getResult().getBody().getValue();
+            } catch (StatusException se) {
+                try {
+                    for (Catcher catcher : catchers.values()) if (catcher.catchable(se)) return result = catcher.caught(Client.this, action, se);
+                } catch (Exception e) {
+                    throw exception = e;
+                }
+                throw exception = se;
+            } finally {
+                success = (exception == null);
+
+                IOKit.close(request);
+                IOKit.close(response);
+            }
+        }
+
+        @Override
+        public void get(final Callback<Object> callback) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Object result = null;
+                    Throwable throwable = null;
+                    try {
+                        result = get();
+                        callback.onSuccess(result);
+                    } catch (Throwable e) {
+                        callback.onFail(throwable = e);
+                    } finally {
+                        callback.onCompleted(throwable == null, result, throwable);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void get(final OnCompleted<Object> onCompleted) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Object result = null;
+                    Throwable throwable = null;
+                    try {
+                        result = get();
+                    } catch (Throwable e) {
+                        throwable = e;
+                    } finally {
+                        onCompleted.call(throwable == null, result, throwable);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void get(final OnSuccess<Object> onSuccess) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        onSuccess.call(get());
+                    } catch (Throwable e) {
+                        logger.error("", e);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void get(final OnFail onFail) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        get();
+                    } catch (Throwable e) {
+                        onFail.call(e);
+                    }
+                }
+            });
         }
     }
 
@@ -416,7 +519,8 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
 
         Type type = result.getType();
         body.setType(type);
-        Object value = action.execute();
+        Promise promise = (Promise) action.execute();
+        Object value = promise.get();
         result.setValue(value);
 
         return value;

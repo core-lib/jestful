@@ -1,16 +1,14 @@
 package org.qfox.jestful.client.scheduler;
 
+import org.qfox.jestful.client.ActionFuture;
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.exception.UncertainBodyTypeException;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Destroyable;
 import org.qfox.jestful.core.Result;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -26,8 +24,7 @@ import java.util.concurrent.Future;
  * @date 2016年5月6日 下午9:39:44
  * @since 1.0.0
  */
-public class FutureScheduler implements Scheduler, Destroyable {
-    private ExecutorService executor = Executors.newCachedThreadPool();
+public class FutureScheduler implements Scheduler {
 
     public boolean supports(Action action) {
         Result result = action.getResult();
@@ -40,26 +37,22 @@ public class FutureScheduler implements Scheduler, Destroyable {
         Type type = result.getType();
         if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
-            Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
-            return actualTypeArgument;
+            return parameterizedType.getActualTypeArguments()[0];
         } else {
             throw new UncertainBodyTypeException(client, action);
         }
     }
 
     public Object schedule(final Client client, final Action action) throws Exception {
-        Future<Object> future = executor.submit(new Callable<Object>() {
-
-            public Object call() throws Exception {
-                return action.execute();
+        final ActionFuture future = new ActionFuture(action);
+        Promise promise = (Promise) action.execute();
+        promise.get(new OnCompleted<Object>() {
+            @Override
+            public void call(boolean success, Object result, Throwable throwable) {
+                future.done();
             }
-
         });
         return future;
     }
 
-    @Override
-    public void destroy() {
-        executor.shutdown();
-    }
 }

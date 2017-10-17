@@ -1,6 +1,7 @@
 package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
@@ -13,7 +14,7 @@ import org.qfox.jestful.client.nio.connection.NioConnector;
 import org.qfox.jestful.client.nio.scheduler.NioScheduler;
 import org.qfox.jestful.client.nio.timeout.SortedTimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
-import org.qfox.jestful.client.scheduler.Scheduler;
+import org.qfox.jestful.client.scheduler.*;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
@@ -37,6 +38,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -280,10 +282,11 @@ public class NioClient extends Client implements NioConnector {
     }
 
     public Object react(Action action) throws Exception {
-        NioEventListener listener = new JestfulNioEventListener();
+        NioPromise promise = new NioPromise(action);
+        NioEventListener listener = new JestfulNioEventListener(promise);
         action.getExtra().put(NioEventListener.class, listener);
         balancer.dispatch(action, this, processors);
-        return null;
+        return promise;
     }
 
     @Override
@@ -301,6 +304,126 @@ public class NioClient extends Client implements NioConnector {
             }
         }
         throw new UnsupportedOperationException();
+    }
+
+    private class NioPromise implements Promise {
+        private final Object lock = new Object();
+
+        private final Action action;
+
+        private volatile Boolean success;
+        private volatile Object result;
+        private volatile Exception exception;
+
+        private Map<Object, Integer> listeners;
+
+        NioPromise(Action action) {
+            this.action = action;
+        }
+
+        @Override
+        public Object get() throws Exception {
+            if (success == null) {
+                synchronized (lock) {
+                    if (success == null) lock.wait();
+                    return get();
+                }
+            } else if (success) {
+                return result;
+            } else {
+                throw exception;
+            }
+        }
+
+        @Override
+        public void get(Callback<Object> callback) {
+
+        }
+
+        @Override
+        public void get(OnCompleted<Object> onCompleted) {
+
+        }
+
+        @Override
+        public void get(OnSuccess<Object> onSuccess) {
+
+        }
+
+        @Override
+        public void get(OnFail onFail) {
+
+        }
+
+        void put(Object listener, Integer type) {
+            synchronized (lock) {
+                if (success == null) {
+                    if (listeners == null) listener = new LinkedHashMap<Object, Class<?>>();
+                    listeners.put(listener, type);
+                } else if (success) {
+
+                } else {
+
+                }
+            }
+        }
+
+        void call(Object listener, Integer type) {
+            switch (type) {
+                case 0:
+                    callback((Callback<Object>) listener);
+                    break;
+                case 1:
+                    onCompleted((OnCompleted<Object>) listener);
+                    break;
+                case 2:
+
+                    break;
+                case 3:
+
+                    break;
+                default:
+
+                    break;
+            }
+        }
+
+        void callback(Callback<Object> callback) {
+
+        }
+
+        void onCompleted(OnCompleted<Object> onCompleted) {
+
+        }
+
+        void onSuccess(OnSuccess<Object> onSuccess) {
+
+        }
+
+        void onFail(OnFail onFail) {
+
+        }
+
+        void fulfill() {
+            synchronized (lock) {
+                result = action.getResult().getBody().getValue();
+                exception = action.getResult().getException();
+                success = exception == null;
+                lock.notifyAll();
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (Map.Entry<Object, Integer> entry : listeners.entrySet()) {
+                            try {
+                                call(entry.getKey(), entry.getValue());
+                            } catch (Exception e) {
+                                logger.error("", e);
+                            }
+                        }
+                    }
+                });
+            }
+        }
     }
 
     protected Request newRequest(Action action) throws Exception {
@@ -499,6 +622,11 @@ public class NioClient extends Client implements NioConnector {
     }
 
     private class JestfulNioEventListener extends NioEventAdapter {
+        private final NioPromise promise;
+
+        JestfulNioEventListener(NioPromise promise) {
+            this.promise = promise;
+        }
 
         @Override
         public void onConnected(Action action) throws Exception {
@@ -545,8 +673,9 @@ public class NioClient extends Client implements NioConnector {
                 action.getResult().getBody().setValue(header);
             }
 
-            NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
-            scheduler.doCallbackSchedule(NioClient.this, action);
+//            NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
+//            scheduler.doCallbackSchedule(NioClient.this, action);
+            promise.fulfill();
         }
 
         @Override
@@ -559,8 +688,9 @@ public class NioClient extends Client implements NioConnector {
             try {
                 action.getResult().setException(exception);
 
-                NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
-                scheduler.doCallbackSchedule(NioClient.this, action);
+//                NioScheduler scheduler = (NioScheduler) action.getExtra().get(Scheduler.class);
+//                scheduler.doCallbackSchedule(NioClient.this, action);
+                promise.fulfill();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

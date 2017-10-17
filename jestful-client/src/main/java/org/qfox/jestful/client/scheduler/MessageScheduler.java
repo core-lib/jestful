@@ -1,6 +1,7 @@
 package org.qfox.jestful.client.scheduler;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.exception.UncertainBodyTypeException;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.client.Message;
@@ -38,7 +39,8 @@ public class MessageScheduler implements Scheduler {
     @Override
     public Object schedule(Client client, Action action) throws Exception {
         try {
-            Object entity = action.execute();
+            Promise promise = (Promise) action.execute();
+            Object entity = promise.get();
             Response response = action.getResponse();
             return new Message<Object>(response, entity);
         } catch (Throwable throwable) {
