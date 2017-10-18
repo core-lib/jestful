@@ -412,15 +412,15 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
         return new BioPromise(action);
     }
 
-    private class BioPromise implements Promise {
-        private final Object lock = new Object();
+    protected class BioPromise implements Promise {
+        protected final Object lock = new Object();
 
-        private final Action action;
-        private volatile Boolean success;
-        private volatile Object result;
-        private volatile Exception exception;
+        protected final Action action;
+        protected volatile Boolean success;
+        protected volatile Object result;
+        protected volatile Exception exception;
 
-        BioPromise(Action action) {
+        protected BioPromise(Action action) {
             this.action = action;
         }
 
@@ -464,6 +464,10 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             });
         }
 
+        @Override
+        public Client client() {
+            return Client.this;
+        }
     }
 
     protected Object doSchedule(Action action) throws Exception {

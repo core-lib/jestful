@@ -11,4 +11,6 @@ public interface Promise {
 
     void get(Callback<Object> callback);
 
+    Client client();
+
 }

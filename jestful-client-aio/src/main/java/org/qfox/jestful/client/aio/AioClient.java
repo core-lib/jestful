@@ -1,13 +1,11 @@
 package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.Client;
-import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.aio.connection.AioConnector;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
-import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
@@ -56,17 +54,10 @@ public class AioClient extends Client implements AioConnector {
         return promise;
     }
 
-    private class AioPromise implements Promise {
-        private final Object lock = new Object();
-
-        private final Action action;
-
-        private volatile Boolean success;
-        private volatile Object result;
-        private volatile Exception exception;
+    private class AioPromise extends BioPromise {
 
         AioPromise(Action action) {
-            this.action = action;
+            super(action);
         }
 
         @Override
@@ -84,21 +75,8 @@ public class AioClient extends Client implements AioConnector {
         }
 
         @Override
-        public void get(final Callback<Object> callback) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Object r = null;
-                    Throwable t = null;
-                    try {
-                        callback.onSuccess(r = get());
-                    } catch (Throwable e) {
-                        callback.onFail(t = e);
-                    } finally {
-                        callback.onCompleted(t == null, r, t);
-                    }
-                }
-            });
+        public Client client() {
+            return AioClient.this;
         }
 
         void fulfill() {

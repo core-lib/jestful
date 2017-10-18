@@ -286,17 +286,10 @@ public class NioClient extends Client implements NioConnector {
         return promise;
     }
 
-    private class NioPromise implements Promise {
-        private final Object lock = new Object();
-
-        private final Action action;
-
-        private volatile Boolean success;
-        private volatile Object result;
-        private volatile Exception exception;
+    private class NioPromise extends BioPromise {
 
         NioPromise(Action action) {
-            this.action = action;
+            super(action);
         }
 
         @Override
@@ -314,21 +307,8 @@ public class NioClient extends Client implements NioConnector {
         }
 
         @Override
-        public void get(final Callback<Object> callback) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Object r = null;
-                    Throwable t = null;
-                    try {
-                        callback.onSuccess(r = get());
-                    } catch (Throwable e) {
-                        callback.onFail(t = e);
-                    } finally {
-                        callback.onCompleted(t == null, r, t);
-                    }
-                }
-            });
+        public Client client() {
+            return NioClient.this;
         }
 
         void fulfill() {
