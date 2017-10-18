@@ -3,10 +3,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean class="org.qfox.jestful.client.aio.scheduler.CallbackAioScheduler"/>
-    <bean class="org.qfox.jestful.client.aio.scheduler.LambdaAioScheduler"/>
-    <bean class="org.qfox.jestful.client.aio.scheduler.FutureAioScheduler"/>
-
     <bean class="org.qfox.jestful.client.aio.connection.HttpAioConnector"/>
     <bean class="org.qfox.jestful.client.aio.connection.HttpsAioConnector"/>
 

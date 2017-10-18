@@ -445,8 +445,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                     Object result = null;
                     Throwable throwable = null;
                     try {
-                        result = get();
-                        callback.onSuccess(result);
+                        callback.onSuccess(result = get());
                     } catch (Throwable e) {
                         callback.onFail(throwable = e);
                     } finally {

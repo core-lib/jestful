@@ -1,26 +1,31 @@
 package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.aio.connection.AioConnector;
-import org.qfox.jestful.client.aio.scheduler.AioScheduler;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
-import org.qfox.jestful.client.scheduler.Scheduler;
+import org.qfox.jestful.client.scheduler.Callback;
+import org.qfox.jestful.client.scheduler.OnCompleted;
+import org.qfox.jestful.client.scheduler.OnFail;
+import org.qfox.jestful.client.scheduler.OnSuccess;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,8 +34,9 @@ import java.util.concurrent.Executors;
  * Created by yangchangpei on 17/3/29.
  */
 public class AioClient extends Client implements AioConnector {
-    private static AioClient defaultClient;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static AioClient defaultClient;
     private final int concurrency;
     private final ExecutorService executor;
     private final AsynchronousChannelGroup aioChannelGroup;
@@ -45,29 +51,140 @@ public class AioClient extends Client implements AioConnector {
     }
 
     public Object react(Action action) throws Exception {
-        AioEventListener listener = new JestfulAioEventListener();
+        AioPromise promise = new AioPromise(action);
+        AioEventListener listener = new JestfulAioEventListener(promise);
         action.getExtra().put(AioEventListener.class, listener);
         AsynchronousSocketChannel channel = AsynchronousSocketChannel.open(aioChannelGroup);
         PrepareCompletionHandler handler = new PrepareCompletionHandler(this, channel, action);
         executor.execute(handler);
-        return null;
+        return promise;
     }
 
-    @Override
-    protected Object doSchedule(Action action) throws Exception {
-        Result result = action.getResult();
-        Body body = result.getBody();
-        for (Scheduler scheduler : schedulers.values()) {
-            if (scheduler instanceof AioScheduler && scheduler.supports(action)) {
-                action.getExtra().put(Scheduler.class, scheduler);
-                Type type = scheduler.getBodyType(this, action);
-                body.setType(type);
-                Object value = ((AioScheduler) scheduler).doMotivateSchedule(this, action);
-                result.setValue(value);
-                return value;
+    private class AioPromise implements Promise {
+        private final Object lock = new Object();
+
+        private final Action action;
+
+        private volatile Boolean success;
+        private volatile Object result;
+        private volatile Exception exception;
+
+        private Map<Object, Integer> listeners = new LinkedHashMap<Object, Integer>();
+
+        AioPromise(Action action) {
+            this.action = action;
+        }
+
+        @Override
+        public Object get() throws Exception {
+            if (success == null) {
+                synchronized (lock) {
+                    if (success == null) lock.wait();
+                    return get();
+                }
+            } else if (success) {
+                return result;
+            } else {
+                throw exception;
             }
         }
-        throw new UnsupportedOperationException();
+
+        @Override
+        public void get(Callback<Object> callback) {
+            put(callback, 0);
+        }
+
+        @Override
+        public void get(OnCompleted<Object> onCompleted) {
+            put(onCompleted, 1);
+        }
+
+        @Override
+        public void get(OnSuccess<Object> onSuccess) {
+            put(onSuccess, 2);
+        }
+
+        @Override
+        public void get(OnFail onFail) {
+            put(onFail, 3);
+        }
+
+        void put(final Object listener, final Integer type) {
+            synchronized (lock) {
+                if (success == null) listeners.put(listener, type);
+                else call(listener, type);
+            }
+        }
+
+        void call(Object listener, Integer type) {
+            switch (type != null ? type : -1) {
+                case 0:
+                    callback((Callback<Object>) listener);
+                    break;
+                case 1:
+                    onCompleted((OnCompleted<Object>) listener);
+                    break;
+                case 2:
+                    onSuccess((OnSuccess<Object>) listener);
+                    break;
+                case 3:
+                    onFail((OnFail) listener);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void callback(Callback<Object> callback) {
+            Object result = null;
+            Throwable throwable = null;
+            try {
+                callback.onSuccess(result = get());
+            } catch (Throwable e) {
+                callback.onFail(throwable = e);
+            } finally {
+                callback.onCompleted(throwable == null, result, throwable);
+            }
+        }
+
+        void onCompleted(OnCompleted<Object> onCompleted) {
+            Object result = null;
+            Throwable throwable = null;
+            try {
+                result = get();
+            } catch (Throwable e) {
+                throwable = e;
+            } finally {
+                onCompleted.call(throwable == null, result, throwable);
+            }
+        }
+
+        void onSuccess(OnSuccess<Object> onSuccess) {
+            try {
+                onSuccess.call(get());
+            } catch (Throwable e) {
+                logger.error("", e);
+            }
+        }
+
+        void onFail(OnFail onFail) {
+            try {
+                get();
+            } catch (Throwable e) {
+                onFail.call(e);
+            }
+        }
+
+        void fulfill() {
+            synchronized (lock) {
+                result = action.getResult().getBody().getValue();
+                exception = action.getResult().getException();
+                success = exception == null;
+                lock.notifyAll();
+                for (Map.Entry<Object, Integer> entry : listeners.entrySet()) call(entry.getKey(), entry.getValue());
+            }
+        }
+
     }
 
     protected Request newRequest(Action action) throws Exception {
@@ -196,6 +313,12 @@ public class AioClient extends Client implements AioConnector {
     }
 
     private class JestfulAioEventListener extends AioEventAdapter {
+        private final AioPromise promise;
+
+        JestfulAioEventListener(AioPromise promise) {
+            this.promise = promise;
+        }
+
         @Override
         public void onConnected(Action action) throws Exception {
             Request request = action.getRequest();
@@ -241,8 +364,7 @@ public class AioClient extends Client implements AioConnector {
                 action.getResult().getBody().setValue(header);
             }
 
-            AioScheduler scheduler = (AioScheduler) action.getExtra().get(Scheduler.class);
-            scheduler.doCallbackSchedule(AioClient.this, action);
+            promise.fulfill();
         }
 
         @Override
@@ -255,8 +377,7 @@ public class AioClient extends Client implements AioConnector {
             try {
                 action.getResult().setException(exception);
 
-                AioScheduler scheduler = (AioScheduler) action.getExtra().get(Scheduler.class);
-                scheduler.doCallbackSchedule(AioClient.this, action);
+                promise.fulfill();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

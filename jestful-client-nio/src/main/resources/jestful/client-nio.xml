@@ -3,10 +3,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean class="org.qfox.jestful.client.nio.scheduler.CallbackNioScheduler"/>
-    <bean class="org.qfox.jestful.client.nio.scheduler.LambdaNioScheduler"/>
-    <bean class="org.qfox.jestful.client.nio.scheduler.FutureNioScheduler"/>
-
     <bean class="org.qfox.jestful.client.nio.connection.HttpNioConnector"/>
     <bean class="org.qfox.jestful.client.nio.connection.HttpsNioConnector"/>
 
