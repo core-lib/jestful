@@ -14,9 +14,6 @@ import org.qfox.jestful.client.nio.connection.NioConnector;
 import org.qfox.jestful.client.nio.timeout.SortedTimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
 import org.qfox.jestful.client.scheduler.Callback;
-import org.qfox.jestful.client.scheduler.OnCompleted;
-import org.qfox.jestful.client.scheduler.OnFail;
-import org.qfox.jestful.client.scheduler.OnSuccess;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
@@ -39,7 +36,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -299,8 +295,6 @@ public class NioClient extends Client implements NioConnector {
         private volatile Object result;
         private volatile Exception exception;
 
-        private Map<Object, Integer> listeners = new LinkedHashMap<Object, Integer>();
-
         NioPromise(Action action) {
             this.action = action;
         }
@@ -320,94 +314,21 @@ public class NioClient extends Client implements NioConnector {
         }
 
         @Override
-        public void get(Callback<Object> callback) {
-            put(callback, 0);
-        }
-
-        @Override
-        public void get(OnCompleted<Object> onCompleted) {
-            put(onCompleted, 1);
-        }
-
-        @Override
-        public void get(OnSuccess<Object> onSuccess) {
-            put(onSuccess, 2);
-        }
-
-        @Override
-        public void get(OnFail onFail) {
-            put(onFail, 3);
-        }
-
-        void put(final Object listener, final Integer type) {
-            synchronized (lock) {
-                if (success == null) listeners.put(listener, type);
-                else executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        call(listener, type);
+        public void get(final Callback<Object> callback) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Object r = null;
+                    Throwable t = null;
+                    try {
+                        callback.onSuccess(r = get());
+                    } catch (Throwable e) {
+                        callback.onFail(t = e);
+                    } finally {
+                        callback.onCompleted(t == null, r, t);
                     }
-                });
-            }
-        }
-
-        void call(Object listener, Integer type) {
-            switch (type != null ? type : -1) {
-                case 0:
-                    callback((Callback<Object>) listener);
-                    break;
-                case 1:
-                    onCompleted((OnCompleted<Object>) listener);
-                    break;
-                case 2:
-                    onSuccess((OnSuccess<Object>) listener);
-                    break;
-                case 3:
-                    onFail((OnFail) listener);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void callback(Callback<Object> callback) {
-            Object result = null;
-            Throwable throwable = null;
-            try {
-                callback.onSuccess(result = get());
-            } catch (Throwable e) {
-                callback.onFail(throwable = e);
-            } finally {
-                callback.onCompleted(throwable == null, result, throwable);
-            }
-        }
-
-        void onCompleted(OnCompleted<Object> onCompleted) {
-            Object result = null;
-            Throwable throwable = null;
-            try {
-                result = get();
-            } catch (Throwable e) {
-                throwable = e;
-            } finally {
-                onCompleted.call(throwable == null, result, throwable);
-            }
-        }
-
-        void onSuccess(OnSuccess<Object> onSuccess) {
-            try {
-                onSuccess.call(get());
-            } catch (Throwable e) {
-                logger.error("", e);
-            }
-        }
-
-        void onFail(OnFail onFail) {
-            try {
-                get();
-            } catch (Throwable e) {
-                onFail.call(e);
-            }
+                }
+            });
         }
 
         void fulfill() {
@@ -416,14 +337,6 @@ public class NioClient extends Client implements NioConnector {
                 exception = action.getResult().getException();
                 success = exception == null;
                 lock.notifyAll();
-                for (final Map.Entry<Object, Integer> entry : listeners.entrySet()) {
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            call(entry.getKey(), entry.getValue());
-                        }
-                    });
-                }
             }
         }
 

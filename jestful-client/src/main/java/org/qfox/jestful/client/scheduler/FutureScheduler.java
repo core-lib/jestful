@@ -46,13 +46,21 @@ public class FutureScheduler implements Scheduler {
     public Object schedule(final Client client, final Action action) throws Exception {
         final ActionFuture future = new ActionFuture(action);
         Promise promise = (Promise) action.execute();
-        promise.get(new OnCompleted<Object>() {
-            @Override
-            public void call(boolean success, Object result, Throwable throwable) {
-                future.done();
-            }
-        });
+        promise.get(new FutureCallback(future));
         return future;
+    }
+
+    private static class FutureCallback extends CallbackAdapter<Object> {
+        private final ActionFuture future;
+
+        FutureCallback(ActionFuture future) {
+            this.future = future;
+        }
+
+        @Override
+        public void onCompleted(boolean success, Object result, Throwable throwable) {
+            future.done();
+        }
     }
 
 }
