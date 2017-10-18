@@ -54,7 +54,7 @@ public class NioClient extends Client implements NioConnector {
     private final long selectTimeout;
     private final SSLContext sslContext;
     private final int concurrency;
-    private final ExecutorService executor;
+    private final ExecutorService cpu;
     private final NioProcessor[] processors;
     private final NioBalancer balancer;
     private final Boolean keepAlive;
@@ -73,9 +73,9 @@ public class NioClient extends Client implements NioConnector {
         this.selectTimeout = builder.selectTimeout;
         this.sslContext = builder.sslContext;
         this.concurrency = builder.concurrency;
-        this.executor = Executors.newFixedThreadPool(concurrency);
-        this.processors = new NioProcessorImpl[concurrency];
-        for (int i = 0; i < concurrency; i++) executor.execute(processors[i] = new NioProcessorImpl());
+        this.cpu = Executors.newFixedThreadPool(concurrency);
+        this.processors = new NioKernel[concurrency];
+        for (int i = 0; i < concurrency; i++) cpu.execute(processors[i] = new NioKernel());
         this.balancer = builder.balancer;
         this.keepAlive = builder.keepAlive;
         this.oobInline = builder.oobInline;
@@ -92,16 +92,16 @@ public class NioClient extends Client implements NioConnector {
     @Override
     public void destroy() {
         super.destroy();
-        this.executor.shutdown();
+        this.cpu.shutdown();
     }
 
-    private class NioProcessorImpl implements NioProcessor, NioCalls.NioConsumer, Closeable {
+    private class NioKernel implements NioProcessor, NioCalls.NioConsumer, Closeable {
         private final TimeoutManager timeoutManager;
         private final Selector selector;
         private final ByteBuffer buffer;
         private final NioCalls calls;
 
-        NioProcessorImpl() throws IOException {
+        NioKernel() throws IOException {
             this.timeoutManager = new SortedTimeoutManager();
             this.selector = Selector.open();
             this.buffer = ByteBuffer.allocate(4096);
@@ -342,7 +342,12 @@ public class NioClient extends Client implements NioConnector {
         void put(final Object listener, final Integer type) {
             synchronized (lock) {
                 if (success == null) listeners.put(listener, type);
-                else call(listener, type);
+                else executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        call(listener, type);
+                    }
+                });
             }
         }
 
@@ -411,7 +416,14 @@ public class NioClient extends Client implements NioConnector {
                 exception = action.getResult().getException();
                 success = exception == null;
                 lock.notifyAll();
-                for (Map.Entry<Object, Integer> entry : listeners.entrySet()) call(entry.getKey(), entry.getValue());
+                for (final Map.Entry<Object, Integer> entry : listeners.entrySet()) {
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            call(entry.getKey(), entry.getValue());
+                        }
+                    });
+                }
             }
         }
 
@@ -696,8 +708,8 @@ public class NioClient extends Client implements NioConnector {
         return concurrency;
     }
 
-    public ExecutorService getExecutor() {
-        return executor;
+    public ExecutorService getCpu() {
+        return cpu;
     }
 
     public NioBalancer getBalancer() {

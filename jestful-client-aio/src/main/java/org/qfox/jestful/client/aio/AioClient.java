@@ -38,15 +38,15 @@ public class AioClient extends Client implements AioConnector {
 
     private static AioClient defaultClient;
     private final int concurrency;
-    private final ExecutorService executor;
+    private final ExecutorService cpu;
     private final AsynchronousChannelGroup aioChannelGroup;
     private final SSLContext sslContext;
 
     private AioClient(AioBuilder<?> builder) throws IOException {
         super(builder);
         this.concurrency = builder.concurrency;
-        this.executor = concurrency > 0 ? Executors.newFixedThreadPool(concurrency) : Executors.newCachedThreadPool();
-        this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(executor);
+        this.cpu = concurrency > 0 ? Executors.newFixedThreadPool(concurrency) : Executors.newCachedThreadPool();
+        this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(cpu);
         this.sslContext = builder.sslContext;
     }
 
@@ -56,7 +56,7 @@ public class AioClient extends Client implements AioConnector {
         action.getExtra().put(AioEventListener.class, listener);
         AsynchronousSocketChannel channel = AsynchronousSocketChannel.open(aioChannelGroup);
         PrepareCompletionHandler handler = new PrepareCompletionHandler(this, channel, action);
-        executor.execute(handler);
+        cpu.execute(handler);
         return promise;
     }
 
@@ -112,7 +112,12 @@ public class AioClient extends Client implements AioConnector {
         void put(final Object listener, final Integer type) {
             synchronized (lock) {
                 if (success == null) listeners.put(listener, type);
-                else call(listener, type);
+                else executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        call(listener, type);
+                    }
+                });
             }
         }
 
@@ -181,7 +186,14 @@ public class AioClient extends Client implements AioConnector {
                 exception = action.getResult().getException();
                 success = exception == null;
                 lock.notifyAll();
-                for (Map.Entry<Object, Integer> entry : listeners.entrySet()) call(entry.getKey(), entry.getValue());
+                for (final Map.Entry<Object, Integer> entry : listeners.entrySet()) {
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            call(entry.getKey(), entry.getValue());
+                        }
+                    });
+                }
             }
         }
 
@@ -204,7 +216,7 @@ public class AioClient extends Client implements AioConnector {
     public void destroy() {
         super.destroy();
         if (aioChannelGroup != null) aioChannelGroup.shutdown();
-        if (executor != null) executor.shutdown();
+        if (cpu != null) cpu.shutdown();
     }
 
     @Override
