@@ -1,6 +1,8 @@
 package org.qfox.jestful.android;
 
 import android.os.AsyncTask;
+import org.qfox.jestful.client.Promise;
+import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.core.Action;
 
 /**
@@ -24,7 +26,34 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     @Override
     protected Object doInBackground(Object... parameters) {
         try {
-            return action.execute();
+            Promise promise = (Promise) action.execute();
+            promise.get(new CallbackAdapter<Object>() {
+                @Override
+                public void onCompleted(final boolean success, final Object result, final Exception exception) {
+                    new AsyncTask<Object, Integer, Object>() {
+
+                        @Override
+                        protected Object doInBackground(Object... params) {
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Object nil) {
+                            Exception ex = null;
+                            try {
+                                if (exception == null) onSuccess.call(result);
+                                else throw exception;
+                            } catch (Exception e) {
+                                onFail.call(ex = e);
+                            } finally {
+                                onCompleted.call(ex == null, result, ex);
+                            }
+                        }
+
+                    }.execute();
+                }
+            });
+            return null;
         } catch (Exception e) {
             exception = e;
             return null;
@@ -32,15 +61,13 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     }
 
     @Override
-    protected void onPostExecute(Object result) {
+    protected void onPostExecute(Object nil) {
         try {
-            if (exception == null) {
-                onSuccess.call(result);
-            } else {
-                onFail.call(exception);
-            }
+            if (exception != null) throw exception;
+        } catch (Exception e) {
+            onFail.call(e);
         } finally {
-            onCompleted.call(exception == null, result, exception);
+            if (exception != null) onCompleted.call(false, null, exception);
         }
     }
 

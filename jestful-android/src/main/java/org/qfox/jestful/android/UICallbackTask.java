@@ -2,6 +2,7 @@ package org.qfox.jestful.android;
 
 import android.os.AsyncTask;
 import org.qfox.jestful.client.Promise;
+import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.core.Action;
 
 class UICallbackTask extends AsyncTask<Object, Integer, Object> {
@@ -19,7 +20,33 @@ class UICallbackTask extends AsyncTask<Object, Integer, Object> {
     protected Object doInBackground(Object... parameters) {
         try {
             Promise promise = (Promise) action.execute();
-            return promise.get();
+            promise.get(new CallbackAdapter<Object>() {
+                @Override
+                public void onCompleted(final boolean success, final Object result, final Exception exception) {
+                    new AsyncTask<Object, Integer, Object>() {
+
+                        @Override
+                        protected Object doInBackground(Object... params) {
+                            return null;
+                        }
+
+                        @Override
+                        protected void onPostExecute(Object nil) {
+                            Exception ex = null;
+                            try {
+                                if (exception == null) callback.onSuccess(result);
+                                else throw exception;
+                            } catch (Exception e) {
+                                callback.onFail(ex = e);
+                            } finally {
+                                callback.onCompleted(ex == null, result, ex);
+                            }
+                        }
+
+                    }.execute();
+                }
+            });
+            return null;
         } catch (Exception e) {
             exception = e;
             return null;
@@ -27,15 +54,13 @@ class UICallbackTask extends AsyncTask<Object, Integer, Object> {
     }
 
     @Override
-    protected void onPostExecute(Object result) {
+    protected void onPostExecute(Object nil) {
         try {
-            if (exception == null) {
-                callback.onSuccess(result);
-            } else {
-                callback.onFail(exception);
-            }
+            if (exception != null) throw exception;
+        } catch (Exception e) {
+            callback.onFail(e);
         } finally {
-            callback.onCompleted(exception == null, result, exception);
+            if (exception != null) callback.onCompleted(false, null, exception);
         }
     }
 

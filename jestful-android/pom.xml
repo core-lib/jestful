@@ -26,11 +26,6 @@
             <version>v1.1.6</version>
         </dependency>
         <dependency>
-            <groupId>org.qfox</groupId>
-            <artifactId>jestful-client-nio</artifactId>
-            <version>v1.1.6</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
             <version>4.1.1.4</version>
