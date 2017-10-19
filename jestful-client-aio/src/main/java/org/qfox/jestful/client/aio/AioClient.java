@@ -105,6 +105,7 @@ public class AioClient extends Client implements AioConnector {
                 exception = action.getResult().getException();
                 success = exception == null;
                 lock.notifyAll();
+                if (callbacks != null) for (Callback<Object> callback : callbacks) super.get(callback);
             }
         }
 
