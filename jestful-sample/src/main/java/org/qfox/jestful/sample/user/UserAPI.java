@@ -7,6 +7,7 @@ import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Header;
 import org.qfox.jestful.core.annotation.Jestful;
+import rx.Observable;
 
 import java.util.concurrent.Future;
 
@@ -21,7 +22,7 @@ public interface UserAPI {
             .setHost("api.github.com")
             .build()
             .creator()
-            .addForePlugins(new RetryController((action, thrown, result, exception) -> thrown, 3))
+            .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 3))
             .create(UserAPI.class);
 
     UserAPI NIO = NioClient.builder()
@@ -29,7 +30,7 @@ public interface UserAPI {
             .setHost("api.github.com")
             .build()
             .creator()
-            .addForePlugins(new RetryController((action, thrown, result, exception) -> thrown, 3))
+            .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 3))
             .create(UserAPI.class);
 
     @GET("/user")
@@ -37,6 +38,9 @@ public interface UserAPI {
 
     @GET("/user")
     Future<User> userOfFuture(@Header(value = "Authorization", encoded = true) String authorization);
+
+    @GET("/user")
+    Observable<User> userOfObservable(@Header(value = "Authorization", encoded = true) String authorization);
 
     @GET("/user")
     void user(@Header(value = "Authorization", encoded = true) String authorization, Callback<User> callback);

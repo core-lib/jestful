@@ -15,12 +15,15 @@ public class UserAPITest {
 
     @Test
     public void getUserSynchronously() throws Exception {
-//        User user = UserAPI.NIO.user("Basic " + Base64.encode("core-lib:wan20100101"));
-//        System.out.println(user);
+        User user = UserAPI.NIO.user("Basic " + Base64.encode("core-lib:wan20100101"));
+        System.out.println(user);
 
         Future<User> future = UserAPI.NIO.userOfFuture("Basic " + Base64.encode("core-lib:wan20100101"));
         User map = future.get();
         System.out.println(map);
+
+        UserAPI.NIO.userOfObservable("Basic " + Base64.encode("core-lib:wan20100101"))
+                .subscribe(System.out::println);
     }
 
     @Test

@@ -47,7 +47,8 @@ class RetryPromise implements Promise {
                         .setForePlugins(action.getForePlugins())
                         .setBackPlugins(action.getBackPlugins())
                         .setExtra(this.getClass(), times + 1)
-                        .invoke();
+                        .promise()
+                        .get();
             }
         }
 
@@ -80,7 +81,8 @@ class RetryPromise implements Promise {
                                     .setForePlugins(action.getForePlugins())
                                     .setBackPlugins(action.getBackPlugins())
                                     .setExtra(this.getClass(), times + 1)
-                                    .invoke();
+                                    .promise()
+                                    .get(callback);
                         } catch (Exception e) {
                             callback.onFail(ex = e);
                         } finally {

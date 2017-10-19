@@ -697,7 +697,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             return (I) this;
         }
 
-        public Object invoke(Object... args) throws Exception {
+        public Action draft(Object... args) throws Exception {
             if (resource == null) resource = new Resource();
             if (mapping == null) mapping = new Mapping(resource, parameters, result, restful, consumes, produces);
             for (int i = 0; args != null && parameters != null && i < args.length && i < parameters.size(); i++) parameters.get(i).setValue(args[i]);
@@ -741,8 +741,17 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             action.setHeaderEncodeCharset(headerEncodeCharset);
 
             action.getExtra().putAll(extra);
+            return action;
+        }
 
+        public Object invoke(Object... args) throws Exception {
+            Action action = draft(args);
             return doSchedule(action);
+        }
+
+        public Promise promise(Object... args) throws Exception {
+            Action action = draft(args);
+            return (Promise) action.execute();
         }
 
     }
