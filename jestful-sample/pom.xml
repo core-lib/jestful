@@ -54,6 +54,11 @@
             <artifactId>jestful-client-aio</artifactId>
             <version>v1.1.6</version>
         </dependency>
+        <dependency>
+            <groupId>org.qfox</groupId>
+            <artifactId>jestful-RxJava</artifactId>
+            <version>v1.1.6</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -8,7 +8,6 @@ import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Header;
 import org.qfox.jestful.core.annotation.Jestful;
 
-import java.util.Map;
 import java.util.concurrent.Future;
 
 /**
@@ -34,12 +33,12 @@ public interface UserAPI {
             .create(UserAPI.class);
 
     @GET("/user")
-    Map<String, Object> user(@Header(value = "Authorization", encoded = true) String authorization);
+    User user(@Header(value = "Authorization", encoded = true) String authorization);
 
     @GET("/user")
-    Future<Map<String, Object>> userOfFuture(@Header(value = "Authorization", encoded = true) String authorization);
+    Future<User> userOfFuture(@Header(value = "Authorization", encoded = true) String authorization);
 
     @GET("/user")
-    void user(@Header(value = "Authorization", encoded = true) String authorization, Callback<Map<String, Object>> callback);
+    void user(@Header(value = "Authorization", encoded = true) String authorization, Callback<User> callback);
 
 }
