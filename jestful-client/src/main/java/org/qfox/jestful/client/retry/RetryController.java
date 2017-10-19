@@ -2,33 +2,26 @@ package org.qfox.jestful.client.retry;
 
 import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Plugin;
-import org.qfox.jestful.core.exception.BeanConfigException;
-
-import java.util.Map;
+import org.qfox.jestful.core.Actor;
 
 /**
  * Created by yangchangpei on 17/10/18.
  */
-public class RetryPlugin implements Plugin {
+public class RetryController implements Actor {
     private RetryCondition retryCondition;
     private int maxTimes;
 
-    public RetryPlugin() {
+    public RetryController() {
     }
 
-    public RetryPlugin(RetryCondition retryCondition, int maxTimes) {
+    public RetryController(RetryCondition retryCondition, int maxTimes) {
         this.retryCondition = retryCondition;
         this.maxTimes = maxTimes;
     }
 
     @Override
-    public void config(Map<String, String> arguments) throws BeanConfigException {
-
-    }
-
-    @Override
     public Object react(Action action) throws Exception {
+        if (retryCondition == null || maxTimes <= 0) return action.execute();
         Promise promise = (Promise) action.execute();
         return new RetryPromise(action, promise, retryCondition, maxTimes);
     }

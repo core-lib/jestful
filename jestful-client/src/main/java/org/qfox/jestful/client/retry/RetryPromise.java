@@ -86,16 +86,16 @@ class RetryPromise implements Promise {
                         } finally {
                             if (ex != null) callback.onCompleted(false, null, ex);
                         }
-                    } else {
-                        try {
-                            if (success) callback.onSuccess(result);
-                            else throw exception;
-                        } catch (Exception e) {
-                            callback.onFail(exception = e);
-                        } finally {
-                            callback.onCompleted(exception == null, result, exception);
-                        }
+                        return;
                     }
+                }
+                try {
+                    if (success) callback.onSuccess(result);
+                    else throw exception;
+                } catch (Exception e) {
+                    callback.onFail(exception = e);
+                } finally {
+                    callback.onCompleted(exception == null, result, exception);
                 }
             }
         });

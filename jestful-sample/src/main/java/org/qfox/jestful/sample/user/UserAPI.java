@@ -2,8 +2,7 @@ package org.qfox.jestful.sample.user;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.nio.NioClient;
-import org.qfox.jestful.client.retry.RetryPlugin;
-import org.qfox.jestful.client.retry.AlwaysRetryCondition;
+import org.qfox.jestful.client.retry.RetryController;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Header;
@@ -23,7 +22,7 @@ public interface UserAPI {
             .setHost("api.github.com")
             .build()
             .creator()
-            .addForePlugins(new RetryPlugin(new AlwaysRetryCondition(), 3))
+            .addForePlugins(new RetryController((action, thrown, result, exception) -> thrown, 3))
             .create(UserAPI.class);
 
     UserAPI NIO = NioClient.builder()
@@ -31,7 +30,7 @@ public interface UserAPI {
             .setHost("api.github.com")
             .build()
             .creator()
-            .addForePlugins(new RetryPlugin(new AlwaysRetryCondition(), 3))
+            .addForePlugins(new RetryController((action, thrown, result, exception) -> thrown, 3))
             .create(UserAPI.class);
 
     @GET("/user")
