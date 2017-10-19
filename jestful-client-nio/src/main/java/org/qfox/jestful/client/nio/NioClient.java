@@ -295,11 +295,11 @@ public class NioClient extends Client implements NioConnector {
         }
 
         @Override
-        public Object require() throws Exception {
+        public Object acquire() throws Exception {
             if (success == null) {
                 synchronized (lock) {
                     if (success == null) lock.wait();
-                    return require();
+                    return acquire();
                 }
             } else if (success) {
                 return result;

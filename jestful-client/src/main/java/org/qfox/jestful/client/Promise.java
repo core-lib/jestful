@@ -7,7 +7,7 @@ import org.qfox.jestful.client.scheduler.Callback;
  */
 public interface Promise {
 
-    Object require() throws Exception;
+    Object acquire() throws Exception;
 
     void observe(Callback<Object> callback);
 

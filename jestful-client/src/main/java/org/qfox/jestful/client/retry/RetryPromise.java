@@ -23,11 +23,11 @@ class RetryPromise implements Promise {
     }
 
     @Override
-    public Object require() throws Exception {
+    public Object acquire() throws Exception {
         Exception exception = null;
         Object result = null;
         try {
-            result = promise.require();
+            result = promise.acquire();
         } catch (Exception e) {
             exception = e;
         }
@@ -48,7 +48,7 @@ class RetryPromise implements Promise {
                         .setBackPlugins(action.getBackPlugins())
                         .setExtra(this.getClass(), count + 1)
                         .promise()
-                        .require();
+                        .acquire();
             }
         }
 

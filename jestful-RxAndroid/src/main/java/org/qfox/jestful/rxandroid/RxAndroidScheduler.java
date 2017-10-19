@@ -54,7 +54,7 @@ public class RxAndroidScheduler implements Scheduler {
 			public void call(Subscriber<? super Object> subscriber) {
 				try {
 					Promise promise = (Promise) action.execute();
-					Object value = promise.require();
+					Object value = promise.acquire();
 					subscriber.onNext(value);
 				} catch (Throwable e) {
 					subscriber.onError(e);

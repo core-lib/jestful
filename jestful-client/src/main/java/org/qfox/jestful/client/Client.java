@@ -431,7 +431,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
 
         @Override
-        public Object require() throws Exception {
+        public Object acquire() throws Exception {
             if (success == null) {
                 synchronized (lock) {
                     if (success == null) {
@@ -443,7 +443,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                             success = exception == null;
                         }
                     }
-                    return require();
+                    return acquire();
                 }
             } else if (success) {
                 return result;
@@ -460,7 +460,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                     Object result = null;
                     Exception exception = null;
                     try {
-                        callback.onSuccess(result = require());
+                        callback.onSuccess(result = acquire());
                     } catch (Exception e) {
                         callback.onFail(exception = e);
                     } finally {
@@ -493,7 +493,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         Type type = result.getType();
         body.setType(type);
         Promise promise = (Promise) action.execute();
-        Object value = promise.require();
+        Object value = promise.acquire();
         result.setValue(value);
 
         return value;
