@@ -23,11 +23,11 @@ class RetryPromise implements Promise {
     }
 
     @Override
-    public Object get() throws Exception {
+    public Object require() throws Exception {
         Exception exception = null;
         Object result = null;
         try {
-            result = promise.get();
+            result = promise.require();
         } catch (Exception e) {
             exception = e;
         }
@@ -48,7 +48,7 @@ class RetryPromise implements Promise {
                         .setBackPlugins(action.getBackPlugins())
                         .setExtra(this.getClass(), count + 1)
                         .promise()
-                        .get();
+                        .require();
             }
         }
 
@@ -60,8 +60,8 @@ class RetryPromise implements Promise {
     }
 
     @Override
-    public void get(final Callback<Object> callback) {
-        promise.get(new CallbackAdapter<Object>() {
+    public void observe(final Callback<Object> callback) {
+        promise.observe(new CallbackAdapter<Object>() {
             @Override
             public void onCompleted(boolean success, Object result, Exception exception) {
                 if (retryCondition.matches(action, !success, result, exception)) {
@@ -82,7 +82,7 @@ class RetryPromise implements Promise {
                                     .setBackPlugins(action.getBackPlugins())
                                     .setExtra(this.getClass(), count + 1)
                                     .promise()
-                                    .get(callback);
+                                    .observe(callback);
                         } catch (Exception e) {
                             callback.onFail(ex = e);
                         } finally {

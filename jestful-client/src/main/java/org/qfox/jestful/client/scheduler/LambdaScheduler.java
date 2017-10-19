@@ -9,8 +9,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by yangchangpei on 17/3/31.
@@ -52,7 +50,7 @@ public class LambdaScheduler implements Scheduler {
         Parameter completed = parameters.first(OnCompleted.class);
         final OnCompleted onCompleted = completed != null && completed.getValue() != null ? (OnCompleted) completed.getValue() : OnCompleted.DEFAULT;
         Promise promise = (Promise) action.execute();
-        promise.get(new Callback<Object>() {
+        promise.observe(new Callback<Object>() {
             @Override
             public void onCompleted(boolean success, Object result, Exception exception) {
                 onCompleted.call(success, result, exception);

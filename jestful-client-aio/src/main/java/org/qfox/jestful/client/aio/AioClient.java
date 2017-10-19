@@ -61,11 +61,11 @@ public class AioClient extends Client implements AioConnector {
         }
 
         @Override
-        public Object get() throws Exception {
+        public Object require() throws Exception {
             if (success == null) {
                 synchronized (lock) {
                     if (success == null) lock.wait();
-                    return get();
+                    return require();
                 }
             } else if (success) {
                 return result;
@@ -75,18 +75,18 @@ public class AioClient extends Client implements AioConnector {
         }
 
         @Override
-        public void get(Callback<Object> callback) {
+        public void observe(Callback<Object> callback) {
             if (success == null) {
                 synchronized (lock) {
                     if (success == null) {
                         if (callbacks == null) callbacks = new HashSet<Callback<Object>>();
                         callbacks.add(callback);
                     } else {
-                        super.get(callback);
+                        super.observe(callback);
                     }
                 }
             } else {
-                super.get(callback);
+                super.observe(callback);
             }
         }
 
@@ -101,7 +101,7 @@ public class AioClient extends Client implements AioConnector {
                 exception = action.getResult().getException();
                 success = exception == null;
                 lock.notifyAll();
-                if (callbacks != null) for (Callback<Object> callback : callbacks) super.get(callback);
+                if (callbacks != null) for (Callback<Object> callback : callbacks) super.observe(callback);
             }
         }
 

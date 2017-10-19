@@ -40,7 +40,7 @@ public class MessageScheduler implements Scheduler {
     public Object schedule(Client client, Action action) throws Exception {
         try {
             Promise promise = (Promise) action.execute();
-            Object entity = promise.get();
+            Object entity = promise.require();
             Response response = action.getResponse();
             return new Message<Object>(response, entity);
         } catch (Exception exception) {

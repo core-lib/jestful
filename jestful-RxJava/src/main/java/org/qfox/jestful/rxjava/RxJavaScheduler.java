@@ -54,7 +54,7 @@ public class RxJavaScheduler implements Scheduler {
 			public void call(Subscriber<? super Object> subscriber) {
 				try {
 					Promise promise = (Promise) action.execute();
-					Object value = promise.get();
+					Object value = promise.require();
 					subscriber.onNext(value);
 				} catch (Throwable e) {
 					subscriber.onError(e);

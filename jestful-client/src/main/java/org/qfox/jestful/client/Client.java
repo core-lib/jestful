@@ -431,7 +431,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
 
         @Override
-        public Object get() throws Exception {
+        public Object require() throws Exception {
             if (success == null) {
                 synchronized (lock) {
                     if (success == null) {
@@ -443,7 +443,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                             success = exception == null;
                         }
                     }
-                    return get();
+                    return require();
                 }
             } else if (success) {
                 return result;
@@ -453,14 +453,14 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
 
         @Override
-        public void get(final Callback<Object> callback) {
+        public void observe(final Callback<Object> callback) {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     Object result = null;
                     Exception exception = null;
                     try {
-                        callback.onSuccess(result = get());
+                        callback.onSuccess(result = require());
                     } catch (Exception e) {
                         callback.onFail(exception = e);
                     } finally {
@@ -493,7 +493,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         Type type = result.getType();
         body.setType(type);
         Promise promise = (Promise) action.execute();
-        Object value = promise.get();
+        Object value = promise.require();
         result.setValue(value);
 
         return value;
