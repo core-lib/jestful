@@ -11,8 +11,6 @@ import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.core.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
@@ -31,8 +29,6 @@ import java.util.concurrent.Executors;
  * Created by yangchangpei on 17/3/29.
  */
 public class AioClient extends Client implements AioConnector {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private static AioClient defaultClient;
     private final int concurrency;
     private final ExecutorService cpu;

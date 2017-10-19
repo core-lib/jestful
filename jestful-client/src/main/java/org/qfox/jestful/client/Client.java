@@ -35,6 +35,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.jar.JarEntry;
@@ -53,7 +54,7 @@ import java.util.jar.JarFile;
  * @date 2016年4月27日 下午4:59:46
  * @since 1.0.0
  */
-public class Client implements Actor, Connector, Initialable, Destroyable {
+public class Client implements Actor, Connector, Executor, Initialable, Destroyable {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected final ExecutorService executor = Executors.newCachedThreadPool();
@@ -258,6 +259,11 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
     protected void finalize() throws Throwable {
         this.destroy();
         super.finalize();
+    }
+
+    @Override
+    public void execute(Runnable command) {
+        executor.execute(command);
     }
 
     public boolean supports(Action action) {

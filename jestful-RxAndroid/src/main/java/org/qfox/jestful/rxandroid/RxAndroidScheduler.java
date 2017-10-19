@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.exception.UncertainBodyTypeException;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.core.Action;
@@ -52,7 +53,8 @@ public class RxAndroidScheduler implements Scheduler {
 
 			public void call(Subscriber<? super Object> subscriber) {
 				try {
-					Object value = action.execute();
+					Promise promise = (Promise) action.execute();
+					Object value = promise.get();
 					subscriber.onNext(value);
 				} catch (Throwable e) {
 					subscriber.onError(e);
