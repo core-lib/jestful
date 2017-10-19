@@ -14,6 +14,14 @@ public class RetryPlugin implements Plugin {
     private RetryCondition retryCondition;
     private int maxTimes;
 
+    public RetryPlugin() {
+    }
+
+    public RetryPlugin(RetryCondition retryCondition, int maxTimes) {
+        this.retryCondition = retryCondition;
+        this.maxTimes = maxTimes;
+    }
+
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
 

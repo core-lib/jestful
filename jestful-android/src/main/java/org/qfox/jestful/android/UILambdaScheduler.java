@@ -31,19 +31,13 @@ public class UILambdaScheduler implements Scheduler, Destroyable {
         List<Parameter> params = parameters.all(UIOnLambda.class);
         for (Parameter param : params) {
             Type type = param.getType();
-            if (!(type instanceof ParameterizedType)) {
-                continue;
-            }
+            if (!(type instanceof ParameterizedType)) continue;
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
-            if (!(actualTypeArgument instanceof TypeVariable<?>)) {
-                return actualTypeArgument;
-            }
+            if (!(actualTypeArgument instanceof TypeVariable<?>)) return actualTypeArgument;
             TypeVariable<?> typeVariable = (TypeVariable<?>) actualTypeArgument;
             Type[] bounds = typeVariable.getBounds();
-            if (bounds.length == 0) {
-                continue;
-            }
+            if (bounds.length == 0) continue;
             return bounds[0];
         }
         throw new UncertainBodyTypeException(client, action);

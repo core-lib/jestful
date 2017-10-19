@@ -6,7 +6,7 @@ package org.qfox.jestful.client.scheduler;
 public abstract class CallbackAdapter<T> implements Callback<T> {
 
     @Override
-    public void onCompleted(boolean success, T result, Throwable throwable) {
+    public void onCompleted(boolean success, T result, Exception exception) {
 
     }
 
@@ -16,7 +16,7 @@ public abstract class CallbackAdapter<T> implements Callback<T> {
     }
 
     @Override
-    public void onFail(Throwable throwable) {
+    public void onFail(Exception exception) {
 
     }
 

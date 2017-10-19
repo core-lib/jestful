@@ -18,7 +18,7 @@ public final class Message<T> implements Serializable {
     private final Status status;
     private final Map<String, String> header = new CaseInsensitiveMap<String, String>();
     private final T entity;
-    private final Throwable throwable;
+    private final Exception exception;
 
     public Message(Response response, T entity) throws IOException {
         this.success = true;
@@ -29,10 +29,10 @@ public final class Message<T> implements Serializable {
             this.header.put(name, value);
         }
         this.entity = entity;
-        this.throwable = null;
+        this.exception = null;
     }
 
-    public Message(Response response, Throwable throwable) throws IOException {
+    public Message(Response response, Exception exception) throws IOException {
         this.success = false;
         this.status = response != null ? response.getResponseStatus() : null;
         for (String key : response != null && response.getHeaderKeys() != null ? response.getHeaderKeys() : new String[0]) {
@@ -41,7 +41,7 @@ public final class Message<T> implements Serializable {
             this.header.put(name, value);
         }
         this.entity = null;
-        this.throwable = throwable;
+        this.exception = exception;
     }
 
     public boolean isSuccess() {
@@ -60,8 +60,8 @@ public final class Message<T> implements Serializable {
         return entity;
     }
 
-    public Throwable getThrowable() {
-        return throwable;
+    public Exception getException() {
+        return exception;
     }
 
 }

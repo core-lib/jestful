@@ -44,7 +44,8 @@ public class FutureScheduler implements Scheduler {
     }
 
     public Object schedule(final Client client, final Action action) throws Exception {
-        final ActionFuture future = new ActionFuture(action);
+        Object value = action.getResult().getValue();
+        ActionFuture future = value instanceof ActionFuture ? (ActionFuture) value : new ActionFuture(action);
         Promise promise = (Promise) action.execute();
         promise.get(new FutureCallback(future));
         return future;
@@ -58,7 +59,7 @@ public class FutureScheduler implements Scheduler {
         }
 
         @Override
-        public void onCompleted(boolean success, Object result, Throwable throwable) {
+        public void onCompleted(boolean success, Object result, Exception exception) {
             future.done();
         }
     }

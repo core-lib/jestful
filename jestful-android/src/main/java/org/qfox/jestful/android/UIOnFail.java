@@ -8,12 +8,12 @@ public interface UIOnFail extends UIOnLambda {
     UIOnFail DEFAULT = new UIOnFail() {
 
         @Override
-        public void call(Throwable throwable) {
-            throw new RuntimeException(throwable);
+        public void call(Exception exception) {
+            throw exception instanceof RuntimeException ? (RuntimeException) exception : new RuntimeException(exception);
         }
 
     };
 
-    void call(Throwable throwable);
+    void call(Exception exception);
 
 }

@@ -8,12 +8,12 @@ public interface UIOnCompleted<R> extends UIOnLambda {
     UIOnCompleted<Object> DEFAULT = new UIOnCompleted<Object>() {
 
         @Override
-        public void call(boolean success, Object result, Throwable throwable) {
+        public void call(boolean success, Object result, Exception exception) {
 
         }
 
     };
 
-    void call(boolean success, R result, Throwable throwable);
+    void call(boolean success, R result, Exception exception);
 
 }

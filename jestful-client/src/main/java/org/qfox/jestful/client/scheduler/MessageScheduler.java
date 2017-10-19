@@ -43,9 +43,9 @@ public class MessageScheduler implements Scheduler {
             Object entity = promise.get();
             Response response = action.getResponse();
             return new Message<Object>(response, entity);
-        } catch (Throwable throwable) {
+        } catch (Exception exception) {
             Response response = action.getResponse();
-            return new Message<Object>(response, throwable);
+            return new Message<Object>(response, exception);
         }
     }
 }

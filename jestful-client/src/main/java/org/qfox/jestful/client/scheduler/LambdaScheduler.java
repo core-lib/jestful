@@ -30,19 +30,13 @@ public class LambdaScheduler implements Scheduler {
         List<Parameter> params = parameters.all(OnLambda.class);
         for (Parameter param : params) {
             Type type = param.getType();
-            if (!(type instanceof ParameterizedType)) {
-                continue;
-            }
+            if (!(type instanceof ParameterizedType)) continue;
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type actualTypeArgument = parameterizedType.getActualTypeArguments()[0];
-            if (!(actualTypeArgument instanceof TypeVariable<?>)) {
-                return actualTypeArgument;
-            }
+            if (!(actualTypeArgument instanceof TypeVariable<?>)) return actualTypeArgument;
             TypeVariable<?> typeVariable = (TypeVariable<?>) actualTypeArgument;
             Type[] bounds = typeVariable.getBounds();
-            if (bounds.length == 0) {
-                continue;
-            }
+            if (bounds.length == 0) continue;
             return bounds[0];
         }
         throw new UncertainBodyTypeException(client, action);
@@ -60,8 +54,8 @@ public class LambdaScheduler implements Scheduler {
         Promise promise = (Promise) action.execute();
         promise.get(new Callback<Object>() {
             @Override
-            public void onCompleted(boolean success, Object result, Throwable throwable) {
-                onCompleted.call(success, result, throwable);
+            public void onCompleted(boolean success, Object result, Exception exception) {
+                onCompleted.call(success, result, exception);
             }
 
             @Override
@@ -70,8 +64,8 @@ public class LambdaScheduler implements Scheduler {
             }
 
             @Override
-            public void onFail(Throwable throwable) {
-                onFail.call(throwable);
+            public void onFail(Exception exception) {
+                onFail.call(exception);
             }
         });
         return null;

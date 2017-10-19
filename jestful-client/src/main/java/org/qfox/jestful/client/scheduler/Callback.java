@@ -23,9 +23,9 @@ public interface Callback<R> {
      *
      * @param success   true:处理成功 false:处理失败
      * @param result    请求结果
-     * @param throwable 失败异常
+     * @param exception 失败异常
      */
-    void onCompleted(boolean success, R result, Throwable throwable);
+    void onCompleted(boolean success, R result, Exception exception);
 
     /**
      * 成功时回调
@@ -37,8 +37,8 @@ public interface Callback<R> {
     /**
      * 失败时回调
      *
-     * @param throwable 失败异常
+     * @param exception 失败异常
      */
-    void onFail(Throwable throwable);
+    void onFail(Exception exception);
 
 }

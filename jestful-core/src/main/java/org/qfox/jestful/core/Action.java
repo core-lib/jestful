@@ -22,6 +22,8 @@ public class Action {
     private final BeanContainer beanContainer;
     private final List<Actor> actors;
     private volatile int index = 0;
+    private final List<Actor> forePlugins;
+    private final List<Actor> backPlugins;
 
     private Resource resource;
     private Mapping mapping;
@@ -66,15 +68,15 @@ public class Action {
 
     private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
-    protected Action() {
-        this.beanContainer = null;
-        this.actors = new ArrayList<Actor>();
+    public Action(BeanContainer beanContainer, Collection<Actor> actors) {
+        this(beanContainer, actors, null, null);
     }
 
-    public Action(BeanContainer beanContainer, Collection<Actor> actors) {
-        super();
+    public Action(BeanContainer beanContainer, Collection<Actor> actors, Collection<Actor> forePlugins, Collection<Actor> backPlugins) {
         this.beanContainer = beanContainer;
         this.actors = new ArrayList<Actor>(actors);
+        this.forePlugins = forePlugins == null ? Collections.<Actor>emptyList() : Collections.unmodifiableList(new ArrayList<Actor>(forePlugins));
+        this.backPlugins = backPlugins == null ? Collections.<Actor>emptyList() : Collections.unmodifiableList(new ArrayList<Actor>(backPlugins));
     }
 
     /**
@@ -110,6 +112,14 @@ public class Action {
 
     public BeanContainer getBeanContainer() {
         return beanContainer;
+    }
+
+    public List<Actor> getForePlugins() {
+        return forePlugins;
+    }
+
+    public List<Actor> getBackPlugins() {
+        return backPlugins;
     }
 
     public Resource getResource() {

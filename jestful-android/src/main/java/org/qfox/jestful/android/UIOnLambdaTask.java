@@ -12,7 +12,7 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     private final UIOnSuccess onSuccess;
     private final UIOnFail onFail;
     private final UIOnCompleted onCompleted;
-    private Throwable throwable;
+    private Exception exception;
 
     UIOnLambdaTask(Action action, UIOnSuccess onSuccess, UIOnFail onFail, UIOnCompleted onCompleted) {
         this.action = action;
@@ -25,8 +25,8 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     protected Object doInBackground(Object... parameters) {
         try {
             return action.execute();
-        } catch (Throwable e) {
-            throwable = e;
+        } catch (Exception e) {
+            exception = e;
             return null;
         }
     }
@@ -34,13 +34,13 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     @Override
     protected void onPostExecute(Object result) {
         try {
-            if (throwable == null) {
+            if (exception == null) {
                 onSuccess.call(result);
             } else {
-                onFail.call(throwable);
+                onFail.call(exception);
             }
         } finally {
-            onCompleted.call(throwable == null, result, throwable);
+            onCompleted.call(exception == null, result, exception);
         }
     }
 

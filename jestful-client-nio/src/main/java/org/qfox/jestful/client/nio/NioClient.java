@@ -1,7 +1,6 @@
 package org.qfox.jestful.client.nio;
 
 import org.qfox.jestful.client.Client;
-import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
@@ -35,8 +34,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -287,6 +288,7 @@ public class NioClient extends Client implements NioConnector {
     }
 
     private class NioPromise extends BioPromise {
+        private Set<Callback<Object>> callbacks;
 
         NioPromise(Action action) {
             super(action);
@@ -307,6 +309,22 @@ public class NioClient extends Client implements NioConnector {
         }
 
         @Override
+        public void get(Callback<Object> callback) {
+            if (success == null) {
+                synchronized (lock) {
+                    if (success == null) {
+                        if (callbacks == null) callbacks = new HashSet<Callback<Object>>();
+                        callbacks.add(callback);
+                    } else {
+                        super.get(callback);
+                    }
+                }
+            } else {
+                super.get(callback);
+            }
+        }
+
+        @Override
         public Client client() {
             return NioClient.this;
         }
@@ -317,6 +335,7 @@ public class NioClient extends Client implements NioConnector {
                 exception = action.getResult().getException();
                 success = exception == null;
                 lock.notifyAll();
+                if (callbacks != null) for (Callback<Object> callback : callbacks) super.get(callback);
             }
         }
 

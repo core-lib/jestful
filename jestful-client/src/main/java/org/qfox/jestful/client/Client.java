@@ -452,13 +452,13 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
                 @Override
                 public void run() {
                     Object result = null;
-                    Throwable throwable = null;
+                    Exception exception = null;
                     try {
                         callback.onSuccess(result = get());
-                    } catch (Throwable e) {
-                        callback.onFail(throwable = e);
+                    } catch (Exception e) {
+                        callback.onFail(exception = e);
                     } finally {
-                        callback.onCompleted(throwable == null, result, throwable);
+                        callback.onCompleted(exception == null, result, exception);
                     }
                 }
             });
@@ -702,7 +702,7 @@ public class Client implements Actor, Connector, Initialable, Destroyable {
             actors.addAll(backPlugins);
             actors.add(Client.this);
 
-            Action action = new Action(beanContainer, actors);
+            Action action = new Action(beanContainer, actors, forePlugins, backPlugins);
             action.setResource(resource);
             action.setMapping(mapping);
             action.setParameters(parameters);

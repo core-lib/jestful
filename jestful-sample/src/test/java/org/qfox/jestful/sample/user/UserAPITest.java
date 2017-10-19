@@ -16,8 +16,8 @@ public class UserAPITest {
 
     @Test
     public void getUserSynchronously() throws Exception {
-        Map<String, Object> user = UserAPI.NIO.user("Basic " + Base64.encode("core-lib:wan20100101"));
-        System.out.println(user);
+//        Map<String, Object> user = UserAPI.NIO.user("Basic " + Base64.encode("core-lib:wan20100101"));
+//        System.out.println(user);
 
         Future<Map<String, Object>> future = UserAPI.NIO.userOfFuture("Basic " + Base64.encode("core-lib:wan20100101"));
         Map<String, Object> map = future.get();
@@ -29,7 +29,7 @@ public class UserAPITest {
         final Lock lock = new SimpleLock();
         UserAPI.NIO.user("Basic " + Base64.encode("core-lib:wan20100101"), new Callback<Map<String, Object>>() {
             @Override
-            public void onCompleted(boolean success, Map<String, Object> result, Throwable throwable) {
+            public void onCompleted(boolean success, Map<String, Object> result, Exception exception) {
                 lock.openAll();
             }
 
@@ -39,8 +39,8 @@ public class UserAPITest {
             }
 
             @Override
-            public void onFail(Throwable throwable) {
-                throwable.printStackTrace();
+            public void onFail(Exception exception) {
+                exception.printStackTrace();
             }
         });
         lock.lockOne();

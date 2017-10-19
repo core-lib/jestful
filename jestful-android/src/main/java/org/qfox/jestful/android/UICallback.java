@@ -11,7 +11,7 @@ public interface UICallback<R> {
 
 	UICallback<Object> NULL = new UICallback<Object>() {
 
-		public void onCompleted(boolean success, Object result, Throwable throwable) {
+		public void onCompleted(boolean success, Object result, Exception exception) {
 
 		}
 
@@ -19,7 +19,7 @@ public interface UICallback<R> {
 
 		}
 
-		public void onFail(Throwable throwable) {
+		public void onFail(Exception exception) {
 
 		}
 
@@ -32,10 +32,10 @@ public interface UICallback<R> {
 	 *            true:处理成功 false:处理失败
 	 * @param result
 	 *            请求结果
-	 * @param throwable
+	 * @param exception
 	 *            失败异常
 	 */
-	void onCompleted(boolean success, R result, Throwable throwable);
+	void onCompleted(boolean success, R result, Exception exception);
 
 	/**
 	 * 成功时回调
@@ -48,9 +48,9 @@ public interface UICallback<R> {
 	/**
 	 * 失败时回调
 	 * 
-	 * @param throwable
+	 * @param exception
 	 *            失败异常
 	 */
-	void onFail(Throwable throwable);
+	void onFail(Exception exception);
 
 }

@@ -6,6 +6,7 @@ import org.qfox.jestful.client.aio.connection.AioConnector;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
+import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
@@ -20,7 +21,9 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -55,6 +58,7 @@ public class AioClient extends Client implements AioConnector {
     }
 
     private class AioPromise extends BioPromise {
+        private Set<Callback<Object>> callbacks;
 
         AioPromise(Action action) {
             super(action);
@@ -71,6 +75,22 @@ public class AioClient extends Client implements AioConnector {
                 return result;
             } else {
                 throw exception;
+            }
+        }
+
+        @Override
+        public void get(Callback<Object> callback) {
+            if (success == null) {
+                synchronized (lock) {
+                    if (success == null) {
+                        if (callbacks == null) callbacks = new HashSet<Callback<Object>>();
+                        callbacks.add(callback);
+                    } else {
+                        super.get(callback);
+                    }
+                }
+            } else {
+                super.get(callback);
             }
         }
 

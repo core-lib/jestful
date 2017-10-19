@@ -7,6 +7,6 @@ import org.qfox.jestful.core.Action;
  */
 public interface RetryCondition {
 
-    boolean matches(Action action);
+    boolean matches(Action action, boolean thrown, Object result, Exception exception);
 
 }
