@@ -13,13 +13,13 @@ class RetryPromise implements Promise {
     private final Action action;
     private final Promise promise;
     private final RetryCondition retryCondition;
-    private final int maxTimes;
+    private final int maxCount;
 
-    RetryPromise(Action action, Promise promise, RetryCondition retryCondition, int maxTimes) {
+    RetryPromise(Action action, Promise promise, RetryCondition retryCondition, int maxCount) {
         this.action = action;
         this.promise = promise;
         this.retryCondition = retryCondition;
-        this.maxTimes = maxTimes;
+        this.maxCount = maxCount;
     }
 
     @Override
@@ -33,9 +33,9 @@ class RetryPromise implements Promise {
         }
 
         if (retryCondition.matches(action, exception != null, result, exception)) {
-            Integer times = (Integer) action.getExtra().get(this.getClass());
-            if (times == null) times = 0;
-            if (times < maxTimes) {
+            Integer count = (Integer) action.getExtra().get(this.getClass());
+            if (count == null) count = 0;
+            if (count < maxCount) {
                 return client().invoker()
                         .setProtocol(action.getProtocol())
                         .setHost(action.getHost())
@@ -46,7 +46,7 @@ class RetryPromise implements Promise {
                         .setParameters(action.getParameters())
                         .setForePlugins(action.getForePlugins())
                         .setBackPlugins(action.getBackPlugins())
-                        .setExtra(this.getClass(), times + 1)
+                        .setExtra(this.getClass(), count + 1)
                         .promise()
                         .get();
             }
@@ -65,9 +65,9 @@ class RetryPromise implements Promise {
             @Override
             public void onCompleted(boolean success, Object result, Exception exception) {
                 if (retryCondition.matches(action, !success, result, exception)) {
-                    Integer times = (Integer) action.getExtra().get(this.getClass());
-                    if (times == null) times = 0;
-                    if (times < maxTimes) {
+                    Integer count = (Integer) action.getExtra().get(this.getClass());
+                    if (count == null) count = 0;
+                    if (count < maxCount) {
                         Exception ex = null;
                         try {
                             client().invoker()
@@ -80,7 +80,7 @@ class RetryPromise implements Promise {
                                     .setParameters(action.getParameters())
                                     .setForePlugins(action.getForePlugins())
                                     .setBackPlugins(action.getBackPlugins())
-                                    .setExtra(this.getClass(), times + 1)
+                                    .setExtra(this.getClass(), count + 1)
                                     .promise()
                                     .get(callback);
                         } catch (Exception e) {

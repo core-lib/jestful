@@ -9,21 +9,21 @@ import org.qfox.jestful.core.Actor;
  */
 public class RetryController implements Actor {
     private RetryCondition retryCondition;
-    private int maxTimes;
+    private int maxCount;
 
     public RetryController() {
     }
 
-    public RetryController(RetryCondition retryCondition, int maxTimes) {
+    public RetryController(RetryCondition retryCondition, int maxCount) {
         this.retryCondition = retryCondition;
-        this.maxTimes = maxTimes;
+        this.maxCount = maxCount;
     }
 
     @Override
     public Object react(Action action) throws Exception {
-        if (retryCondition == null || maxTimes <= 0) return action.execute();
+        if (retryCondition == null || maxCount <= 0) return action.execute();
         Promise promise = (Promise) action.execute();
-        return new RetryPromise(action, promise, retryCondition, maxTimes);
+        return new RetryPromise(action, promise, retryCondition, maxCount);
     }
 
     public RetryCondition getRetryCondition() {
@@ -34,11 +34,11 @@ public class RetryController implements Actor {
         this.retryCondition = retryCondition;
     }
 
-    public int getMaxTimes() {
-        return maxTimes;
+    public int getMaxCount() {
+        return maxCount;
     }
 
-    public void setMaxTimes(int maxTimes) {
-        this.maxTimes = maxTimes;
+    public void setMaxCount(int maxCount) {
+        this.maxCount = maxCount;
     }
 }
