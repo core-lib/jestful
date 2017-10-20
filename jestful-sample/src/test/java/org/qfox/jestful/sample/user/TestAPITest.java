@@ -1,5 +1,19 @@
 package org.qfox.jestful.sample.user;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.commons.Base64;
@@ -47,6 +61,24 @@ public class TestAPITest {
             }
         });
         lock.lockOne();
+    }
+
+    @Test
+    public void getUserByHttpClient() throws Exception {
+        HttpClient client = new DefaultHttpClient();
+        HttpClientContext context = new HttpClientContext();
+        CredentialsProvider provider = new BasicCredentialsProvider();
+        provider.setCredentials(new AuthScope(new HttpHost("api.github.com", 443, "https")), new UsernamePasswordCredentials("core-lib", "wan20100101"));
+        context.setCredentialsProvider(provider);
+
+        AuthCache authCache = new BasicAuthCache();
+        authCache.put(new HttpHost("api.github.com", 443, "https"), new BasicScheme());
+        context.setAuthCache(authCache);
+
+        HttpGet request = new HttpGet("https://api.github.com/user");
+        HttpResponse response = client.execute(request, context);
+        HttpEntity entity = response.getEntity();
+        System.out.println(entity);
     }
 
 }
