@@ -12,7 +12,7 @@ public class AuthManager implements Actor {
     @Override
     public Object react(Action action) throws Exception {
         Promise promise = (Promise) action.execute();
-        return new AuthPromise(promise);
+        return new AuthPromise(action, promise);
     }
 
 }
