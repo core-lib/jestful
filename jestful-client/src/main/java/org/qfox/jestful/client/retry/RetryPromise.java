@@ -60,8 +60,8 @@ class RetryPromise implements Promise {
     }
 
     @Override
-    public void observe(final Callback<Object> callback) {
-        promise.observe(new CallbackAdapter<Object>() {
+    public void accept(final Callback<Object> callback) {
+        promise.accept(new CallbackAdapter<Object>() {
             @Override
             public void onCompleted(boolean success, Object result, Exception exception) {
                 if (retryCondition.matches(action, !success, result, exception)) {
@@ -82,7 +82,7 @@ class RetryPromise implements Promise {
                                     .setBackPlugins(action.getBackPlugins())
                                     .setExtra(this.getClass(), count + 1)
                                     .promise()
-                                    .observe(callback);
+                                    .accept(callback);
                         } catch (Exception e) {
                             callback.onFail(ex = e);
                         } finally {

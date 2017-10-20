@@ -46,7 +46,7 @@ public class FutureScheduler implements Scheduler {
     public Object schedule(final Client client, final Action action) throws Exception {
         ActionFuture future = new ActionFuture(action);
         Promise promise = (Promise) action.execute();
-        promise.observe(new FutureCallback(future));
+        promise.accept(new FutureCallback(future));
         return future;
     }
 

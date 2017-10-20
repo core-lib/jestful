@@ -456,7 +456,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
 
         @Override
-        public void observe(final Callback<Object> callback) {
+        public void accept(final Callback<Object> callback) {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {

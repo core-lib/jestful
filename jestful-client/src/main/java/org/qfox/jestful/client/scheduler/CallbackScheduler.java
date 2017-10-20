@@ -58,7 +58,7 @@ public class CallbackScheduler implements Scheduler {
         Parameter parameter = parameters.unique(Callback.class);
         Callback callback = parameter.getValue() != null ? (Callback) parameter.getValue() : Callback.DEFAULT;
         Promise promise = (Promise) action.execute();
-        promise.observe(callback);
+        promise.accept(callback);
         return null;
     }
 

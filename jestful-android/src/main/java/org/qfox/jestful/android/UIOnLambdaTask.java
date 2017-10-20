@@ -27,7 +27,7 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     protected Object doInBackground(Object... parameters) {
         try {
             Promise promise = (Promise) action.execute();
-            promise.observe(new CallbackAdapter<Object>() {
+            promise.accept(new CallbackAdapter<Object>() {
                 @Override
                 public void onCompleted(final boolean success, final Object result, final Exception exception) {
                     new AsyncTask<Object, Integer, Object>() {

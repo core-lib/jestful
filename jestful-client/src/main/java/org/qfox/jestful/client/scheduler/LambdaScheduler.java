@@ -50,7 +50,7 @@ public class LambdaScheduler implements Scheduler {
         Parameter completed = parameters.first(OnCompleted.class);
         final OnCompleted onCompleted = completed != null && completed.getValue() != null ? (OnCompleted) completed.getValue() : OnCompleted.DEFAULT;
         Promise promise = (Promise) action.execute();
-        promise.observe(new Callback<Object>() {
+        promise.accept(new Callback<Object>() {
             @Override
             public void onCompleted(boolean success, Object result, Exception exception) {
                 onCompleted.call(success, result, exception);

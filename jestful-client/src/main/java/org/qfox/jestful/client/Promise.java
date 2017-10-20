@@ -9,7 +9,7 @@ public interface Promise {
 
     Object acquire() throws Exception;
 
-    void observe(Callback<Object> callback);
+    void accept(Callback<Object> callback);
 
     Client client();
 
