@@ -3,6 +3,8 @@ package org.qfox.jestful.client.exception;
 import org.qfox.jestful.core.Status;
 import org.qfox.jestful.core.exception.StatusException;
 
+import java.util.Map;
+
 /**
  * <p>
  * Description:
@@ -19,11 +21,17 @@ import org.qfox.jestful.core.exception.StatusException;
 public class UnexpectedStatusException extends StatusException {
     private static final long serialVersionUID = -3047547153816408719L;
 
+    private final Map<String, String[]> header;
     private final String body;
 
-    public UnexpectedStatusException(String uri, String method, Status status, String body) {
+    public UnexpectedStatusException(String uri, String method, Status status, Map<String, String[]> header, String body) {
         super(uri, method, status.getCode(), status.getReason());
+        this.header = header;
         this.body = body;
+    }
+
+    public Map<String, String[]> getHeader() {
+        return header;
     }
 
     public String getBody() {

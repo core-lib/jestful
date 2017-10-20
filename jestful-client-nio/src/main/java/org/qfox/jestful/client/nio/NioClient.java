@@ -563,10 +563,13 @@ public class NioClient extends Client implements NioConnector {
                 if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
                 if (StringKit.isBlank(charset)) charset = java.nio.charset.Charset.defaultCharset().name();
                 Status status = response.getResponseStatus();
+                Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
+                String[] keys = response.getHeaderKeys();
+                for (String key : keys) header.put(key == null ? "" : key, response.getResponseHeaders(key));
                 InputStream in = response.getResponseInputStream();
                 InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
                 String body = reader != null ? IOKit.toString(reader) : "";
-                throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, body);
+                throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, header, body);
             }
         }
 

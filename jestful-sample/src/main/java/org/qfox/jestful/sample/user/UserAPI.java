@@ -23,7 +23,7 @@ public interface UserAPI {
             .setHost("api.github.com")
             .build()
             .creator()
-            .addForePlugins(new RetryController((action, thrown, result, exception) -> false, 1))
+            .addForePlugins(new RetryController((action, thrown, result, exception) -> thrown, 1))
             .create(UserAPI.class);
 
     UserAPI NIO = NioClient.builder()
@@ -42,16 +42,16 @@ public interface UserAPI {
             .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 1))
             .create(UserAPI.class);
 
-    @GET("/default")
+    @GET("/user")
     User user(@Header(value = "Authorization", encoded = true) String authorization);
 
-    @GET("/default")
+    @GET("/user")
     Future<User> userOfFuture(@Header(value = "Authorization", encoded = true) String authorization);
 
-    @GET("/default")
+    @GET("/user")
     Observable<User> userOfObservable(@Header(value = "Authorization", encoded = true) String authorization);
 
-    @GET("/default")
+    @GET("/user")
     void user(@Header(value = "Authorization", encoded = true) String authorization, Callback<User> callback);
 
 }

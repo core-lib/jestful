@@ -29,7 +29,7 @@ public class UserAPITest {
     @Test
     public void getUserAsynchronously() throws Exception {
         final Lock lock = new SimpleLock();
-        UserAPI.AIO.user("Basic " + Base64.encode("core-lib:wan20100101"), new Callback<User>() {
+        UserAPI.BIO.user(null, new Callback<User>() {
             @Override
             public void onCompleted(boolean success, User result, Exception exception) {
                 lock.openAll();

@@ -45,16 +45,16 @@ public interface TestAPI {
             .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 1))
             .create(UserAPI.class);
 
-    @GET("/user")
+    @GET("/default")
     User user(@Header(value = "Authorization", encoded = true) String authorization);
 
-    @GET("/user")
+    @GET("/default")
     Future<User> userOfFuture(@Header(value = "Authorization", encoded = true) String authorization);
 
-    @GET("/user")
+    @GET("/default")
     Observable<User> userOfObservable(@Header(value = "Authorization", encoded = true) String authorization);
 
-    @GET("/user")
+    @GET("/default")
     void user(@Header(value = "Authorization", encoded = true) String authorization, Callback<User> callback);
 
 }
