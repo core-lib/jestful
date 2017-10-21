@@ -18,7 +18,7 @@ public class Information implements Serializable {
     }
 
     public void put(String field, String content) {
-        put(field, content, true);
+        put(field, content, false);
     }
 
     public void put(String field, String content, boolean quoted) {
