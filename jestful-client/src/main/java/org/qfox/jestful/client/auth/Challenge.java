@@ -11,13 +11,13 @@ public class Challenge implements Serializable {
     private final Provoker provoker;
     private final String algorithm;
     private final String realm;
-    private final Parameter parameter;
+    private final Information information;
 
-    public Challenge(Provoker provoker, String algorithm, String realm, Parameter parameter) {
+    public Challenge(Provoker provoker, String algorithm, String realm, Information information) {
         this.provoker = provoker;
         this.algorithm = algorithm;
         this.realm = realm;
-        this.parameter = parameter;
+        this.information = information;
     }
 
     public static Challenge valueOf(Provoker provoker, String authenticate) {
@@ -37,7 +37,7 @@ public class Challenge implements Serializable {
         return realm;
     }
 
-    public Parameter getParameter() {
-        return parameter;
+    public Information getInformation() {
+        return information;
     }
 }

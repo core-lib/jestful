@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by yangchangpei on 17/10/21.
  */
-public class Parameter implements Serializable {
+public class Information implements Serializable {
     private static final long serialVersionUID = 1990778024129491685L;
 
     private final Map<String, Value> map = new CaseInsensitiveMap<String, Value>();
@@ -33,7 +33,7 @@ public class Parameter implements Serializable {
         return map.remove(field);
     }
 
-    public boolean has(String field) {
+    public boolean contains(String field) {
         return map.containsKey(field);
     }
 
@@ -44,11 +44,11 @@ public class Parameter implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Parameter)) return false;
+        if (!(o instanceof Information)) return false;
 
-        Parameter parameter = (Parameter) o;
+        Information information = (Information) o;
 
-        return map.equals(parameter.map);
+        return map.equals(information.map);
     }
 
     @Override
