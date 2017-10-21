@@ -13,4 +13,8 @@ public class StringKit {
         return value == null || value.trim().length() == 0;
     }
 
+    public static boolean isEqual(String a, String b) {
+        return a == null ? b == null : a.equals(b);
+    }
+
 }

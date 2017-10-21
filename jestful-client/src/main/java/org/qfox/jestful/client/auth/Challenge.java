@@ -1,7 +1,6 @@
 package org.qfox.jestful.client.auth;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * Created by Payne on 2017/10/20.
@@ -12,16 +11,17 @@ public class Challenge implements Serializable {
     private final Provoker provoker;
     private final String algorithm;
     private final String realm;
-    private final Map<String, String> properties;
+    private final Parameter parameter;
 
-    public Challenge(Provoker provoker, String algorithm, String realm, Map<String, String> properties) {
+    public Challenge(Provoker provoker, String algorithm, String realm, Parameter parameter) {
         this.provoker = provoker;
         this.algorithm = algorithm;
         this.realm = realm;
-        this.properties = properties;
+        this.parameter = parameter;
     }
 
-    public static Challenge valueOf(String authenticate) {
+    public static Challenge valueOf(Provoker provoker, String authenticate) {
+
         return null;
     }
 
@@ -37,7 +37,7 @@ public class Challenge implements Serializable {
         return realm;
     }
 
-    public Map<String, String> getProperties() {
-        return properties;
+    public Parameter getParameter() {
+        return parameter;
     }
 }

@@ -65,7 +65,7 @@ public class TestAPITest {
 
     @Test
     public void getUserByHttpClient() throws Exception {
-        HttpClient client = new DefaultHttpClient();
+        DefaultHttpClient client = new DefaultHttpClient();
         HttpClientContext context = new HttpClientContext();
         CredentialsProvider provider = new BasicCredentialsProvider();
         provider.setCredentials(new AuthScope(new HttpHost("api.github.com", 443, "https")), new UsernamePasswordCredentials("core-lib", "wan20100101"));

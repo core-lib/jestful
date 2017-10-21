@@ -1,5 +1,7 @@
 package org.qfox.jestful.client.auth;
 
+import org.qfox.jestful.commons.StringKit;
+
 import java.io.Serializable;
 
 /**
@@ -8,7 +10,7 @@ import java.io.Serializable;
 public class Scope implements Serializable {
     private static final long serialVersionUID = 4859511908812587316L;
 
-    public static final String ANY_PROTOCOL = null;
+    public static final String ANY_SCHEME = null;
     public static final String ANY_REALM = null;
     public static final String ANY_HOST = null;
     public static final int ANY_PORT = -1;
@@ -25,8 +27,29 @@ public class Scope implements Serializable {
         this.port = port;
     }
 
-    public int match(Scope scope) {
-        return 0;
+    public int match(Scope that) {
+        int degree = 0;
+        if (StringKit.isEqual(this.scheme, that.scheme)) {
+            degree += 1;
+        } else {
+            if (this.scheme != ANY_SCHEME && that.scheme != ANY_SCHEME) return -1;
+        }
+        if (StringKit.isEqual(this.realm, that.realm)) {
+            degree += 2;
+        } else {
+            if (this.realm != ANY_REALM && that.realm != ANY_REALM) return -1;
+        }
+        if (this.port == that.port) {
+            degree += 4;
+        } else {
+            if (this.port != ANY_PORT && that.port != ANY_PORT) return -1;
+        }
+        if (StringKit.isEqual(this.host, that.host)) {
+            degree += 8;
+        } else {
+            if (this.host != ANY_HOST && that.host != ANY_HOST) return -1;
+        }
+        return degree;
     }
 
     public String getScheme() {
