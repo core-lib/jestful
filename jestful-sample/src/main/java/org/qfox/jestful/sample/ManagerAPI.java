@@ -2,12 +2,12 @@ package org.qfox.jestful.sample;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.AioClient;
+import org.qfox.jestful.client.auth.AuthManager;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.retry.RetryController;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.core.annotation.GET;
-import org.qfox.jestful.core.annotation.Header;
-import org.qfox.jestful.sample.user.User;
+import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.sample.user.UserAPI;
 import rx.Observable;
 
@@ -16,45 +16,46 @@ import java.util.concurrent.Future;
 /**
  * Created by Payne on 2017/10/19.
  */
-public interface TestAPI {
+@Jestful("/manager")
+public interface ManagerAPI {
 
-    UserAPI BIO = Client.builder()
+    ManagerAPI BIO = Client.builder()
             .setProtocol("http")
             .setHost("localhost")
             .setPort(8080)
             .build()
             .creator()
-            .addForePlugins(new RetryController((action, thrown, result, exception) -> false, 1))
-            .create(UserAPI.class);
+            .addForePlugins(new AuthManager())
+            .create(ManagerAPI.class);
 
-    UserAPI NIO = NioClient.builder()
-            .setProtocol("http")
-            .setHost("localhost")
-            .setPort(8080)
-            .build()
-            .creator()
-            .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 1))
-            .create(UserAPI.class);
-
-    UserAPI AIO = AioClient.builder()
+    ManagerAPI NIO = NioClient.builder()
             .setProtocol("http")
             .setHost("localhost")
             .setPort(8080)
             .build()
             .creator()
             .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 1))
-            .create(UserAPI.class);
+            .create(ManagerAPI.class);
 
-    @GET("/default")
-    User user(@Header(value = "Authorization", encoded = true) String authorization);
+    ManagerAPI AIO = AioClient.builder()
+            .setProtocol("http")
+            .setHost("localhost")
+            .setPort(8080)
+            .build()
+            .creator()
+            .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 1))
+            .create(ManagerAPI.class);
 
-    @GET("/default")
-    Future<User> userOfFuture(@Header(value = "Authorization", encoded = true) String authorization);
+    @GET("/html")
+    String index();
 
-    @GET("/default")
-    Observable<User> userOfObservable(@Header(value = "Authorization", encoded = true) String authorization);
+    @GET("/html")
+    Future<String> indexOfFuture();
 
-    @GET("/default")
-    void user(@Header(value = "Authorization", encoded = true) String authorization, Callback<User> callback);
+    @GET("/html")
+    Observable<String> indexOfObservable();
+
+    @GET("/html")
+    void index(Callback<String> callback);
 
 }

@@ -12,6 +12,8 @@ public class Host implements Serializable {
     private final int port;
 
     public Host(String protocol, String name, int port) {
+        if (protocol == null) throw new IllegalArgumentException("protocol == null");
+        if (name == null) throw new IllegalArgumentException("name == null");
         this.protocol = protocol;
         this.name = name;
         this.port = port;
@@ -36,15 +38,13 @@ public class Host implements Serializable {
 
         Host host = (Host) o;
 
-        if (port != host.port) return false;
-        if (protocol != null ? !protocol.equals(host.protocol) : host.protocol != null) return false;
-        return name != null ? name.equals(host.name) : host.name == null;
+        return port == host.port && protocol.equals(host.protocol) && name.equals(host.name);
     }
 
     @Override
     public int hashCode() {
-        int result = protocol != null ? protocol.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
+        int result = protocol.hashCode();
+        result = 31 * result + name.hashCode();
         result = 31 * result + port;
         return result;
     }

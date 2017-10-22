@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by yangchangpei on 17/10/21.
  */
-public class SimpleProvider implements Provider {
+public class SimpleCredenceProvider implements CredenceProvider {
     private final Map<Scope, Credence> store = new ConcurrentHashMap<Scope, Credence>();
 
     @Override

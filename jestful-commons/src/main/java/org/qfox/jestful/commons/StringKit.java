@@ -14,7 +14,11 @@ public class StringKit {
     }
 
     public static boolean isEqual(String a, String b) {
-        return a == null ? b == null : a.equals(b);
+        return isEqual(a, b, false);
+    }
+
+    public static boolean isEqual(String a, String b, boolean isCaseIgnored) {
+        return a == null ? b == null : isCaseIgnored ? a.equalsIgnoreCase(b) : a.equals(b);
     }
 
 }

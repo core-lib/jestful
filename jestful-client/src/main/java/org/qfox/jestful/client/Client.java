@@ -6,6 +6,7 @@ import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
+import org.qfox.jestful.client.exception.UnsupportedProtocolException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.Scheduler;
@@ -287,7 +288,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 return connection;
             }
         }
-        throw new IOException("unsupported protocol " + action.getProtocol());
+        throw new UnsupportedProtocolException(action.getProtocol());
     }
 
     protected void serialize(Action action) throws Exception {
