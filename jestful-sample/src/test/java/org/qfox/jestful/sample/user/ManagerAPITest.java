@@ -26,8 +26,6 @@ public class ManagerAPITest {
     public void getUserSynchronously() throws Exception {
         AuthManager manager = new AuthManager();
         StateStorage stateStorage = new MapStateStorage();
-//        State state = new State(Status.CHALLENGED, "Basic", new Scope("Basic", Scope.ANY_REALM, "localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
-//        stateStorage.put(new Host("http", "localhost", 8080), state);
         manager.setStateStorage(stateStorage);
 
         CredenceProvider credenceProvider = new MapCredenceProvider();

@@ -20,11 +20,6 @@ public class Challenge implements Serializable {
         this.information = information;
     }
 
-    public static Challenge valueOf(Provoker provoker, String authenticate) {
-
-        return null;
-    }
-
     public Provoker getProvoker() {
         return provoker;
     }
