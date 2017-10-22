@@ -14,6 +14,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.auth.*;
+import org.qfox.jestful.client.auth.impl.*;
 import org.qfox.jestful.sample.ManagerAPI;
 
 /**
@@ -24,16 +25,18 @@ public class ManagerAPITest {
     @Test
     public void getUserSynchronously() throws Exception {
         AuthManager manager = new AuthManager();
-        AuthStorage authStorage = new SimpleAuthStorage();
-//        authStorage.put(new Host("http", "localhost", 8080), new BasicScheme());
-        manager.setAuthStorage(authStorage);
+        StateStorage stateStorage = new MapStateStorage();
+//        State state = new State(Status.CHALLENGED, "Basic", new Scope("Basic", Scope.ANY_REALM, "localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
+//        stateStorage.put(new Host("http", "localhost", 8080), state);
+        manager.setStateStorage(stateStorage);
 
-        CredenceProvider credenceProvider = new SimpleCredenceProvider();
+        CredenceProvider credenceProvider = new MapCredenceProvider();
         credenceProvider.setCredence(new Scope("basic", Scope.ANY_REALM, "localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
         manager.setCredenceProvider(credenceProvider);
 
-        manager.setHostNormalizer(SimpleHostNormalizer.INSTANCE);
-        manager.setSchemeFactoryRegistry(new SimpleSchemeFactoryRegistry());
+        SchemeRegistry registry = new MapSchemeRegistry();
+        registry.register("Basic", new BasicScheme());
+        manager.setSchemeRegistry(registry);
 
         ManagerAPI managerAPI = Client.builder()
                 .setProtocol("http")

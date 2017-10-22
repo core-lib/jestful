@@ -3,11 +3,11 @@ package org.qfox.jestful.client.auth;
 /**
  * Created by Payne on 2017/10/20.
  */
-public interface AuthStorage {
+public interface StateStorage {
 
-    void put(Host host, Scheme scheme);
+    void put(Host host, State state);
 
-    Scheme get(Host host);
+    State get(Host host);
 
     void remove(Host host);
 

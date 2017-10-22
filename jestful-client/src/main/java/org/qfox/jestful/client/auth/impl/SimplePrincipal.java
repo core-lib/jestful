@@ -1,4 +1,6 @@
-package org.qfox.jestful.client.auth;
+package org.qfox.jestful.client.auth.impl;
+
+import org.qfox.jestful.client.auth.Principal;
 
 import java.io.Serializable;
 

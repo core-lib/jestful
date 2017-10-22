@@ -1,4 +1,8 @@
-package org.qfox.jestful.client.auth;
+package org.qfox.jestful.client.auth.impl;
+
+import org.qfox.jestful.client.auth.Credence;
+import org.qfox.jestful.client.auth.CredenceProvider;
+import org.qfox.jestful.client.auth.Scope;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -6,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by yangchangpei on 17/10/21.
  */
-public class SimpleCredenceProvider implements CredenceProvider {
+public class MapCredenceProvider implements CredenceProvider {
     private final Map<Scope, Credence> store = new ConcurrentHashMap<Scope, Credence>();
 
     @Override

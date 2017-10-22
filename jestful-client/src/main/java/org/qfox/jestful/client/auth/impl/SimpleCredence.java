@@ -1,4 +1,7 @@
-package org.qfox.jestful.client.auth;
+package org.qfox.jestful.client.auth.impl;
+
+import org.qfox.jestful.client.auth.Credence;
+import org.qfox.jestful.client.auth.Principal;
 
 /**
  * Created by yangchangpei on 17/10/21.
