@@ -5,7 +5,9 @@ import org.qfox.jestful.client.auth.State;
 import org.qfox.jestful.client.auth.StateStorage;
 import org.qfox.jestful.client.exception.UnsupportedProtocolException;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -51,5 +53,10 @@ public class MapStateStorage implements StateStorage {
     @Override
     public void clear() {
         store.clear();
+    }
+
+    @Override
+    public Set<Host> hosts() {
+        return Collections.unmodifiableSet(store.keySet());
     }
 }

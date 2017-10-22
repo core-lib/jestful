@@ -13,4 +13,6 @@ public interface Scheme {
 
     boolean matches(Action action, boolean thrown, Object result, Exception exception);
 
+    Challenge analyze(Action action, boolean thrown, Object result, Exception exception);
+
 }

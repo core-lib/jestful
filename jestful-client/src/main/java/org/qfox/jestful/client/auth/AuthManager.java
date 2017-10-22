@@ -59,6 +59,10 @@ public class AuthManager implements Actor {
 
             Scheme scheme = schemeRegistry.matches(action, thrown, result, exception);
             if (scheme != null) {
+                Challenge challenge = scheme.analyze(action, thrown, result, exception);
+                Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHost(), action.getPort());
+                Credence credence = credenceProvider.getCredence(scope);
+                State state = new State(Status.UNCHALLENGED, challenge.getAlgorithm(), scope, credence);
 
             }
 

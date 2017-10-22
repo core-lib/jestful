@@ -1,5 +1,7 @@
 package org.qfox.jestful.client.auth;
 
+import java.util.Set;
+
 /**
  * Created by Payne on 2017/10/20.
  */
@@ -12,5 +14,7 @@ public interface StateStorage {
     void remove(Host host);
 
     void clear();
+
+    Set<Host> hosts();
 
 }
