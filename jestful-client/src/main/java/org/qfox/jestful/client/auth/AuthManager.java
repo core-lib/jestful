@@ -62,7 +62,7 @@ public class AuthManager implements Actor {
                     Host host = new Host(action.getProtocol(), action.getHost(), action.getPort());
                     State state = stateStorage.get(host);
                     if (state != null) state.update(scheme, scope, credence, challenge);
-                    else stateStorage.put(host, new State(Status.UNCHALLENGED, scheme, scope, credence, challenge));
+                    else stateStorage.put(host, state = new State(Status.UNCHALLENGED, scheme, scope, credence, challenge));
 
                     Integer count = (Integer) action.getExtra().get(this.getClass());
                     if (count == null) count = 0;
@@ -80,6 +80,8 @@ public class AuthManager implements Actor {
                                 .setExtra(this.getClass(), count + 1)
                                 .promise()
                                 .acquire();
+                    } else {
+                        state.update(Status.FAILURE);
                     }
                 }
             } else {
