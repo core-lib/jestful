@@ -30,10 +30,8 @@ public class Authorization implements Actor {
         else {
             Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
             State state = stateStorage.get(host);
-            if (state != null) {
-                authenticator = state.getCurrent();
-                if (authenticator != null) authenticator.authenticate(action);
-            }
+            authenticator = state != null ? state.getCurrent() : null;
+            if (authenticator != null) authenticator.authenticate(action);
         }
         // 封装自动认证的 Promise 处理认证失败的情况
         Promise promise = (Promise) action.execute();
