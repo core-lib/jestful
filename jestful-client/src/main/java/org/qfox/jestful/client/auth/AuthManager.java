@@ -53,11 +53,16 @@ public class AuthManager implements Actor {
                 thrown = exception != null;
             }
 
+            // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
             Scheme scheme = schemeRegistry.matches(action, thrown, result, exception);
             if (scheme != null) {
+                // 方案分析出服务端发起的认证挑战
                 Challenge challenge = scheme.analyze(action, thrown, result, exception);
+                // 构建授权范围
                 Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHost(), action.getPort());
+                // 找到对应的用户凭证
                 Credence credence = credenceProvider.getCredence(scope);
+                // 如果用户提供了对应的凭证
                 if (credence != null) {
                     Host host = new Host(action.getProtocol(), action.getHost(), action.getPort());
                     State state = stateStorage.get(host);
