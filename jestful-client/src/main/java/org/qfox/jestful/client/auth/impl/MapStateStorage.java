@@ -6,15 +6,15 @@ import org.qfox.jestful.client.auth.StateStorage;
 import org.qfox.jestful.client.exception.UnsupportedProtocolException;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by yangchangpei on 17/10/21.
  */
 public class MapStateStorage implements StateStorage {
-    private final Map<Host, State> store = new ConcurrentHashMap<Host, State>();
+    private final ConcurrentMap<Host, State> store = new ConcurrentHashMap<Host, State>();
 
     private Host normalize(Host host) {
         String protocol = host.getProtocol().toLowerCase();
@@ -33,20 +33,22 @@ public class MapStateStorage implements StateStorage {
     }
 
     @Override
-    public void put(Host host, State state) {
-        if (host == null) throw new IllegalArgumentException("hostname == null");
-        store.put(normalize(host), state);
+    public State put(Host host, State state) {
+        if (host == null) throw new IllegalArgumentException("host == null");
+        if (state == null)  throw new IllegalArgumentException("state == null");
+        State old = store.putIfAbsent(normalize(host), state);
+        return old != null ? old : state;
     }
 
     @Override
     public State get(Host host) {
-        if (host == null) throw new IllegalArgumentException("hostname == null");
+        if (host == null) throw new IllegalArgumentException("host == null");
         return store.get(normalize(host));
     }
 
     @Override
     public void remove(Host host) {
-        if (host == null) throw new IllegalArgumentException("hostname == null");
+        if (host == null) throw new IllegalArgumentException("host == null");
         store.remove(normalize(host));
     }
 

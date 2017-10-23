@@ -14,8 +14,8 @@ public class BasicScheme implements Scheme {
     }
 
     @Override
-    public void authenticate(Action action, State state) {
-        Credence credence = state.getCredence();
+    public void authenticate(Action action, Scope scope, Credence credence, Challenge challenge) {
+        if (credence == null) return;
         String username = credence.getPrincipal().getName();
         String password = credence.getPassword();
         String authorization = NAME + " " + Base64.encode(username + ":" + password);

@@ -1,84 +1,52 @@
 package org.qfox.jestful.client.auth;
 
-import org.qfox.jestful.core.Action;
-
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Created by yangchangpei on 17/10/23.
+ */
 public class State implements Serializable {
     private static final long serialVersionUID = 6971103658173832157L;
 
-    private Status status;
-    private Scheme scheme;
-    private Scope scope;
-    private Credence credence;
-    private Challenge challenge;
+    private final Host host;
+    private final ConcurrentMap<String, Authenticator> authenticators; // <realm: option>
 
-    public State(Status status, Scheme scheme, Scope scope, Credence credence, Challenge challenge) {
-        this.status = status;
-        this.scheme = scheme;
-        this.scope = scope;
-        this.credence = credence;
-        this.challenge = challenge;
+    public State(Host host) {
+        this.host = host;
+        this.authenticators = new ConcurrentHashMap<String, Authenticator>();
     }
 
-    public void authenticate(Action action) {
-        scheme.authenticate(action, this);
+    public Host getHost() {
+        return host;
     }
 
-    public void update(Status status) {
-        this.status = status != null ? status : Status.UNCHALLENGED;
+    public Authenticator get(String realm) {
+        if (realm == null) throw new IllegalArgumentException("realm == null");
+        return authenticators.get(realm);
     }
 
-    public void update(Scheme scheme, Scope scope, Credence credence, Challenge challenge) {
-        this.scheme = scheme;
-        this.scope = scope;
-        this.credence = credence;
-        this.challenge = challenge;
+    public Authenticator put(String realm, Authenticator authenticator) {
+        if (realm == null) throw new IllegalArgumentException("realm == null");
+        if (authenticator == null) throw new IllegalArgumentException("option == null");
+        Authenticator old = authenticators.putIfAbsent(realm, authenticator);
+        return old != null ? old : authenticator;
     }
 
-    public void update(Status status, Scheme scheme, Scope scope, Credence credence, Challenge challenge) {
-        update(status);
-        update(scheme, scope, credence, challenge);
+    public boolean has(String realm) {
+        if (realm == null) throw new IllegalArgumentException("realm == null");
+        return authenticators.containsKey(realm);
     }
 
-    public Status getStatus() {
-        return status;
+    public Set<String> realms() {
+        return Collections.unmodifiableSet(authenticators.keySet());
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Scheme getScheme() {
-        return scheme;
-    }
-
-    public void setScheme(Scheme scheme) {
-        this.scheme = scheme;
-    }
-
-    public Scope getScope() {
-        return scope;
-    }
-
-    public void setScope(Scope scope) {
-        this.scope = scope;
-    }
-
-    public Credence getCredence() {
-        return credence;
-    }
-
-    public void setCredence(Credence credence) {
-        this.credence = credence;
-    }
-
-    public Challenge getChallenge() {
-        return challenge;
-    }
-
-    public void setChallenge(Challenge challenge) {
-        this.challenge = challenge;
+    public void clear() {
+        authenticators.clear();
     }
 
 }
