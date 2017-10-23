@@ -28,11 +28,11 @@ public class Authorization implements Actor {
         }
         // 否则如果这是一个新请求
         else {
-            // 解析请求所属范围
-            Scope scope = scopeResolver.resolve(action);
-            Credence credence = scope != null ? credenceProvider.getCredence(scope) : null;
-            if (credence != null) {
-
+            Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
+            State state = stateStorage.get(host);
+            if (state != null) {
+                authenticator = state.getCurrent();
+                if (authenticator != null) authenticator.authenticate(action);
             }
         }
         // 封装自动认证的 Promise 处理认证失败的情况
@@ -117,11 +117,8 @@ public class Authorization implements Actor {
                 if (authenticator != null) {
                     authenticator.shift(Status.AUTHENTICATED);
                     Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
-                    // 获取主机的认证状态
                     State state = stateStorage.get(host);
-                    // 避免并发时候的状态覆盖保存问题
-                    if (state == null) state = stateStorage.put(host, new State(host));
-
+                    if (state != null) state.setCurrent(authenticator);
                 }
             }
 

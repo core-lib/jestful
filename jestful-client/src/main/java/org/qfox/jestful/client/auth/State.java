@@ -14,6 +14,7 @@ public class State implements Serializable {
 
     private final Host host;
     private final ConcurrentMap<String, Authenticator> authenticators; // <realm: option>
+    private Authenticator current;
 
     public State(Host host) {
         this.host = host;
@@ -49,4 +50,11 @@ public class State implements Serializable {
         authenticators.clear();
     }
 
+    public Authenticator getCurrent() {
+        return current;
+    }
+
+    public void setCurrent(Authenticator current) {
+        this.current = current;
+    }
 }
