@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface SchemeRegistry {
 
-    void register(String name, Scheme scheme);
+    void register(Scheme scheme);
 
     Scheme unregister(String name);
 

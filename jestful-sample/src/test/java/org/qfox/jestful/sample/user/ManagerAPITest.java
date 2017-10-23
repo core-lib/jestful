@@ -4,7 +4,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.BasicAuthCache;
@@ -21,6 +20,7 @@ import org.qfox.jestful.sample.ManagerAPI;
  */
 public class ManagerAPITest {
 
+    // Digest realm="Tomcat Manager Application", qop="auth", nonce="1508767262604:e176001459d8327b75fa057fc8c123af", opaque="05B63BC01E8813AE9958DA045B35EF92"
     @Test
     public void getUserSynchronously() throws Exception {
         Authorization authorization = new Authorization();
@@ -28,16 +28,17 @@ public class ManagerAPITest {
         authorization.setStateStorage(stateStorage);
 
         CredenceProvider credenceProvider = new MapCredenceProvider();
-        credenceProvider.setCredence(new Scope("basic", Scope.ANY_REALM, "192.168.31.200", 8080), new SimpleCredence("tomcat", "tomcat"));
+        credenceProvider.setCredence(new Scope("basic", Scope.ANY_REALM, "localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
         authorization.setCredenceProvider(credenceProvider);
 
         SchemeRegistry registry = new MapSchemeRegistry();
-        registry.register("Basic", new BasicScheme());
+        registry.register(new BasicScheme());
+        registry.register(new DigestScheme());
         authorization.setSchemeRegistry(registry);
 
         ManagerAPI managerAPI = Client.builder()
                 .setProtocol("http")
-                .setHostname("192.168.31.200")
+                .setHostname("localhost")
                 .setPort(8080)
                 .build()
                 .creator()

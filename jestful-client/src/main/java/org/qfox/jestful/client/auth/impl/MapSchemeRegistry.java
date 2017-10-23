@@ -13,9 +13,9 @@ public class MapSchemeRegistry implements SchemeRegistry {
     private final Map<String, Scheme> map = new ConcurrentHashMap<String, Scheme>();
 
     @Override
-    public void register(String name, Scheme scheme) {
-        if (name == null) throw new IllegalArgumentException("name == null");
-        map.put(name.toUpperCase(), scheme);
+    public void register(Scheme scheme) {
+        if (scheme == null) throw new IllegalArgumentException("scheme == null");
+        map.put(scheme.getName().toUpperCase(), scheme);
     }
 
     @Override
