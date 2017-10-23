@@ -21,7 +21,7 @@ public class AuthManager implements Actor {
     @Override
     public Object react(Action action) throws Exception {
         // 构建主机 采用 protocol + hostname + port 的方式 这种方式就默认一个主机只采用一种认证模式
-        Host host = new Host(action.getProtocol(), action.getHost(), action.getPort());
+        Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
         // 获取已经认证状态
         State state = stateStorage.get(host);
         // 如果存在则证明已经认证过该主机然后继续认证
@@ -59,12 +59,12 @@ public class AuthManager implements Actor {
                 // 方案分析出服务端发起的认证挑战
                 Challenge challenge = scheme.analyze(action, thrown, result, exception);
                 // 构建授权范围
-                Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHost(), action.getPort());
+                Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), action.getPort());
                 // 找到对应的用户凭证
                 Credence credence = credenceProvider.getCredence(scope);
                 // 如果用户提供了对应的凭证
                 if (credence != null) {
-                    Host host = new Host(action.getProtocol(), action.getHost(), action.getPort());
+                    Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
                     State state = stateStorage.get(host);
                     if (state != null) state.update(scheme, scope, credence, challenge);
                     else stateStorage.put(host, state = new State(Status.UNCHALLENGED, scheme, scope, credence, challenge));
@@ -74,7 +74,7 @@ public class AuthManager implements Actor {
                     if (count < maxCount) {
                         return client().invoker()
                                 .setProtocol(action.getProtocol())
-                                .setHost(action.getHost())
+                                .setHostname(action.getHostname())
                                 .setPort(action.getPort())
                                 .setRoute(action.getRoute())
                                 .setResource(action.getResource())
@@ -90,7 +90,7 @@ public class AuthManager implements Actor {
                     }
                 }
             } else {
-                Host host = new Host(action.getProtocol(), action.getHost(), action.getPort());
+                Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
                 State state = stateStorage.get(host);
                 if (state != null) state.update(Status.CHALLENGED);
             }

@@ -21,7 +21,7 @@ public class PrepareCompletionHandler extends AioCompletionHandler<Void> impleme
     @Override
     public void onCompleted(Void result, Action action) throws Exception {
         String protocol = action.getProtocol();
-        String host = action.getHost();
+        String host = action.getHostname();
         Integer port = action.getPort();
         port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
         Gateway gateway = client.getGateway();

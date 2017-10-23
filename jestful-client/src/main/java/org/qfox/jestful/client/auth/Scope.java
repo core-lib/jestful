@@ -95,7 +95,7 @@ public class Scope implements Serializable {
         return "Scope{" +
                 "scheme='" + scheme + '\'' +
                 ", realm='" + realm + '\'' +
-                ", host='" + host + '\'' +
+                ", hostname='" + host + '\'' +
                 ", port=" + port +
                 '}';
     }

@@ -67,7 +67,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final Map<String, Catcher> catchers = new LinkedHashMap<String, Catcher>();
 
     protected final String protocol;
-    protected final String host;
+    protected final String hostname;
     protected final Integer port;
     protected final String route;
     protected final ClassLoader classLoader;
@@ -109,7 +109,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected Client(Builder<?> builder) throws IOException {
         super();
         this.protocol = builder.protocol;
-        this.host = builder.host;
+        this.hostname = builder.hostname;
         this.port = builder.port;
         this.route = builder.route;
         this.classLoader = builder.classLoader;
@@ -519,7 +519,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
     public class Invoker<I extends Invoker<I>> {
         private String protocol = Client.this.protocol;
-        private String host = Client.this.host;
+        private String hostname = Client.this.hostname;
         private Integer port = Client.this.port;
         private String route = Client.this.route;
         private Resource resource;
@@ -541,7 +541,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 throw new IllegalArgumentException("endpoint == null");
             }
             setProtocol(endpoint.getProtocol());
-            setHost(endpoint.getHost());
+            setHostname(endpoint.getHost());
             setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
             setRoute(endpoint.getFile().length() == 0 ? null : endpoint.getFile());
             return (I) this;
@@ -555,11 +555,11 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             return (I) this;
         }
 
-        public I setHost(String host) {
+        public I setHostname(String hostname) {
             if (protocol == null) {
-                throw new IllegalArgumentException("host == null");
+                throw new IllegalArgumentException("hostname == null");
             }
-            this.host = host;
+            this.hostname = hostname;
             return (I) this;
         }
 
@@ -720,7 +720,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
             action.setRestful(restful);
             action.setProtocol(protocol);
-            action.setHost(host);
+            action.setHostname(hostname);
             action.setPort(port);
             action.setRoute(route);
 
@@ -855,7 +855,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
 
         public <T> T create(Class<T> interfase) {
-            return create(interfase, protocol, host, port, route);
+            return create(interfase, protocol, hostname, port, route);
         }
 
         public <T> T create(Class<T> interfase, String protocol, String host) {
@@ -907,7 +907,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
     public static class Builder<B extends Builder<B>> {
         private String protocol = "http";
-        private String host = "localhost";
+        private String hostname = "localhost";
         private Integer port = null;
         private String route = null;
         private ClassLoader classLoader = this.getClass().getClassLoader();
@@ -974,7 +974,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 throw new IllegalArgumentException("endpoint == null");
             }
             setProtocol(endpoint.getProtocol());
-            setHost(endpoint.getHost());
+            setHostname(endpoint.getHost());
             setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
             setRoute(endpoint.getFile().length() == 0 ? null : endpoint.getFile());
             return (B) this;
@@ -988,11 +988,11 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             return (B) this;
         }
 
-        public B setHost(String host) {
+        public B setHostname(String hostname) {
             if (protocol == null) {
-                throw new IllegalArgumentException("host == null");
+                throw new IllegalArgumentException("hostname == null");
             }
-            this.host = host;
+            this.hostname = hostname;
             return (B) this;
         }
 
@@ -1269,8 +1269,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return protocol;
     }
 
-    public String getHost() {
-        return host;
+    public String getHostname() {
+        return hostname;
     }
 
     public Integer getPort() {
@@ -1379,7 +1379,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
     @Override
     public String toString() {
-        return protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
+        return protocol + "://" + hostname + (port != null ? ":" + port : "") + (route != null ? route : "");
     }
 
 }

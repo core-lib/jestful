@@ -84,7 +84,7 @@ public class JestfulNioHttpClientRequest extends JestfulClientRequest implements
         osw.write(command);
         osw.write(CRLF);
 
-        String host = action.getHost();
+        String host = action.getHostname();
         Integer port = action.getPort();
         setRequestHeader("Host", host + (port == null || port < 0 ? "" : ":" + port));
 

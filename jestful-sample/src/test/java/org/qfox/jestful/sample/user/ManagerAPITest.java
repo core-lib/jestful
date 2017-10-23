@@ -38,7 +38,7 @@ public class ManagerAPITest {
 
         ManagerAPI managerAPI = Client.builder()
                 .setProtocol("http")
-                .setHost("localhost")
+                .setHostname("localhost")
                 .setPort(8080)
                 .build()
                 .creator()

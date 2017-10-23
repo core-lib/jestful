@@ -20,7 +20,7 @@ public interface UserAPI {
 
     UserAPI BIO = Client.builder()
             .setProtocol("https")
-            .setHost("api.github.com")
+            .setHostname("api.github.com")
             .build()
             .creator()
             .addForePlugins(new RetryController((action, thrown, result, exception) -> thrown, 1))
@@ -28,7 +28,7 @@ public interface UserAPI {
 
     UserAPI NIO = NioClient.builder()
             .setProtocol("https")
-            .setHost("api.github.com")
+            .setHostname("api.github.com")
             .build()
             .creator()
             .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 1))
@@ -36,7 +36,7 @@ public interface UserAPI {
 
     UserAPI AIO = AioClient.builder()
             .setProtocol("https")
-            .setHost("api.github.com")
+            .setHostname("api.github.com")
             .build()
             .creator()
             .addForePlugins(new RetryController((action, thrown, result, exception) -> true, 1))

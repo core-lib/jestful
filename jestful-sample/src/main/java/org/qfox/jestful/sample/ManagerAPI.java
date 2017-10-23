@@ -8,7 +8,6 @@ import org.qfox.jestful.client.retry.RetryController;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
-import org.qfox.jestful.sample.user.UserAPI;
 import rx.Observable;
 
 import java.util.concurrent.Future;
@@ -21,7 +20,7 @@ public interface ManagerAPI {
 
     ManagerAPI BIO = Client.builder()
             .setProtocol("http")
-            .setHost("localhost")
+            .setHostname("localhost")
             .setPort(8080)
             .build()
             .creator()
@@ -30,7 +29,7 @@ public interface ManagerAPI {
 
     ManagerAPI NIO = NioClient.builder()
             .setProtocol("http")
-            .setHost("localhost")
+            .setHostname("localhost")
             .setPort(8080)
             .build()
             .creator()
@@ -39,7 +38,7 @@ public interface ManagerAPI {
 
     ManagerAPI AIO = AioClient.builder()
             .setProtocol("http")
-            .setHost("localhost")
+            .setHostname("localhost")
             .setPort(8080)
             .build()
             .creator()

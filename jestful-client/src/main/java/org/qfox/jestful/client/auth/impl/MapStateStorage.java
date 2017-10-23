@@ -34,19 +34,19 @@ public class MapStateStorage implements StateStorage {
 
     @Override
     public void put(Host host, State state) {
-        if (host == null) throw new IllegalArgumentException("host == null");
+        if (host == null) throw new IllegalArgumentException("hostname == null");
         store.put(normalize(host), state);
     }
 
     @Override
     public State get(Host host) {
-        if (host == null) throw new IllegalArgumentException("host == null");
+        if (host == null) throw new IllegalArgumentException("hostname == null");
         return store.get(normalize(host));
     }
 
     @Override
     public void remove(Host host) {
-        if (host == null) throw new IllegalArgumentException("host == null");
+        if (host == null) throw new IllegalArgumentException("hostname == null");
         store.remove(normalize(host));
     }
 

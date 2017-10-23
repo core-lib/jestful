@@ -7,7 +7,7 @@ public class JestfulURLCombiner implements Actor {
 
     public Object react(Action action) throws Exception {
         String protocol = action.getProtocol();
-        String host = action.getHost();
+        String host = action.getHostname();
         Integer port = action.getPort();
         String route = action.getRoute();
         String URI = action.getURI();

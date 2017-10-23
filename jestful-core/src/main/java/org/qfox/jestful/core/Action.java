@@ -36,7 +36,7 @@ public class Action {
     private String URI;
     private String query;
     private String protocol;
-    private String host;
+    private String hostname;
     private Integer port;
     private String route;
     private Dispatcher dispatcher = Dispatcher.REQUEST;
@@ -202,12 +202,12 @@ public class Action {
         this.protocol = protocol;
     }
 
-    public String getHost() {
-        return host;
+    public String getHostname() {
+        return hostname;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 
     public Integer getPort() {

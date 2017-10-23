@@ -75,7 +75,7 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
 
         return client.invoker()
                 .setProtocol(protocol)
-                .setHost(host)
+                .setHostname(host)
                 .setPort(port)
                 .setRoute(route)
                 .setResource(resource)

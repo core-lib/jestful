@@ -136,11 +136,11 @@ public class Invocation {
     }
 
     public String getHost() {
-        return action.getHost();
+        return action.getHostname();
     }
 
     public void setHost(String host) {
-        action.setHost(host);
+        action.setHostname(host);
     }
 
     public Integer getPort() {

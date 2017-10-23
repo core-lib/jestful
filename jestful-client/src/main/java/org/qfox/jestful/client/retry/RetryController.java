@@ -54,7 +54,7 @@ public class RetryController implements Actor {
                 if (count < maxCount) {
                     return client().invoker()
                             .setProtocol(action.getProtocol())
-                            .setHost(action.getHost())
+                            .setHostname(action.getHostname())
                             .setPort(action.getPort())
                             .setRoute(action.getRoute())
                             .setResource(action.getResource())
@@ -88,7 +88,7 @@ public class RetryController implements Actor {
                             try {
                                 client().invoker()
                                         .setProtocol(action.getProtocol())
-                                        .setHost(action.getHost())
+                                        .setHostname(action.getHostname())
                                         .setPort(action.getPort())
                                         .setRoute(action.getRoute())
                                         .setResource(action.getResource())
