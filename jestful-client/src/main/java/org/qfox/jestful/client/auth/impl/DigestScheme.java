@@ -7,6 +7,7 @@ import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Restful;
 
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -15,6 +16,14 @@ import java.util.Set;
 
 public class DigestScheme extends RFC2617Scheme implements Scheme {
     public static final String NAME = "Digest";
+
+    public DigestScheme() {
+        this(null);
+    }
+
+    public DigestScheme(Charset charset) {
+        super(charset);
+    }
 
     @Override
     public String getName() {
@@ -52,10 +61,11 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
      */
     @Override
     public void authenticate(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException {
-        if (credence == null) return;
-        if (challenge == null) return;
+        if (credence == null) throw new AuthenticationException("no suitable credence provided for scope: " + scope);
+        if (challenge == null) throw new AuthenticationException("can not authenticate without challenge");
         DigestChallenge dc = challenge instanceof DigestChallenge ? (DigestChallenge) challenge : new DigestChallenge(challenge);
 
+        Charset cs = charset != null ? charset : Charset.forName(action.getHeaderEncodeCharset());
         char delimiter = ':';
         Restful restful = action.getRestful();
         String method = restful.getMethod();
@@ -87,7 +97,7 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         String A1 = StringKit.concat(delimiter, username, realm, password);
         // 如果 algorithm == MD5-sess 那么 A1= H( unq(username-value) ":" unq(realm-value) ":" password-value ) ":" unq(nonce-value) ":" unq(cnonce-value)
         if ("MD5-sess".equalsIgnoreCase(algorithm)) {
-            String hex = hex(digester.digest(StringKit.bytes(A1)));
+            String hex = hex(digester.digest(StringKit.bytes(A1, cs)));
             A1 = StringKit.concat(delimiter, hex, nonce, cnonce);
         }
 
@@ -109,12 +119,12 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
             throw new AuthenticationException("none of quality option if supported: " + qualities);
         }
 
-        String HA1 = hex(digester.digest(StringKit.bytes(A1)));
-        String HA2 = hex(digester.digest(StringKit.bytes(A2)));
+        String HA1 = hex(digester.digest(StringKit.bytes(A1, cs)));
+        String HA2 = hex(digester.digest(StringKit.bytes(A2, cs)));
 
         String nc = dc.nc();
         String text = (qualities == null) ? StringKit.concat(delimiter, HA1, nonce, HA2) : StringKit.concat(delimiter, HA1, nonce, nc, cnonce, qop, HA2);
-        String response = hex(digester.digest(StringKit.bytes(text)));
+        String response = hex(digester.digest(StringKit.bytes(text, Charset.forName("US-ASCII"))));
         Information information = new Information();
         information.put("username", username, true);
         information.put("realm", realm, true);

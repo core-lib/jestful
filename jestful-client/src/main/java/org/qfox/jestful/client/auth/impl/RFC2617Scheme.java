@@ -4,7 +4,14 @@ import org.qfox.jestful.client.auth.*;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.exception.StatusException;
 
+import java.nio.charset.Charset;
+
 public abstract class RFC2617Scheme implements Scheme {
+    protected final Charset charset;
+
+    protected RFC2617Scheme(Charset charset) {
+        this.charset = charset;
+    }
 
     @Override
     public boolean matches(Action action, boolean thrown, Object result, Exception exception) {
@@ -85,5 +92,9 @@ public abstract class RFC2617Scheme implements Scheme {
                 action.getRequest().setRequestHeader("Authorization", authorization);
                 break;
         }
+    }
+
+    public Charset getCharset() {
+        return charset;
     }
 }

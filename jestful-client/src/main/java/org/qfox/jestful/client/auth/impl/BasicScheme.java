@@ -1,14 +1,22 @@
 package org.qfox.jestful.client.auth.impl;
 
-import org.qfox.jestful.client.auth.Challenge;
-import org.qfox.jestful.client.auth.Credence;
-import org.qfox.jestful.client.auth.Scheme;
-import org.qfox.jestful.client.auth.Scope;
+import org.qfox.jestful.client.auth.*;
 import org.qfox.jestful.commons.Base64;
+import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Action;
+
+import java.nio.charset.Charset;
 
 public class BasicScheme extends RFC2617Scheme implements Scheme {
     public static final String NAME = "Basic";
+
+    public BasicScheme() {
+        this(null);
+    }
+
+    public BasicScheme(Charset charset) {
+        super(charset);
+    }
 
     @Override
     public String getName() {
@@ -16,11 +24,15 @@ public class BasicScheme extends RFC2617Scheme implements Scheme {
     }
 
     @Override
-    public void authenticate(Action action, Scope scope, Credence credence, Challenge challenge) {
-        if (credence == null) return;
+    public void authenticate(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException {
+        if (credence == null) throw new AuthenticationException("no suitable credence provided for scope: " + scope);
         String username = credence.getPrincipal().getName();
         String password = credence.getPassword();
-        String authorization = NAME + " " + Base64.encode(username + ":" + password);
+        String credentials = StringKit.concat(':', username, password);
+        Charset cs = charset != null ? charset : Charset.forName(action.getHeaderEncodeCharset());
+        byte[] bytes = StringKit.bytes(credentials, cs);
+        String response = new String(Base64.encode(bytes));
+        String authorization = StringKit.concat(' ', NAME, response);
         authenticate(action, challenge, authorization);
     }
 
