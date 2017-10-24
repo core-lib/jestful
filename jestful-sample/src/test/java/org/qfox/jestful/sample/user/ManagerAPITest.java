@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.auth.*;
 import org.qfox.jestful.client.auth.impl.*;
+import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
@@ -39,7 +40,7 @@ public class ManagerAPITest {
         registry.register(new DigestScheme());
         authenticator.setSchemeRegistry(registry);
 
-        ManagerAPI managerAPI = Client.builder()
+        ManagerAPI managerAPI = NioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
                 .setPort(8080)

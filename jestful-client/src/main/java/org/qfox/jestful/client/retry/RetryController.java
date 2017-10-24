@@ -7,6 +7,7 @@ import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.Result;
 
 /**
  * Created by yangchangpei on 17/10/18.
@@ -59,7 +60,7 @@ public class RetryController implements Actor {
                             .setPort(action.getPort())
                             .setRoute(action.getRoute())
                             .setResource(action.getResource())
-                            .setMapping(action.getMapping())
+                            .setMapping(action.getMapping().clone())
                             .setParameters(action.getParameters())
                             .setForePlugins(action.getForePlugins())
                             .setBackPlugins(action.getBackPlugins())
@@ -93,14 +94,13 @@ public class RetryController implements Actor {
                                         .setPort(action.getPort())
                                         .setRoute(action.getRoute())
                                         .setResource(action.getResource())
-                                        .setMapping(action.getMapping())
+                                        .setMapping(action.getMapping().clone())
                                         .setParameters(action.getParameters())
                                         .setForePlugins(action.getForePlugins())
                                         .setBackPlugins(action.getBackPlugins())
                                         .setExtra(this.getClass(), count + 1)
                                         .promise()
                                         .accept(callback);
-
                                 return;
                             }
                         }

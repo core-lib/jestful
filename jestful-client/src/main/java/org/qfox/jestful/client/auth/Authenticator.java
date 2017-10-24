@@ -47,7 +47,6 @@ public class Authenticator implements Actor {
             this.promise = promise;
         }
 
-
         @Override
         public Object acquire() throws Exception {
             boolean thrown;
@@ -98,7 +97,7 @@ public class Authenticator implements Actor {
                             .setPort(action.getPort())
                             .setRoute(action.getRoute())
                             .setResource(action.getResource())
-                            .setMapping(action.getMapping())
+                            .setMapping(action.getMapping().clone())
                             .setParameters(action.getParameters())
                             .setForePlugins(action.getForePlugins())
                             .setBackPlugins(action.getBackPlugins())
@@ -169,7 +168,7 @@ public class Authenticator implements Actor {
                                         .setPort(action.getPort())
                                         .setRoute(action.getRoute())
                                         .setResource(action.getResource())
-                                        .setMapping(action.getMapping())
+                                        .setMapping(action.getMapping().clone())
                                         .setParameters(action.getParameters())
                                         .setForePlugins(action.getForePlugins())
                                         .setBackPlugins(action.getBackPlugins())
