@@ -7,11 +7,11 @@ import org.qfox.jestful.client.auth.Provoker;
 /**
  * Created by yangchangpei on 17/10/24.
  */
-public class BasicChallenge extends Challenge {
+class BasicChallenge extends Challenge {
     private static final long serialVersionUID = 3264040454246522450L;
     private final Challenge challenge;
 
-    public BasicChallenge(Challenge challenge) {
+    BasicChallenge(Challenge challenge) {
         if (challenge == null) throw new IllegalArgumentException("challenge == null");
         this.challenge = challenge;
     }

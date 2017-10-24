@@ -5,17 +5,21 @@ import org.qfox.jestful.client.auth.Information;
 import org.qfox.jestful.client.auth.Provoker;
 import org.qfox.jestful.client.auth.Value;
 
+import java.util.Formatter;
+import java.util.Locale;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by yangchangpei on 17/10/24.
  */
-public class DigestChallenge extends Challenge {
+class DigestChallenge extends Challenge {
     private static final long serialVersionUID = -2609321967217782649L;
 
     private final Challenge challenge;
+    private final AtomicInteger count = new AtomicInteger(0);
 
-    public DigestChallenge(Challenge challenge) {
+    DigestChallenge(Challenge challenge) {
         if (challenge == null) throw new IllegalArgumentException("challenge == null");
         this.challenge = challenge;
     }
@@ -61,7 +65,7 @@ public class DigestChallenge extends Challenge {
         return value != null ? value.getContent() : null;
     }
 
-    public String[] getDomains() {
+    String[] getDomains() {
         String domain = get("domain");
         if (domain == null) return null;
         StringTokenizer tokenizer = new StringTokenizer(domain);
@@ -71,24 +75,24 @@ public class DigestChallenge extends Challenge {
         return domains;
     }
 
-    public String getNonce() {
+    String getNonce() {
         return get("nonce");
     }
 
-    public String getOpaque() {
+    String getOpaque() {
         return get("opaque");
     }
 
-    public Boolean getStale() {
+    Boolean getStale() {
         String stale = get("stale");
         return stale == null ? null : stale.toLowerCase().equals("true");
     }
 
-    public String getAlgorithm() {
+    String getAlgorithm() {
         return get("algorithm");
     }
 
-    public String[] getQops() {
+    String[] getQops() {
         String qop = get("qop");
         if (qop == null) return null;
         StringTokenizer tokenizer = new StringTokenizer(qop, ",");
@@ -96,6 +100,14 @@ public class DigestChallenge extends Challenge {
         int index = 0;
         while (tokenizer.hasMoreElements()) qops[index++] = tokenizer.nextToken();
         return qops;
+    }
+
+    String nc() {
+        StringBuilder sb = new StringBuilder();
+        Formatter formatter = new Formatter(sb, Locale.US);
+        formatter.format("%08x", (long) count.incrementAndGet());
+        formatter.close();
+        return sb.toString();
     }
 
 }

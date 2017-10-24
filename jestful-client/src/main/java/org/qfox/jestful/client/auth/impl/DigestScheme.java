@@ -112,7 +112,7 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         String HA1 = hex(digester.digest(StringKit.bytes(A1)));
         String HA2 = hex(digester.digest(StringKit.bytes(A2)));
 
-        String nc = "00000001";
+        String nc = dc.nc();
         String text = (qualities == null) ? StringKit.concat(delimiter, HA1, nonce, HA2) : StringKit.concat(delimiter, HA1, nonce, nc, cnonce, qop, HA2);
         String response = hex(digester.digest(StringKit.bytes(text)));
         Information information = new Information();
