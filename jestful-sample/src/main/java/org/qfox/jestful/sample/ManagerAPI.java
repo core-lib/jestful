@@ -8,6 +8,7 @@ import org.qfox.jestful.client.retry.RetryController;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
+import org.qfox.jestful.core.annotation.Query;
 import rx.Observable;
 
 import java.util.concurrent.Future;
@@ -46,7 +47,7 @@ public interface ManagerAPI {
             .create(ManagerAPI.class);
 
     @GET("/html")
-    String index();
+    String index(@Query("param") String param);
 
     @GET("/html")
     Future<String> indexOfFuture();

@@ -28,7 +28,7 @@ public class ManagerAPITest {
         authorization.setStateStorage(stateStorage);
 
         CredenceProvider credenceProvider = new MapCredenceProvider();
-        credenceProvider.setCredence(new Scope("basic", Scope.ANY_REALM, "localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
+        credenceProvider.setCredence(new Scope(Scope.ANY_SCHEME, Scope.ANY_REALM, "192.168.31.200", 8080), new SimpleCredence("tomcat", "tomcat"));
         authorization.setCredenceProvider(credenceProvider);
 
         SchemeRegistry registry = new MapSchemeRegistry();
@@ -38,15 +38,22 @@ public class ManagerAPITest {
 
         ManagerAPI managerAPI = Client.builder()
                 .setProtocol("http")
-                .setHostname("localhost")
+                .setHostname("192.168.31.200")
                 .setPort(8080)
                 .build()
                 .creator()
-                .addForePlugins(authorization)
+                .addBackPlugins(authorization)
                 .create(ManagerAPI.class);
 
-        String html = managerAPI.index();
-        System.out.println(html);
+        {
+            String html = managerAPI.index("中文");
+            System.out.println(html);
+        }
+
+        {
+            String html = managerAPI.index("中文");
+            System.out.println(html);
+        }
     }
 
     // Authorization: Digest
@@ -82,7 +89,7 @@ public class ManagerAPITest {
         context.setAuthCache(authAuthCache);
 
         {
-            HttpGet request = new HttpGet("http://192.168.31.200:8080/manager/html");
+            HttpGet request = new HttpGet("http://192.168.31.200:8080/manager/html?param=中文");
             HttpResponse response = client.execute(request, context);
             response.getEntity().writeTo(System.out);
         }

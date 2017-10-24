@@ -167,16 +167,14 @@ public class CaseInsensitiveMap<K extends String, V> implements Map<String, V> {
         while (iterator.hasNext()) {
             Entry<String, V> entry = iterator.next();
             builder.append(entry.toString());
-            if (iterator.hasNext()) {
-                builder.append(",");
-            }
+            if (iterator.hasNext()) builder.append(", ");
         }
         builder.append("}");
         return builder.toString();
     }
 
     private static class MapEntry<K, V> implements Entry<K, V> {
-        private K key;
+        private final K key;
         private V value;
 
         public MapEntry(K key, V value) {
@@ -198,6 +196,12 @@ public class CaseInsensitiveMap<K extends String, V> implements Map<String, V> {
             return old;
         }
 
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder();
+            sb.append(key).append(": ").append(value);
+            return sb.toString();
+        }
     }
 
 }

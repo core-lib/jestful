@@ -20,7 +20,7 @@ public class Authenticator implements Serializable {
         this.challenge = challenge;
     }
 
-    public void authenticate(Action action) {
+    public void authenticate(Action action) throws AuthenticationException {
         scheme.authenticate(action, scope, credence, challenge);
     }
 

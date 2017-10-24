@@ -13,6 +13,10 @@ public class Challenge implements Serializable {
     private final String realm;
     private final Information information;
 
+    protected Challenge() {
+        this(null, null, null, null);
+    }
+
     public Challenge(Provoker provoker, String scheme, String realm, Information information) {
         this.provoker = provoker;
         this.scheme = scheme;

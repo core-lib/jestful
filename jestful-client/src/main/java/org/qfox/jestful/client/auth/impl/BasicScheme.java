@@ -25,6 +25,12 @@ public class BasicScheme extends RFC2617Scheme implements Scheme {
     }
 
     @Override
+    public BasicChallenge analyze(Action action, boolean thrown, Object result, Exception exception) {
+        Challenge challenge = super.analyze(action, thrown, result, exception);
+        return challenge instanceof BasicChallenge ? (BasicChallenge) challenge : new BasicChallenge(challenge);
+    }
+
+    @Override
     protected boolean matches(String authenticate) {
         // 如果没有指定认证方式则代表采用 Basic 认证
         if (authenticate == null) return true;

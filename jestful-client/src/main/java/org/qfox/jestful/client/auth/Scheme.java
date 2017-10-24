@@ -9,7 +9,7 @@ public interface Scheme {
 
     String getName();
 
-    void authenticate(Action action, Scope scope, Credence credence, Challenge challenge);
+    void authenticate(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException;
 
     boolean matches(Action action, boolean thrown, Object result, Exception exception);
 
