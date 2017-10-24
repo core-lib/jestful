@@ -39,4 +39,14 @@ public class Challenge implements Serializable {
     public Information getInformation() {
         return information;
     }
+
+    @Override
+    public String toString() {
+        return "Challenge{" +
+                "provoker=" + provoker +
+                ", scheme='" + scheme + '\'' +
+                ", realm='" + realm + '\'' +
+                ", information=" + information +
+                '}';
+    }
 }

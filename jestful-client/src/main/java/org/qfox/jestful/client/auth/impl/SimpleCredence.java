@@ -58,6 +58,6 @@ public class SimpleCredence implements Credence {
 
     @Override
     public String toString() {
-        return principal + ":" + password;
+        return String.valueOf(principal);
     }
 }
