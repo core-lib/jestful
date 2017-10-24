@@ -21,7 +21,7 @@ public class BasicScheme extends RFC2617Scheme implements Scheme {
         String username = credence.getPrincipal().getName();
         String password = credence.getPassword();
         String authorization = NAME + " " + Base64.encode(username + ":" + password);
-        action.getRequest().setRequestHeader("Authorization", authorization);
+        authenticate(action, challenge, authorization);
     }
 
     @Override

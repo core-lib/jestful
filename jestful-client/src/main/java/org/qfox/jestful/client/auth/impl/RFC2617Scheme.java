@@ -76,4 +76,14 @@ public abstract class RFC2617Scheme implements Scheme {
         throw new IllegalArgumentException("unsupported challenge analysis");
     }
 
+    protected void authenticate(Action action, Challenge challenge, String authorization) {
+        switch (challenge.getProvoker()) {
+            case PROXY:
+                action.getRequest().setRequestHeader("Proxy-Authorization", authorization);
+                break;
+            case TARGET:
+                action.getRequest().setRequestHeader("Authorization", authorization);
+                break;
+        }
+    }
 }

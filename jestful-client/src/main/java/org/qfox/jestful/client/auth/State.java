@@ -13,36 +13,37 @@ public class State implements Serializable {
     private static final long serialVersionUID = 6971103658173832157L;
 
     private final Host host;
-    private final ConcurrentMap<String, Authentication> authentications; // <realm: authentication>
-    private Authentication current;
+    private final ConcurrentMap<Realm, Authentication> authentications; // <realm: authentication>
+    private Authentication target;
+    private Authentication proxy;
 
     public State(Host host) {
         this.host = host;
-        this.authentications = new ConcurrentHashMap<String, Authentication>();
+        this.authentications = new ConcurrentHashMap<Realm, Authentication>();
     }
 
     public Host getHost() {
         return host;
     }
 
-    public Authentication get(String realm) {
+    public Authentication get(Realm realm) {
         if (realm == null) throw new IllegalArgumentException("realm == null");
         return authentications.get(realm);
     }
 
-    public Authentication put(String realm, Authentication authentication) {
+    public Authentication put(Realm realm, Authentication authentication) {
         if (realm == null) throw new IllegalArgumentException("realm == null");
         if (authentication == null) throw new IllegalArgumentException("option == null");
         Authentication old = authentications.putIfAbsent(realm, authentication);
         return old != null ? old : authentication;
     }
 
-    public boolean has(String realm) {
+    public boolean has(Realm realm) {
         if (realm == null) throw new IllegalArgumentException("realm == null");
         return authentications.containsKey(realm);
     }
 
-    public Set<String> realms() {
+    public Set<Realm> realms() {
         return Collections.unmodifiableSet(authentications.keySet());
     }
 
@@ -50,11 +51,19 @@ public class State implements Serializable {
         authentications.clear();
     }
 
-    public Authentication getCurrent() {
-        return current;
+    public Authentication getTarget() {
+        return target;
     }
 
-    public void setCurrent(Authentication current) {
-        this.current = current;
+    public void setTarget(Authentication target) {
+        this.target = target;
+    }
+
+    public Authentication getProxy() {
+        return proxy;
+    }
+
+    public void setProxy(Authentication proxy) {
+        this.proxy = proxy;
     }
 }

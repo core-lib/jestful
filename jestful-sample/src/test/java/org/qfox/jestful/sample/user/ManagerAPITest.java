@@ -13,6 +13,9 @@ import org.junit.Test;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.auth.*;
 import org.qfox.jestful.client.auth.impl.*;
+import org.qfox.jestful.client.scheduler.Callback;
+import org.qfox.jestful.commons.Lock;
+import org.qfox.jestful.commons.SimpleLock;
 import org.qfox.jestful.sample.ManagerAPI;
 
 /**
@@ -51,8 +54,25 @@ public class ManagerAPITest {
         }
 
         {
-            String html = managerAPI.index("中文");
-            System.out.println(html);
+            final Lock lock = new SimpleLock();
+            managerAPI.index(new Callback<String>() {
+
+                @Override
+                public void onCompleted(boolean success, String result, Exception exception) {
+                    lock.openAll();
+                }
+
+                @Override
+                public void onSuccess(String result) {
+                    System.out.println(result);
+                }
+
+                @Override
+                public void onFail(Exception exception) {
+
+                }
+            });
+            lock.lockOne();
         }
     }
 

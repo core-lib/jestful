@@ -128,7 +128,7 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         information.put("cnonce", cnonce, true);
 
         String authorization = StringKit.concat(NAME, " ", information.toString());
-        action.getRequest().setRequestHeader("Authorization", authorization);
+        authenticate(action, challenge, authorization);
     }
 
     @Override

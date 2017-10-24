@@ -28,8 +28,10 @@ public class Authenticator implements Actor {
         else {
             Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
             State state = stateStorage.get(host);
-            authentication = state != null ? state.getCurrent() : null;
-            if (authentication != null) authentication.authenticate(action);
+            Authentication target = state != null ? state.getTarget() : null;
+            if (target != null) target.authenticate(action);
+            Authentication proxy = state != null ? state.getProxy() : null;
+            if (proxy != null) proxy.authenticate(action);
         }
         // 封装自动认证的 Promise 处理认证失败的情况
         Promise promise = (Promise) action.execute();
@@ -74,10 +76,12 @@ public class Authenticator implements Actor {
                 State state = stateStorage.get(host);
                 // 避免并发时候的状态覆盖保存问题
                 if (state == null) state = stateStorage.put(host, new State(host));
+                // 构建授权域
+                Realm realm = new Realm(challenge.getProvoker(), challenge.getRealm());
                 // 获取该域的认证选项
-                Authentication auth = state.get(challenge.getRealm());
+                Authentication auth = state.get(realm);
                 // 避免并发时候的状态覆盖保存问题
-                if (auth == null) auth = state.put(challenge.getRealm(), new Authentication(scheme, scope, credence, challenge));
+                if (auth == null) auth = state.put(realm, new Authentication(scheme, scope, credence, challenge));
                 // 更新认证参数
                 auth.update(scheme, scope, credence, challenge);
                 // 切换认证状态
@@ -143,10 +147,12 @@ public class Authenticator implements Actor {
                             State state = stateStorage.get(host);
                             // 避免并发时候的状态覆盖保存问题
                             if (state == null) state = stateStorage.put(host, new State(host));
+                            // 构建授权域
+                            Realm realm = new Realm(challenge.getProvoker(), challenge.getRealm());
                             // 获取该域的认证选项
-                            Authentication auth = state.get(challenge.getRealm());
+                            Authentication auth = state.get(realm);
                             // 避免并发时候的状态覆盖保存问题
-                            if (auth == null) auth = state.put(challenge.getRealm(), new Authentication(scheme, scope, credence, challenge));
+                            if (auth == null) auth = state.put(realm, new Authentication(scheme, scope, credence, challenge));
                             // 更新认证参数
                             auth.update(scheme, scope, credence, challenge);
                             // 切换认证状态
@@ -200,10 +206,23 @@ public class Authenticator implements Actor {
         }
 
         private void success(Authentication auth) {
+            if (auth == null) throw new NullPointerException();
             auth.shift(Status.AUTHENTICATED);
             Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
             State state = stateStorage.get(host);
-            if (state != null) state.setCurrent(auth);
+            if (state == null) return;
+            Challenge challenge = auth.getChallenge();
+            if (challenge == null) return;
+            Provoker provoker = challenge.getProvoker();
+            if (provoker == null) return;
+            switch (provoker) {
+                case PROXY:
+                    state.setProxy(auth);
+                    break;
+                case TARGET:
+                    state.setTarget(auth);
+                    break;
+            }
         }
 
         private void failure(Authentication auth) {
