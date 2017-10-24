@@ -13,48 +13,48 @@ public class State implements Serializable {
     private static final long serialVersionUID = 6971103658173832157L;
 
     private final Host host;
-    private final ConcurrentMap<String, Authenticator> authenticators; // <realm: option>
-    private Authenticator current;
+    private final ConcurrentMap<String, Authentication> authentications; // <realm: authentication>
+    private Authentication current;
 
     public State(Host host) {
         this.host = host;
-        this.authenticators = new ConcurrentHashMap<String, Authenticator>();
+        this.authentications = new ConcurrentHashMap<String, Authentication>();
     }
 
     public Host getHost() {
         return host;
     }
 
-    public Authenticator get(String realm) {
+    public Authentication get(String realm) {
         if (realm == null) throw new IllegalArgumentException("realm == null");
-        return authenticators.get(realm);
+        return authentications.get(realm);
     }
 
-    public Authenticator put(String realm, Authenticator authenticator) {
+    public Authentication put(String realm, Authentication authentication) {
         if (realm == null) throw new IllegalArgumentException("realm == null");
-        if (authenticator == null) throw new IllegalArgumentException("option == null");
-        Authenticator old = authenticators.putIfAbsent(realm, authenticator);
-        return old != null ? old : authenticator;
+        if (authentication == null) throw new IllegalArgumentException("option == null");
+        Authentication old = authentications.putIfAbsent(realm, authentication);
+        return old != null ? old : authentication;
     }
 
     public boolean has(String realm) {
         if (realm == null) throw new IllegalArgumentException("realm == null");
-        return authenticators.containsKey(realm);
+        return authentications.containsKey(realm);
     }
 
     public Set<String> realms() {
-        return Collections.unmodifiableSet(authenticators.keySet());
+        return Collections.unmodifiableSet(authentications.keySet());
     }
 
     public void clear() {
-        authenticators.clear();
+        authentications.clear();
     }
 
-    public Authenticator getCurrent() {
+    public Authentication getCurrent() {
         return current;
     }
 
-    public void setCurrent(Authenticator current) {
+    public void setCurrent(Authentication current) {
         this.current = current;
     }
 }

@@ -23,26 +23,26 @@ public class ManagerAPITest {
     // Digest realm="Tomcat Manager Application", qop="auth", nonce="1508767262604:e176001459d8327b75fa057fc8c123af", opaque="05B63BC01E8813AE9958DA045B35EF92"
     @Test
     public void getUserSynchronously() throws Exception {
-        Authorization authorization = new Authorization();
+        Authenticator authenticator = new Authenticator();
         StateStorage stateStorage = new MapStateStorage();
-        authorization.setStateStorage(stateStorage);
+        authenticator.setStateStorage(stateStorage);
 
         CredenceProvider credenceProvider = new MapCredenceProvider();
-        credenceProvider.setCredence(new Scope(Scope.ANY_SCHEME, Scope.ANY_REALM, "192.168.31.200", 8080), new SimpleCredence("tomcat", "tomcat"));
-        authorization.setCredenceProvider(credenceProvider);
+        credenceProvider.setCredence(new Scope(Scope.ANY_SCHEME, Scope.ANY_REALM, "localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
+        authenticator.setCredenceProvider(credenceProvider);
 
         SchemeRegistry registry = new MapSchemeRegistry();
         registry.register(new BasicScheme());
         registry.register(new DigestScheme());
-        authorization.setSchemeRegistry(registry);
+        authenticator.setSchemeRegistry(registry);
 
         ManagerAPI managerAPI = Client.builder()
                 .setProtocol("http")
-                .setHostname("192.168.31.200")
+                .setHostname("localhost")
                 .setPort(8080)
                 .build()
                 .creator()
-                .addBackPlugins(authorization)
+                .addBackPlugins(authenticator)
                 .create(ManagerAPI.class);
 
         {
@@ -82,20 +82,20 @@ public class ManagerAPITest {
         DefaultHttpClient client = new DefaultHttpClient();
         HttpClientContext context = new HttpClientContext();
         BasicCredentialsProvider provider = new BasicCredentialsProvider();
-        provider.setCredentials(new AuthScope(new HttpHost("192.168.31.200", 8080, "http")), new UsernamePasswordCredentials("tomcat", "tomcat"));
+        provider.setCredentials(new AuthScope(new HttpHost("localhost", 8080, "http")), new UsernamePasswordCredentials("tomcat", "tomcat"));
         context.setCredentialsProvider(provider);
         org.apache.http.client.AuthCache authAuthCache = new BasicAuthCache();
 //        authAuthCache.put(new HttpHost("api.github.com", 443, "https"), new org.apache.http.impl.auth.BasicScheme());
         context.setAuthCache(authAuthCache);
 
         {
-            HttpGet request = new HttpGet("http://192.168.31.200:8080/manager/html?param=中文");
+            HttpGet request = new HttpGet("http://localhost:8080/manager/html?param=中文");
             HttpResponse response = client.execute(request, context);
             response.getEntity().writeTo(System.out);
         }
 
         {
-            HttpGet request = new HttpGet("http://192.168.31.200:8080/manager/html");
+            HttpGet request = new HttpGet("http://localhost:8080/manager/html");
             HttpResponse response = client.execute(request, context);
             response.getEntity().writeTo(System.out);
         }

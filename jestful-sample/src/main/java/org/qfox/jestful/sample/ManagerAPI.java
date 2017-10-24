@@ -2,7 +2,7 @@ package org.qfox.jestful.sample;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.AioClient;
-import org.qfox.jestful.client.auth.Authorization;
+import org.qfox.jestful.client.auth.Authenticator;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.retry.RetryController;
 import org.qfox.jestful.client.scheduler.Callback;
@@ -25,7 +25,7 @@ public interface ManagerAPI {
             .setPort(8080)
             .build()
             .creator()
-            .addForePlugins(new Authorization())
+            .addForePlugins(new Authenticator())
             .create(ManagerAPI.class);
 
     ManagerAPI NIO = NioClient.builder()
