@@ -2,6 +2,7 @@ package org.qfox.jestful.android;
 
 import android.os.AsyncTask;
 import org.qfox.jestful.client.Promise;
+import org.qfox.jestful.client.scheduler.Call;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.core.Action;
 
@@ -14,7 +15,7 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     private final UIOnSuccess onSuccess;
     private final UIOnFail onFail;
     private final UIOnCompleted onCompleted;
-    private Exception exception;
+    private Exception ex;
 
     UIOnLambdaTask(Action action, UIOnSuccess onSuccess, UIOnFail onFail, UIOnCompleted onCompleted) {
         this.action = action;
@@ -39,15 +40,8 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
 
                         @Override
                         protected void onPostExecute(Object nil) {
-                            Exception ex = null;
-                            try {
-                                if (exception == null) onSuccess.call(result);
-                                else throw exception;
-                            } catch (Exception e) {
-                                onFail.call(ex = e);
-                            } finally {
-                                onCompleted.call(ex == null, result, ex);
-                            }
+                            UILambdaDecorator<Object> decorator = new UILambdaDecorator<Object>(onSuccess, onFail, onCompleted);
+                            new Call(decorator, result, exception).call();
                         }
 
                     }.execute();
@@ -55,7 +49,7 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
             });
             return null;
         } catch (Exception e) {
-            exception = e;
+            ex = e;
             return null;
         }
     }
@@ -63,11 +57,11 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
     @Override
     protected void onPostExecute(Object nil) {
         try {
-            if (exception != null) throw exception;
+            if (ex != null) throw ex;
         } catch (Exception e) {
-            onFail.call(e);
+            onFail.call(ex = e);
         } finally {
-            if (exception != null) onCompleted.call(false, null, exception);
+            if (ex != null) onCompleted.call(false, null, ex);
         }
     }
 

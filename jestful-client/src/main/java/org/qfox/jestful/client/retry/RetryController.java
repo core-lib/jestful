@@ -2,6 +2,7 @@ package org.qfox.jestful.client.retry;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.Promise;
+import org.qfox.jestful.client.scheduler.Call;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.core.Action;
@@ -80,12 +81,12 @@ public class RetryController implements Actor {
             promise.accept(new CallbackAdapter<Object>() {
                 @Override
                 public void onCompleted(boolean success, Object result, Exception exception) {
-                    if (retryCondition.matches(action, !success, result, exception)) {
-                        Integer count = (Integer) action.getExtra().get(this.getClass());
-                        if (count == null) count = 0;
-                        if (count < maxCount) {
-                            Exception ex = null;
-                            try {
+                    Exception ex = null;
+                    try {
+                        if (retryCondition.matches(action, !success, result, exception)) {
+                            Integer count = (Integer) action.getExtra().get(this.getClass());
+                            if (count == null) count = 0;
+                            if (count < maxCount) {
                                 client().invoker()
                                         .setProtocol(action.getProtocol())
                                         .setHostname(action.getHostname())
@@ -99,22 +100,17 @@ public class RetryController implements Actor {
                                         .setExtra(this.getClass(), count + 1)
                                         .promise()
                                         .accept(callback);
-                            } catch (Exception e) {
-                                callback.onFail(ex = e);
-                            } finally {
-                                if (ex != null) callback.onCompleted(false, null, ex);
+
+                                return;
                             }
-                            return;
                         }
-                    }
-                    try {
-                        if (exception == null) callback.onSuccess(result);
-                        else throw exception;
                     } catch (Exception e) {
-                        callback.onFail(exception = e);
+                        callback.onFail(ex = e);
+                        return; // 避免重复回调
                     } finally {
-                        callback.onCompleted(exception == null, result, exception);
+                        if (ex != null) callback.onCompleted(false, null, ex);
                     }
+                    new Call(callback, result, exception).call();
                 }
             });
         }

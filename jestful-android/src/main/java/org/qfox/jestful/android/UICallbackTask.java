@@ -2,13 +2,14 @@ package org.qfox.jestful.android;
 
 import android.os.AsyncTask;
 import org.qfox.jestful.client.Promise;
+import org.qfox.jestful.client.scheduler.Call;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.core.Action;
 
 class UICallbackTask extends AsyncTask<Object, Integer, Object> {
     private final Action action;
     private final UICallback<Object> callback;
-    private Exception exception;
+    private Exception ex;
 
     UICallbackTask(Action action, UICallback<Object> callback) {
         super();
@@ -32,15 +33,8 @@ class UICallbackTask extends AsyncTask<Object, Integer, Object> {
 
                         @Override
                         protected void onPostExecute(Object nil) {
-                            Exception ex = null;
-                            try {
-                                if (exception == null) callback.onSuccess(result);
-                                else throw exception;
-                            } catch (Exception e) {
-                                callback.onFail(ex = e);
-                            } finally {
-                                callback.onCompleted(ex == null, result, ex);
-                            }
+                            UICallbackDecorator<Object> decorator = new UICallbackDecorator<Object>(callback);
+                            new Call(decorator, result, exception).call();
                         }
 
                     }.execute();
@@ -48,7 +42,7 @@ class UICallbackTask extends AsyncTask<Object, Integer, Object> {
             });
             return null;
         } catch (Exception e) {
-            exception = e;
+            ex = e;
             return null;
         }
     }
@@ -56,11 +50,11 @@ class UICallbackTask extends AsyncTask<Object, Integer, Object> {
     @Override
     protected void onPostExecute(Object nil) {
         try {
-            if (exception != null) throw exception;
+            if (ex != null) throw ex;
         } catch (Exception e) {
-            callback.onFail(e);
+            callback.onFail(ex = e);
         } finally {
-            if (exception != null) callback.onCompleted(false, null, exception);
+            if (ex != null) callback.onCompleted(false, null, ex);
         }
     }
 
