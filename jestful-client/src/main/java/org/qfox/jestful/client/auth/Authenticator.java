@@ -223,7 +223,6 @@ public class Authenticator implements Actor {
         }
 
         private void success(Authentication auth) {
-            if (auth == null) throw new NullPointerException();
             auth.shift(Status.AUTHENTICATED);
             Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
             State state = stateStorage.get(host);
