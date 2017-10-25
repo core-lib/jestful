@@ -1,207 +1,95 @@
 package org.qfox.jestful.commons.collection;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 
-/**
- * <p>
- * Description: Case insensitive map
- * </p>
- * <p>
- * <p>
- * Company: 广州市俏狐信息科技有限公司
- * </p>
- *
- * @author Payne 646742615@qq.com
- * @date 2016年3月24日 下午9:35:31
- * @since 1.0.0
- */
-@SuppressWarnings(value = "all")
-public class CaseInsensitiveMap<K extends String, V> implements Map<String, V> {
-    private final Set<Entry<String, V>> entries = new LinkedHashSet<Entry<String, V>>();
+public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V> {
+    private static final long serialVersionUID = 3174924502366804649L;
+
+    private final Map<String, String> caseInsensitiveKeys;
+    private final Locale locale;
 
     public CaseInsensitiveMap() {
-        super();
+        this((Locale) null);
     }
 
-    public CaseInsensitiveMap(Map<? extends K, ? extends V> map) {
-        this.putAll(map);
+    public CaseInsensitiveMap(Locale locale) {
+        this.caseInsensitiveKeys = new HashMap<String, String>();
+        this.locale = locale != null ? locale : Locale.getDefault();
     }
 
-    public int size() {
-        return entries.size();
+    public CaseInsensitiveMap(int initialCapacity) {
+        this(initialCapacity, null);
     }
 
-    public boolean isEmpty() {
-        return entries.isEmpty();
+    public CaseInsensitiveMap(int initialCapacity, Locale locale) {
+        super(initialCapacity);
+        this.caseInsensitiveKeys = new HashMap<String, String>(initialCapacity);
+        this.locale = locale != null ? locale : Locale.getDefault();
+    }
+
+    public CaseInsensitiveMap(Map<? extends K, ? extends V> m) {
+        this();
+        this.putAll(m);
+    }
+
+    public V put(K key, V value) {
+        String oldKey = this.caseInsensitiveKeys.put(this.convertKey(key), key);
+        if (oldKey != null && !oldKey.equals(key)) {
+            super.remove(oldKey);
+        }
+        return super.put(key, value);
+    }
+
+    public void putAll(Map<? extends K, ? extends V> map) {
+        for (Entry<? extends K, ? extends V> entry : map.entrySet()) {
+            this.put(entry.getKey(), entry.getValue());
+        }
     }
 
     public boolean containsKey(Object key) {
-        if (key instanceof String == false) {
-            return false;
-        }
-        for (Entry<String, V> entry : entries) {
-            if (key.toString().equalsIgnoreCase(entry.getKey())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean containsValue(Object value) {
-        if (value == null) {
-            return false;
-        }
-        for (Entry<String, V> entry : entries) {
-            if (value.equals(entry.getValue())) {
-                return true;
-            }
-        }
-        return false;
+        return key instanceof String && this.caseInsensitiveKeys.containsKey(this.convertKey((String) key));
     }
 
     public V get(Object key) {
-        if (key instanceof String == false) {
-            return null;
-        }
-        for (Entry<String, V> entry : entries) {
-            if (key.toString().equalsIgnoreCase(entry.getKey())) {
-                return entry.getValue();
+        if (key instanceof String) {
+            String caseInsensitiveKey = this.caseInsensitiveKeys.get(this.convertKey((String) key));
+            if (caseInsensitiveKey != null) {
+                return super.get(caseInsensitiveKey);
             }
         }
         return null;
     }
 
-    public V put(String key, V value) {
-        if (key == null || value == null) {
-            throw new IllegalArgumentException();
-        }
-        for (Entry<String, V> entry : entries) {
-            if (key.equalsIgnoreCase(entry.getKey())) {
-                V old = entry.getValue();
-                entry.setValue(value);
-                return old;
+    public V getOrDefault(Object key, V defaultValue) {
+        if (key instanceof String) {
+            String caseInsensitiveKey = this.caseInsensitiveKeys.get(this.convertKey((String) key));
+            if (caseInsensitiveKey != null) {
+                return super.get(caseInsensitiveKey);
             }
         }
-        Entry<String, V> entry = new MapEntry<String, V>(key, value);
-        entries.add(entry);
-        return null;
+        return defaultValue;
     }
 
     public V remove(Object key) {
-        if (key instanceof String == false) {
-            return null;
-        }
-        Iterator<Entry<String, V>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Entry<String, V> entry = iterator.next();
-            if (key.toString().equalsIgnoreCase(entry.getKey())) {
-                iterator.remove();
-                return entry.getValue();
+        if (key instanceof String) {
+            String caseInsensitiveKey = this.caseInsensitiveKeys.remove(this.convertKey((String) key));
+            if (caseInsensitiveKey != null) {
+                return super.remove(caseInsensitiveKey);
             }
         }
         return null;
     }
 
-    public void putAll(Map<? extends String, ? extends V> m) {
-        Set<? extends String> keys = m.keySet();
-        for (String key : keys) {
-            V value = m.get(key);
-            put(key, value);
-        }
-    }
-
     public void clear() {
-        entries.clear();
+        this.caseInsensitiveKeys.clear();
+        super.clear();
     }
 
-    public Set<String> keySet() {
-        Set<String> set = new LinkedHashSet<String>();
-        for (Entry<String, V> entry : entries) {
-            set.add(entry.getKey());
-        }
-        return set;
+    private String convertKey(String key) {
+        return key.toLowerCase(this.locale);
     }
-
-    public Collection<V> values() {
-        List<V> collection = new ArrayList<V>();
-        for (Entry<String, V> entry : entries) {
-            collection.add(entry.getValue());
-        }
-        return collection;
-    }
-
-    public Set<Entry<String, V>> entrySet() {
-        return entries;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((entries == null) ? 0 : entries.hashCode());
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        CaseInsensitiveMap<?, ?> other = (CaseInsensitiveMap<?, ?>) obj;
-        if (entries == null) {
-            if (other.entries != null)
-                return false;
-        } else if (!entries.equals(other.entries))
-            return false;
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{");
-        Iterator<Entry<String, V>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Entry<String, V> entry = iterator.next();
-            builder.append(entry.toString());
-            if (iterator.hasNext()) builder.append(", ");
-        }
-        builder.append("}");
-        return builder.toString();
-    }
-
-    private static class MapEntry<K, V> implements Entry<K, V> {
-        private final K key;
-        private V value;
-
-        public MapEntry(K key, V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public K getKey() {
-            return key;
-        }
-
-        public V getValue() {
-            return value;
-        }
-
-        public V setValue(V value) {
-            V old = this.value;
-            this.value = value;
-            return old;
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder();
-            sb.append(key).append(": ").append(value);
-            return sb.toString();
-        }
-    }
-
 }
