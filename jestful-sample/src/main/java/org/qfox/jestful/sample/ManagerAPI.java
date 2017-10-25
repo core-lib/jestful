@@ -11,19 +11,19 @@ import java.util.concurrent.Future;
 /**
  * Created by Payne on 2017/10/19.
  */
-@Jestful("/manager")
+@Jestful("/")
 public interface ManagerAPI {
 
-    @GET("/html")
+    @GET("/index.html")
     String index(@Query("param") String param);
 
-    @GET("/html")
+    @GET("/index.html")
     Future<String> indexOfFuture();
 
-    @GET("/html")
+    @GET("/index.html")
     Observable<String> indexOfObservable();
 
-    @GET("/html")
+    @GET("/index.html")
     void index(Callback<String> callback);
 
 }

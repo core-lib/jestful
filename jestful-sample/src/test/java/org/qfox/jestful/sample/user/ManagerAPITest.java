@@ -31,12 +31,11 @@ public class ManagerAPITest {
         Authenticator authenticator = new Authenticator();
 
         CredenceProvider credenceProvider = authenticator.getCredenceProvider();
-        credenceProvider.setCredence(new Scope(Scope.ANY_SCHEME, Scope.ANY_REALM, "localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
+        credenceProvider.setCredence(new Scope(Scope.ANY_SCHEME, Scope.ANY_REALM, "localhost", 80), new SimpleCredence("nginx", "nginx"));
 
         ManagerAPI managerAPI = NioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
-                .setPort(8080)
                 .build()
                 .creator()
                 .addBackPlugins(authenticator)

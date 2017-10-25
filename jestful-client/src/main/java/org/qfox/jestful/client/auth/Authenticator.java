@@ -2,10 +2,7 @@ package org.qfox.jestful.client.auth;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.Promise;
-import org.qfox.jestful.client.auth.impl.MapCredenceProvider;
-import org.qfox.jestful.client.auth.impl.MapStateStorage;
-import org.qfox.jestful.client.auth.impl.RFC2617SchemeRegistry;
-import org.qfox.jestful.client.auth.impl.RFC2671SchemePreference;
+import org.qfox.jestful.client.auth.impl.*;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.client.scheduler.Calling;
@@ -20,18 +17,20 @@ public class Authenticator implements Actor {
     private StateStorage stateStorage;
     private SchemeRegistry schemeRegistry;
     private SchemePreference schemePreference;
+    private PortResolver portResolver;
     private int maxCount;
 
     public Authenticator() {
-        this(new MapCredenceProvider(), new MapStateStorage(), new RFC2617SchemeRegistry(), new RFC2671SchemePreference(), 3);
+        this(new MapCredenceProvider(), new MapStateStorage(), new RFC2617SchemeRegistry(), new RFC2671SchemePreference(), new DefaultPortResolver(), 3);
     }
 
-    public Authenticator(CredenceProvider credenceProvider, StateStorage stateStorage, SchemeRegistry schemeRegistry, SchemePreference schemePreference, int maxCount) {
-        this.setCredenceProvider(credenceProvider);
-        this.setStateStorage(stateStorage);
-        this.setSchemeRegistry(schemeRegistry);
-        this.setSchemePreference(schemePreference);
-        this.setMaxCount(maxCount);
+    public Authenticator(CredenceProvider credenceProvider, StateStorage stateStorage, SchemeRegistry schemeRegistry, SchemePreference schemePreference, PortResolver portResolver, int maxCount) {
+        this.credenceProvider = credenceProvider;
+        this.stateStorage = stateStorage;
+        this.schemeRegistry = schemeRegistry;
+        this.schemePreference = schemePreference;
+        this.portResolver = portResolver;
+        this.maxCount = maxCount;
     }
 
     @Override
@@ -43,7 +42,8 @@ public class Authenticator implements Actor {
         }
         // 否则如果这是一个新请求
         else {
-            Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
+            int port = portResolver.resolve(action.getProtocol(), action.getPort());
+            Host host = new Host(action.getProtocol(), action.getHostname(), port);
             State state = stateStorage.get(host);
             Authentication target = state != null ? state.getTarget() : null;
             if (target != null) target.authenticate(action);
@@ -84,11 +84,12 @@ public class Authenticator implements Actor {
                 // 方案分析出服务端发起的认证挑战
                 Challenge challenge = scheme.analyze(action, thrown, result, exception);
                 // 构建授权范围
-                Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), action.getPort());
+                int port = portResolver.resolve(action.getProtocol(), action.getPort());
+                Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), port);
                 // 找到对应的用户凭证
                 Credence credence = credenceProvider.getCredence(scope);
                 // 构建主机对象
-                Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
+                Host host = new Host(action.getProtocol(), action.getHostname(), port);
                 // 获取主机的认证状态
                 State state = stateStorage.get(host);
                 // 避免并发时候的状态覆盖保存问题
@@ -112,7 +113,7 @@ public class Authenticator implements Actor {
                     return client().invoker()
                             .setProtocol(action.getProtocol())
                             .setHostname(action.getHostname())
-                            .setPort(action.getPort())
+                            .setPort(port)
                             .setRoute(action.getRoute())
                             .setResource(action.getResource())
                             .setMapping(action.getMapping().clone())
@@ -155,11 +156,12 @@ public class Authenticator implements Actor {
                             // 方案分析出服务端发起的认证挑战
                             Challenge challenge = scheme.analyze(action, exception != null, result, exception);
                             // 构建授权范围
-                            Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), action.getPort());
+                            int port = portResolver.resolve(action.getProtocol(), action.getPort());
+                            Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), port);
                             // 找到对应的用户凭证
                             Credence credence = credenceProvider.getCredence(scope);
                             // 构建主机对象
-                            Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
+                            Host host = new Host(action.getProtocol(), action.getHostname(), port);
                             // 获取主机的认证状态
                             State state = stateStorage.get(host);
                             // 避免并发时候的状态覆盖保存问题
@@ -183,7 +185,7 @@ public class Authenticator implements Actor {
                                 client().invoker()
                                         .setProtocol(action.getProtocol())
                                         .setHostname(action.getHostname())
-                                        .setPort(action.getPort())
+                                        .setPort(port)
                                         .setRoute(action.getRoute())
                                         .setResource(action.getResource())
                                         .setMapping(action.getMapping().clone())
@@ -224,7 +226,8 @@ public class Authenticator implements Actor {
 
         private void success(Authentication auth) {
             auth.shift(Status.AUTHENTICATED);
-            Host host = new Host(action.getProtocol(), action.getHostname(), action.getPort());
+            int port = portResolver.resolve(action.getProtocol(), action.getPort());
+            Host host = new Host(action.getProtocol(), action.getHostname(), port);
             State state = stateStorage.get(host);
             if (state == null) return;
             Challenge challenge = auth.getChallenge();
@@ -280,6 +283,15 @@ public class Authenticator implements Actor {
     public void setSchemePreference(SchemePreference schemePreference) {
         if (schemePreference == null) throw new IllegalArgumentException("schemePreference == null");
         this.schemePreference = schemePreference;
+    }
+
+    public PortResolver getPortResolver() {
+        return portResolver;
+    }
+
+    public void setPortResolver(PortResolver portResolver) {
+        if (portResolver == null) throw new IllegalArgumentException("portResolver == null");
+        this.portResolver = portResolver;
     }
 
     public int getMaxCount() {

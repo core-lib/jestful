@@ -3,7 +3,6 @@ package org.qfox.jestful.client.auth.impl;
 import org.qfox.jestful.client.auth.Host;
 import org.qfox.jestful.client.auth.State;
 import org.qfox.jestful.client.auth.StateStorage;
-import org.qfox.jestful.client.exception.UnsupportedProtocolException;
 
 import java.util.Collections;
 import java.util.Set;
@@ -20,22 +19,13 @@ public class MapStateStorage implements StateStorage {
         String protocol = host.getProtocol().toLowerCase();
         String name = host.getName().toLowerCase();
         int port = host.getPort();
-        if (port > 0) {
-            return new Host(protocol, name, port);
-        } else if ("https".equals(protocol)) {
-            port = 443;
-        } else if ("http".equals(protocol)) {
-            port = 80;
-        } else {
-            throw new UnsupportedProtocolException(host.getProtocol());
-        }
         return new Host(protocol, name, port);
     }
 
     @Override
     public State put(Host host, State state) {
         if (host == null) throw new IllegalArgumentException("host == null");
-        if (state == null)  throw new IllegalArgumentException("state == null");
+        if (state == null) throw new IllegalArgumentException("state == null");
         State old = store.putIfAbsent(normalize(host), state);
         return old != null ? old : state;
     }
