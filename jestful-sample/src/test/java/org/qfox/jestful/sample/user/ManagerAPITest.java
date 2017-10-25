@@ -32,7 +32,7 @@ public class ManagerAPITest {
         authenticator.setStateStorage(stateStorage);
 
         CredenceProvider credenceProvider = new MapCredenceProvider();
-        credenceProvider.setCredence(new Scope(Scope.ANY_SCHEME, Scope.ANY_REALM, "localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
+        credenceProvider.setCredence(new Scope(Scope.ANY_SCHEME, Scope.ANY_REALM, "192.168.31.200", 8080), new SimpleCredence("tomcat", "tomcat"));
         authenticator.setCredenceProvider(credenceProvider);
 
         SchemeRegistry registry = new MapSchemeRegistry();
@@ -42,7 +42,7 @@ public class ManagerAPITest {
 
         ManagerAPI managerAPI = NioClient.builder()
                 .setProtocol("http")
-                .setHostname("localhost")
+                .setHostname("192.168.31.200")
                 .setPort(8080)
                 .build()
                 .creator()
@@ -103,20 +103,20 @@ public class ManagerAPITest {
         DefaultHttpClient client = new DefaultHttpClient();
         HttpClientContext context = new HttpClientContext();
         BasicCredentialsProvider provider = new BasicCredentialsProvider();
-        provider.setCredentials(new AuthScope(new HttpHost("localhost", 8080, "http")), new UsernamePasswordCredentials("tomcat", "tomcat"));
+        provider.setCredentials(new AuthScope(new HttpHost("192.168.31.200", 8080, "http")), new UsernamePasswordCredentials("tomcat", "tomcat"));
         context.setCredentialsProvider(provider);
         org.apache.http.client.AuthCache authAuthCache = new BasicAuthCache();
 //        authAuthCache.put(new HttpHost("api.github.com", 443, "https"), new org.apache.http.impl.auth.BasicScheme());
         context.setAuthCache(authAuthCache);
 
         {
-            HttpGet request = new HttpGet("http://localhost:8080/manager/html?param=中文");
+            HttpGet request = new HttpGet("http://192.168.31.200:8080/manager/html?param=中文");
             HttpResponse response = client.execute(request, context);
             response.getEntity().writeTo(System.out);
         }
 
         {
-            HttpGet request = new HttpGet("http://localhost:8080/manager/html");
+            HttpGet request = new HttpGet("http://192.168.31.200:8080/manager/html");
             HttpResponse response = client.execute(request, context);
             response.getEntity().writeTo(System.out);
         }

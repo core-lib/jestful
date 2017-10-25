@@ -88,7 +88,7 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
 
         // 获取摘要计算器 algorithm == null 即为默认的MD5
         if (algorithm == null) algorithm = "MD5";
-        MessageDigest digester = digester(algorithm);
+        MessageDigest digester = digester(algorithm.equalsIgnoreCase("MD5-sess") ? "MD5" : algorithm);
 
         // 计算 A1 = unq(username-value) ":" unq(realm-value) ":" password-value
         Principal principal = credence.getPrincipal();
@@ -161,21 +161,11 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
 
     private MessageDigest digester(String algorithm) throws AuthenticationException {
         if (algorithm == null) throw new IllegalArgumentException("algorithm == null");
-        MessageDigest digest;
-        if ("MD5-sess".equalsIgnoreCase(algorithm)) {
-            try {
-                digest = MessageDigest.getInstance("md5");
-            } catch (NoSuchAlgorithmException e) {
-                throw new AuthenticationException("unsupported message digest algorithm : md5");
-            }
-        } else {
-            try {
-                digest = MessageDigest.getInstance(algorithm);
-            } catch (NoSuchAlgorithmException e) {
-                throw new AuthenticationException("unsupported message digest algorithm : " + algorithm);
-            }
+        try {
+            return MessageDigest.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
+            throw new AuthenticationException("unsupported message digest algorithm: " + algorithm);
         }
-        return digest;
     }
 
     private static byte[] random(int len) {
