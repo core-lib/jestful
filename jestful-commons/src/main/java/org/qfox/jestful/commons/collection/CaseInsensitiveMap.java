@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V> {
     private static final long serialVersionUID = 3174924502366804649L;
 
-    private final Map<String, String> caseInsensitiveKeys;
+    private final Map<String, String> lowerCaseKeys;
     private final Locale locale;
 
     public CaseInsensitiveMap() {
@@ -17,7 +17,7 @@ public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V>
     }
 
     public CaseInsensitiveMap(Locale locale) {
-        this.caseInsensitiveKeys = new HashMap<String, String>();
+        this.lowerCaseKeys = new HashMap<String, String>();
         this.locale = locale != null ? locale : Locale.getDefault();
     }
 
@@ -27,7 +27,7 @@ public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V>
 
     public CaseInsensitiveMap(int initialCapacity, Locale locale) {
         super(initialCapacity);
-        this.caseInsensitiveKeys = new HashMap<String, String>(initialCapacity);
+        this.lowerCaseKeys = new HashMap<String, String>(initialCapacity);
         this.locale = locale != null ? locale : Locale.getDefault();
     }
 
@@ -37,7 +37,7 @@ public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V>
     }
 
     public V put(K key, V value) {
-        String oldKey = this.caseInsensitiveKeys.put(this.convertKey(key), key);
+        String oldKey = this.lowerCaseKeys.put(this.convertKey(key), key);
         if (oldKey != null && !oldKey.equals(key)) {
             super.remove(oldKey);
         }
@@ -51,12 +51,12 @@ public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V>
     }
 
     public boolean containsKey(Object key) {
-        return key instanceof String && this.caseInsensitiveKeys.containsKey(this.convertKey((String) key));
+        return key instanceof String && this.lowerCaseKeys.containsKey(this.convertKey((String) key));
     }
 
     public V get(Object key) {
         if (key instanceof String) {
-            String caseInsensitiveKey = this.caseInsensitiveKeys.get(this.convertKey((String) key));
+            String caseInsensitiveKey = this.lowerCaseKeys.get(this.convertKey((String) key));
             if (caseInsensitiveKey != null) {
                 return super.get(caseInsensitiveKey);
             }
@@ -66,7 +66,7 @@ public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V>
 
     public V getOrDefault(Object key, V defaultValue) {
         if (key instanceof String) {
-            String caseInsensitiveKey = this.caseInsensitiveKeys.get(this.convertKey((String) key));
+            String caseInsensitiveKey = this.lowerCaseKeys.get(this.convertKey((String) key));
             if (caseInsensitiveKey != null) {
                 return super.get(caseInsensitiveKey);
             }
@@ -76,7 +76,7 @@ public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V>
 
     public V remove(Object key) {
         if (key instanceof String) {
-            String caseInsensitiveKey = this.caseInsensitiveKeys.remove(this.convertKey((String) key));
+            String caseInsensitiveKey = this.lowerCaseKeys.remove(this.convertKey((String) key));
             if (caseInsensitiveKey != null) {
                 return super.remove(caseInsensitiveKey);
             }
@@ -85,7 +85,7 @@ public class CaseInsensitiveMap<K extends String, V> extends LinkedHashMap<K, V>
     }
 
     public void clear() {
-        this.caseInsensitiveKeys.clear();
+        this.lowerCaseKeys.clear();
         super.clear();
     }
 
