@@ -6,7 +6,7 @@ import org.qfox.jestful.client.auth.SchemeRegistry;
 /**
  * Created by yangchangpei on 17/10/25.
  */
-public final class RFC2617SchemeRegistry extends MapSchemeRegistry implements SchemeRegistry {
+public class RFC2617SchemeRegistry extends MapSchemeRegistry implements SchemeRegistry {
 
     public RFC2617SchemeRegistry() {
         super(new DigestScheme(), new BasicScheme());

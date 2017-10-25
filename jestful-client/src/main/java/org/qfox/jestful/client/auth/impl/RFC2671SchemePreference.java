@@ -10,5 +10,5 @@ public class RFC2671SchemePreference extends OrderedSchemePreference implements 
     public RFC2671SchemePreference() {
         super(DigestScheme.NAME, BasicScheme.NAME);
     }
-    
+
 }
