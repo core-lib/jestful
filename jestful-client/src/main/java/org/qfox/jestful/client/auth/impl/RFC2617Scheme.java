@@ -69,18 +69,64 @@ public abstract class RFC2617Scheme implements Scheme {
             if (name.equalsIgnoreCase(scheme)) {
                 String text = authenticate.substring(index + 1).trim();
                 Information information = new Information();
-                String[] items = text.split("\\s*,\\s*");
-                for (String item : items) {
-                    String[] kv = item.split("\\s*=\\s*");
-                    if (kv.length != 2) continue;
-                    String field = kv[0];
-                    String value = kv[1];
-                    if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
-                        information.put(field, value.substring(1, value.length() - 1), true);
+                String field = null;
+                int quote = -1; // -1: 不确定是否有引号或引号是什么, 0: 确定没引号, 1: 确定是双引号, 2: 确定是单引号
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < text.length(); i++) {
+                    char c = text.charAt(i);
+                    // name == null 的时候 在 = 前面的都是name
+                    if (field == null) {
+                        if (sb.length() == 0) { // 忽略name前面的逗号和空格符
+                            if (c != ',' && c != ' ') sb.append(c);
+                        } else if (c == '=') {
+                            field = sb.toString().trim();
+                            sb.setLength(0);
+                        } else {
+                            sb.append(c);
+                        }
+                    } else if (quote == -1) {
+                        switch (c) {
+                            case '\"':
+                                quote = 1;
+                                break;
+                            case '\'':
+                                quote = 2;
+                                break;
+                            default:
+                                quote = 0;
+                                sb.append(c);
+                                break;
+                        }
+                    } else if (quote == 0) {
+                        if (c == ',') {
+                            information.put(field, sb.toString(), false);
+                            field = null;
+                            quote = -1;
+                            sb.setLength(0);
+                        } else {
+                            sb.append(c);
+                        }
+                    } else if (quote == 1) {
+                        if (c == '\"') {
+                            information.put(field, sb.toString(), true);
+                            field = null;
+                            quote = -1;
+                            sb.setLength(0);
+                        } else {
+                            sb.append(c);
+                        }
                     } else {
-                        information.put(field, value);
+                        if (c == '\'') {
+                            information.put(field, sb.toString(), true);
+                            field = null;
+                            quote = -1;
+                            sb.setLength(0);
+                        } else {
+                            sb.append(c);
+                        }
                     }
                 }
+                if (field != null) information.put(field, sb.toString(), quote == 1 || quote == 2);
                 Value value = information.get("realm");
                 String realm = value != null ? value.getContent() : null;
                 return new Challenge(provoker, name, realm, information);

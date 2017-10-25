@@ -3,7 +3,9 @@ package org.qfox.jestful.client.auth;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by yangchangpei on 17/10/21.
@@ -31,6 +33,10 @@ public class Information implements Serializable {
 
     public Value remove(String field) {
         return map.remove(field);
+    }
+
+    public Set<String> fields() {
+        return Collections.unmodifiableSet(map.keySet());
     }
 
     public boolean contains(String field) {
