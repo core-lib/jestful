@@ -2,9 +2,13 @@ package org.qfox.jestful.client.auth;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.Promise;
-import org.qfox.jestful.client.scheduler.Call;
+import org.qfox.jestful.client.auth.impl.MapCredenceProvider;
+import org.qfox.jestful.client.auth.impl.MapStateStorage;
+import org.qfox.jestful.client.auth.impl.RFC2617SchemeRegistry;
+import org.qfox.jestful.client.auth.impl.RFC2671SchemePreference;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
+import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 
@@ -15,7 +19,20 @@ public class Authenticator implements Actor {
     private CredenceProvider credenceProvider;
     private StateStorage stateStorage;
     private SchemeRegistry schemeRegistry;
-    private int maxCount = 3;
+    private SchemePreference schemePreference;
+    private int maxCount;
+
+    public Authenticator() {
+        this(new MapCredenceProvider(), new MapStateStorage(), new RFC2617SchemeRegistry(), new RFC2671SchemePreference(), 3);
+    }
+
+    public Authenticator(CredenceProvider credenceProvider, StateStorage stateStorage, SchemeRegistry schemeRegistry, SchemePreference schemePreference, int maxCount) {
+        this.setCredenceProvider(credenceProvider);
+        this.setStateStorage(stateStorage);
+        this.setSchemeRegistry(schemeRegistry);
+        this.setSchemePreference(schemePreference);
+        this.setMaxCount(maxCount);
+    }
 
     @Override
     public Object react(Action action) throws Exception {
@@ -61,7 +78,8 @@ public class Authenticator implements Actor {
             }
 
             // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
-            Scheme scheme = schemeRegistry.matches(action, thrown, result, exception);
+            // 有可能服务端发过来多个可被支持的认证方式 应当优先选择认证安全性而且当前客户端支持的认证方案
+            Scheme scheme = schemePreference.matches(schemeRegistry, action, thrown, result, exception);
             if (scheme != null) {
                 // 方案分析出服务端发起的认证挑战
                 Challenge challenge = scheme.analyze(action, thrown, result, exception);
@@ -132,7 +150,7 @@ public class Authenticator implements Actor {
                     Exception ex = null;
                     try {
                         // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
-                        Scheme scheme = schemeRegistry.matches(action, exception != null, result, exception);
+                        Scheme scheme = schemePreference.matches(schemeRegistry, action, exception != null, result, exception);
                         if (scheme != null) {
                             // 方案分析出服务端发起的认证挑战
                             Challenge challenge = scheme.analyze(action, exception != null, result, exception);
@@ -194,7 +212,7 @@ public class Authenticator implements Actor {
                     } finally {
                         if (ex != null) callback.onCompleted(false, null, ex);
                     }
-                    new Call(callback, result, exception).call();
+                    new Calling(callback, result, exception).call();
                 }
             });
         }
@@ -234,6 +252,7 @@ public class Authenticator implements Actor {
     }
 
     public void setCredenceProvider(CredenceProvider credenceProvider) {
+        if (credenceProvider == null) throw new IllegalArgumentException("credenceProvider == null");
         this.credenceProvider = credenceProvider;
     }
 
@@ -242,6 +261,7 @@ public class Authenticator implements Actor {
     }
 
     public void setStateStorage(StateStorage stateStorage) {
+        if (stateStorage == null) throw new IllegalArgumentException("stateStorage == null");
         this.stateStorage = stateStorage;
     }
 
@@ -250,7 +270,17 @@ public class Authenticator implements Actor {
     }
 
     public void setSchemeRegistry(SchemeRegistry schemeRegistry) {
+        if (schemeRegistry == null) throw new IllegalArgumentException("schemeRegistry == null");
         this.schemeRegistry = schemeRegistry;
+    }
+
+    public SchemePreference getSchemePreference() {
+        return schemePreference;
+    }
+
+    public void setSchemePreference(SchemePreference schemePreference) {
+        if (schemePreference == null) throw new IllegalArgumentException("schemePreference == null");
+        this.schemePreference = schemePreference;
     }
 
     public int getMaxCount() {
@@ -258,6 +288,7 @@ public class Authenticator implements Actor {
     }
 
     public void setMaxCount(int maxCount) {
+        if (maxCount <= 0) throw new IllegalArgumentException("maxCount <= 0");
         this.maxCount = maxCount;
     }
 }

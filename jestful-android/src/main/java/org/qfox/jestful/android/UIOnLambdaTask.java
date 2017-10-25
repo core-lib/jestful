@@ -2,7 +2,7 @@ package org.qfox.jestful.android;
 
 import android.os.AsyncTask;
 import org.qfox.jestful.client.Promise;
-import org.qfox.jestful.client.scheduler.Call;
+import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.core.Action;
 
@@ -41,7 +41,7 @@ class UIOnLambdaTask extends AsyncTask<Object, Integer, Object> {
                         @Override
                         protected void onPostExecute(Object nil) {
                             UILambdaDecorator<Object> decorator = new UILambdaDecorator<Object>(onSuccess, onFail, onCompleted);
-                            new Call(decorator, result, exception).call();
+                            new Calling(decorator, result, exception).call();
                         }
 
                     }.execute();

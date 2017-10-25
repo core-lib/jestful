@@ -17,23 +17,29 @@ public abstract class RFC2617Scheme implements Scheme {
     public boolean matches(Action action, boolean thrown, Object result, Exception exception) {
         if (exception instanceof StatusException) {
             StatusException statusException = (StatusException) exception;
-            String authenticate;
+            String[] authenticates;
             switch (statusException.getStatus()) {
                 case 401:
-                    authenticate = action.getResponse().getResponseHeader("WWW-Authenticate");
+                    authenticates = action.getResponse().getResponseHeaders("WWW-Authenticate");
                     break;
                 case 407:
-                    authenticate = action.getResponse().getResponseHeader("Proxy-Authenticate");
+                    authenticates = action.getResponse().getResponseHeaders("Proxy-Authenticate");
                     break;
                 default:
                     return false;
             }
-            return matches(authenticate);
+            return matches(authenticates);
         }
         return false;
     }
 
-    protected abstract boolean matches(String authenticate);
+    /**
+     * 服务端有可能会发送多个可支持的认证方式, 只要其中有一个方式是该方案支持的就返回{@code true} 否则返回{@code false}
+     *
+     * @param authenticates 认证方式数组
+     * @return 只要其中有一个方式是该方案支持的就返回{@code true} 否则返回{@code false}
+     */
+    protected abstract boolean matches(String[] authenticates);
 
     @Override
     public Challenge analyze(Action action, boolean thrown, Object result, Exception exception) {

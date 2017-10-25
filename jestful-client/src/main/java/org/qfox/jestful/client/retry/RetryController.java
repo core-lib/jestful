@@ -2,12 +2,11 @@ package org.qfox.jestful.client.retry;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.Promise;
-import org.qfox.jestful.client.scheduler.Call;
+import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Result;
 
 /**
  * Created by yangchangpei on 17/10/18.
@@ -110,7 +109,7 @@ public class RetryController implements Actor {
                     } finally {
                         if (ex != null) callback.onCompleted(false, null, ex);
                     }
-                    new Call(callback, result, exception).call();
+                    new Calling(callback, result, exception).call();
                 }
             });
         }
