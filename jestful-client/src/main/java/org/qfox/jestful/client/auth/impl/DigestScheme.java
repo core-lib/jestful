@@ -105,9 +105,9 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         String A2;
         Set<String> qualities = qops == null ? null : new HashSet<String>(qops.length);
         for (int i = 0; qops != null && i < qops.length; i++) if (qops[i] != null) qualities.add(qops[i].trim().toLowerCase());
-        String qop;
+        String qop; // 如果服务端没发送qop过来 则客户端一定不能发送qop/nc/cnonce回去
         if (qualities == null) {
-            qop = "auth";
+            qop = null; // 服务端没有发送qop过来 客户端也不发送
             A2 = StringKit.concat(delimiter, method, uri);
         } else if (qualities.contains("auth-int") && restful.isAcceptBody() && action.getParameters().count(Position.BODY) > 0) {
             qop = "auth-int";
@@ -122,8 +122,8 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         String HA1 = hex(digester.digest(StringKit.bytes(A1, cs)));
         String HA2 = hex(digester.digest(StringKit.bytes(A2, cs)));
 
-        String nc = dc.nc();
-        String text = (qualities == null) ? StringKit.concat(delimiter, HA1, nonce, HA2) : StringKit.concat(delimiter, HA1, nonce, nc, cnonce, qop, HA2);
+        String nc = null; // qop == null 的情况下代表服务端没发送 qop 客户端也一定不会发送qop/nc/cnonce回去 所以qop == null 情况下不需要递增nonce-count
+        String text = (qop == null) ? StringKit.concat(delimiter, HA1, nonce, HA2) : StringKit.concat(delimiter, HA1, nonce, nc = dc.nc(), cnonce, qop, HA2);
         String response = hex(digester.digest(StringKit.bytes(text, Charset.forName("US-ASCII"))));
         Information information = new Information();
         information.put("username", username, true);
@@ -132,10 +132,16 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         information.put("uri", uri, true);
         information.put("response", response, true);
         information.put("algorithm", algorithm, false);
-        information.put("opaque", opaque, true);
-        information.put("qop", qop, false);
-        information.put("nc", nc, false);
-        information.put("cnonce", cnonce, true);
+        if (opaque != null) {
+            information.put("opaque", opaque, true);
+        }
+        // 在服务端没有发送qop过来而且algorithm == null || algorithm != MD5-sess 的情况下 所有的摘要数据的确没有用到 qop/nc/cnonce
+        // 但是在 qop == null && algorithm == MD5-sess 的情况下计算A1的时候的确用了 cnonce 却又不发送回服务端那它怎么算出客户端一样的response? 不过无论如何RFC2617是这样规定
+        if (qop != null) {
+            information.put("qop", qop, false);
+            information.put("nc", nc, false);
+            information.put("cnonce", cnonce, true);
+        }
 
         String authorization = StringKit.concat(NAME, " ", information.toString());
         authenticate(action, challenge, authorization);
