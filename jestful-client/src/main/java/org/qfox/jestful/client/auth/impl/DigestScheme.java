@@ -180,7 +180,7 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
     private static byte[] random(int len) {
         if (len <= 0) throw new IllegalArgumentException("len <= 0");
         SecureRandom srd = new SecureRandom();
-        byte[] bytes = new byte[8];
+        byte[] bytes = new byte[len];
         srd.nextBytes(bytes);
         return bytes;
     }
