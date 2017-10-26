@@ -76,40 +76,28 @@ public class Authenticator implements Actor {
             } finally {
                 thrown = exception != null;
             }
-
-            // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
-            // 有可能服务端发过来多个可被支持的认证方式 应当优先选择认证安全性而且当前客户端支持的认证方案
-            Scheme scheme = schemePreference.matches(schemeRegistry, action, thrown, result, exception);
-            if (scheme != null) {
-                // 方案分析出服务端发起的认证挑战
-                Challenge challenge = scheme.analyze(action, thrown, result, exception);
-                // 构建授权范围
-                int port = portResolver.resolve(action.getProtocol(), action.getPort());
-                Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), port);
-                // 找到对应的用户凭证
-                Credence credence = credenceProvider.getCredence(scope);
-                // 构建主机对象
-                Host host = new Host(action.getProtocol(), action.getHostname(), port);
-                // 获取主机的认证状态
-                State state = stateStorage.get(host);
-                // 避免并发时候的状态覆盖保存问题
-                if (state == null) state = stateStorage.put(host, new State(host));
-                // 构建授权域
-                Realm realm = new Realm(challenge.getProvoker(), challenge.getRealm());
-                // 获取该域的认证选项
-                Authentication auth = state.get(realm);
-                // 避免并发时候的状态覆盖保存问题
-                if (auth == null) auth = state.put(realm, new Authentication(scheme, scope, credence, challenge));
-                // 更新认证参数
-                auth.update(scheme, scope, credence, challenge);
-                // 切换认证状态
-                auth.shift(Status.CHALLENGED);
-                // 获取重试认证次数
-                Integer count = (Integer) action.getExtra().get(this.getClass());
-                // 为空则表示还没有认证过即为0次
-                if (count == null) count = 0;
-                // 如果小于最大认证次数则重试认证
-                if (count < maxCount) {
+            // 获取重试认证次数
+            Integer count = (Integer) action.getExtra().get(this.getClass());
+            // 为空则表示还没有认证过即为0次
+            if (count == null) count = 0;
+            // 如果小于最大认证次数则重试认证
+            if (count < maxCount) {
+                // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
+                // 有可能服务端发过来多个可被支持的认证方式 应当优先选择认证安全性而且当前客户端支持的认证方案
+                Scheme scheme = schemePreference.matches(schemeRegistry, action, thrown, result, exception);
+                if (scheme != null) {
+                    // 方案分析出服务端发起的认证挑战
+                    Challenge challenge = scheme.analyze(action, exception != null, result, exception);
+                    // 构建授权范围
+                    int port = portResolver.resolve(action.getProtocol(), action.getPort());
+                    Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), port);
+                    // 找到对应的用户凭证
+                    Credence credence = credenceProvider.getCredence(scope);
+                    // 构建认证对象
+                    Authentication authentication = new Authentication(scheme, scope, credence, challenge);
+                    // 切换认证状态
+                    authentication.shift(Status.CHALLENGED);
+                    // 尝试认证
                     return client().invoker()
                             .setProtocol(action.getProtocol())
                             .setHostname(action.getHostname())
@@ -121,19 +109,20 @@ public class Authenticator implements Actor {
                             .setForePlugins(action.getForePlugins())
                             .setBackPlugins(action.getBackPlugins())
                             .addExtra(this.getClass(), count + 1)
-                            .addExtra(Authentication.class, auth)
+                            .addExtra(Authentication.class, authentication)
                             .promise()
                             .acquire();
                 }
-                // 超过最大认证次数认证失败
+                // 认证通过
                 else {
-                    failure(auth);
+                    Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
+                    if (authentication != null) success(authentication);
                 }
             }
-            // 认证通过
+            // 超过最大认证次数认证失败
             else {
-                Authentication auth = (Authentication) action.getExtra().get(Authentication.class);
-                if (auth != null) success(auth);
+                Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
+                if (authentication != null) failure(authentication);
             }
 
             if (thrown) {
@@ -150,38 +139,27 @@ public class Authenticator implements Actor {
                 public void onCompleted(boolean success, Object result, Exception exception) {
                     Exception ex = null;
                     try {
-                        // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
-                        Scheme scheme = schemePreference.matches(schemeRegistry, action, exception != null, result, exception);
-                        if (scheme != null) {
-                            // 方案分析出服务端发起的认证挑战
-                            Challenge challenge = scheme.analyze(action, exception != null, result, exception);
-                            // 构建授权范围
-                            int port = portResolver.resolve(action.getProtocol(), action.getPort());
-                            Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), port);
-                            // 找到对应的用户凭证
-                            Credence credence = credenceProvider.getCredence(scope);
-                            // 构建主机对象
-                            Host host = new Host(action.getProtocol(), action.getHostname(), port);
-                            // 获取主机的认证状态
-                            State state = stateStorage.get(host);
-                            // 避免并发时候的状态覆盖保存问题
-                            if (state == null) state = stateStorage.put(host, new State(host));
-                            // 构建授权域
-                            Realm realm = new Realm(challenge.getProvoker(), challenge.getRealm());
-                            // 获取该域的认证选项
-                            Authentication auth = state.get(realm);
-                            // 避免并发时候的状态覆盖保存问题
-                            if (auth == null) auth = state.put(realm, new Authentication(scheme, scope, credence, challenge));
-                            // 更新认证参数
-                            auth.update(scheme, scope, credence, challenge);
-                            // 切换认证状态
-                            auth.shift(Status.CHALLENGED);
-                            // 获取重试认证次数
-                            Integer count = (Integer) action.getExtra().get(this.getClass());
-                            // 为空则表示还没有认证过即为0次
-                            if (count == null) count = 0;
-                            // 如果小于最大认证次数则重试认证
-                            if (count < maxCount) {
+                        // 获取重试认证次数
+                        Integer count = (Integer) action.getExtra().get(this.getClass());
+                        // 为空则表示还没有认证过即为0次
+                        if (count == null) count = 0;
+                        // 如果小于最大认证次数则重试认证
+                        if (count < maxCount) {
+                            // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
+                            Scheme scheme = schemePreference.matches(schemeRegistry, action, exception != null, result, exception);
+                            if (scheme != null) {
+                                // 方案分析出服务端发起的认证挑战
+                                Challenge challenge = scheme.analyze(action, exception != null, result, exception);
+                                // 构建授权范围
+                                int port = portResolver.resolve(action.getProtocol(), action.getPort());
+                                Scope scope = new Scope(scheme.getName(), challenge.getRealm(), action.getHostname(), port);
+                                // 找到对应的用户凭证
+                                Credence credence = credenceProvider.getCredence(scope);
+                                // 构建认证对象
+                                Authentication authentication = new Authentication(scheme, scope, credence, challenge);
+                                // 切换认证状态
+                                authentication.shift(Status.CHALLENGED);
+                                // 尝试认证
                                 client().invoker()
                                         .setProtocol(action.getProtocol())
                                         .setHostname(action.getHostname())
@@ -193,20 +171,21 @@ public class Authenticator implements Actor {
                                         .setForePlugins(action.getForePlugins())
                                         .setBackPlugins(action.getBackPlugins())
                                         .addExtra(this.getClass(), count + 1)
-                                        .addExtra(Authentication.class, auth)
+                                        .addExtra(Authentication.class, authentication)
                                         .promise()
                                         .accept(callback);
                                 return;
                             }
-                            // 超过最大认证次数认证失败
+                            // 认证通过
                             else {
-                                failure(auth);
+                                Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
+                                if (authentication != null) success(authentication);
                             }
                         }
-                        // 认证通过
+                        // 超过最大认证次数认证失败
                         else {
-                            Authentication auth = (Authentication) action.getExtra().get(Authentication.class);
-                            if (auth != null) success(auth);
+                            Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
+                            if (authentication != null) failure(authentication);
                         }
                     } catch (Exception e) {
                         callback.onFail(ex = e);
@@ -225,13 +204,25 @@ public class Authenticator implements Actor {
         }
 
         private void success(Authentication auth) {
-            auth.shift(Status.AUTHENTICATED);
+            // 解析主机端口
             int port = portResolver.resolve(action.getProtocol(), action.getPort());
+            // 构建主机对象
             Host host = new Host(action.getProtocol(), action.getHostname(), port);
+            // 获取主机的认证状态
             State state = stateStorage.get(host);
-            if (state == null) return;
+            // 避免并发时候的状态覆盖保存问题
+            if (state == null) state = stateStorage.put(host, new State(host));
+            // 获取认证挑战
             Challenge challenge = auth.getChallenge();
-            if (challenge == null) return;
+            // 构建授权域
+            Realm realm = new Realm(challenge.getProvoker(), challenge.getRealm());
+            // 保存认证对象
+            Authentication authentication = state.put(realm, auth);
+            // 更新认证参数
+            authentication.update(auth.getScheme(), auth.getScope(), auth.getCredence(), auth.getChallenge());
+            // 切换认证状态
+            authentication.shift(Status.AUTHENTICATED);
+            // 作为认证的对应当前状态
             Provoker provoker = challenge.getProvoker();
             if (provoker == null) return;
             switch (provoker) {
@@ -245,7 +236,24 @@ public class Authenticator implements Actor {
         }
 
         private void failure(Authentication auth) {
-            auth.shift(Status.UNAUTHENTICATED);
+            // 解析主机端口
+            int port = portResolver.resolve(action.getProtocol(), action.getPort());
+            // 构建主机对象
+            Host host = new Host(action.getProtocol(), action.getHostname(), port);
+            // 获取主机的认证状态
+            State state = stateStorage.get(host);
+            // 避免并发时候的状态覆盖保存问题
+            if (state == null) state = stateStorage.put(host, new State(host));
+            // 获取认证挑战
+            Challenge challenge = auth.getChallenge();
+            // 构建授权域
+            Realm realm = new Realm(challenge.getProvoker(), challenge.getRealm());
+            // 保存认证对象
+            Authentication authentication = state.put(realm, auth);
+            // 更新认证参数
+            authentication.update(auth.getScheme(), auth.getScope(), auth.getCredence(), auth.getChallenge());
+            // 切换认证状态
+            authentication.shift(Status.UNAUTHENTICATED);
         }
     }
 
