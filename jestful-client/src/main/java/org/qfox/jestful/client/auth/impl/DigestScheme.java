@@ -4,7 +4,6 @@ import org.qfox.jestful.client.auth.*;
 import org.qfox.jestful.commons.Hex;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Restful;
 
 import java.nio.charset.Charset;
@@ -109,9 +108,6 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         if (qualities == null) {
             qop = null; // 服务端没有发送qop过来 客户端也不发送
             A2 = StringKit.concat(delimiter, method, uri);
-        } else if (qualities.contains("auth-int") && restful.isAcceptBody() && action.getParameters().count(Position.BODY) > 0) {
-            qop = "auth-int";
-            throw new IllegalStateException("under construction: " + qop);
         } else if (qualities.contains("auth")) {
             qop = "auth";
             A2 = StringKit.concat(delimiter, method, uri);
