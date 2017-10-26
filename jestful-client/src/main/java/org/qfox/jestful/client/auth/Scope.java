@@ -20,11 +20,19 @@ public class Scope implements Serializable {
     private final String host;
     private final int port;
 
+    public Scope(String host, int port) {
+        this(ANY_REALM, host, port);
+    }
+
+    public Scope(String realm, String host, int port) {
+        this(ANY_SCHEME, realm, host, port);
+    }
+
     public Scope(String scheme, String realm, String host, int port) {
         this.scheme = scheme;
         this.realm = realm;
         this.host = host;
-        this.port = port;
+        this.port = port < 0 ? ANY_PORT : port;
     }
 
     public int match(Scope that) {
