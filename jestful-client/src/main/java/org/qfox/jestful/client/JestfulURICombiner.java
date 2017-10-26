@@ -28,7 +28,7 @@ public class JestfulURICombiner implements Actor, Initialable {
     public Object react(Action action) throws Exception {
         Resource resource = action.getResource();
         Mapping mapping = action.getMapping();
-        String URI = resource.getExpression() + mapping.getExpression();
+        String uri = resource.getExpression() + mapping.getExpression();
         String charset = action.getPathEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.PATH);
         for (Parameter parameter : parameters) {
@@ -47,9 +47,9 @@ public class JestfulURICombiner implements Actor, Initialable {
             if (parameter.isCoding() && !parameter.isEncoded()) {
                 value = URLEncoder.encode(value, charset);
             }
-            URI = URI.replace(variable, value);
+            uri = uri.replace(variable, value);
         }
-        action.setURI(URI.replaceAll("/+", "/"));
+        action.setURI(uri.replaceAll("/+", "/"));
         return action.execute();
     }
 
