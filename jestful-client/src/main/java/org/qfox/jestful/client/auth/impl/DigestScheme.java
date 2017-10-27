@@ -144,6 +144,16 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
     }
 
     @Override
+    public void success(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException {
+
+    }
+
+    @Override
+    public void failure(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException {
+
+    }
+
+    @Override
     public DigestChallenge analyze(Action action, boolean thrown, Object result, Exception exception) {
         Challenge challenge = super.analyze(action, thrown, result, exception);
         return challenge instanceof DigestChallenge ? (DigestChallenge) challenge : new DigestChallenge(challenge);

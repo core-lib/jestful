@@ -35,4 +35,12 @@ class BasicChallenge extends Challenge {
     public Information getInformation() {
         return challenge.getInformation();
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("BasicChallenge{");
+        sb.append("challenge=").append(challenge);
+        sb.append('}');
+        return sb.toString();
+    }
 }

@@ -6,8 +6,12 @@ import org.qfox.jestful.client.auth.impl.*;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.client.scheduler.Calling;
+import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Payne on 2017/10/21.
@@ -35,20 +39,30 @@ public class Authenticator implements Actor {
 
     @Override
     public Object react(Action action) throws Exception {
-        Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
+        Authentication[] authentications = (Authentication[]) action.getExtra().get(Authentication[].class);
         // 如果存在认证器则表示该请求为认证重试请求
-        if (authentication != null) {
-            authentication.authenticate(action);
+        if (authentications != null && authentications.length > 0) {
+            for (Authentication authentication : authentications) {
+                authentication.authenticate(action);
+            }
         }
         // 否则如果这是一个新请求
         else {
             int port = portResolver.resolve(action.getProtocol(), action.getPort());
             Host host = new Host(action.getProtocol(), action.getHostname(), port);
             State state = stateStorage.get(host);
+            List<Authentication> currents = new ArrayList<Authentication>(2);
             Authentication target = state != null ? state.getTarget() : null;
-            if (target != null) target.authenticate(action);
+            if (target != null) {
+                target.authenticate(action);
+                currents.add(target);
+            }
             Authentication proxy = state != null ? state.getProxy() : null;
-            if (proxy != null) proxy.authenticate(action);
+            if (proxy != null) {
+                proxy.authenticate(action);
+                currents.add(proxy);
+            }
+            action.getExtra().put(Authentication[].class, currents.toArray(new Authentication[0]));
         }
         // 封装自动认证的 Promise 处理认证失败的情况
         Promise promise = (Promise) action.execute();
@@ -76,16 +90,16 @@ public class Authenticator implements Actor {
             } finally {
                 thrown = exception != null;
             }
-            // 获取重试认证次数
-            Integer count = (Integer) action.getExtra().get(this.getClass());
-            // 为空则表示还没有认证过即为0次
-            if (count == null) count = 0;
-            // 如果小于最大认证次数则重试认证
-            if (count < maxCount) {
-                // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
-                // 有可能服务端发过来多个可被支持的认证方式 应当优先选择认证安全性而且当前客户端支持的认证方案
-                Scheme scheme = schemePreference.matches(schemeRegistry, action, thrown, result, exception);
-                if (scheme != null) {
+            // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
+            // 有可能服务端发过来多个可被支持的认证方式 应当优先选择认证安全性而且当前客户端支持的认证方案
+            Scheme scheme = schemePreference.matches(schemeRegistry, action, thrown, result, exception);
+            if (scheme != null) {
+                // 获取重试认证次数
+                Integer count = (Integer) action.getExtra().get(this.getClass());
+                // 为空则表示还没有认证过即为0次
+                if (count == null) count = 0;
+                // 如果小于最大认证次数则重试认证
+                if (count < maxCount) {
                     // 方案分析出服务端发起的认证挑战
                     Challenge challenge = scheme.analyze(action, exception != null, result, exception);
                     // 构建授权范围
@@ -109,20 +123,26 @@ public class Authenticator implements Actor {
                             .setForePlugins(action.getForePlugins())
                             .setBackPlugins(action.getBackPlugins())
                             .addExtra(this.getClass(), count + 1)
-                            .addExtra(Authentication.class, authentication)
+                            .addExtra(Authentication[].class, new Authentication[]{authentication})
                             .promise()
                             .acquire();
                 }
-                // 认证通过
+                // 超过最大认证次数认证失败
                 else {
-                    Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
-                    if (authentication != null) success(authentication);
+                    // 方案分析出服务端发起的认证挑战
+                    Challenge challenge = scheme.analyze(action, exception != null, result, exception);
+                    Authentication[] authentications = (Authentication[]) action.getExtra().get(Authentication[].class);
+                    for (int i = 0; authentications != null && i < authentications.length; i++) {
+                        if (challenge.getProvoker() != authentications[i].getChallenge().getProvoker()) continue;
+                        if (!StringKit.isEqual(challenge.getRealm(), authentications[i].getChallenge().getRealm())) continue;
+                        failure(authentications[i]);
+                    }
                 }
             }
-            // 超过最大认证次数认证失败
+            // 认证通过
             else {
-                Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
-                if (authentication != null) failure(authentication);
+                Authentication[] authentications = (Authentication[]) action.getExtra().get(Authentication[].class);
+                for (int i = 0; authentications != null && i < authentications.length; i++) success(authentications[i]);
             }
 
             if (thrown) {
@@ -139,15 +159,15 @@ public class Authenticator implements Actor {
                 public void onCompleted(boolean success, Object result, Exception exception) {
                     Exception ex = null;
                     try {
-                        // 获取重试认证次数
-                        Integer count = (Integer) action.getExtra().get(this.getClass());
-                        // 为空则表示还没有认证过即为0次
-                        if (count == null) count = 0;
-                        // 如果小于最大认证次数则重试认证
-                        if (count < maxCount) {
-                            // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
-                            Scheme scheme = schemePreference.matches(schemeRegistry, action, exception != null, result, exception);
-                            if (scheme != null) {
+                        // 遍历所有认证方案匹配出可以处理该结果的认证方案 匹配不到即认为没有匹配方案或者服务端没有要求认证
+                        Scheme scheme = schemePreference.matches(schemeRegistry, action, exception != null, result, exception);
+                        if (scheme != null) {
+                            // 获取重试认证次数
+                            Integer count = (Integer) action.getExtra().get(this.getClass());
+                            // 为空则表示还没有认证过即为0次
+                            if (count == null) count = 0;
+                            // 如果小于最大认证次数则重试认证
+                            if (count < maxCount) {
                                 // 方案分析出服务端发起的认证挑战
                                 Challenge challenge = scheme.analyze(action, exception != null, result, exception);
                                 // 构建授权范围
@@ -171,21 +191,27 @@ public class Authenticator implements Actor {
                                         .setForePlugins(action.getForePlugins())
                                         .setBackPlugins(action.getBackPlugins())
                                         .addExtra(this.getClass(), count + 1)
-                                        .addExtra(Authentication.class, authentication)
+                                        .addExtra(Authentication[].class, new Authentication[]{authentication})
                                         .promise()
                                         .accept(callback);
                                 return;
                             }
-                            // 认证通过
+                            // 超过最大认证次数认证失败
                             else {
-                                Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
-                                if (authentication != null) success(authentication);
+                                // 方案分析出服务端发起的认证挑战
+                                Challenge challenge = scheme.analyze(action, exception != null, result, exception);
+                                Authentication[] authentications = (Authentication[]) action.getExtra().get(Authentication[].class);
+                                for (int i = 0; authentications != null && i < authentications.length; i++) {
+                                    if (challenge.getProvoker() != authentications[i].getChallenge().getProvoker()) continue;
+                                    if (!StringKit.isEqual(challenge.getRealm(), authentications[i].getChallenge().getRealm())) continue;
+                                    failure(authentications[i]);
+                                }
                             }
                         }
-                        // 超过最大认证次数认证失败
+                        // 认证通过
                         else {
-                            Authentication authentication = (Authentication) action.getExtra().get(Authentication.class);
-                            if (authentication != null) failure(authentication);
+                            Authentication[] authentications = (Authentication[]) action.getExtra().get(Authentication[].class);
+                            for (int i = 0; authentications != null && i < authentications.length; i++) success(authentications[i]);
                         }
                     } catch (Exception e) {
                         callback.onFail(ex = e);
@@ -203,7 +229,7 @@ public class Authenticator implements Actor {
             return promise.client();
         }
 
-        private void success(Authentication auth) {
+        private void success(Authentication auth) throws AuthenticationException {
             // 解析主机端口
             int port = portResolver.resolve(action.getProtocol(), action.getPort());
             // 构建主机对象
@@ -222,6 +248,8 @@ public class Authenticator implements Actor {
             authentication.update(auth.getScheme(), auth.getScope(), auth.getCredence(), auth.getChallenge());
             // 切换认证状态
             authentication.shift(Status.AUTHENTICATED);
+            // 成功通知
+            authentication.success(action);
             // 作为认证的对应当前状态
             Provoker provoker = challenge.getProvoker();
             if (provoker == null) return;
@@ -235,7 +263,7 @@ public class Authenticator implements Actor {
             }
         }
 
-        private void failure(Authentication auth) {
+        private void failure(Authentication auth) throws AuthenticationException {
             // 解析主机端口
             int port = portResolver.resolve(action.getProtocol(), action.getPort());
             // 构建主机对象
@@ -254,6 +282,8 @@ public class Authenticator implements Actor {
             authentication.update(auth.getScheme(), auth.getScope(), auth.getCredence(), auth.getChallenge());
             // 切换认证状态
             authentication.shift(Status.UNAUTHENTICATED);
+            // 失败通知
+            authentication.failure(action);
         }
     }
 

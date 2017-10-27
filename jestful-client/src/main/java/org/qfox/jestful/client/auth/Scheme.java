@@ -11,6 +11,10 @@ public interface Scheme {
 
     void authenticate(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException;
 
+    void success(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException;
+
+    void failure(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException;
+
     boolean matches(Action action, boolean thrown, Object result, Exception exception);
 
     Challenge analyze(Action action, boolean thrown, Object result, Exception exception);

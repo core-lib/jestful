@@ -110,4 +110,12 @@ class DigestChallenge extends Challenge {
         return sb.toString();
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("DigestChallenge{");
+        sb.append("challenge=").append(challenge);
+        sb.append(", count=").append(count);
+        sb.append('}');
+        return sb.toString();
+    }
 }

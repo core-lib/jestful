@@ -20,10 +20,10 @@ public class ManagerAPITest {
     public void getUserSynchronously() throws Exception {
         Authenticator authenticator = new Authenticator();
         CredenceProvider credenceProvider = authenticator.getCredenceProvider();
-        credenceProvider.setCredence(new Scope("localhost", 8080), new SimpleCredence("tomcat", "tomcat"));
+        credenceProvider.setCredence(new Scope("192.168.31.200", 8080), new SimpleCredence("s", "tomcat"));
         ManagerAPI managerAPI = NioClient.builder()
                 .setProtocol("http")
-                .setHostname("localhost")
+                .setHostname("192.168.31.200")
                 .setPort(8080)
                 .build()
                 .creator()

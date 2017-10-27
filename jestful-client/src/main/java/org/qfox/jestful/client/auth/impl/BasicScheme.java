@@ -37,6 +37,16 @@ public class BasicScheme extends RFC2617Scheme implements Scheme {
     }
 
     @Override
+    public void success(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException {
+
+    }
+
+    @Override
+    public void failure(Action action, Scope scope, Credence credence, Challenge challenge) throws AuthenticationException {
+
+    }
+
+    @Override
     public BasicChallenge analyze(Action action, boolean thrown, Object result, Exception exception) {
         Challenge challenge = super.analyze(action, thrown, result, exception);
         return challenge instanceof BasicChallenge ? (BasicChallenge) challenge : new BasicChallenge(challenge);

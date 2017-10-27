@@ -24,6 +24,14 @@ public class Authentication implements Serializable {
         scheme.authenticate(action, scope, credence, challenge);
     }
 
+    public void success(Action action) throws AuthenticationException {
+        scheme.success(action, scope, credence, challenge);
+    }
+
+    public void failure(Action action) throws AuthenticationException {
+        scheme.failure(action, scope, credence, challenge);
+    }
+
     public synchronized void update(Scheme scheme, Scope scope, Credence credence, Challenge challenge) {
         setScheme(scheme);
         setScope(scope);
