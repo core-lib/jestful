@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jestful-sample</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>jestful-sample</name>
     <url>http://maven.apache.org</url>
@@ -30,6 +30,11 @@
             <version>4.2.6.RELEASE</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>4.2.6.RELEASE</version>
+        </dependency>
+        <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-client</artifactId>
             <version>v1.1.6</version>
@@ -38,11 +43,6 @@
             <groupId>org.qfox</groupId>
             <artifactId>jestful-json</artifactId>
             <version>v1.1.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.4</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
@@ -59,16 +59,92 @@
             <artifactId>jestful-RxJava</artifactId>
             <version>v1.1.6</version>
         </dependency>
+        <dependency>
+            <groupId>org.qfox</groupId>
+            <artifactId>jestful-server</artifactId>
+            <version>v1.1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.qfox</groupId>
+            <artifactId>jestful-interception</artifactId>
+            <version>v1.1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.qfox</groupId>
+            <artifactId>jestful-multiview</artifactId>
+            <version>v1.1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>test</id>
+            <properties>
+                <package.environment>test</package.environment>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>product</id>
+            <properties>
+                <package.environment>product</package.environment>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
+        <finalName>mallx-assembly-web</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <excludes>
+                    <exclude>
+                        product/*.*
+                    </exclude>
+                    <exclude>
+                        test/*.*
+                    </exclude>
+                </excludes>
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>http://localhost:8080/manager/text</url>
+                    <port>8080</port>
+                    <server>tomcat7</server>
+                    <username>admin</username>
+                    <password>admin</password>
+                    <uriEncoding>UTF-8</uriEncoding>
+                    <path>/</path>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <filtering>true</filtering>
+                            <directory>${project.basedir}/src/main/resources/${package.environment}</directory>
+                            <targetPath>WEB-INF/classes</targetPath>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -88,19 +164,19 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
                 <configuration>
-                    <attach>true</attach>
+                    <encoding>UTF-8</encoding>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.10</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

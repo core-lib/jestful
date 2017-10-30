@@ -1,12 +1,10 @@
 package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
-import org.qfox.jestful.client.scheduler.Callback;
-import org.qfox.jestful.commons.Base64;
-import org.qfox.jestful.commons.Lock;
-import org.qfox.jestful.commons.SimpleLock;
-
-import java.util.concurrent.Future;
+import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.auth.Authenticator;
+import org.qfox.jestful.client.auth.Scope;
+import org.qfox.jestful.client.auth.impl.SimpleCredence;
 
 /**
  * Created by yangchangpei on 17/9/27.
@@ -15,37 +13,23 @@ public class UserAPITest {
 
     @Test
     public void getUserSynchronously() throws Exception {
-        User user = UserAPI.AIO.user("Basic " + Base64.encode("core-lib:wan20100101"));
+        Authenticator authenticator = new Authenticator();
+        authenticator.getCredenceProvider().setCredence(new Scope("api.github.com", Scope.ANY_PORT), new SimpleCredence("core-lib", "wan20100101"));
+
+        UserAPI userAPI = Client.builder()
+                .setProtocol("https")
+                .setHostname("api.github.com")
+                .build()
+                .creator()
+                .setBackPlugins(authenticator)
+                .create(UserAPI.class);
+
+        User user = userAPI.user();
         System.out.println(user);
-
-        Future<User> future = UserAPI.AIO.userOfFuture("Basic " + Base64.encode("core-lib:wan20100101"));
-        User map = future.get();
-        System.out.println(map);
-
-        UserAPI.AIO.userOfObservable("Basic " + Base64.encode("core-lib:wan20100101"))
-                .subscribe(System.out::println);
     }
 
     @Test
     public void getUserAsynchronously() throws Exception {
-        final Lock lock = new SimpleLock();
-        UserAPI.BIO.user("Basic " + Base64.encode("core-lib:wan20100101"), new Callback<User>() {
-            @Override
-            public void onCompleted(boolean success, User result, Exception exception) {
-                lock.openAll();
-            }
-
-            @Override
-            public void onSuccess(User result) {
-                System.out.println(result);
-            }
-
-            @Override
-            public void onFail(Exception exception) {
-                exception.printStackTrace();
-            }
-        });
-        lock.lockOne();
     }
 
 }
