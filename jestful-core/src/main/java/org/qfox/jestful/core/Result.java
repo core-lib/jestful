@@ -55,6 +55,14 @@ public class Result extends Configuration {
         }
     }
 
+    public Result reset() {
+        value = null;
+        exception = null;
+        rendered = false;
+        body.reset();
+        return this;
+    }
+
     public Object getValue() {
         return value;
     }

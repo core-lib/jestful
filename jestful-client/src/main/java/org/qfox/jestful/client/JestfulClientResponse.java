@@ -54,14 +54,16 @@ public class JestfulClientResponse implements Response {
         if (response != null) {
             return response.getResponseHeaders(name);
         }
-        return header.get(name).clone();
+        String[] values = header.get(name);
+        return values != null ? values.clone() : null;
     }
 
     public void setResponseHeaders(String name, String[] values) {
         if (response != null) {
             response.setResponseHeaders(name, values);
         }
-        header.put(name, values.clone());
+        String[] clones = values != null ? values.clone() : null;
+        header.put(name, clones);
     }
 
     public InputStream getResponseInputStream() throws IOException {

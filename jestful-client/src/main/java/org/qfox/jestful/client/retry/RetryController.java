@@ -2,9 +2,9 @@ package org.qfox.jestful.client.retry;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.Promise;
-import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
+import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 
@@ -59,8 +59,9 @@ public class RetryController implements Actor {
                             .setPort(action.getPort())
                             .setRoute(action.getRoute())
                             .setResource(action.getResource())
-                            .setMapping(action.getMapping().clone())
+                            .setMapping(action.getMapping())
                             .setParameters(action.getParameters())
+                            .setResult(action.getResult().reset())
                             .setForePlugins(action.getForePlugins())
                             .setBackPlugins(action.getBackPlugins())
                             .setExtra(this.getClass(), count + 1)
@@ -93,8 +94,9 @@ public class RetryController implements Actor {
                                         .setPort(action.getPort())
                                         .setRoute(action.getRoute())
                                         .setResource(action.getResource())
-                                        .setMapping(action.getMapping().clone())
+                                        .setMapping(action.getMapping())
                                         .setParameters(action.getParameters())
+                                        .setResult(action.getResult().reset())
                                         .setForePlugins(action.getForePlugins())
                                         .setBackPlugins(action.getBackPlugins())
                                         .setExtra(this.getClass(), count + 1)

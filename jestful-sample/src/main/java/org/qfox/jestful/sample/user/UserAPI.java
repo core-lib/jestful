@@ -1,6 +1,9 @@
 package org.qfox.jestful.sample.user;
 
 import org.qfox.jestful.client.scheduler.Callback;
+import org.qfox.jestful.client.scheduler.OnCompleted;
+import org.qfox.jestful.client.scheduler.OnFail;
+import org.qfox.jestful.client.scheduler.OnSuccess;
 import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
 
@@ -15,5 +18,8 @@ public interface UserAPI {
 
     @GET("/user")
     void user(Callback<User> callback);
+
+    @GET("/user")
+    void user(OnSuccess<User> onSuccess, OnFail onFail, OnCompleted<User> onCompleted);
 
 }
