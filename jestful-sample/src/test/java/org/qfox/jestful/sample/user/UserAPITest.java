@@ -36,7 +36,7 @@ public class UserAPITest {
         Authenticator authenticator = new Authenticator();
         authenticator.getCredenceProvider().setCredence(new Scope("api.github.com", Scope.ANY_PORT), new SimpleCredence("core-lib", "wan20100101"));
 
-        UserAPI userAPI = Client.builder()
+        UserAPI userAPI = NioClient.builder()
                 .setProtocol("https")
                 .setHostname("api.github.com")
                 .build()
