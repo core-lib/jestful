@@ -54,16 +54,6 @@ public class BasicScheme extends RFC2617Scheme implements Scheme {
 
     @Override
     protected boolean matches(String[] authenticates) {
-        // 如果没有指定认证方式则代表采用 Basic 认证
-        if (authenticates == null) return true;
-        for (String authenticate : authenticates) {
-            // 获取第一个空格的下标
-            int index = authenticate.indexOf(' ');
-            // 空格前面的是认证方式的算法
-            String scheme = index > 0 ? authenticate.substring(0, index).trim() : null;
-            // 是否为Basic算法
-            if (NAME.equalsIgnoreCase(scheme)) return true;
-        }
-        return false;
+        return authenticates == null || super.matches(authenticates);
     }
 }

@@ -159,21 +159,6 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         return challenge instanceof DigestChallenge ? (DigestChallenge) challenge : new DigestChallenge(challenge);
     }
 
-    @Override
-    protected boolean matches(String[] authenticates) {
-        // 如果没有指定认证方式则代表采用 Basic 认证 所以返回 false
-        if (authenticates == null) return false;
-        for (String authenticate : authenticates) {
-            // 获取第一个空格的下标
-            int index = authenticate.indexOf(' ');
-            // 空格前面的是认证方式的算法
-            String scheme = index > 0 ? authenticate.substring(0, index) : null;
-            // 是否为Digest算法
-            if (NAME.equalsIgnoreCase(scheme)) return true;
-        }
-        return false;
-    }
-
     private MessageDigest digester(String algorithm) throws AuthenticationException {
         if (algorithm == null) throw new IllegalArgumentException("algorithm == null");
         try {
