@@ -20,8 +20,6 @@ import org.qfox.jestful.core.exception.StatusException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
 import org.qfox.jestful.core.io.RequestLazyOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.UrlResource;
@@ -56,8 +54,6 @@ import java.util.jar.JarFile;
  * @since 1.0.0
  */
 public class Client implements Actor, Connector, Executor, Initialable, Destroyable {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     protected final ExecutorService executor = Executors.newCachedThreadPool();
     protected final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
     protected final Map<MediaType, RequestSerializer> serializers = new LinkedHashMap<MediaType, RequestSerializer>();
