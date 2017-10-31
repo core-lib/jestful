@@ -25,7 +25,7 @@ public class Authenticator implements Actor {
     private int maxCount;
 
     public Authenticator() {
-        this(new MapCredenceProvider(), new MapStateStorage(), new RFC2617SchemeRegistry(), new RFC2671SchemePreference(), new DefaultPortResolver(), 3);
+        this(new MapCredenceProvider(), new MapStateStorage(), new RFC2617SchemeRegistry(), new RFC2617SchemePreference(), new DefaultPortResolver(), 3);
     }
 
     public Authenticator(CredenceProvider credenceProvider, StateStorage stateStorage, SchemeRegistry schemeRegistry, SchemePreference schemePreference, PortResolver portResolver, int maxCount) {
