@@ -1,9 +1,7 @@
 package org.qfox.jestful.sample;
 
-import org.qfox.jestful.core.annotation.Body;
-import org.qfox.jestful.core.annotation.GET;
-import org.qfox.jestful.core.annotation.Jestful;
-import org.qfox.jestful.core.annotation.POST;
+import org.qfox.jestful.client.scheduler.OnCompleted;
+import org.qfox.jestful.core.annotation.*;
 import org.qfox.jestful.sample.user.User;
 
 @Jestful("/redirect")
@@ -12,7 +10,13 @@ public interface RedirectSampleAPI {
     @GET("/source")
     User source();
 
+    @GET("/source")
+    void source(OnCompleted<User> callback);
+
     @POST("/source")
-    User source(@Body User user);
+    User source(@Query("job") String job, @Body User user);
+
+    @POST("/source")
+    void source(@Query("job") String job, @Body User user,OnCompleted<User> callback);
 
 }

@@ -3,6 +3,8 @@ package org.qfox.jestful.sample.user;
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.redirect.Redirector;
+import org.qfox.jestful.commons.Lock;
+import org.qfox.jestful.commons.SimpleLock;
 import org.qfox.jestful.sample.RedirectSampleAPI;
 
 /**
@@ -23,6 +25,13 @@ public class RedirectSampleAPITest {
 
         User user = userAPI.source();
         System.out.println(user);
+
+        Lock lock = new SimpleLock();
+        userAPI.source((success, result, exception) ->{
+            System.out.println(result);
+            lock.openAll();
+        });
+        lock.lockOne();
     }
 
     @Test
@@ -37,8 +46,15 @@ public class RedirectSampleAPITest {
                 .create( RedirectSampleAPI.class);
 
         User body = new User("Change", 2L, null, null);
-        User user = userAPI.source(body);
+        User user = userAPI.source("Programmer",body);
         System.out.println(user);
+
+        Lock lock = new SimpleLock();
+        userAPI.source("Programmer",user, (success, result, exception) ->{
+            System.out.println(result);
+            lock.openAll();
+        });
+        lock.lockOne();
     }
 
 }
