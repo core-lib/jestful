@@ -18,8 +18,8 @@ import java.util.Collection;
  * Created by yangchangpei on 17/10/31.
  */
 public class Redirector implements Actor {
-    private final static int MAX_COUNT = 30;
-    private final static Collection<Redirect> REDIRECTS = Arrays.asList(
+    private final static int DEFAULT_MAX_COUNT = 30;
+    private final static Collection<Redirect> DEFAULT_REDIRECTS = Arrays.asList(
             new Redirect301(),
             new Redirect302(),
             new Redirect303(),
@@ -30,15 +30,15 @@ public class Redirector implements Actor {
     private Collection<Redirect> redirects;
 
     public Redirector() {
-        this(MAX_COUNT, REDIRECTS);
+        this(DEFAULT_MAX_COUNT, DEFAULT_REDIRECTS);
     }
 
     public Redirector(int maxCount) {
-        this(maxCount, REDIRECTS);
+        this(maxCount, DEFAULT_REDIRECTS);
     }
 
     public Redirector(Collection<Redirect> redirects) {
-        this(MAX_COUNT, redirects);
+        this(DEFAULT_MAX_COUNT, redirects);
     }
 
     public Redirector(int maxCount, Collection<Redirect> redirects) {
@@ -131,6 +131,8 @@ public class Redirector implements Actor {
                     Client.Invoker<?> invoker = redirect.construct(client(), action, thrown, result, exception);
                     invoker.addExtra(Redirections.class, redirections);
                     invoker.addExtra(Redirector.class, count + 1);
+                    invoker.setForePlugins(action.getForePlugins());
+                    invoker.setBackPlugins(action.getBackPlugins());
                     return invoker.promise().acquire();
                 } else {
                     throw new RedirectionOverloadException(redirections);
@@ -169,6 +171,8 @@ public class Redirector implements Actor {
                                 Client.Invoker<?> invoker = redirect.construct(client(), action, exception != null, result, exception);
                                 invoker.addExtra(Redirections.class, redirections);
                                 invoker.addExtra(Redirector.class, count + 1);
+                                invoker.setForePlugins(action.getForePlugins());
+                                invoker.setBackPlugins(action.getBackPlugins());
                                 invoker.promise().accept(callback);
                                 return; // 避免重复回调
                             } else {

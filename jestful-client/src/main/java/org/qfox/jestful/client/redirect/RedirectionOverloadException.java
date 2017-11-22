@@ -8,6 +8,7 @@ public class RedirectionOverloadException extends JestfulException {
     private final Redirections redirections;
 
     public RedirectionOverloadException(Redirections redirections) {
+        super("too many redirects");
         this.redirections = redirections;
     }
 

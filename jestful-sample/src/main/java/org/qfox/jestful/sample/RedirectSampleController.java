@@ -13,7 +13,7 @@ public class RedirectSampleController {
 
     @GET("/source")
     public String getSource() {
-        return "@redirect:/redirect/target?name=Payne";
+        return "@redirect:/redirect/source?name=Payne";
     }
 
     @GET("/target")
