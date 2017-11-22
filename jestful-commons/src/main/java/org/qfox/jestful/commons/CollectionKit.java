@@ -7,7 +7,7 @@ public class CollectionKit {
 
     public static <T> Emptiable<T> any(Collection<T> collection, Predication<T> predication) {
         if (collection == null || predication == null) throw new NullPointerException("collection and predication must not be null");
-        for (T obj : collection) if (predication.test(obj)) Emptiable.of(obj);
+        for (T obj : collection) if (predication.test(obj)) return Emptiable.of(obj);
         return Emptiable.empty();
     }
 

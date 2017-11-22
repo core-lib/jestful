@@ -13,6 +13,16 @@ public class User implements Serializable {
     private String avatar_url;
     private String url;
 
+    public User() {
+    }
+
+    public User(String login, Long id, String avatar_url, String url) {
+        this.login = login;
+        this.id = id;
+        this.avatar_url = avatar_url;
+        this.url = url;
+    }
+
     public String getLogin() {
         return login;
     }
