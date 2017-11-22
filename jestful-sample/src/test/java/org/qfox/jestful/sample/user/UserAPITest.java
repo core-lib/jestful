@@ -6,6 +6,7 @@ import org.qfox.jestful.client.auth.Authenticator;
 import org.qfox.jestful.client.auth.Scope;
 import org.qfox.jestful.client.auth.impl.SimpleCredence;
 import org.qfox.jestful.client.nio.NioClient;
+import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
 
@@ -25,6 +26,7 @@ public class UserAPITest {
                 .build()
                 .creator()
                 .setBackPlugins(authenticator)
+                .addBackPlugins(new Redirector())
                 .create(UserAPI.class);
 
         User user = userAPI.user();

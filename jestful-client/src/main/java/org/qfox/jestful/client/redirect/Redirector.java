@@ -20,7 +20,10 @@ import java.util.Collection;
 public class Redirector implements Actor {
     private final static int MAX_COUNT = 30;
     private final static Collection<Redirect> REDIRECTS = Arrays.asList(
-
+            new Redirect301(),
+            new Redirect302(),
+            new Redirect303(),
+            new Redirect307()
     );
 
     private int maxCount;

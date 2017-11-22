@@ -5,9 +5,7 @@ import org.qfox.jestful.core.Action;
 
 public interface Redirect {
 
-    String name();
-
-    Client.Invoker<?> construct(Client client, Action action, boolean thrown, Object result, Exception exception);
+    Client.Invoker<?> construct(Client client, Action action, boolean thrown, Object result, Exception exception) throws Exception;
 
     boolean matches(Action action, boolean thrown, Object result, Exception exception);
 
