@@ -69,6 +69,60 @@ public class Authenticator implements Actor {
         return new AuthPromise(action, promise);
     }
 
+    public CredenceProvider getCredenceProvider() {
+        return credenceProvider;
+    }
+
+    public void setCredenceProvider(CredenceProvider credenceProvider) {
+        if (credenceProvider == null) throw new IllegalArgumentException("credenceProvider == null");
+        this.credenceProvider = credenceProvider;
+    }
+
+    public StateStorage getStateStorage() {
+        return stateStorage;
+    }
+
+    public void setStateStorage(StateStorage stateStorage) {
+        if (stateStorage == null) throw new IllegalArgumentException("stateStorage == null");
+        this.stateStorage = stateStorage;
+    }
+
+    public SchemeRegistry getSchemeRegistry() {
+        return schemeRegistry;
+    }
+
+    public void setSchemeRegistry(SchemeRegistry schemeRegistry) {
+        if (schemeRegistry == null) throw new IllegalArgumentException("schemeRegistry == null");
+        this.schemeRegistry = schemeRegistry;
+    }
+
+    public SchemePreference getSchemePreference() {
+        return schemePreference;
+    }
+
+    public void setSchemePreference(SchemePreference schemePreference) {
+        if (schemePreference == null) throw new IllegalArgumentException("schemePreference == null");
+        this.schemePreference = schemePreference;
+    }
+
+    public PortResolver getPortResolver() {
+        return portResolver;
+    }
+
+    public void setPortResolver(PortResolver portResolver) {
+        if (portResolver == null) throw new IllegalArgumentException("portResolver == null");
+        this.portResolver = portResolver;
+    }
+
+    public int getMaxCount() {
+        return maxCount;
+    }
+
+    public void setMaxCount(int maxCount) {
+        if (maxCount <= 0) throw new IllegalArgumentException("maxCount <= 0");
+        this.maxCount = maxCount;
+    }
+
     private class AuthPromise implements Promise {
         private final Action action;
         private final Promise promise;
@@ -287,59 +341,5 @@ public class Authenticator implements Actor {
             // 失败通知
             authentication.failure(action);
         }
-    }
-
-    public CredenceProvider getCredenceProvider() {
-        return credenceProvider;
-    }
-
-    public void setCredenceProvider(CredenceProvider credenceProvider) {
-        if (credenceProvider == null) throw new IllegalArgumentException("credenceProvider == null");
-        this.credenceProvider = credenceProvider;
-    }
-
-    public StateStorage getStateStorage() {
-        return stateStorage;
-    }
-
-    public void setStateStorage(StateStorage stateStorage) {
-        if (stateStorage == null) throw new IllegalArgumentException("stateStorage == null");
-        this.stateStorage = stateStorage;
-    }
-
-    public SchemeRegistry getSchemeRegistry() {
-        return schemeRegistry;
-    }
-
-    public void setSchemeRegistry(SchemeRegistry schemeRegistry) {
-        if (schemeRegistry == null) throw new IllegalArgumentException("schemeRegistry == null");
-        this.schemeRegistry = schemeRegistry;
-    }
-
-    public SchemePreference getSchemePreference() {
-        return schemePreference;
-    }
-
-    public void setSchemePreference(SchemePreference schemePreference) {
-        if (schemePreference == null) throw new IllegalArgumentException("schemePreference == null");
-        this.schemePreference = schemePreference;
-    }
-
-    public PortResolver getPortResolver() {
-        return portResolver;
-    }
-
-    public void setPortResolver(PortResolver portResolver) {
-        if (portResolver == null) throw new IllegalArgumentException("portResolver == null");
-        this.portResolver = portResolver;
-    }
-
-    public int getMaxCount() {
-        return maxCount;
-    }
-
-    public void setMaxCount(int maxCount) {
-        if (maxCount <= 0) throw new IllegalArgumentException("maxCount <= 0");
-        this.maxCount = maxCount;
     }
 }

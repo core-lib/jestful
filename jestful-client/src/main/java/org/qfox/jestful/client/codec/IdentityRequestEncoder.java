@@ -7,14 +7,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class IdentityRequestEncoder implements RequestEncoder {
-	private final String contentEncoding = "identity";
+    private final String contentEncoding = "identity";
 
-	public String getContentEncoding() {
-		return contentEncoding;
-	}
+    public String getContentEncoding() {
+        return contentEncoding;
+    }
 
-	public OutputStream wrap(OutputStream source, Encoding encoding) throws IOException {
-		return source;
-	}
+    public OutputStream wrap(OutputStream source, Encoding encoding) throws IOException {
+        return source;
+    }
 
 }

@@ -1,28 +1,25 @@
 package org.qfox.jestful.core;
 
+import eu.medsea.mimeutil.MimeUtil;
+import org.qfox.jestful.commons.IOKit;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import org.qfox.jestful.commons.IOKit;
-
-import eu.medsea.mimeutil.MimeUtil;
-
 /**
  * <p>
  * Description: 多部分的内容体
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月22日 上午9:59:46
- *
  * @since 1.0.0
  */
 public class Multibody implements Cloneable {

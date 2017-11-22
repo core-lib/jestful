@@ -6,9 +6,4 @@
     <bean class="org.qfox.jestful.client.nio.connection.HttpNioConnector"/>
     <bean class="org.qfox.jestful.client.nio.connection.HttpsNioConnector"/>
 
-    <!--<bean class="org.qfox.jestful.client.nio.catcher.Redirection301NioCatcher"/>-->
-    <!--<bean class="org.qfox.jestful.client.nio.catcher.Redirection302NioCatcher"/>-->
-    <!--<bean class="org.qfox.jestful.client.nio.catcher.Redirection303NioCatcher"/>-->
-    <!--<bean class="org.qfox.jestful.client.nio.catcher.Redirection307NioCatcher"/>-->
-
 </beans>

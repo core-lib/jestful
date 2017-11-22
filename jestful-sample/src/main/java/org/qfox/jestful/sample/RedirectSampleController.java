@@ -17,7 +17,7 @@ public class RedirectSampleController {
     }
 
     @GET("/target")
-    public User getTarget(@Query("name") String name){
+    public User getTarget(@Query("name") String name) {
         return new User("Payne", 1L, null, null);
     }
 

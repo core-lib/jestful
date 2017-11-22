@@ -21,10 +21,9 @@ import java.util.regex.Pattern;
 public class Action {
     private final BeanContainer beanContainer;
     private final List<Actor> actors;
-    private volatile int index = 0;
     private final List<Actor> forePlugins;
     private final List<Actor> backPlugins;
-
+    private volatile int index = 0;
     private Resource resource;
     private Mapping mapping;
     private Parameters parameters;

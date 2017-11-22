@@ -1,105 +1,102 @@
 package org.qfox.jestful.server;
 
-import java.io.*;
-import java.util.Collection;
+import org.qfox.jestful.core.Response;
+import org.qfox.jestful.core.Status;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-
-import org.qfox.jestful.core.Response;
-import org.qfox.jestful.core.Status;
+import java.io.*;
+import java.util.Collection;
 
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月8日 下午4:14:37
- *
  * @since 1.0.0
  */
 public class JestfulServletResponse extends HttpServletResponseWrapper implements Response {
-	private final HttpServletResponse response;
+    private final HttpServletResponse response;
 
-	public JestfulServletResponse(HttpServletResponse response) {
-		super(response);
-		this.response = response;
-	}
+    public JestfulServletResponse(HttpServletResponse response) {
+        super(response);
+        this.response = response;
+    }
 
-	public Status getResponseStatus() throws IOException {
-		int code = response.getStatus();
-		String reason = Status.SPECIFICATIONS.get(code);
-		return new Status(code, reason);
-	}
+    public Status getResponseStatus() throws IOException {
+        int code = response.getStatus();
+        String reason = Status.SPECIFICATIONS.get(code);
+        return new Status(code, reason);
+    }
 
-	public void setResponseStatus(Status status) throws IOException {
-		if (status.isSuccess()) {
-			response.setStatus(status.getCode());
-		} else {
-			response.sendError(status.getCode(), status.getReason());
-		}
-	}
-	
-	public boolean isResponseSuccess() throws IOException {
-		Status status = getResponseStatus();
-		int code = status.getCode();
-		return code >= 200 && code < 300;
-	}
+    public void setResponseStatus(Status status) throws IOException {
+        if (status.isSuccess()) {
+            response.setStatus(status.getCode());
+        } else {
+            response.sendError(status.getCode(), status.getReason());
+        }
+    }
 
-	public String[] getHeaderKeys() {
-		Collection<String> names = response.getHeaderNames();
-		return names != null ? names.toArray(new String[names.size()]) : null;
-	}
+    public boolean isResponseSuccess() throws IOException {
+        Status status = getResponseStatus();
+        int code = status.getCode();
+        return code >= 200 && code < 300;
+    }
 
-	public String getResponseHeader(String name) {
-		return response.getHeader(name);
-	}
+    public String[] getHeaderKeys() {
+        Collection<String> names = response.getHeaderNames();
+        return names != null ? names.toArray(new String[names.size()]) : null;
+    }
 
-	public void setResponseHeader(String name, String value) {
-		response.setHeader(name, value);
-	}
+    public String getResponseHeader(String name) {
+        return response.getHeader(name);
+    }
 
-	public String[] getResponseHeaders(String name) {
-		Collection<String> values = response.getHeaders(name);
-		return values != null ? values.toArray(new String[values.size()]) : null;
-	}
+    public void setResponseHeader(String name, String value) {
+        response.setHeader(name, value);
+    }
 
-	public void setResponseHeaders(String name, String[] values) {
-		for (int i = 0; i < values.length; i++) {
-			if (i == 0) {
-				response.setHeader(name, values[i]);
-			} else {
-				response.addHeader(name, values[i]);
-			}
-		}
-	}
+    public String[] getResponseHeaders(String name) {
+        Collection<String> values = response.getHeaders(name);
+        return values != null ? values.toArray(new String[values.size()]) : null;
+    }
 
-	public InputStream getResponseInputStream() throws IOException {
-		throw new UnsupportedOperationException();
-	}
+    public void setResponseHeaders(String name, String[] values) {
+        for (int i = 0; i < values.length; i++) {
+            if (i == 0) {
+                response.setHeader(name, values[i]);
+            } else {
+                response.addHeader(name, values[i]);
+            }
+        }
+    }
 
-	public OutputStream getResponseOutputStream() throws IOException {
-		return response.getOutputStream();
-	}
+    public InputStream getResponseInputStream() throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Reader getResponseReader() throws IOException {
-		throw new UnsupportedOperationException();
-	}
+    public OutputStream getResponseOutputStream() throws IOException {
+        return response.getOutputStream();
+    }
 
-	@Override
-	public Writer getResponseWriter() throws IOException {
-		return response.getWriter();
-	}
+    @Override
+    public Reader getResponseReader() throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
-	public void close() throws IOException {
-		
-	}
+    @Override
+    public Writer getResponseWriter() throws IOException {
+        return response.getWriter();
+    }
+
+    public void close() throws IOException {
+
+    }
 
 }

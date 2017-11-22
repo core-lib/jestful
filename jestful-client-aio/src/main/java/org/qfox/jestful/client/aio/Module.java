@@ -17,11 +17,11 @@ public class Module extends Config implements Serializable {
     private String parentName;
     private String parentVersion;
 
-    public static void main(String[] args) {
-        System.out.println(new Module());
+    private Module() {
     }
 
-    private Module() {
+    public static void main(String[] args) {
+        System.out.println(new Module());
     }
 
     public static Module getInstance() {

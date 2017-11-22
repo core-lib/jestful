@@ -21,13 +21,13 @@ public class RedirectSampleAPITest {
                 .build()
                 .creator()
                 .addBackPlugins(new Redirector())
-                .create( RedirectSampleAPI.class);
+                .create(RedirectSampleAPI.class);
 
         User user = userAPI.source();
         System.out.println(user);
 
         Lock lock = new SimpleLock();
-        userAPI.source((success, result, exception) ->{
+        userAPI.source((success, result, exception) -> {
             System.out.println(result);
             lock.openAll();
         });
@@ -43,14 +43,14 @@ public class RedirectSampleAPITest {
                 .build()
                 .creator()
                 .addBackPlugins(new Redirector())
-                .create( RedirectSampleAPI.class);
+                .create(RedirectSampleAPI.class);
 
         User body = new User("Change", 2L, null, null);
-        User user = userAPI.source("Programmer",body);
+        User user = userAPI.source("Programmer", body);
         System.out.println(user);
 
         Lock lock = new SimpleLock();
-        userAPI.source("Programmer",user, (success, result, exception) ->{
+        userAPI.source("Programmer", user, (success, result, exception) -> {
             System.out.println(result);
             lock.openAll();
         });

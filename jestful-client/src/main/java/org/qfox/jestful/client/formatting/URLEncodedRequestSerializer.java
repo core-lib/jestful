@@ -24,8 +24,8 @@ import java.util.List;
  * @since 1.0.0
  */
 public class URLEncodedRequestSerializer implements RequestSerializer, Initialable {
-    private StringConversion urlStringConversion;
     private final String contentType = "application/x-www-form-urlencoded";
+    private StringConversion urlStringConversion;
 
     public String getContentType() {
         return contentType;

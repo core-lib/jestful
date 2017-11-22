@@ -43,6 +43,22 @@ public class AioClient extends Client implements AioConnector {
         this.sslContext = builder.sslContext;
     }
 
+    public static AioClient getDefaultClient() {
+        if (defaultClient != null) {
+            return defaultClient;
+        }
+        synchronized (Client.class) {
+            if (defaultClient != null) {
+                return defaultClient;
+            }
+            return defaultClient = builder().build();
+        }
+    }
+
+    public static AioBuilder<?> builder() {
+        return new AioBuilder();
+    }
+
     public Object react(Action action) throws Exception {
         AioPromise promise = new AioPromise(action);
         AioEventListener listener = new JestfulAioEventListener(promise);
@@ -51,6 +67,112 @@ public class AioClient extends Client implements AioConnector {
         PrepareCompletionHandler handler = new PrepareCompletionHandler(this, channel, action);
         cpu.execute(handler);
         return promise;
+    }
+
+    protected Request newRequest(Action action) throws Exception {
+        AioRequest request = aioConnect(action, gateway, this).getRequest();
+        request.setRequestHeader("User-Agent", userAgent);
+        action.getExtra().put(AioRequest.class, request);
+        return request;
+    }
+
+    protected Response newResponse(Action action) throws Exception {
+        AioResponse response = aioConnect(action, gateway, this).getResponse();
+        action.getExtra().put(AioResponse.class, response);
+        return response;
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        if (aioChannelGroup != null) aioChannelGroup.shutdown();
+        if (cpu != null) cpu.shutdown();
+    }
+
+    @Override
+    public AioCreator<?> creator() {
+        return new AioCreator();
+    }
+
+    @Override
+    public AioConnection aioConnect(Action action, Gateway gateway, AioClient client) throws IOException {
+        AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
+        if (connection != null) {
+            return connection;
+        }
+        for (Connector connector : connectors.values()) {
+            if (connector instanceof AioConnector && connector.supports(action)) {
+                AioConnector aioConnector = (AioConnector) connector;
+                connection = aioConnector.aioConnect(action, gateway, this);
+                action.getExtra().put(AioConnection.class, connection);
+                return connection;
+            }
+        }
+        throw new IOException("unsupported protocol " + action.getProtocol());
+    }
+
+    public int getConcurrency() {
+        return concurrency;
+    }
+
+    public SSLContext getSslContext() {
+        return sslContext;
+    }
+
+    public static class AioBuilder<B extends AioBuilder<B>> extends Client.Builder<B> {
+        private int concurrency = Runtime.getRuntime().availableProcessors();
+        private SSLContext sslContext;
+
+        public AioBuilder() {
+            this.setConnTimeout(20 * 1000);
+            this.setReadTimeout(Integer.MAX_VALUE);
+            this.setWriteTimeout(Integer.MAX_VALUE);
+            String userAgent = "Mozilla/5.0"
+                    + " "
+                    + "("
+                    + System.getProperty("os.name")
+                    + " "
+                    + System.getProperty("os.version")
+                    + "; "
+                    + System.getProperty("os.arch")
+                    + "; "
+                    + System.getProperty("user.language")
+                    + ")"
+                    + " "
+                    + Module.getInstance().getParentName()
+                    + "/"
+                    + Module.getInstance().getParentVersion()
+                    + " "
+                    + Module.getInstance().getName()
+                    + "/"
+                    + Module.getInstance().getVersion();
+            this.setUserAgent(userAgent);
+        }
+
+        @Override
+        public AioClient build() {
+            try {
+                return new AioClient(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public B setConcurrency(int concurrency) {
+            if (concurrency < 0) {
+                throw new IllegalArgumentException("concurrency can not be negative");
+            }
+            this.concurrency = concurrency;
+            return (B) this;
+        }
+
+        public B setSslContext(SSLContext sslContext) {
+            this.sslContext = sslContext;
+            if (sslContext == null) {
+                throw new IllegalArgumentException("SSLContext can not be null");
+            }
+            return (B) this;
+        }
     }
 
     private class AioPromise extends BioPromise {
@@ -107,31 +229,6 @@ public class AioClient extends Client implements AioConnector {
 
     }
 
-    protected Request newRequest(Action action) throws Exception {
-        AioRequest request = aioConnect(action, gateway, this).getRequest();
-        request.setRequestHeader("User-Agent", userAgent);
-        action.getExtra().put(AioRequest.class, request);
-        return request;
-    }
-
-    protected Response newResponse(Action action) throws Exception {
-        AioResponse response = aioConnect(action, gateway, this).getResponse();
-        action.getExtra().put(AioResponse.class, response);
-        return response;
-    }
-
-    @Override
-    public void destroy() {
-        super.destroy();
-        if (aioChannelGroup != null) aioChannelGroup.shutdown();
-        if (cpu != null) cpu.shutdown();
-    }
-
-    @Override
-    public AioCreator<?> creator() {
-        return new AioCreator();
-    }
-
     public class AioCreator<C extends AioCreator<C>> extends Client.Creator<C> {
         @Override
         public <T> T create(Class<T> interfase, URL endpoint) {
@@ -140,95 +237,6 @@ public class AioClient extends Client implements AioConnector {
             Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
             String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
             return new JestfulAioInvocationHandler<>(interfase, protocol, host, port, route, AioClient.this, forePlugins, backPlugins).getProxy();
-        }
-    }
-
-    @Override
-    public AioConnection aioConnect(Action action, Gateway gateway, AioClient client) throws IOException {
-        AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
-        if (connection != null) {
-            return connection;
-        }
-        for (Connector connector : connectors.values()) {
-            if (connector instanceof AioConnector && connector.supports(action)) {
-                AioConnector aioConnector = (AioConnector) connector;
-                connection = aioConnector.aioConnect(action, gateway, this);
-                action.getExtra().put(AioConnection.class, connection);
-                return connection;
-            }
-        }
-        throw new IOException("unsupported protocol " + action.getProtocol());
-    }
-
-    public static AioClient getDefaultClient() {
-        if (defaultClient != null) {
-            return defaultClient;
-        }
-        synchronized (Client.class) {
-            if (defaultClient != null) {
-                return defaultClient;
-            }
-            return defaultClient = builder().build();
-        }
-    }
-
-    public static AioBuilder<?> builder() {
-        return new AioBuilder();
-    }
-
-    public static class AioBuilder<B extends AioBuilder<B>> extends Client.Builder<B> {
-        private int concurrency = Runtime.getRuntime().availableProcessors();
-        private SSLContext sslContext;
-
-        public AioBuilder() {
-            this.setConnTimeout(20 * 1000);
-            this.setReadTimeout(Integer.MAX_VALUE);
-            this.setWriteTimeout(Integer.MAX_VALUE);
-            String userAgent = "Mozilla/5.0"
-                    + " "
-                    + "("
-                    + System.getProperty("os.name")
-                    + " "
-                    + System.getProperty("os.version")
-                    + "; "
-                    + System.getProperty("os.arch")
-                    + "; "
-                    + System.getProperty("user.language")
-                    + ")"
-                    + " "
-                    + Module.getInstance().getParentName()
-                    + "/"
-                    + Module.getInstance().getParentVersion()
-                    + " "
-                    + Module.getInstance().getName()
-                    + "/"
-                    + Module.getInstance().getVersion();
-            this.setUserAgent(userAgent);
-        }
-
-        @Override
-        public AioClient build() {
-            try {
-                return new AioClient(this);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public B setConcurrency(int concurrency) {
-            if (concurrency < 0) {
-                throw new IllegalArgumentException("concurrency can not be negative");
-            }
-            this.concurrency = concurrency;
-            return (B) this;
-        }
-
-        public B setSslContext(SSLContext sslContext) {
-            this.sslContext = sslContext;
-            if (sslContext == null) {
-                throw new IllegalArgumentException("SSLContext can not be null");
-            }
-            return (B) this;
         }
     }
 
@@ -305,13 +313,5 @@ public class AioClient extends Client implements AioConnector {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public int getConcurrency() {
-        return concurrency;
-    }
-
-    public SSLContext getSslContext() {
-        return sslContext;
     }
 }

@@ -1,26 +1,24 @@
 package org.qfox.jestful.client.accept;
 
-import java.nio.charset.Charset;
-
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Actor;
 import org.qfox.jestful.core.Charsets;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
 
+import java.nio.charset.Charset;
+
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年5月14日 上午10:11:48
- *
  * @since 1.0.0
  */
 public class AcceptContentCharsetDecider implements Actor {

@@ -21,70 +21,6 @@ import java.util.regex.Pattern;
 public class Status {
     public static final Map<Integer, String> SPECIFICATIONS = new TreeMap<Integer, String>();
     public static final Pattern pattern = Pattern.compile("([^\\s]+)\\s+(\\d+)(\\s+(.*))?");
-
-    private final boolean success;
-    private final int code;
-    private final String reason;
-
-    public Status(int code) {
-        this(code, null);
-    }
-
-    public Status(int code, String reason) {
-        super();
-        this.success = code >= 200 && code < 300;
-        this.code = code;
-        this.reason = reason != null ? reason : SPECIFICATIONS.get(code);
-    }
-
-    public Status(String line) {
-        if (line == null || !line.matches(pattern.pattern())) {
-            throw new IllegalArgumentException(line);
-        }
-        Matcher matcher = pattern.matcher(line);
-        matcher.find();
-        this.code = Integer.valueOf(matcher.group(2));
-        this.reason = matcher.group(4);
-        this.success = code >= 200 && code < 300;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + code;
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Status other = (Status) obj;
-        return code == other.code;
-    }
-
-    @Override
-    public String toString() {
-        return code + " " + reason != null ? reason : "";
-    }
-
     /**
      * {@code 100 Continue}.
      *
@@ -110,9 +46,6 @@ public class Status {
      * resumable POST/PUT HTTP requests in HTTP/1.0</a>
      */
     public static final Status CHECKPOINT = new Status(103, "Checkpoint");
-
-    // 2xx Success
-
     /**
      * {@code 200 OK}.
      *
@@ -173,9 +106,6 @@ public class Status {
      * @see <a href="http://tools.ietf.org/html/rfc3229#section-10.4.1">Delta encoding in HTTP</a>
      */
     public static final Status IM_USED = new Status(226, "IM Used");
-
-    // 3xx Redirection
-
     /**
      * {@code 300 Multiple Choices}.
      *
@@ -188,6 +118,8 @@ public class Status {
      * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.3.2">HTTP/1.1</a>
      */
     public static final Status MOVED_PERMANENTLY = new Status(301, "Moved Permanently");
+
+    // 2xx Success
     /**
      * {@code 302 Found}.
      *
@@ -233,9 +165,6 @@ public class Status {
      * resumable POST/PUT HTTP requests in HTTP/1.0</a>
      */
     public static final Status RESUME_INCOMPLETE = new Status(308, "Resume Incomplete");
-
-    // --- 4xx Client Error ---
-
     /**
      * {@code 400 Bad Request}.
      *
@@ -254,6 +183,8 @@ public class Status {
      * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.3">HTTP/1.1</a>
      */
     public static final Status PAYMENT_REQUIRED = new Status(402, "Payment Required");
+
+    // 3xx Redirection
     /**
      * {@code 403 Forbidden}.
      *
@@ -308,6 +239,8 @@ public class Status {
      * @see <a href="http://tools.ietf.org/html/rfc2616#section-10.4.12">HTTP/1.1</a>
      */
     public static final Status LENGTH_REQUIRED = new Status(411, "Length Required");
+
+    // --- 4xx Client Error ---
     /**
      * {@code 412 Precondition failed}.
      *
@@ -413,9 +346,6 @@ public class Status {
      * @see <a href="http://tools.ietf.org/html/rfc6585#section-5">Additional HTTP Status Codes</a>
      */
     public static final Status REQUEST_HEADER_FIELDS_TOO_LARGE = new Status(431, "Request Header Fields Too Large");
-
-    // --- 5xx Server Error ---
-
     /**
      * {@code 500 Internal Server Error}.
      *
@@ -486,5 +416,69 @@ public class Status {
      * @see <a href="http://tools.ietf.org/html/rfc6585#section-6">Additional HTTP Status Codes</a>
      */
     public static final Status NETWORK_AUTHENTICATION_REQUIRED = new Status(511, "Network Authentication Required");
+
+    // --- 5xx Server Error ---
+    private final boolean success;
+    private final int code;
+    private final String reason;
+
+    public Status(int code) {
+        this(code, null);
+    }
+
+    public Status(int code, String reason) {
+        super();
+        this.success = code >= 200 && code < 300;
+        this.code = code;
+        this.reason = reason != null ? reason : SPECIFICATIONS.get(code);
+    }
+
+    public Status(String line) {
+        if (line == null || !line.matches(pattern.pattern())) {
+            throw new IllegalArgumentException(line);
+        }
+        Matcher matcher = pattern.matcher(line);
+        matcher.find();
+        this.code = Integer.valueOf(matcher.group(2));
+        this.reason = matcher.group(4);
+        this.success = code >= 200 && code < 300;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + code;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Status other = (Status) obj;
+        return code == other.code;
+    }
+
+    @Override
+    public String toString() {
+        return code + " " + reason != null ? reason : "";
+    }
 
 }

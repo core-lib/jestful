@@ -45,9 +45,8 @@ import java.util.concurrent.Executors;
  * Created by yangchangpei on 17/3/23.
  */
 public class NioClient extends Client implements NioConnector {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private static NioClient defaultClient;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final long selectTimeout;
     private final SSLContext sslContext;
     private final int concurrency;
@@ -86,10 +85,222 @@ public class NioClient extends Client implements NioConnector {
         this.trafficClass = builder.trafficClass;
     }
 
+    public static NioClient getDefaultClient() {
+        if (defaultClient != null) {
+            return defaultClient;
+        }
+        synchronized (Client.class) {
+            if (defaultClient != null) {
+                return defaultClient;
+            }
+            return defaultClient = builder().build();
+        }
+    }
+
+    public static NioBuilder<?> builder() {
+        return new NioBuilder();
+    }
+
     @Override
     public void destroy() {
         super.destroy();
         this.cpu.shutdown();
+    }
+
+    public Object react(Action action) throws Exception {
+        NioPromise promise = new NioPromise(action);
+        NioEventListener listener = new JestfulNioEventListener(promise);
+        action.getExtra().put(NioEventListener.class, listener);
+        balancer.dispatch(action, this, processors);
+        return promise;
+    }
+
+    protected Request newRequest(Action action) throws Exception {
+        NioRequest request = nioConnect(action, gateway, this).getRequest();
+        request.setRequestHeader("User-Agent", userAgent);
+        action.getExtra().put(NioRequest.class, request);
+        return request;
+    }
+
+    protected Response newResponse(Action action) throws Exception {
+        NioResponse response = nioConnect(action, gateway, this).getResponse();
+        action.getExtra().put(NioResponse.class, response);
+        return response;
+    }
+
+    public NioCreator<?> creator() {
+        return new NioCreator();
+    }
+
+    @Override
+    public NioConnection nioConnect(Action action, Gateway gateway, NioClient client) throws IOException {
+        NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
+        if (connection != null) {
+            return connection;
+        }
+        for (Connector connector : connectors.values()) {
+            if (connector instanceof NioConnector && connector.supports(action)) {
+                NioConnector nioConnector = (NioConnector) connector;
+                connection = nioConnector.nioConnect(action, gateway, this);
+                action.getExtra().put(NioConnection.class, connection);
+                return connection;
+            }
+        }
+        throw new IOException("unsupported protocol " + action.getProtocol());
+    }
+
+    public long getSelectTimeout() {
+        return selectTimeout;
+    }
+
+    public SSLContext getSslContext() {
+        return sslContext;
+    }
+
+    public int getConcurrency() {
+        return concurrency;
+    }
+
+    public ExecutorService getCpu() {
+        return cpu;
+    }
+
+    public NioBalancer getBalancer() {
+        return balancer;
+    }
+
+    public static class NioBuilder<B extends NioBuilder<B>> extends Client.Builder<B> {
+        private long selectTimeout = 1000L;
+        private SSLContext sslContext;
+        private int concurrency = Runtime.getRuntime().availableProcessors();
+        private NioBalancer balancer = new LoopedNioBalancer();
+        private Boolean keepAlive;
+        private Boolean oobInline;
+        private Performance performance;
+        private Boolean reuseAddress;
+        private Integer recvBufferSize;
+        private Integer sendBufferSize;
+        private SoLinger soLinger;
+        private Integer soTimeout;
+        private Boolean tcpNoDelay;
+        private Integer trafficClass;
+
+        public NioBuilder() {
+            this.setConnTimeout(20 * 1000);
+            this.setReadTimeout(Integer.MAX_VALUE);
+            this.setWriteTimeout(Integer.MAX_VALUE);
+            String userAgent = "Mozilla/5.0"
+                    + " "
+                    + "("
+                    + System.getProperty("os.name")
+                    + " "
+                    + System.getProperty("os.version")
+                    + "; "
+                    + System.getProperty("os.arch")
+                    + "; "
+                    + System.getProperty("user.language")
+                    + ")"
+                    + " "
+                    + Module.getInstance().getParentName()
+                    + "/"
+                    + Module.getInstance().getParentVersion()
+                    + " "
+                    + Module.getInstance().getName()
+                    + "/"
+                    + Module.getInstance().getVersion();
+            this.setUserAgent(userAgent);
+        }
+
+        @Override
+        public NioClient build() {
+            try {
+                return new NioClient(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public B setSelectTimeout(long selectTimeout) {
+            if (selectTimeout < 0) {
+                throw new IllegalArgumentException("selected timeout is negative");
+            }
+            this.selectTimeout = selectTimeout;
+            return (B) this;
+        }
+
+        public B setSslContext(SSLContext sslContext) {
+            this.sslContext = sslContext;
+            if (sslContext == null) {
+                throw new IllegalArgumentException("SSLContext can not be null");
+            }
+            return (B) this;
+        }
+
+        public B setConcurrency(int concurrency) {
+            if (concurrency < 1) {
+                throw new IllegalArgumentException("concurrency can not lesser than 1");
+            }
+            this.concurrency = concurrency;
+            return (B) this;
+        }
+
+        public B setBalancer(NioBalancer balancer) {
+            if (balancer == null) {
+                throw new IllegalArgumentException("balancer can not be null");
+            }
+            this.balancer = balancer;
+            return (B) this;
+        }
+
+        public B setKeepAlive(Boolean keepAlive) {
+            this.keepAlive = keepAlive;
+            return (B) this;
+        }
+
+        public B setOobInline(Boolean oobInline) {
+            this.oobInline = oobInline;
+            return (B) this;
+        }
+
+        public B setPerformance(Performance performance) {
+            this.performance = performance;
+            return (B) this;
+        }
+
+        public B setReuseAddress(Boolean reuseAddress) {
+            this.reuseAddress = reuseAddress;
+            return (B) this;
+        }
+
+        public B setRecvBufferSize(Integer recvBufferSize) {
+            this.recvBufferSize = recvBufferSize;
+            return (B) this;
+        }
+
+        public B setSendBufferSize(Integer sendBufferSize) {
+            this.sendBufferSize = sendBufferSize;
+            return (B) this;
+        }
+
+        public B setSoLinger(SoLinger soLinger) {
+            this.soLinger = soLinger;
+            return (B) this;
+        }
+
+        public B setSoTimeout(Integer soTimeout) {
+            this.soTimeout = soTimeout;
+            return (B) this;
+        }
+
+        public B setTcpNoDelay(Boolean tcpNoDelay) {
+            this.tcpNoDelay = tcpNoDelay;
+            return (B) this;
+        }
+
+        public B setTrafficClass(Integer trafficClass) {
+            this.trafficClass = trafficClass;
+            return (B) this;
+        }
     }
 
     private class NioKernel implements NioProcessor, NioCalls.NioConsumer, Closeable {
@@ -279,14 +490,6 @@ public class NioClient extends Client implements NioConnector {
 
     }
 
-    public Object react(Action action) throws Exception {
-        NioPromise promise = new NioPromise(action);
-        NioEventListener listener = new JestfulNioEventListener(promise);
-        action.getExtra().put(NioEventListener.class, listener);
-        balancer.dispatch(action, this, processors);
-        return promise;
-    }
-
     private class NioPromise extends BioPromise {
         private Set<Callback<Object>> callbacks;
 
@@ -341,23 +544,6 @@ public class NioClient extends Client implements NioConnector {
 
     }
 
-    protected Request newRequest(Action action) throws Exception {
-        NioRequest request = nioConnect(action, gateway, this).getRequest();
-        request.setRequestHeader("User-Agent", userAgent);
-        action.getExtra().put(NioRequest.class, request);
-        return request;
-    }
-
-    protected Response newResponse(Action action) throws Exception {
-        NioResponse response = nioConnect(action, gateway, this).getResponse();
-        action.getExtra().put(NioResponse.class, response);
-        return response;
-    }
-
-    public NioCreator<?> creator() {
-        return new NioCreator();
-    }
-
     public class NioCreator<C extends NioCreator<C>> extends Client.Creator<C> {
         @Override
         public <T> T create(Class<T> interfase, URL endpoint) {
@@ -366,173 +552,6 @@ public class NioClient extends Client implements NioConnector {
             Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
             String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
             return new JestfulNioInvocationHandler<T>(interfase, protocol, host, port, route, NioClient.this, forePlugins, backPlugins).getProxy();
-        }
-    }
-
-    @Override
-    public NioConnection nioConnect(Action action, Gateway gateway, NioClient client) throws IOException {
-        NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
-        if (connection != null) {
-            return connection;
-        }
-        for (Connector connector : connectors.values()) {
-            if (connector instanceof NioConnector && connector.supports(action)) {
-                NioConnector nioConnector = (NioConnector) connector;
-                connection = nioConnector.nioConnect(action, gateway, this);
-                action.getExtra().put(NioConnection.class, connection);
-                return connection;
-            }
-        }
-        throw new IOException("unsupported protocol " + action.getProtocol());
-    }
-
-    public static NioClient getDefaultClient() {
-        if (defaultClient != null) {
-            return defaultClient;
-        }
-        synchronized (Client.class) {
-            if (defaultClient != null) {
-                return defaultClient;
-            }
-            return defaultClient = builder().build();
-        }
-    }
-
-    public static NioBuilder<?> builder() {
-        return new NioBuilder();
-    }
-
-    public static class NioBuilder<B extends NioBuilder<B>> extends Client.Builder<B> {
-        private long selectTimeout = 1000L;
-        private SSLContext sslContext;
-        private int concurrency = Runtime.getRuntime().availableProcessors();
-        private NioBalancer balancer = new LoopedNioBalancer();
-        private Boolean keepAlive;
-        private Boolean oobInline;
-        private Performance performance;
-        private Boolean reuseAddress;
-        private Integer recvBufferSize;
-        private Integer sendBufferSize;
-        private SoLinger soLinger;
-        private Integer soTimeout;
-        private Boolean tcpNoDelay;
-        private Integer trafficClass;
-
-        public NioBuilder() {
-            this.setConnTimeout(20 * 1000);
-            this.setReadTimeout(Integer.MAX_VALUE);
-            this.setWriteTimeout(Integer.MAX_VALUE);
-            String userAgent = "Mozilla/5.0"
-                    + " "
-                    + "("
-                    + System.getProperty("os.name")
-                    + " "
-                    + System.getProperty("os.version")
-                    + "; "
-                    + System.getProperty("os.arch")
-                    + "; "
-                    + System.getProperty("user.language")
-                    + ")"
-                    + " "
-                    + Module.getInstance().getParentName()
-                    + "/"
-                    + Module.getInstance().getParentVersion()
-                    + " "
-                    + Module.getInstance().getName()
-                    + "/"
-                    + Module.getInstance().getVersion();
-            this.setUserAgent(userAgent);
-        }
-
-        @Override
-        public NioClient build() {
-            try {
-                return new NioClient(this);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public B setSelectTimeout(long selectTimeout) {
-            if (selectTimeout < 0) {
-                throw new IllegalArgumentException("selected timeout is negative");
-            }
-            this.selectTimeout = selectTimeout;
-            return (B) this;
-        }
-
-        public B setSslContext(SSLContext sslContext) {
-            this.sslContext = sslContext;
-            if (sslContext == null) {
-                throw new IllegalArgumentException("SSLContext can not be null");
-            }
-            return (B) this;
-        }
-
-        public B setConcurrency(int concurrency) {
-            if (concurrency < 1) {
-                throw new IllegalArgumentException("concurrency can not lesser than 1");
-            }
-            this.concurrency = concurrency;
-            return (B) this;
-        }
-
-        public B setBalancer(NioBalancer balancer) {
-            if (balancer == null) {
-                throw new IllegalArgumentException("balancer can not be null");
-            }
-            this.balancer = balancer;
-            return (B) this;
-        }
-
-        public B setKeepAlive(Boolean keepAlive) {
-            this.keepAlive = keepAlive;
-            return (B) this;
-        }
-
-        public B setOobInline(Boolean oobInline) {
-            this.oobInline = oobInline;
-            return (B) this;
-        }
-
-        public B setPerformance(Performance performance) {
-            this.performance = performance;
-            return (B) this;
-        }
-
-        public B setReuseAddress(Boolean reuseAddress) {
-            this.reuseAddress = reuseAddress;
-            return (B) this;
-        }
-
-        public B setRecvBufferSize(Integer recvBufferSize) {
-            this.recvBufferSize = recvBufferSize;
-            return (B) this;
-        }
-
-        public B setSendBufferSize(Integer sendBufferSize) {
-            this.sendBufferSize = sendBufferSize;
-            return (B) this;
-        }
-
-        public B setSoLinger(SoLinger soLinger) {
-            this.soLinger = soLinger;
-            return (B) this;
-        }
-
-        public B setSoTimeout(Integer soTimeout) {
-            this.soTimeout = soTimeout;
-            return (B) this;
-        }
-
-        public B setTcpNoDelay(Boolean tcpNoDelay) {
-            this.tcpNoDelay = tcpNoDelay;
-            return (B) this;
-        }
-
-        public B setTrafficClass(Integer trafficClass) {
-            this.trafficClass = trafficClass;
-            return (B) this;
         }
     }
 
@@ -609,25 +628,5 @@ public class NioClient extends Client implements NioConnector {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    public long getSelectTimeout() {
-        return selectTimeout;
-    }
-
-    public SSLContext getSslContext() {
-        return sslContext;
-    }
-
-    public int getConcurrency() {
-        return concurrency;
-    }
-
-    public ExecutorService getCpu() {
-        return cpu;
-    }
-
-    public NioBalancer getBalancer() {
-        return balancer;
     }
 }

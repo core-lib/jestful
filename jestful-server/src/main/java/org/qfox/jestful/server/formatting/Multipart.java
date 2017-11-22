@@ -1,13 +1,12 @@
 package org.qfox.jestful.server.formatting;
 
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Multibody;
 import org.qfox.jestful.core.Multihead;
-import org.qfox.jestful.commons.IOKit;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Part;
 import java.io.*;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 

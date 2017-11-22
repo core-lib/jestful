@@ -31,14 +31,13 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
     private final int index;
     private final String name;
     private final int position;
+    private final boolean coding;
+    private final boolean encoded;
+    private final boolean decoded;
     private Object value;
     private int group;
     private String regex;
     private boolean resolved;
-
-    private final boolean coding;
-    private final boolean encoded;
-    private final boolean decoded;
 
     public Parameter(Mapping mapping, Method method, int index) throws IllegalConfigException {
         super(method.getParameterAnnotations()[index]);

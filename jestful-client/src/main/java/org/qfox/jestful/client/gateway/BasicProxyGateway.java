@@ -1,24 +1,22 @@
 package org.qfox.jestful.client.gateway;
 
-import java.io.IOException;
-
 import org.qfox.jestful.commons.Base64;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Request;
+
+import java.io.IOException;
 
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年6月13日 下午5:23:23
- *
  * @since 1.0.0
  */
 public class BasicProxyGateway extends ProxyGateway {

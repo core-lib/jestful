@@ -16,12 +16,12 @@ public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
     private final NioSSLChannel nioSSLChannel;
 
     protected JestfulNioHttpsClientRequest(Action action,
-                                        Connector connector,
-                                        Gateway gateway,
-                                        int connTimeout,
-                                        int readTimeout,
-                                        int writeTimeout,
-                                        NioSSLChannel nioSSLChannel) {
+                                           Connector connector,
+                                           Gateway gateway,
+                                           int connTimeout,
+                                           int readTimeout,
+                                           int writeTimeout,
+                                           NioSSLChannel nioSSLChannel) {
         super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
         this.nioSSLChannel = nioSSLChannel;
     }

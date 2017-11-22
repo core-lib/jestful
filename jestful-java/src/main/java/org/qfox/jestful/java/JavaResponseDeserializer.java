@@ -1,11 +1,11 @@
 package org.qfox.jestful.java;
 
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Result;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.ResponseDeserializer;
-import org.qfox.jestful.commons.IOKit;
 
 import java.io.IOException;
 import java.io.InputStream;

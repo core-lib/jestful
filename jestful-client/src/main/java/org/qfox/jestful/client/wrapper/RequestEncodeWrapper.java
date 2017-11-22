@@ -1,32 +1,24 @@
 package org.qfox.jestful.client.wrapper;
 
+import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.codec.RequestEncoder;
+import org.qfox.jestful.core.exception.NoSuchCodecException;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Encoding;
-import org.qfox.jestful.core.Encodings;
-import org.qfox.jestful.core.Initialable;
-import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.codec.RequestEncoder;
-import org.qfox.jestful.core.exception.NoSuchCodecException;
 
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年5月15日 上午10:11:37
- *
  * @since 1.0.0
  */
 public class RequestEncodeWrapper implements Actor, Initialable {

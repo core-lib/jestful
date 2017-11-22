@@ -2,8 +2,8 @@ package org.qfox.jestful.android;
 
 import android.os.AsyncTask;
 import org.qfox.jestful.client.Promise;
-import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
+import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.core.Action;
 
 class UICallbackTask extends AsyncTask<Object, Integer, Object> {

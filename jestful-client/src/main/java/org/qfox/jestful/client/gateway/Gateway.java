@@ -21,14 +21,6 @@ import java.net.SocketAddress;
  */
 public interface Gateway {
 
-    boolean isProxy();
-
-    Proxy toProxy();
-
-    SocketAddress toSocketAddress();
-
-    void onConnected(Action action) throws IOException;
-
     Gateway NULL = new Gateway() {
 
         public boolean isProxy() {
@@ -49,5 +41,13 @@ public interface Gateway {
         }
 
     };
+
+    boolean isProxy();
+
+    Proxy toProxy();
+
+    SocketAddress toSocketAddress();
+
+    void onConnected(Action action) throws IOException;
 
 }

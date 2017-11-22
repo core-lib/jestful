@@ -55,6 +55,42 @@ public class Redirector implements Actor {
         return new RedirectPromise(action, promise);
     }
 
+    public int getMaxCount() {
+        return maxCount;
+    }
+
+    public void setMaxCount(int maxCount) {
+        this.maxCount = maxCount;
+    }
+
+    public Collection<Redirect> getRedirects() {
+        return redirects;
+    }
+
+    public void setRedirects(Collection<Redirect> redirects) {
+        this.redirects = redirects;
+    }
+
+    private static class RedirectPredication implements Predication<Redirect> {
+        private final Action action;
+        private final boolean thrown;
+        private final Object result;
+        private final Exception exception;
+
+        RedirectPredication(Action action, boolean thrown, Object result, Exception exception) {
+            this.action = action;
+            this.thrown = thrown;
+            this.result = result;
+            this.exception = exception;
+        }
+
+        @Override
+        public boolean test(Redirect redirect) {
+            return redirect.matches(action, thrown, result, exception);
+        }
+
+    }
+
     private class RedirectPromise implements Promise {
         private final Action action;
         private final Promise promise;
@@ -154,42 +190,6 @@ public class Redirector implements Actor {
         public Client client() {
             return promise.client();
         }
-    }
-
-    private static class RedirectPredication implements Predication<Redirect> {
-        private final Action action;
-        private final boolean thrown;
-        private final Object result;
-        private final Exception exception;
-
-        RedirectPredication(Action action, boolean thrown, Object result, Exception exception) {
-            this.action = action;
-            this.thrown = thrown;
-            this.result = result;
-            this.exception = exception;
-        }
-
-        @Override
-        public boolean test(Redirect redirect) {
-            return redirect.matches(action, thrown, result, exception);
-        }
-
-    }
-
-    public int getMaxCount() {
-        return maxCount;
-    }
-
-    public void setMaxCount(int maxCount) {
-        this.maxCount = maxCount;
-    }
-
-    public Collection<Redirect> getRedirects() {
-        return redirects;
-    }
-
-    public void setRedirects(Collection<Redirect> redirects) {
-        this.redirects = redirects;
     }
 
 }

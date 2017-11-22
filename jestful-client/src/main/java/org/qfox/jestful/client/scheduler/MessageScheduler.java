@@ -1,10 +1,10 @@
 package org.qfox.jestful.client.scheduler;
 
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.Message;
 import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.exception.UncertainBodyTypeException;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.client.Message;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Result;
 

@@ -12,7 +12,7 @@ import java.util.List;
 public class Redirect301 implements Redirect {
 
     @Override
-    public Client.Invoker<?> construct(Client client, Action action, boolean thrown, Object result, Exception exception)  throws Exception{
+    public Client.Invoker<?> construct(Client client, Action action, boolean thrown, Object result, Exception exception) throws Exception {
         Response response = action.getResponse();
         String location = response.getResponseHeader("Location");
         List<Parameter> parameters = new ArrayList<Parameter>();

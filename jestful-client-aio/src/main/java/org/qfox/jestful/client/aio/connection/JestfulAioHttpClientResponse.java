@@ -16,20 +16,18 @@ import java.nio.ByteBuffer;
  * Created by yangchangpei on 17/3/25.
  */
 public class JestfulAioHttpClientResponse extends JestfulClientResponse implements AioResponse {
+    private final Object lock = new Object();
     private AioByteArrayOutputStream head = new AioByteArrayOutputStream();
     private AioByteArrayOutputStream body = new AioByteArrayOutputStream();
-
     private Boolean chunked;
     private int crlfs;
     private int total;
     private int position;
     private ByteBuffer last;
     private boolean loaded;
-
     private Status status = new Status(200, "OK");
     private InputStream in;
     private Reader reader;
-    private final Object lock = new Object();
     private boolean closed;
 
     protected JestfulAioHttpClientResponse(Action action, Connector connector, Gateway gateway) {

@@ -17,6 +17,6 @@ public interface RedirectSampleAPI {
     User source(@Query("job") String job, @Body User user);
 
     @POST("/source")
-    void source(@Query("job") String job, @Body User user,OnCompleted<User> callback);
+    void source(@Query("job") String job, @Body User user, OnCompleted<User> callback);
 
 }

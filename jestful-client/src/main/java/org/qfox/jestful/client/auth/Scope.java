@@ -8,13 +8,11 @@ import java.io.Serializable;
  * Created by Payne on 2017/10/20.
  */
 public class Scope implements Serializable {
-    private static final long serialVersionUID = 4859511908812587316L;
-
     public static final String ANY_SCHEME = null;
     public static final String ANY_REALM = null;
     public static final String ANY_HOST = null;
     public static final int ANY_PORT = -1;
-
+    private static final long serialVersionUID = 4859511908812587316L;
     private final String scheme;
     private final String realm;
     private final String host;

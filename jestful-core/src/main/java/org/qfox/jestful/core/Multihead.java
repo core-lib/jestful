@@ -1,5 +1,8 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -7,22 +10,17 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
-import org.qfox.jestful.commons.IOKit;
-
 /**
  * <p>
  * Description: 多部分内容头
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月9日 下午7:02:24
- *
  * @since 1.0.0
  */
 public class Multihead implements Cloneable {
@@ -67,7 +65,7 @@ public class Multihead implements Cloneable {
 
 	public void writeTo(Writer writer) throws IOException {
 		writer.write(toString());
-		writer.write(new char[] { '\r', '\n' });
+		writer.write(new char[]{'\r', '\n'});
 	}
 
 	public Disposition getDisposition() {

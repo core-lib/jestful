@@ -24,6 +24,34 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         super(charset);
     }
 
+    private static byte[] random(int len) {
+        if (len <= 0) throw new IllegalArgumentException("len <= 0");
+        SecureRandom srd = new SecureRandom();
+        byte[] bytes = new byte[len];
+        srd.nextBytes(bytes);
+        return bytes;
+    }
+
+    private static String hex(byte[] bytes) {
+        return hex(bytes, false);
+    }
+
+    private static String hex(byte[] bytes, boolean toUpperCase) {
+        byte[] b = Hex.encode(bytes);
+        String s = new String(b);
+        return toUpperCase ? s.toUpperCase() : s;
+    }
+
+    private static String nonce() {
+        return nonce(false);
+    }
+
+    private static String nonce(boolean toUpperCase) {
+        byte[] bytes = random(8);
+        String nonce = hex(bytes);
+        return toUpperCase ? nonce.toUpperCase() : nonce;
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -166,33 +194,5 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         } catch (NoSuchAlgorithmException e) {
             throw new AuthenticationException("unsupported message digest algorithm: " + algorithm);
         }
-    }
-
-    private static byte[] random(int len) {
-        if (len <= 0) throw new IllegalArgumentException("len <= 0");
-        SecureRandom srd = new SecureRandom();
-        byte[] bytes = new byte[len];
-        srd.nextBytes(bytes);
-        return bytes;
-    }
-
-    private static String hex(byte[] bytes) {
-        return hex(bytes, false);
-    }
-
-    private static String hex(byte[] bytes, boolean toUpperCase) {
-        byte[] b = Hex.encode(bytes);
-        String s = new String(b);
-        return toUpperCase ? s.toUpperCase() : s;
-    }
-
-    private static String nonce() {
-        return nonce(false);
-    }
-
-    private static String nonce(boolean toUpperCase) {
-        byte[] bytes = random(8);
-        String nonce = hex(bytes);
-        return toUpperCase ? nonce.toUpperCase() : nonce;
     }
 }

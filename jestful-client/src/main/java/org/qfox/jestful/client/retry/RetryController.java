@@ -30,6 +30,22 @@ public class RetryController implements Actor {
         return new RetryPromise(action, promise);
     }
 
+    public RetryCondition getRetryCondition() {
+        return retryCondition;
+    }
+
+    public void setRetryCondition(RetryCondition retryCondition) {
+        this.retryCondition = retryCondition;
+    }
+
+    public int getMaxCount() {
+        return maxCount;
+    }
+
+    public void setMaxCount(int maxCount) {
+        this.maxCount = maxCount;
+    }
+
     private class RetryPromise implements Promise {
         private final Action action;
         private final Promise promise;
@@ -120,21 +136,5 @@ public class RetryController implements Actor {
         public Client client() {
             return promise.client();
         }
-    }
-
-    public RetryCondition getRetryCondition() {
-        return retryCondition;
-    }
-
-    public void setRetryCondition(RetryCondition retryCondition) {
-        this.retryCondition = retryCondition;
-    }
-
-    public int getMaxCount() {
-        return maxCount;
-    }
-
-    public void setMaxCount(int maxCount) {
-        this.maxCount = maxCount;
     }
 }

@@ -6,9 +6,4 @@
     <bean class="org.qfox.jestful.client.aio.connection.HttpAioConnector"/>
     <bean class="org.qfox.jestful.client.aio.connection.HttpsAioConnector"/>
 
-    <!--<bean class="org.qfox.jestful.client.aio.catcher.Redirection301AioCatcher"/>-->
-    <!--<bean class="org.qfox.jestful.client.aio.catcher.Redirection302AioCatcher"/>-->
-    <!--<bean class="org.qfox.jestful.client.aio.catcher.Redirection303AioCatcher"/>-->
-    <!--<bean class="org.qfox.jestful.client.aio.catcher.Redirection307AioCatcher"/>-->
-
 </beans>

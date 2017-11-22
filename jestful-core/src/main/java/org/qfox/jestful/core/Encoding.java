@@ -1,26 +1,24 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
-
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年5月15日 上午11:22:53
- *
  * @since 1.0.0
  */
 public class Encoding implements Weighted<Encoding> {

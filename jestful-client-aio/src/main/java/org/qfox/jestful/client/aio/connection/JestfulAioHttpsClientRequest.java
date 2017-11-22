@@ -16,12 +16,12 @@ public class JestfulAioHttpsClientRequest extends JestfulAioHttpClientRequest {
     private final AioSSLChannel aioSSLChannel;
 
     protected JestfulAioHttpsClientRequest(Action action,
-                                        Connector connector,
-                                        Gateway gateway,
-                                        int connTimeout,
-                                        int readTimeout,
-                                        int writeTimeout,
-                                        AioSSLChannel aioSSLChannel) {
+                                           Connector connector,
+                                           Gateway gateway,
+                                           int connTimeout,
+                                           int readTimeout,
+                                           int writeTimeout,
+                                           AioSSLChannel aioSSLChannel) {
         super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
         this.aioSSLChannel = aioSSLChannel;
     }

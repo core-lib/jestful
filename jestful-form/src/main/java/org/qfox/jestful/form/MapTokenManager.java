@@ -58,28 +58,6 @@ public class MapTokenManager implements TokenManager {
         if (token.expired()) throw new TokenExpiredException(token.getKey(), token.getTimeExpired());
     }
 
-    private class Cleaner implements Runnable {
-        private boolean loop = true;
-        private List<String> expires = new LinkedList<String>();
-
-        @Override
-        public void run() {
-            while (loop) {
-                try {
-                    Thread.sleep(interval);
-                    for (Map.Entry<String, Token> entry : map.entrySet()) if (entry.getValue().expired()) expires.add(entry.getKey());
-                    Token token;
-                    for (String expire : expires) if ((token = map.remove(expire)) != null) factory.recover(token);
-                } catch (Exception e) {
-                    logger.warn("exception occur while cleaning expired tokens", e);
-                } finally {
-                    expires.clear();
-                }
-            }
-        }
-
-    }
-
     public long getDuration() {
         return duration;
     }
@@ -118,6 +96,28 @@ public class MapTokenManager implements TokenManager {
 
     public void setInterval(long interval) {
         this.interval = interval;
+    }
+
+    private class Cleaner implements Runnable {
+        private boolean loop = true;
+        private List<String> expires = new LinkedList<String>();
+
+        @Override
+        public void run() {
+            while (loop) {
+                try {
+                    Thread.sleep(interval);
+                    for (Map.Entry<String, Token> entry : map.entrySet()) if (entry.getValue().expired()) expires.add(entry.getKey());
+                    Token token;
+                    for (String expire : expires) if ((token = map.remove(expire)) != null) factory.recover(token);
+                } catch (Exception e) {
+                    logger.warn("exception occur while cleaning expired tokens", e);
+                } finally {
+                    expires.clear();
+                }
+            }
+        }
+
     }
 
 }

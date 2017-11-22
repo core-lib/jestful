@@ -1,28 +1,22 @@
 package org.qfox.jestful.client.handler;
 
-import java.net.URLEncoder;
-
 import org.qfox.jestful.client.annotation.Headers;
 import org.qfox.jestful.client.exception.IllegalHeaderException;
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.Mapping;
-import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.Resource;
+import org.qfox.jestful.core.*;
+
+import java.net.URLEncoder;
 
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月28日 下午8:08:09
- *
  * @since 1.0.0
  */
 public class HeadersAnnotationHandler implements Actor {

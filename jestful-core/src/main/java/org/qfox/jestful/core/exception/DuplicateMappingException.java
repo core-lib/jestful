@@ -6,39 +6,37 @@ import org.qfox.jestful.core.Mapping;
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年4月1日 下午6:06:17
- *
  * @since 1.0.0
  */
 public class DuplicateMappingException extends IllegalConfigException {
-	private static final long serialVersionUID = 2712160694691373734L;
+    private static final long serialVersionUID = 2712160694691373734L;
 
-	private final Mapping current;
-	private final Mapping existed;
+    private final Mapping current;
+    private final Mapping existed;
 
-	public DuplicateMappingException(Mapping current, Mapping existed) {
-		this(null, current, existed);
-	}
+    public DuplicateMappingException(Mapping current, Mapping existed) {
+        this(null, current, existed);
+    }
 
-	public DuplicateMappingException(Throwable cause, Mapping current, Mapping existed) {
-		super("duplicate mapping " + current + " with " + existed, current.getController(), current.getMethod());
-		this.current = current;
-		this.existed = existed;
-	}
+    public DuplicateMappingException(Throwable cause, Mapping current, Mapping existed) {
+        super("duplicate mapping " + current + " with " + existed, current.getController(), current.getMethod());
+        this.current = current;
+        this.existed = existed;
+    }
 
-	public Mapping getCurrent() {
-		return current;
-	}
+    public Mapping getCurrent() {
+        return current;
+    }
 
-	public Mapping getExisted() {
-		return existed;
-	}
+    public Mapping getExisted() {
+        return existed;
+    }
 
 }

@@ -1,12 +1,12 @@
 package org.qfox.jestful.server.wrapper;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.qfox.jestful.core.Encoding;
 import org.qfox.jestful.core.codec.RequestDecoder;
 import org.qfox.jestful.server.JestfulServletRequest;
 import org.qfox.jestful.server.JestfulServletRequestWrapper;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class DecodedServletRequest extends JestfulServletRequestWrapper {
 	private final Encoding encoding;

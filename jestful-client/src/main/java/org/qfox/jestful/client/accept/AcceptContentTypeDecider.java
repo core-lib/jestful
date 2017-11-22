@@ -1,31 +1,23 @@
 package org.qfox.jestful.client.accept;
 
+import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.formatting.ResponseDeserializer;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.qfox.jestful.core.Accepts;
-import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Initialable;
-import org.qfox.jestful.core.MediaType;
-import org.qfox.jestful.core.Request;
-import org.qfox.jestful.core.formatting.ResponseDeserializer;
 
 /**
  * <p>
  * Description:
  * </p>
- * 
+ * <p>
  * <p>
  * Company: 广州市俏狐信息科技有限公司
  * </p>
- * 
+ *
  * @author Payne 646742615@qq.com
- *
  * @date 2016年5月5日 下午12:29:59
- *
  * @since 1.0.0
  */
 public class AcceptContentTypeDecider implements Actor, Initialable {

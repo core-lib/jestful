@@ -6,12 +6,12 @@ import java.util.Map;
 
 public interface Converter {
 
-	boolean supports(Class<?> clazz);
+    boolean supports(Class<?> clazz);
 
-	<T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException;
+    <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException;
 
-	boolean supports(ParameterizedType type);
+    boolean supports(ParameterizedType type);
 
-	Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException;
+    Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException;
 
 }

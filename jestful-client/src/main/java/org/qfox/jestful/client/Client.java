@@ -54,6 +54,7 @@ import java.util.jar.JarFile;
  * @since 1.0.0
  */
 public class Client implements Actor, Connector, Executor, Initialable, Destroyable {
+    protected static Client defaultClient;
     protected final ExecutorService executor = Executors.newCachedThreadPool();
     protected final Charsets charsets = new Charsets(Charset.availableCharsets().keySet().toArray(new String[0]));
     protected final Map<MediaType, RequestSerializer> serializers = new LinkedHashMap<MediaType, RequestSerializer>();
@@ -61,7 +62,6 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final Map<String, Scheduler> schedulers = new LinkedHashMap<String, Scheduler>();
     protected final Map<String, Connector> connectors = new LinkedHashMap<String, Connector>();
     protected final Map<String, Catcher> catchers = new LinkedHashMap<String, Catcher>();
-
     protected final String protocol;
     protected final String hostname;
     protected final Integer port;
@@ -71,36 +71,26 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final BeanContainer beanContainer;
     protected final URL[] configLocations;
     protected final Actor[] plugins;
-
     protected final String[] acceptCharsets;
     protected final String[] acceptEncodings;
     protected final String[] acceptLanguages;
-
     protected final String[] contentCharsets;
     protected final String[] contentEncodings;
     protected final String[] contentLanguages;
-
     protected final boolean allowEncode;
     protected final boolean acceptEncode;
-
     protected final String pathEncodeCharset;
     protected final String queryEncodeCharset;
     protected final String headerEncodeCharset;
-
     protected final int connTimeout;
     protected final int readTimeout;
     protected final int writeTimeout;
-
     protected final Gateway gateway;
     protected final HostnameVerifier hostnameVerifier;
     protected final SSLSocketFactory SSLSocketFactory;
     protected final String userAgent;
-    protected final boolean followRedirection;
     protected final boolean configValidation;
-
     protected boolean destroyed = false;
-
-    protected static Client defaultClient;
 
     protected Client(Builder<?> builder) throws IOException {
         super();
@@ -143,9 +133,24 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         this.hostnameVerifier = builder.hostnameVerifier;
         this.SSLSocketFactory = builder.SSLSocketFactory;
         this.userAgent = builder.userAgent;
-        this.followRedirection = builder.followRedirection;
 
         this.initialize(this.beanContainer);
+    }
+
+    public static Client getDefaultClient() {
+        if (defaultClient != null) {
+            return defaultClient;
+        }
+        synchronized (Client.class) {
+            if (defaultClient != null) {
+                return defaultClient;
+            }
+            return defaultClient = builder().build();
+        }
+    }
+
+    public static Builder<?> builder() {
+        return new Builder();
     }
 
     protected Set<URL> integrate(ClassLoader classLoader) throws IOException {
@@ -418,64 +423,6 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return new BioPromise(action);
     }
 
-    protected class BioPromise implements Promise {
-        protected final Object lock = new Object();
-
-        protected final Action action;
-        protected volatile Boolean success;
-        protected volatile Object result;
-        protected volatile Exception exception;
-
-        protected BioPromise(Action action) {
-            this.action = action;
-        }
-
-        @Override
-        public Object acquire() throws Exception {
-            if (success == null) {
-                synchronized (lock) {
-                    if (success == null) {
-                        try {
-                            result = call(action);
-                        } catch (Exception e) {
-                            exception = e;
-                        } finally {
-                            success = exception == null;
-                        }
-                    }
-                    return acquire();
-                }
-            } else if (success) {
-                return result;
-            } else {
-                throw exception;
-            }
-        }
-
-        @Override
-        public void accept(final Callback<Object> callback) {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    Object result = null;
-                    Exception exception = null;
-                    try {
-                        callback.onSuccess(result = acquire());
-                    } catch (Exception e) {
-                        callback.onFail(exception = e);
-                    } finally {
-                        callback.onCompleted(exception == null, result, exception);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public Client client() {
-            return Client.this;
-        }
-    }
-
     protected Object doSchedule(Action action) throws Exception {
         Result result = action.getResult();
         Body body = result.getBody();
@@ -513,249 +460,6 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return new Invoker();
     }
 
-    public class Invoker<I extends Invoker<I>> {
-        private String protocol = Client.this.protocol;
-        private String hostname = Client.this.hostname;
-        private Integer port = Client.this.port;
-        private String route = Client.this.route;
-        private Resource resource;
-        private Mapping mapping;
-        private Restful restful;
-        private Parameters parameters;
-        private Result result;
-
-        private Accepts consumes = Accepts.valueOf("");
-        private Accepts produces = Accepts.valueOf("");
-
-        private List<Actor> forePlugins = new ArrayList<Actor>();
-        private List<Actor> backPlugins = new ArrayList<Actor>();
-
-        private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
-
-        public I setEndpoint(URL endpoint) {
-            if (endpoint == null) {
-                throw new IllegalArgumentException("endpoint == null");
-            }
-            setProtocol(endpoint.getProtocol());
-            setHostname(endpoint.getHost());
-            setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
-            setRoute(endpoint.getFile().length() == 0 ? null : endpoint.getFile());
-            return (I) this;
-        }
-
-        public I setProtocol(String protocol) {
-            if (protocol == null) {
-                throw new IllegalArgumentException("protocol == null");
-            }
-            this.protocol = protocol;
-            return (I) this;
-        }
-
-        public I setHostname(String hostname) {
-            if (protocol == null) {
-                throw new IllegalArgumentException("hostname == null");
-            }
-            this.hostname = hostname;
-            return (I) this;
-        }
-
-        public I setPort(Integer port) {
-            if (port != null && (port < 0 || port > 65535)) {
-                throw new IllegalArgumentException("port " + port + " out of bounds [0, 65535]");
-            }
-            this.port = port;
-            return (I) this;
-        }
-
-        public I setRoute(String route) {
-            if (route != null && route.length() == 0 == false && !route.startsWith("/")) {
-                throw new IllegalArgumentException("route should starts with /");
-            }
-            this.route = route;
-            return (I) this;
-        }
-
-        public I setResource(Resource resource) {
-            this.resource = resource;
-            return (I) this;
-        }
-
-        public I setMapping(Mapping mapping) {
-            this.mapping = mapping;
-            if (mapping != null) {
-                this.restful = mapping.getRestful();
-                this.parameters = mapping.getParameters();
-                this.result = mapping.getResult();
-                this.consumes = mapping.getConsumes();
-                this.produces = mapping.getProduces();
-            }
-            return (I) this;
-        }
-
-        public I setRestful(Restful restful) {
-            this.restful = restful;
-            return (I) this;
-        }
-
-        public I setParameters(Parameters parameters) {
-            this.parameters = parameters;
-            return (I) this;
-        }
-
-        public I setResult(Result result) {
-            this.result = result;
-            return (I) this;
-        }
-
-        public I setConsumes(Accepts consumes) {
-            this.consumes = consumes;
-            return (I) this;
-        }
-
-        public I setProduces(Accepts produces) {
-            this.produces = produces;
-            return (I) this;
-        }
-
-        public I setForePlugins(String... plugins) {
-            this.forePlugins.clear();
-            return addForePlugins(plugins);
-        }
-
-        public I setBackPlugins(String... plugins) {
-            this.backPlugins.clear();
-            return addBackPlugins(plugins);
-        }
-
-        public I addForePlugins(String... plugins) {
-            Collections.addAll(forePlugins, load(Arrays.asList(plugins)));
-            return (I) this;
-        }
-
-        public I addBackPlugins(String... plugins) {
-            Collections.addAll(backPlugins, load(Arrays.asList(plugins)));
-            return (I) this;
-        }
-
-        public I setForePlugins(Actor... plugins) {
-            this.forePlugins.clear();
-            return addForePlugins(plugins);
-        }
-
-        public I setBackPlugins(Actor... plugins) {
-            this.backPlugins.clear();
-            return addBackPlugins(plugins);
-        }
-
-        public I addForePlugins(Actor... plugins) {
-            Collections.addAll(forePlugins, plugins);
-            return (I) this;
-        }
-
-        public I addBackPlugins(Actor... plugins) {
-            Collections.addAll(backPlugins, plugins);
-            return (I) this;
-        }
-
-        public I setForePlugins(Iterable<Actor> plugins) {
-            this.forePlugins.clear();
-            return addForePlugins(plugins);
-        }
-
-        public I setBackPlugins(Iterable<Actor> plugins) {
-            this.backPlugins.clear();
-            return addBackPlugins(plugins);
-        }
-
-        public I addForePlugins(Iterable<Actor> plugins) {
-            for (Actor plugin : plugins) this.forePlugins.add(plugin);
-            return (I) this;
-        }
-
-        public I addBackPlugins(Iterable<Actor> plugins) {
-            for (Actor plugin : plugins) this.backPlugins.add(plugin);
-            return (I) this;
-        }
-
-        public I setExtra(Map<Object, Object> extra) {
-            this.extra.clear();
-            return addExtra(extra);
-        }
-
-        public I addExtra(Map<Object, Object> extra) {
-            this.extra.putAll(extra);
-            return (I) this;
-        }
-
-        public I setExtra(Object key, Object value) {
-            this.extra.clear();
-            return addExtra(key, value);
-        }
-
-        public I addExtra(Object key, Object value) {
-            this.extra.put(key, value);
-            return (I) this;
-        }
-
-        public Action draft(Object... args) throws Exception {
-            if (resource == null) resource = new Resource();
-            if (mapping == null) mapping = new Mapping(resource, parameters, result, restful, consumes, produces);
-            for (int i = 0; args != null && parameters != null && i < args.length && i < parameters.size(); i++) parameters.get(i).setValue(args[i]);
-
-            Collection<Actor> actors = new ArrayList<Actor>();
-            actors.addAll(forePlugins);
-            actors.addAll(Arrays.asList(plugins));
-            actors.addAll(backPlugins);
-            actors.add(Client.this);
-
-            Action action = new Action(beanContainer, actors, forePlugins, backPlugins);
-            action.setResource(resource);
-            action.setMapping(mapping);
-            action.setParameters(parameters);
-            action.setResult(result);
-
-            action.setRestful(restful);
-            action.setProtocol(protocol);
-            action.setHostname(hostname);
-            action.setPort(port);
-            action.setRoute(route);
-
-            action.setRequest(newRequest(action));
-            action.setResponse(newResponse(action));
-
-            action.setConsumes(consumes);
-            action.setProduces(produces);
-
-            action.setAcceptCharsets(new Charsets(acceptCharsets));
-            action.setAcceptEncodings(new Encodings(acceptEncodings));
-            action.setAcceptLanguages(new Languages(acceptLanguages));
-            action.setContentCharsets(new Charsets(contentCharsets));
-            action.setContentEncodings(new Encodings(contentEncodings));
-            action.setContentLanguages(new Languages(contentLanguages));
-
-            action.setAllowEncode(allowEncode);
-            action.setAcceptEncode(acceptEncode);
-
-            action.setPathEncodeCharset(pathEncodeCharset);
-            action.setQueryEncodeCharset(queryEncodeCharset);
-            action.setHeaderEncodeCharset(headerEncodeCharset);
-
-            action.getExtra().putAll(extra);
-            return action;
-        }
-
-        public Object invoke(Object... args) throws Exception {
-            Action action = draft(args);
-            return doSchedule(action);
-        }
-
-        public Promise promise(Object... args) throws Exception {
-            Action action = draft(args);
-            return (Promise) action.execute();
-        }
-
-    }
-
     public <T> T create(Class<T> interfase) {
         return creator().create(interfase);
     }
@@ -784,121 +488,141 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return new Creator();
     }
 
-    public class Creator<C extends Creator<C>> {
-        protected List<Actor> forePlugins = new ArrayList<Actor>();
-        protected List<Actor> backPlugins = new ArrayList<Actor>();
-
-        public C setForePlugins(String... plugins) {
-            this.forePlugins.clear();
-            return addForePlugins(plugins);
-        }
-
-        public C setBackPlugins(String... plugins) {
-            this.backPlugins.clear();
-            return addBackPlugins(plugins);
-        }
-
-        public C addForePlugins(String... plugins) {
-            Collections.addAll(forePlugins, load(Arrays.asList(plugins)));
-            return (C) this;
-        }
-
-        public C addBackPlugins(String... plugins) {
-            Collections.addAll(backPlugins, load(Arrays.asList(plugins)));
-            return (C) this;
-        }
-
-        public C setForePlugins(Actor... plugins) {
-            this.forePlugins.clear();
-            return addForePlugins(plugins);
-        }
-
-        public C setBackPlugins(Actor... plugins) {
-            this.backPlugins.clear();
-            return addBackPlugins(plugins);
-        }
-
-        public C addForePlugins(Actor... plugins) {
-            Collections.addAll(forePlugins, plugins);
-            return (C) this;
-        }
-
-        public C addBackPlugins(Actor... plugins) {
-            Collections.addAll(backPlugins, plugins);
-            return (C) this;
-        }
-
-        public C setForePlugins(Iterable<Actor> plugins) {
-            this.forePlugins.clear();
-            return addForePlugins(plugins);
-        }
-
-        public C setBackPlugins(Iterable<Actor> plugins) {
-            this.backPlugins.clear();
-            return addBackPlugins(plugins);
-        }
-
-        public C addForePlugins(Iterable<Actor> plugins) {
-            Iterator<Actor> iterable = plugins.iterator();
-            while (iterable.hasNext()) this.forePlugins.add(iterable.next());
-            return (C) this;
-        }
-
-        public C addBackPlugins(Iterable<Actor> plugins) {
-            Iterator<Actor> iterable = plugins.iterator();
-            while (iterable.hasNext()) this.backPlugins.add(iterable.next());
-            return (C) this;
-        }
-
-        public <T> T create(Class<T> interfase) {
-            return create(interfase, protocol, hostname, port, route);
-        }
-
-        public <T> T create(Class<T> interfase, String protocol, String host) {
-            return create(interfase, protocol, host, null);
-        }
-
-        public <T> T create(Class<T> interfase, String protocol, String host, Integer port) {
-            return create(interfase, protocol, host, port, null);
-        }
-
-        public <T> T create(Class<T> interfase, String protocol, String host, Integer port, String route) {
-            String endpoint = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
-            return create(interfase, endpoint);
-        }
-
-        public <T> T create(Class<T> interfase, String endpoint) {
-            try {
-                return create(interfase, new URL(endpoint));
-            } catch (MalformedURLException e) {
-                throw new IllegalArgumentException(e);
-            }
-        }
-
-        public <T> T create(Class<T> interfase, URL endpoint) {
-            String protocol = endpoint.getProtocol();
-            String host = endpoint.getHost();
-            Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
-            String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
-            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, forePlugins, backPlugins).getProxy();
-        }
-
+    public Charsets getCharsets() {
+        return charsets;
     }
 
-    public static Client getDefaultClient() {
-        if (defaultClient != null) {
-            return defaultClient;
-        }
-        synchronized (Client.class) {
-            if (defaultClient != null) {
-                return defaultClient;
-            }
-            return defaultClient = builder().build();
-        }
+    public Map<MediaType, RequestSerializer> getSerializers() {
+        return serializers;
     }
 
-    public static Builder<?> builder() {
-        return new Builder();
+    public Map<MediaType, ResponseDeserializer> getDeserializers() {
+        return deserializers;
+    }
+
+    public Map<String, Scheduler> getSchedulers() {
+        return schedulers;
+    }
+
+    public Map<String, Connector> getConnectors() {
+        return connectors;
+    }
+
+    public Map<String, Catcher> getCatchers() {
+        return catchers;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public String getRoute() {
+        return route;
+    }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
+
+    public Map<Class<?>, Resource> getResources() {
+        return resources;
+    }
+
+    public BeanContainer getBeanContainer() {
+        return beanContainer;
+    }
+
+    public URL[] getConfigLocations() {
+        return configLocations;
+    }
+
+    public Actor[] getPlugins() {
+        return plugins;
+    }
+
+    public String[] getAcceptCharsets() {
+        return acceptCharsets;
+    }
+
+    public String[] getAcceptEncodings() {
+        return acceptEncodings;
+    }
+
+    public String[] getAcceptLanguages() {
+        return acceptLanguages;
+    }
+
+    public String[] getContentCharsets() {
+        return contentCharsets;
+    }
+
+    public String[] getContentEncodings() {
+        return contentEncodings;
+    }
+
+    public String[] getContentLanguages() {
+        return contentLanguages;
+    }
+
+    public boolean isAllowEncode() {
+        return allowEncode;
+    }
+
+    public boolean isAcceptEncode() {
+        return acceptEncode;
+    }
+
+    public String getPathEncodeCharset() {
+        return pathEncodeCharset;
+    }
+
+    public String getQueryEncodeCharset() {
+        return queryEncodeCharset;
+    }
+
+    public String getHeaderEncodeCharset() {
+        return headerEncodeCharset;
+    }
+
+    public int getConnTimeout() {
+        return connTimeout;
+    }
+
+    public int getReadTimeout() {
+        return readTimeout;
+    }
+
+    public int getWriteTimeout() {
+        return writeTimeout;
+    }
+
+    public Gateway getGateway() {
+        return gateway;
+    }
+
+    public HostnameVerifier getHostnameVerifier() {
+        return hostnameVerifier;
+    }
+
+    public SSLSocketFactory getSSLSocketFactory() {
+        return SSLSocketFactory;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    @Override
+    public String toString() {
+        return protocol + "://" + hostname + (port != null ? ":" + port : "") + (route != null ? route : "");
     }
 
     public static class Builder<B extends Builder<B>> {
@@ -954,7 +678,6 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 + "/"
                 + Module.getInstance().getVersion();
 
-        private boolean followRedirection = true;
         private boolean configValidation = false;
 
         public Client build() {
@@ -1226,156 +949,412 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             return (B) this;
         }
 
-        public B setFollowRedirection(boolean followRedirection) {
-            this.followRedirection = followRedirection;
-            return (B) this;
-        }
-
         public B setConfigValidation(boolean configValidation) {
             this.configValidation = configValidation;
             return (B) this;
         }
     }
 
-    public Charsets getCharsets() {
-        return charsets;
+    protected class BioPromise implements Promise {
+        protected final Object lock = new Object();
+
+        protected final Action action;
+        protected volatile Boolean success;
+        protected volatile Object result;
+        protected volatile Exception exception;
+
+        protected BioPromise(Action action) {
+            this.action = action;
+        }
+
+        @Override
+        public Object acquire() throws Exception {
+            if (success == null) {
+                synchronized (lock) {
+                    if (success == null) {
+                        try {
+                            result = call(action);
+                        } catch (Exception e) {
+                            exception = e;
+                        } finally {
+                            success = exception == null;
+                        }
+                    }
+                    return acquire();
+                }
+            } else if (success) {
+                return result;
+            } else {
+                throw exception;
+            }
+        }
+
+        @Override
+        public void accept(final Callback<Object> callback) {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Object result = null;
+                    Exception exception = null;
+                    try {
+                        callback.onSuccess(result = acquire());
+                    } catch (Exception e) {
+                        callback.onFail(exception = e);
+                    } finally {
+                        callback.onCompleted(exception == null, result, exception);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public Client client() {
+            return Client.this;
+        }
     }
 
-    public Map<MediaType, RequestSerializer> getSerializers() {
-        return serializers;
+    public class Invoker<I extends Invoker<I>> {
+        private String protocol = Client.this.protocol;
+        private String hostname = Client.this.hostname;
+        private Integer port = Client.this.port;
+        private String route = Client.this.route;
+        private Resource resource;
+        private Mapping mapping;
+        private Restful restful;
+        private Parameters parameters;
+        private Result result;
+
+        private Accepts consumes = Accepts.valueOf("");
+        private Accepts produces = Accepts.valueOf("");
+
+        private List<Actor> forePlugins = new ArrayList<Actor>();
+        private List<Actor> backPlugins = new ArrayList<Actor>();
+
+        private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
+
+        public I setEndpoint(URL endpoint) {
+            if (endpoint == null) {
+                throw new IllegalArgumentException("endpoint == null");
+            }
+            setProtocol(endpoint.getProtocol());
+            setHostname(endpoint.getHost());
+            setPort(endpoint.getPort() < 0 ? null : endpoint.getPort());
+            setRoute(endpoint.getFile().length() == 0 ? null : endpoint.getFile());
+            return (I) this;
+        }
+
+        public I setProtocol(String protocol) {
+            if (protocol == null) {
+                throw new IllegalArgumentException("protocol == null");
+            }
+            this.protocol = protocol;
+            return (I) this;
+        }
+
+        public I setHostname(String hostname) {
+            if (protocol == null) {
+                throw new IllegalArgumentException("hostname == null");
+            }
+            this.hostname = hostname;
+            return (I) this;
+        }
+
+        public I setPort(Integer port) {
+            if (port != null && (port < 0 || port > 65535)) {
+                throw new IllegalArgumentException("port " + port + " out of bounds [0, 65535]");
+            }
+            this.port = port;
+            return (I) this;
+        }
+
+        public I setRoute(String route) {
+            if (route != null && route.length() == 0 == false && !route.startsWith("/")) {
+                throw new IllegalArgumentException("route should starts with /");
+            }
+            this.route = route;
+            return (I) this;
+        }
+
+        public I setResource(Resource resource) {
+            this.resource = resource;
+            return (I) this;
+        }
+
+        public I setMapping(Mapping mapping) {
+            this.mapping = mapping;
+            if (mapping != null) {
+                this.restful = mapping.getRestful();
+                this.parameters = mapping.getParameters();
+                this.result = mapping.getResult();
+                this.consumes = mapping.getConsumes();
+                this.produces = mapping.getProduces();
+            }
+            return (I) this;
+        }
+
+        public I setRestful(Restful restful) {
+            this.restful = restful;
+            return (I) this;
+        }
+
+        public I setParameters(Parameters parameters) {
+            this.parameters = parameters;
+            return (I) this;
+        }
+
+        public I setResult(Result result) {
+            this.result = result;
+            return (I) this;
+        }
+
+        public I setConsumes(Accepts consumes) {
+            this.consumes = consumes;
+            return (I) this;
+        }
+
+        public I setProduces(Accepts produces) {
+            this.produces = produces;
+            return (I) this;
+        }
+
+        public I setForePlugins(String... plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
+
+        public I setBackPlugins(String... plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public I addForePlugins(String... plugins) {
+            Collections.addAll(forePlugins, load(Arrays.asList(plugins)));
+            return (I) this;
+        }
+
+        public I addBackPlugins(String... plugins) {
+            Collections.addAll(backPlugins, load(Arrays.asList(plugins)));
+            return (I) this;
+        }
+
+        public I setForePlugins(Actor... plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
+
+        public I setBackPlugins(Actor... plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public I addForePlugins(Actor... plugins) {
+            Collections.addAll(forePlugins, plugins);
+            return (I) this;
+        }
+
+        public I addBackPlugins(Actor... plugins) {
+            Collections.addAll(backPlugins, plugins);
+            return (I) this;
+        }
+
+        public I setForePlugins(Iterable<Actor> plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
+
+        public I setBackPlugins(Iterable<Actor> plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
+
+        public I addForePlugins(Iterable<Actor> plugins) {
+            for (Actor plugin : plugins) this.forePlugins.add(plugin);
+            return (I) this;
+        }
+
+        public I addBackPlugins(Iterable<Actor> plugins) {
+            for (Actor plugin : plugins) this.backPlugins.add(plugin);
+            return (I) this;
+        }
+
+        public I setExtra(Map<Object, Object> extra) {
+            this.extra.clear();
+            return addExtra(extra);
+        }
+
+        public I addExtra(Map<Object, Object> extra) {
+            this.extra.putAll(extra);
+            return (I) this;
+        }
+
+        public I setExtra(Object key, Object value) {
+            this.extra.clear();
+            return addExtra(key, value);
+        }
+
+        public I addExtra(Object key, Object value) {
+            this.extra.put(key, value);
+            return (I) this;
+        }
+
+        public Action draft(Object... args) throws Exception {
+            if (resource == null) resource = new Resource();
+            if (mapping == null) mapping = new Mapping(resource, parameters, result, restful, consumes, produces);
+            for (int i = 0; args != null && parameters != null && i < args.length && i < parameters.size(); i++) parameters.get(i).setValue(args[i]);
+
+            Collection<Actor> actors = new ArrayList<Actor>();
+            actors.addAll(forePlugins);
+            actors.addAll(Arrays.asList(plugins));
+            actors.addAll(backPlugins);
+            actors.add(Client.this);
+
+            Action action = new Action(beanContainer, actors, forePlugins, backPlugins);
+            action.setResource(resource);
+            action.setMapping(mapping);
+            action.setParameters(parameters);
+            action.setResult(result);
+
+            action.setRestful(restful);
+            action.setProtocol(protocol);
+            action.setHostname(hostname);
+            action.setPort(port);
+            action.setRoute(route);
+
+            action.setRequest(newRequest(action));
+            action.setResponse(newResponse(action));
+
+            action.setConsumes(consumes);
+            action.setProduces(produces);
+
+            action.setAcceptCharsets(new Charsets(acceptCharsets));
+            action.setAcceptEncodings(new Encodings(acceptEncodings));
+            action.setAcceptLanguages(new Languages(acceptLanguages));
+            action.setContentCharsets(new Charsets(contentCharsets));
+            action.setContentEncodings(new Encodings(contentEncodings));
+            action.setContentLanguages(new Languages(contentLanguages));
+
+            action.setAllowEncode(allowEncode);
+            action.setAcceptEncode(acceptEncode);
+
+            action.setPathEncodeCharset(pathEncodeCharset);
+            action.setQueryEncodeCharset(queryEncodeCharset);
+            action.setHeaderEncodeCharset(headerEncodeCharset);
+
+            action.getExtra().putAll(extra);
+            return action;
+        }
+
+        public Object invoke(Object... args) throws Exception {
+            Action action = draft(args);
+            return doSchedule(action);
+        }
+
+        public Promise promise(Object... args) throws Exception {
+            Action action = draft(args);
+            return (Promise) action.execute();
+        }
+
     }
 
-    public Map<MediaType, ResponseDeserializer> getDeserializers() {
-        return deserializers;
-    }
+    public class Creator<C extends Creator<C>> {
+        protected List<Actor> forePlugins = new ArrayList<Actor>();
+        protected List<Actor> backPlugins = new ArrayList<Actor>();
 
-    public Map<String, Scheduler> getSchedulers() {
-        return schedulers;
-    }
+        public C setForePlugins(String... plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
 
-    public Map<String, Connector> getConnectors() {
-        return connectors;
-    }
+        public C setBackPlugins(String... plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
 
-    public Map<String, Catcher> getCatchers() {
-        return catchers;
-    }
+        public C addForePlugins(String... plugins) {
+            Collections.addAll(forePlugins, load(Arrays.asList(plugins)));
+            return (C) this;
+        }
 
-    public String getProtocol() {
-        return protocol;
-    }
+        public C addBackPlugins(String... plugins) {
+            Collections.addAll(backPlugins, load(Arrays.asList(plugins)));
+            return (C) this;
+        }
 
-    public String getHostname() {
-        return hostname;
-    }
+        public C setForePlugins(Actor... plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
 
-    public Integer getPort() {
-        return port;
-    }
+        public C setBackPlugins(Actor... plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
 
-    public String getRoute() {
-        return route;
-    }
+        public C addForePlugins(Actor... plugins) {
+            Collections.addAll(forePlugins, plugins);
+            return (C) this;
+        }
 
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
+        public C addBackPlugins(Actor... plugins) {
+            Collections.addAll(backPlugins, plugins);
+            return (C) this;
+        }
 
-    public Map<Class<?>, Resource> getResources() {
-        return resources;
-    }
+        public C setForePlugins(Iterable<Actor> plugins) {
+            this.forePlugins.clear();
+            return addForePlugins(plugins);
+        }
 
-    public BeanContainer getBeanContainer() {
-        return beanContainer;
-    }
+        public C setBackPlugins(Iterable<Actor> plugins) {
+            this.backPlugins.clear();
+            return addBackPlugins(plugins);
+        }
 
-    public URL[] getConfigLocations() {
-        return configLocations;
-    }
+        public C addForePlugins(Iterable<Actor> plugins) {
+            Iterator<Actor> iterable = plugins.iterator();
+            while (iterable.hasNext()) this.forePlugins.add(iterable.next());
+            return (C) this;
+        }
 
-    public Actor[] getPlugins() {
-        return plugins;
-    }
+        public C addBackPlugins(Iterable<Actor> plugins) {
+            Iterator<Actor> iterable = plugins.iterator();
+            while (iterable.hasNext()) this.backPlugins.add(iterable.next());
+            return (C) this;
+        }
 
-    public String[] getAcceptCharsets() {
-        return acceptCharsets;
-    }
+        public <T> T create(Class<T> interfase) {
+            return create(interfase, protocol, hostname, port, route);
+        }
 
-    public String[] getAcceptEncodings() {
-        return acceptEncodings;
-    }
+        public <T> T create(Class<T> interfase, String protocol, String host) {
+            return create(interfase, protocol, host, null);
+        }
 
-    public String[] getAcceptLanguages() {
-        return acceptLanguages;
-    }
+        public <T> T create(Class<T> interfase, String protocol, String host, Integer port) {
+            return create(interfase, protocol, host, port, null);
+        }
 
-    public String[] getContentCharsets() {
-        return contentCharsets;
-    }
+        public <T> T create(Class<T> interfase, String protocol, String host, Integer port, String route) {
+            String endpoint = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "");
+            return create(interfase, endpoint);
+        }
 
-    public String[] getContentEncodings() {
-        return contentEncodings;
-    }
+        public <T> T create(Class<T> interfase, String endpoint) {
+            try {
+                return create(interfase, new URL(endpoint));
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
 
-    public String[] getContentLanguages() {
-        return contentLanguages;
-    }
+        public <T> T create(Class<T> interfase, URL endpoint) {
+            String protocol = endpoint.getProtocol();
+            String host = endpoint.getHost();
+            Integer port = endpoint.getPort() < 0 ? null : endpoint.getPort();
+            String route = endpoint.getFile().length() == 0 ? null : endpoint.getFile();
+            return new JestfulInvocationHandler<T>(interfase, protocol, host, port, route, Client.this, forePlugins, backPlugins).getProxy();
+        }
 
-    public boolean isAllowEncode() {
-        return allowEncode;
-    }
-
-    public boolean isAcceptEncode() {
-        return acceptEncode;
-    }
-
-    public String getPathEncodeCharset() {
-        return pathEncodeCharset;
-    }
-
-    public String getQueryEncodeCharset() {
-        return queryEncodeCharset;
-    }
-
-    public String getHeaderEncodeCharset() {
-        return headerEncodeCharset;
-    }
-
-    public int getConnTimeout() {
-        return connTimeout;
-    }
-
-    public int getReadTimeout() {
-        return readTimeout;
-    }
-
-    public int getWriteTimeout() {
-        return writeTimeout;
-    }
-
-    public Gateway getGateway() {
-        return gateway;
-    }
-
-    public HostnameVerifier getHostnameVerifier() {
-        return hostnameVerifier;
-    }
-
-    public SSLSocketFactory getSSLSocketFactory() {
-        return SSLSocketFactory;
-    }
-
-    public String getUserAgent() {
-        return userAgent;
-    }
-
-    public boolean isFollowRedirection() {
-        return followRedirection;
-    }
-
-    @Override
-    public String toString() {
-        return protocol + "://" + hostname + (port != null ? ":" + port : "") + (route != null ? route : "");
     }
 
 }

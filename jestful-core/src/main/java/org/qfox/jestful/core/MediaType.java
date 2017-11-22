@@ -46,27 +46,6 @@ public class MediaType implements Weighted<MediaType> {
     }
 
     /**
-     * judge this media type is matches the specified content type, such as
-     * {@link MediaType} {@code application/json} matches content type
-     * {@code application/json} {@code application/*} matches
-     * {@code application/json}
-     *
-     * @return
-     */
-    public boolean matches(MediaType mediaType) {
-        if (this.equals(mediaType)) {
-            return true;
-        }
-        if (this.type.equalsIgnoreCase(mediaType.type) && this.isWildcardSubtype()) {
-            return true;
-        }
-        if (this.subtype.equalsIgnoreCase(mediaType.subtype) && this.isWildcardType()) {
-            return true;
-        }
-        return this.isWildcardType() && this.isWildcardSubtype();
-    }
-
-    /**
      * convert Content-Type from {@link String} to {@link MediaType}
      *
      * @param mediaType http Content-Type such as application/json;charset=UTF-8;q=0.9
@@ -90,6 +69,27 @@ public class MediaType implements Weighted<MediaType> {
             parameters.put(key, value);
         }
         return new MediaType(name, parameters);
+    }
+
+    /**
+     * judge this media type is matches the specified content type, such as
+     * {@link MediaType} {@code application/json} matches content type
+     * {@code application/json} {@code application/*} matches
+     * {@code application/json}
+     *
+     * @return
+     */
+    public boolean matches(MediaType mediaType) {
+        if (this.equals(mediaType)) {
+            return true;
+        }
+        if (this.type.equalsIgnoreCase(mediaType.type) && this.isWildcardSubtype()) {
+            return true;
+        }
+        if (this.subtype.equalsIgnoreCase(mediaType.subtype) && this.isWildcardType()) {
+            return true;
+        }
+        return this.isWildcardType() && this.isWildcardSubtype();
     }
 
     public String getName() {

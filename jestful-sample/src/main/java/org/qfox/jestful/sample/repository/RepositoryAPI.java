@@ -6,5 +6,4 @@ package org.qfox.jestful.sample.repository;
 public interface RepositoryAPI {
 
 
-
 }

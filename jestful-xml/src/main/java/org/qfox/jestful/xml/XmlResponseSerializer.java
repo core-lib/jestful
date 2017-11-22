@@ -1,10 +1,10 @@
 package org.qfox.jestful.xml;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.formatting.ResponseSerializer;
-import org.qfox.jestful.commons.IOKit;
 
 import java.io.IOException;
 import java.io.OutputStream;

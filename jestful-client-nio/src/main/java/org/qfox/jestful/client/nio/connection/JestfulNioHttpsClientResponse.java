@@ -17,9 +17,9 @@ public class JestfulNioHttpsClientResponse extends JestfulNioHttpClientResponse 
     private ByteBuffer block = ByteBuffer.allocate(4096);
 
     protected JestfulNioHttpsClientResponse(Action action,
-                                         Connector connector,
-                                         Gateway gateway,
-                                         NioSSLChannel nioSSLChannel) {
+                                            Connector connector,
+                                            Gateway gateway,
+                                            NioSSLChannel nioSSLChannel) {
         super(action, connector, gateway);
         this.nioSSLChannel = nioSSLChannel;
     }
