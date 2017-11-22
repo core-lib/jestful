@@ -95,7 +95,7 @@ public class Authenticator implements Actor {
             Scheme scheme = schemePreference.matches(schemeRegistry, action, thrown, result, exception);
             if (scheme != null) {
                 // 获取重试认证次数
-                Integer count = (Integer) action.getExtra().get(this.getClass());
+                Integer count = (Integer) action.getExtra().get(Authenticator.class);
                 // 为空则表示还没有认证过即为0次
                 if (count == null) count = 0;
                 // 如果小于最大认证次数则重试认证
@@ -123,7 +123,7 @@ public class Authenticator implements Actor {
                             .setResult(action.getResult().reset())
                             .setForePlugins(action.getForePlugins())
                             .setBackPlugins(action.getBackPlugins())
-                            .addExtra(this.getClass(), count + 1)
+                            .addExtra(Authenticator.class, count + 1)
                             .addExtra(Authentication[].class, new Authentication[]{authentication})
                             .promise()
                             .acquire();
@@ -164,7 +164,7 @@ public class Authenticator implements Actor {
                         Scheme scheme = schemePreference.matches(schemeRegistry, action, exception != null, result, exception);
                         if (scheme != null) {
                             // 获取重试认证次数
-                            Integer count = (Integer) action.getExtra().get(this.getClass());
+                            Integer count = (Integer) action.getExtra().get(Authenticator.class);
                             // 为空则表示还没有认证过即为0次
                             if (count == null) count = 0;
                             // 如果小于最大认证次数则重试认证
@@ -192,7 +192,7 @@ public class Authenticator implements Actor {
                                         .setResult(action.getResult().reset())
                                         .setForePlugins(action.getForePlugins())
                                         .setBackPlugins(action.getBackPlugins())
-                                        .addExtra(this.getClass(), count + 1)
+                                        .addExtra(Authenticator.class, count + 1)
                                         .addExtra(Authentication[].class, new Authentication[]{authentication})
                                         .promise()
                                         .accept(callback);
