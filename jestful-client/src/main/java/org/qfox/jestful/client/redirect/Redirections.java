@@ -2,7 +2,6 @@ package org.qfox.jestful.client.redirect;
 
 import org.qfox.jestful.commons.collection.Enumerable;
 import org.qfox.jestful.commons.collection.Enumerator;
-import org.qfox.jestful.core.Action;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,8 +17,7 @@ public class Redirections implements Enumerable<Redirection>, Serializable {
         return redirections.size();
     }
 
-    protected void add(Action action) {
-        Redirection redirection = new Redirection(action.getRestful().getMethod(), action.getURL());
+    protected void add(Redirection redirection) {
         redirections.add(redirection);
     }
 

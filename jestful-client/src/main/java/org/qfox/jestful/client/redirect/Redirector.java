@@ -89,7 +89,12 @@ public class Redirector implements BackPlugin {
             if (redirect != null) {
                 Redirections redirections = (Redirections) action.getExtra().get(Redirections.class);
                 if (redirections == null) redirections = new Redirections();
-                redirections.add(action);
+                Redirection target = new Redirection(action.getRestful().getMethod(), action.getURL());
+                redirections.add(target);
+                if (redirect.permanent(action, thrown, result, exception)) {
+                    Redirection source = new Redirection(action.getRestful().getMethod(), action.getURL());
+                    recorder.put(source, target);
+                }
 
                 // 获取重定向次数
                 Integer count = (Integer) action.getExtra().get(Redirector.class);
@@ -126,7 +131,12 @@ public class Redirector implements BackPlugin {
                         if (redirect != null) {
                             Redirections redirections = (Redirections) action.getExtra().get(Redirections.class);
                             if (redirections == null) redirections = new Redirections();
-                            redirections.add(action);
+                            Redirection target = new Redirection(action.getRestful().getMethod(), action.getURL());
+                            redirections.add(target);
+                            if (redirect.permanent(action, exception != null, result, exception)) {
+                                Redirection source = new Redirection(action.getRestful().getMethod(), action.getURL());
+                                recorder.put(source, target);
+                            }
 
                             // 获取重定向次数
                             Integer count = (Integer) action.getExtra().get(Redirector.class);
