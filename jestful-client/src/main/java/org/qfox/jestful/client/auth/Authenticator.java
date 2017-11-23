@@ -2,13 +2,14 @@ package org.qfox.jestful.client.auth;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.Promise;
+import org.qfox.jestful.client.auth.exception.AuthenticationException;
 import org.qfox.jestful.client.auth.impl.*;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BackPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * Created by Payne on 2017/10/21.
  */
-public class Authenticator implements Actor {
+public class Authenticator implements BackPlugin {
     private CredenceProvider credenceProvider;
     private StateStorage stateStorage;
     private SchemeRegistry schemeRegistry;

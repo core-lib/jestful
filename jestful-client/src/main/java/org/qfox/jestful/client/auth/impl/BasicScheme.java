@@ -1,6 +1,10 @@
 package org.qfox.jestful.client.auth.impl;
 
-import org.qfox.jestful.client.auth.*;
+import org.qfox.jestful.client.auth.Challenge;
+import org.qfox.jestful.client.auth.Credence;
+import org.qfox.jestful.client.auth.Scheme;
+import org.qfox.jestful.client.auth.Scope;
+import org.qfox.jestful.client.auth.exception.AuthenticationException;
 import org.qfox.jestful.commons.Base64;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Action;

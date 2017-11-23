@@ -1,6 +1,7 @@
 package org.qfox.jestful.client.auth.impl;
 
 import org.qfox.jestful.client.auth.*;
+import org.qfox.jestful.client.auth.exception.AuthenticationException;
 import org.qfox.jestful.commons.Hex;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Action;

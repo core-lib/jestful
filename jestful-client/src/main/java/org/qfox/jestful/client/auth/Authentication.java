@@ -1,5 +1,6 @@
 package org.qfox.jestful.client.auth;
 
+import org.qfox.jestful.client.auth.exception.AuthenticationException;
 import org.qfox.jestful.core.Action;
 
 import java.io.Serializable;

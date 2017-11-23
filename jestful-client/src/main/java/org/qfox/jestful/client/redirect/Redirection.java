@@ -9,6 +9,8 @@ public class Redirection implements Serializable {
     private final String URL;
 
     public Redirection(String method, String URL) {
+        if (method == null) throw new IllegalArgumentException("method == null");
+        if (URL == null) throw new IllegalArgumentException("method == null");
         this.method = method;
         this.URL = URL;
     }
@@ -28,14 +30,13 @@ public class Redirection implements Serializable {
 
         Redirection that = (Redirection) o;
 
-        if (method != null ? !method.equals(that.method) : that.method != null) return false;
-        return URL != null ? URL.equals(that.URL) : that.URL == null;
+        return method.equals(that.method) && URL.equals(that.URL);
     }
 
     @Override
     public int hashCode() {
-        int result = method != null ? method.hashCode() : 0;
-        result = 31 * result + (URL != null ? URL.hashCode() : 0);
+        int result = method.hashCode();
+        result = 31 * result + URL.hashCode();
         return result;
     }
 

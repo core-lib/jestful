@@ -15,14 +15,14 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @author Payne 646742615@qq.com
- * @date 2016年1月15日 下午8:50:44
+ * @time 2016年1月15日 下午8:50:44
  * @since 1.0.0
  */
 public class Action {
     private final BeanContainer beanContainer;
     private final List<Actor> actors;
-    private final List<Actor> forePlugins;
-    private final List<Actor> backPlugins;
+    private final List<ForePlugin> forePlugins;
+    private final List<BackPlugin> backPlugins;
     private volatile int index = 0;
     private Resource resource;
     private Mapping mapping;
@@ -71,11 +71,11 @@ public class Action {
         this(beanContainer, actors, null, null);
     }
 
-    public Action(BeanContainer beanContainer, Collection<Actor> actors, Collection<Actor> forePlugins, Collection<Actor> backPlugins) {
+    public Action(BeanContainer beanContainer, Collection<Actor> actors, Collection<ForePlugin> forePlugins, Collection<BackPlugin> backPlugins) {
         this.beanContainer = beanContainer;
         this.actors = new ArrayList<Actor>(actors);
-        this.forePlugins = forePlugins == null ? Collections.<Actor>emptyList() : Collections.unmodifiableList(new ArrayList<Actor>(forePlugins));
-        this.backPlugins = backPlugins == null ? Collections.<Actor>emptyList() : Collections.unmodifiableList(new ArrayList<Actor>(backPlugins));
+        this.forePlugins = forePlugins == null ? Collections.<ForePlugin>emptyList() : Collections.unmodifiableList(new ArrayList<ForePlugin>(forePlugins));
+        this.backPlugins = backPlugins == null ? Collections.<BackPlugin>emptyList() : Collections.unmodifiableList(new ArrayList<BackPlugin>(backPlugins));
     }
 
     /**
@@ -113,11 +113,11 @@ public class Action {
         return beanContainer;
     }
 
-    public List<Actor> getForePlugins() {
+    public List<ForePlugin> getForePlugins() {
         return forePlugins;
     }
 
-    public List<Actor> getBackPlugins() {
+    public List<BackPlugin> getBackPlugins() {
         return backPlugins;
     }
 

@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.auth;
+package org.qfox.jestful.client.auth.exception;
 
 import org.qfox.jestful.core.exception.JestfulException;
 

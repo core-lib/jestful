@@ -1,6 +1,7 @@
 package org.qfox.jestful.client;
 
-import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BackPlugin;
+import org.qfox.jestful.core.ForePlugin;
 import org.qfox.jestful.core.Mapping;
 import org.qfox.jestful.core.Resource;
 
@@ -20,14 +21,14 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
     protected final Client client;
     protected final T proxy;
     protected final Resource resource;
-    protected final List<Actor> forePlugins = new ArrayList<Actor>();
-    protected final List<Actor> backPlugins = new ArrayList<Actor>();
+    protected final List<ForePlugin> forePlugins = new ArrayList<ForePlugin>();
+    protected final List<BackPlugin> backPlugins = new ArrayList<BackPlugin>();
 
     protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client) {
-        this(interfase, protocol, host, port, route, client, Collections.<Actor>emptyList(), Collections.<Actor>emptyList());
+        this(interfase, protocol, host, port, route, client, Collections.<ForePlugin>emptyList(), Collections.<BackPlugin>emptyList());
     }
 
-    protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client, List<Actor> forePlugins, List<Actor> backPlugins) {
+    protected JestfulInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client, List<ForePlugin> forePlugins, List<BackPlugin> backPlugins) {
         if (client.isDestroyed()) {
             throw new IllegalStateException("Client has been destroyed");
         }
@@ -113,11 +114,11 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
         return resource;
     }
 
-    public List<Actor> getForePlugins() {
+    public List<ForePlugin> getForePlugins() {
         return forePlugins;
     }
 
-    public List<Actor> getBackPlugins() {
+    public List<BackPlugin> getBackPlugins() {
         return backPlugins;
     }
 }

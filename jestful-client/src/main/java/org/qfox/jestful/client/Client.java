@@ -27,6 +27,7 @@ import org.springframework.core.io.UrlResource;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -197,10 +198,18 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     }
 
     protected Actor[] load(List<String> plugins) {
-        Actor[] actors = new Actor[plugins.size()];
+        return load(plugins, Actor.class);
+    }
+
+    protected <T extends Actor> T[] load(List<String> plugins, Class<T> pluginType) {
+        T[] actors = (T[]) Array.newInstance(pluginType, plugins.size());
         for (int i = 0; i < plugins.size(); i++) {
             String[] segments = plugins.get(i).split("\\s*;\\s*");
-            Actor actor = beanContainer.get(segments[0], Actor.class);
+            String name = segments[0];
+            Actor actor = beanContainer.get(name, Actor.class);
+
+            if (!pluginType.isInstance(actor)) throw new ClassCastException("bean [" + name + "] is a " + pluginType.getSimpleName());
+
             if (actor instanceof Configurable) {
                 Map<String, String> arguments = new LinkedHashMap<String, String>();
                 for (int j = 1; j < segments.length; j++) {
@@ -211,7 +220,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 Configurable configurable = (Plugin) actor;
                 configurable.config(arguments);
             }
-            actors[i] = actor;
+            actors[i] = (T) actor;
         }
         return actors;
     }
@@ -1027,8 +1036,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         private Accepts consumes = Accepts.valueOf("");
         private Accepts produces = Accepts.valueOf("");
 
-        private List<Actor> forePlugins = new ArrayList<Actor>();
-        private List<Actor> backPlugins = new ArrayList<Actor>();
+        private List<ForePlugin> forePlugins = new ArrayList<ForePlugin>();
+        private List<BackPlugin> backPlugins = new ArrayList<BackPlugin>();
 
         private Map<Object, Object> extra = new LinkedHashMap<Object, Object>();
 
@@ -1128,52 +1137,52 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
 
         public I addForePlugins(String... plugins) {
-            Collections.addAll(forePlugins, load(Arrays.asList(plugins)));
+            Collections.addAll(forePlugins, load(Arrays.asList(plugins), ForePlugin.class));
             return (I) this;
         }
 
         public I addBackPlugins(String... plugins) {
-            Collections.addAll(backPlugins, load(Arrays.asList(plugins)));
+            Collections.addAll(backPlugins, load(Arrays.asList(plugins), BackPlugin.class));
             return (I) this;
         }
 
-        public I setForePlugins(Actor... plugins) {
+        public I setForePlugins(ForePlugin... plugins) {
             this.forePlugins.clear();
             return addForePlugins(plugins);
         }
 
-        public I setBackPlugins(Actor... plugins) {
+        public I setBackPlugins(BackPlugin... plugins) {
             this.backPlugins.clear();
             return addBackPlugins(plugins);
         }
 
-        public I addForePlugins(Actor... plugins) {
+        public I addForePlugins(ForePlugin... plugins) {
             Collections.addAll(forePlugins, plugins);
             return (I) this;
         }
 
-        public I addBackPlugins(Actor... plugins) {
+        public I addBackPlugins(BackPlugin... plugins) {
             Collections.addAll(backPlugins, plugins);
             return (I) this;
         }
 
-        public I setForePlugins(Iterable<Actor> plugins) {
+        public I setForePlugins(Iterable<ForePlugin> plugins) {
             this.forePlugins.clear();
             return addForePlugins(plugins);
         }
 
-        public I setBackPlugins(Iterable<Actor> plugins) {
+        public I setBackPlugins(Iterable<BackPlugin> plugins) {
             this.backPlugins.clear();
             return addBackPlugins(plugins);
         }
 
-        public I addForePlugins(Iterable<Actor> plugins) {
-            for (Actor plugin : plugins) this.forePlugins.add(plugin);
+        public I addForePlugins(Iterable<ForePlugin> plugins) {
+            for (ForePlugin plugin : plugins) this.forePlugins.add(plugin);
             return (I) this;
         }
 
-        public I addBackPlugins(Iterable<Actor> plugins) {
-            for (Actor plugin : plugins) this.backPlugins.add(plugin);
+        public I addBackPlugins(Iterable<BackPlugin> plugins) {
+            for (BackPlugin plugin : plugins) this.backPlugins.add(plugin);
             return (I) this;
         }
 
@@ -1257,8 +1266,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     }
 
     public class Creator<C extends Creator<C>> {
-        protected List<Actor> forePlugins = new ArrayList<Actor>();
-        protected List<Actor> backPlugins = new ArrayList<Actor>();
+        protected List<ForePlugin> forePlugins = new ArrayList<ForePlugin>();
+        protected List<BackPlugin> backPlugins = new ArrayList<BackPlugin>();
 
         public C setForePlugins(String... plugins) {
             this.forePlugins.clear();
@@ -1271,53 +1280,53 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
 
         public C addForePlugins(String... plugins) {
-            Collections.addAll(forePlugins, load(Arrays.asList(plugins)));
+            Collections.addAll(forePlugins, load(Arrays.asList(plugins), ForePlugin.class));
             return (C) this;
         }
 
         public C addBackPlugins(String... plugins) {
-            Collections.addAll(backPlugins, load(Arrays.asList(plugins)));
+            Collections.addAll(backPlugins, load(Arrays.asList(plugins), BackPlugin.class));
             return (C) this;
         }
 
-        public C setForePlugins(Actor... plugins) {
+        public C setForePlugins(ForePlugin... plugins) {
             this.forePlugins.clear();
             return addForePlugins(plugins);
         }
 
-        public C setBackPlugins(Actor... plugins) {
+        public C setBackPlugins(BackPlugin... plugins) {
             this.backPlugins.clear();
             return addBackPlugins(plugins);
         }
 
-        public C addForePlugins(Actor... plugins) {
+        public C addForePlugins(ForePlugin... plugins) {
             Collections.addAll(forePlugins, plugins);
             return (C) this;
         }
 
-        public C addBackPlugins(Actor... plugins) {
+        public C addBackPlugins(BackPlugin... plugins) {
             Collections.addAll(backPlugins, plugins);
             return (C) this;
         }
 
-        public C setForePlugins(Iterable<Actor> plugins) {
+        public C setForePlugins(Iterable<ForePlugin> plugins) {
             this.forePlugins.clear();
             return addForePlugins(plugins);
         }
 
-        public C setBackPlugins(Iterable<Actor> plugins) {
+        public C setBackPlugins(Iterable<BackPlugin> plugins) {
             this.backPlugins.clear();
             return addBackPlugins(plugins);
         }
 
-        public C addForePlugins(Iterable<Actor> plugins) {
-            Iterator<Actor> iterable = plugins.iterator();
+        public C addForePlugins(Iterable<ForePlugin> plugins) {
+            Iterator<ForePlugin> iterable = plugins.iterator();
             while (iterable.hasNext()) this.forePlugins.add(iterable.next());
             return (C) this;
         }
 
-        public C addBackPlugins(Iterable<Actor> plugins) {
-            Iterator<Actor> iterable = plugins.iterator();
+        public C addBackPlugins(Iterable<BackPlugin> plugins) {
+            Iterator<BackPlugin> iterable = plugins.iterator();
             while (iterable.hasNext()) this.backPlugins.add(iterable.next());
             return (C) this;
         }

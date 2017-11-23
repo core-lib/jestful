@@ -6,12 +6,13 @@ import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BackPlugin;
+import org.qfox.jestful.core.ForePlugin;
 
 /**
  * Created by yangchangpei on 17/10/18.
  */
-public class RetryController implements Actor {
+public class RetryController implements ForePlugin, BackPlugin {
     private RetryCondition retryCondition;
     private int maxCount;
 

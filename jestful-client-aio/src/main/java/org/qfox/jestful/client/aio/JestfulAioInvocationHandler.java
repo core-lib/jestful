@@ -2,7 +2,8 @@ package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.JestfulInvocationHandler;
-import org.qfox.jestful.core.Actor;
+import org.qfox.jestful.core.BackPlugin;
+import org.qfox.jestful.core.ForePlugin;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class JestfulAioInvocationHandler<T> extends JestfulInvocationHandler<T> 
         super(interfase, protocol, host, port, route, client);
     }
 
-    public JestfulAioInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client, List<Actor> forePlugins, List<Actor> backPlugins) {
+    public JestfulAioInvocationHandler(Class<T> interfase, String protocol, String host, Integer port, String route, Client client, List<ForePlugin> forePlugins, List<BackPlugin> backPlugins) {
         super(interfase, protocol, host, port, route, client, forePlugins, backPlugins);
     }
 

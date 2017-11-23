@@ -2,50 +2,34 @@ package org.qfox.jestful.client.redirect;
 
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.Promise;
+import org.qfox.jestful.client.redirect.exception.RedirectOverloadException;
+import org.qfox.jestful.client.redirect.impl.HTTP3xxRedirects;
+import org.qfox.jestful.client.redirect.impl.HashMapRecorder;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.client.scheduler.Calling;
-import org.qfox.jestful.commons.CollectionKit;
-import org.qfox.jestful.commons.Emptiable;
-import org.qfox.jestful.commons.Predication;
 import org.qfox.jestful.core.Action;
-import org.qfox.jestful.core.Actor;
-
-import java.util.Arrays;
-import java.util.Collection;
+import org.qfox.jestful.core.BackPlugin;
 
 /**
  * Created by yangchangpei on 17/10/31.
  */
-public class Redirector implements Actor {
-    private final static int DEFAULT_MAX_COUNT = 30;
-    private final static Collection<Redirect> DEFAULT_REDIRECTS = Arrays.asList(
-            new Redirect301(),
-            new Redirect302(),
-            new Redirect303(),
-            new Redirect307()
-    );
-
+public class Redirector implements BackPlugin {
     private int maxCount;
-    private Collection<Redirect> redirects;
+    private Redirects redirects;
+    private Recorder recorder;
 
     public Redirector() {
-        this(DEFAULT_MAX_COUNT, DEFAULT_REDIRECTS);
+        this(30, new HTTP3xxRedirects(), new HashMapRecorder());
     }
 
-    public Redirector(int maxCount) {
-        this(maxCount, DEFAULT_REDIRECTS);
-    }
-
-    public Redirector(Collection<Redirect> redirects) {
-        this(DEFAULT_MAX_COUNT, redirects);
-    }
-
-    public Redirector(int maxCount, Collection<Redirect> redirects) {
+    public Redirector(int maxCount, Redirects redirects, Recorder recorder) {
         if (maxCount <= 0) throw new IllegalArgumentException("maxCount must greater than zero");
-        if (redirects == null || redirects.isEmpty()) throw new IllegalArgumentException("redirects must not be null or empty collection");
+        if (redirects == null) throw new IllegalArgumentException("redirects must not be null");
+        if (recorder == null) throw new IllegalArgumentException("recorder must not be null");
         this.maxCount = maxCount;
         this.redirects = redirects;
+        this.recorder = recorder;
     }
 
     @Override
@@ -63,32 +47,20 @@ public class Redirector implements Actor {
         this.maxCount = maxCount;
     }
 
-    public Collection<Redirect> getRedirects() {
+    public Redirects getRedirects() {
         return redirects;
     }
 
-    public void setRedirects(Collection<Redirect> redirects) {
+    public void setRedirects(Redirects redirects) {
         this.redirects = redirects;
     }
 
-    private static class RedirectPredication implements Predication<Redirect> {
-        private final Action action;
-        private final boolean thrown;
-        private final Object result;
-        private final Exception exception;
+    public Recorder getRecorder() {
+        return recorder;
+    }
 
-        RedirectPredication(Action action, boolean thrown, Object result, Exception exception) {
-            this.action = action;
-            this.thrown = thrown;
-            this.result = result;
-            this.exception = exception;
-        }
-
-        @Override
-        public boolean test(Redirect redirect) {
-            return redirect.matches(action, thrown, result, exception);
-        }
-
+    public void setRecorder(Recorder recorder) {
+        this.recorder = recorder;
     }
 
     private class RedirectPromise implements Promise {
@@ -113,10 +85,7 @@ public class Redirector implements Actor {
                 thrown = exception != null;
             }
 
-            Predication<Redirect> predication = new RedirectPredication(action, thrown, result, exception);
-            Emptiable<Redirect> emptiable = CollectionKit.any(redirects, predication);
-
-            Redirect redirect = emptiable.isEmpty() ? null : emptiable.get();
+            Redirect redirect = redirects.match(action, thrown, result, exception);
             if (redirect != null) {
                 Redirections redirections = (Redirections) action.getExtra().get(Redirections.class);
                 if (redirections == null) redirections = new Redirections();
@@ -135,7 +104,7 @@ public class Redirector implements Actor {
                     invoker.setBackPlugins(action.getBackPlugins());
                     return invoker.promise().acquire();
                 } else {
-                    throw new RedirectionOverloadException(redirections);
+                    throw new RedirectOverloadException(redirections);
                 }
             }
 
@@ -153,10 +122,7 @@ public class Redirector implements Actor {
                 public void onCompleted(boolean success, Object result, Exception exception) {
                     Exception ex = null;
                     try {
-                        Predication<Redirect> predication = new RedirectPredication(action, exception != null, result, exception);
-                        Emptiable<Redirect> emptiable = CollectionKit.any(redirects, predication);
-
-                        Redirect redirect = emptiable.isEmpty() ? null : emptiable.get();
+                        Redirect redirect = redirects.match(action, exception != null, result, exception);
                         if (redirect != null) {
                             Redirections redirections = (Redirections) action.getExtra().get(Redirections.class);
                             if (redirections == null) redirections = new Redirections();
@@ -176,7 +142,7 @@ public class Redirector implements Actor {
                                 invoker.promise().accept(callback);
                                 return; // 避免重复回调
                             } else {
-                                throw new RedirectionOverloadException(redirections);
+                                throw new RedirectOverloadException(redirections);
                             }
                         }
                     } catch (Exception e) {
@@ -195,5 +161,6 @@ public class Redirector implements Actor {
             return promise.client();
         }
     }
+
 
 }
