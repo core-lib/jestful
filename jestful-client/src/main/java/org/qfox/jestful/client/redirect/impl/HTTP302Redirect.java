@@ -3,7 +3,12 @@ package org.qfox.jestful.client.redirect.impl;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.exception.StatusException;
 
-public class HTTP302Redirect extends HTTP301Redirect {
+public class HTTP302Redirect extends HTTPGetRedirect {
+
+    @Override
+    public String name() {
+        return "HTTP.302";
+    }
 
     @Override
     public boolean matches(Action action, boolean thrown, Object result, Exception exception) {

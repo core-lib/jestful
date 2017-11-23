@@ -11,7 +11,12 @@ import java.util.List;
 public class Redirections implements Enumerable<Redirection>, Serializable {
     private static final long serialVersionUID = 2813058619270714851L;
 
-    protected List<Redirection> redirections = new ArrayList<Redirection>();
+    protected final Direction direction;
+    protected final List<Redirection> redirections = new ArrayList<Redirection>();
+
+    public Redirections(Direction direction) {
+        this.direction = direction;
+    }
 
     public int count() {
         return redirections.size();
@@ -28,6 +33,10 @@ public class Redirections implements Enumerable<Redirection>, Serializable {
     @Override
     public Enumeration<Redirection> enumeration() {
         return new Enumerator<Redirection>(redirections);
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     @Override

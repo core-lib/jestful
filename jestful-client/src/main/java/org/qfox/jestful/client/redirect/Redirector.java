@@ -34,7 +34,25 @@ public class Redirector implements BackPlugin {
 
     @Override
     public Object react(Action action) throws Exception {
-        if (redirects == null || maxCount <= 0) return action.execute();
+        if (maxCount <= 0 || redirects == null || recorder == null) return action.execute();
+
+        Direction direction = new Direction(action.getRestful().getMethod(), action.getURL());
+        Redirection redirection = null;
+        int count = 0;
+        while (true) {
+            if (++count > maxCount) break; // 避免死循环
+            Redirection r = recorder.get(direction);
+            if (r != null) direction = (redirection = r).toDirection();
+            else break;
+        }
+        if (redirection != null) {
+            Redirect redirect = redirects.get(action, redirection);
+            Client client = (Client) action.getExtra().get(Client.class);
+            if (redirect != null) return redirect.construct(client, action, redirection)
+                    .setForePlugins(action.getForePlugins())
+                    .setBackPlugins(action.getBackPlugins())
+                    .promise();
+        }
         Promise promise = (Promise) action.execute();
         return new RedirectPromise(action, promise);
     }
@@ -88,13 +106,7 @@ public class Redirector implements BackPlugin {
             Redirect redirect = redirects.match(action, thrown, result, exception);
             if (redirect != null) {
                 Redirections redirections = (Redirections) action.getExtra().get(Redirections.class);
-                if (redirections == null) redirections = new Redirections();
-                Redirection target = new Redirection(action.getRestful().getMethod(), action.getURL());
-                redirections.add(target);
-                if (redirect.permanent(action, thrown, result, exception)) {
-                    Redirection source = new Redirection(action.getRestful().getMethod(), action.getURL());
-                    recorder.put(source, target);
-                }
+                if (redirections == null) redirections = new Redirections(new Direction(action.getRestful().getMethod(), action.getURL()));
 
                 // 获取重定向次数
                 Integer count = (Integer) action.getExtra().get(Redirector.class);
@@ -107,7 +119,18 @@ public class Redirector implements BackPlugin {
                     invoker.addExtra(Redirector.class, count + 1);
                     invoker.setForePlugins(action.getForePlugins());
                     invoker.setBackPlugins(action.getBackPlugins());
-                    return invoker.promise().acquire();
+
+                    Action draft = invoker.draft();
+                    Promise promise = (Promise) draft.execute();
+
+                    Redirection redirection = new Redirection(redirect.name(), draft.getRestful().getMethod(), draft.getURL());
+                    redirections.add(redirection);
+                    if (redirect.permanent(action, thrown, result, exception)) {
+                        Direction direction = new Direction(action.getRestful().getMethod(), action.getURL());
+                        recorder.put(direction, redirection);
+                    }
+
+                    return promise.acquire();
                 } else {
                     throw new RedirectOverloadException(redirections);
                 }
@@ -130,13 +153,7 @@ public class Redirector implements BackPlugin {
                         Redirect redirect = redirects.match(action, exception != null, result, exception);
                         if (redirect != null) {
                             Redirections redirections = (Redirections) action.getExtra().get(Redirections.class);
-                            if (redirections == null) redirections = new Redirections();
-                            Redirection target = new Redirection(action.getRestful().getMethod(), action.getURL());
-                            redirections.add(target);
-                            if (redirect.permanent(action, exception != null, result, exception)) {
-                                Redirection source = new Redirection(action.getRestful().getMethod(), action.getURL());
-                                recorder.put(source, target);
-                            }
+                            if (redirections == null) redirections = new Redirections(new Direction(action.getRestful().getMethod(), action.getURL()));
 
                             // 获取重定向次数
                             Integer count = (Integer) action.getExtra().get(Redirector.class);
@@ -149,7 +166,18 @@ public class Redirector implements BackPlugin {
                                 invoker.addExtra(Redirector.class, count + 1);
                                 invoker.setForePlugins(action.getForePlugins());
                                 invoker.setBackPlugins(action.getBackPlugins());
-                                invoker.promise().accept(callback);
+
+                                Action draft = invoker.draft();
+                                Promise promise = (Promise) draft.execute();
+
+                                Redirection redirection = new Redirection(redirect.name(), draft.getRestful().getMethod(), draft.getURL());
+                                redirections.add(redirection);
+                                if (redirect.permanent(action, exception != null, result, exception)) {
+                                    Direction direction = new Direction(action.getRestful().getMethod(), action.getURL());
+                                    recorder.put(direction, redirection);
+                                }
+
+                                promise.accept(callback);
                                 return; // 避免重复回调
                             } else {
                                 throw new RedirectOverloadException(redirections);

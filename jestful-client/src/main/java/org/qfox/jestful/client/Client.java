@@ -1250,6 +1250,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             action.setHeaderEncodeCharset(headerEncodeCharset);
 
             action.getExtra().putAll(extra);
+            action.getExtra().put(Client.class, Client.this);
             return action;
         }
 

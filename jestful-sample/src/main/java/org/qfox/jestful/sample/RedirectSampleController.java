@@ -12,8 +12,9 @@ import java.io.IOException;
 public class RedirectSampleController {
 
     @GET("/source")
-    public String getSource() {
-        return "@redirect:/redirect/target?name=Payne";
+    public void getSource(HttpServletResponse response) throws IOException {
+        response.addHeader("Location", "http://localhost:8080/redirect/target?name=Payne");
+        response.sendError(301);
     }
 
     @GET("/target")
