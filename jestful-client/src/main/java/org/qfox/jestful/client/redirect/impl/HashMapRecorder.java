@@ -12,14 +12,14 @@ public class HashMapRecorder implements Recorder {
     private final ConcurrentMap<Direction, Redirection> store = new ConcurrentHashMap<Direction, Redirection>();
 
     @Override
-    public Redirection put(Direction direction, Redirection redirection) {
+    public Redirection record(Direction direction, Redirection redirection) {
         if (direction == null) throw new IllegalArgumentException("direction == null");
         if (redirection == null) throw new IllegalArgumentException("redirection == null");
         return store.put(direction, redirection);
     }
 
     @Override
-    public Redirection get(Direction direction) {
+    public Redirection search(Direction direction) {
         if (direction == null) throw new IllegalArgumentException("direction == null");
         return store.get(direction);
     }
@@ -33,5 +33,10 @@ public class HashMapRecorder implements Recorder {
     @Override
     public void clear() {
         store.clear();
+    }
+
+    @Override
+    public String toString() {
+        return store.toString();
     }
 }

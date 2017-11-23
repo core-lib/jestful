@@ -25,7 +25,7 @@ public class HTTP3xxRedirects implements Redirects {
     }
 
     @Override
-    public Redirect get(Action action, Redirection redirection) {
+    public Redirect match(Action action, Redirection redirection) {
         return map.get(redirection.getName());
     }
 

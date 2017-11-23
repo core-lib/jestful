@@ -38,20 +38,26 @@ public class Redirector implements BackPlugin {
 
         Direction direction = new Direction(action.getRestful().getMethod(), action.getURL());
         Redirection redirection = null;
-        int count = 0;
+        int i = 0;
         while (true) {
-            if (++count > maxCount) break; // 避免死循环
-            Redirection r = recorder.get(direction);
+            if (++i > maxCount) break; // 避免死循环
+            Redirection r = recorder.search(direction);
             if (r != null) direction = (redirection = r).toDirection();
             else break;
         }
         if (redirection != null) {
-            Redirect redirect = redirects.get(action, redirection);
-            Client client = (Client) action.getExtra().get(Client.class);
-            if (redirect != null) return redirect.construct(client, action, redirection)
-                    .setForePlugins(action.getForePlugins())
-                    .setBackPlugins(action.getBackPlugins())
-                    .promise();
+            Redirect redirect = redirects.match(action, redirection);
+            if (redirect != null) {
+                Client client = (Client) action.getExtra().get(Client.class);
+                Redirections redirections = (Redirections) action.getExtra().get(Redirections.class);
+                Integer count = (Integer) action.getExtra().get(Redirector.class);
+                return redirect.construct(client, action, redirection)
+                        .setForePlugins(action.getForePlugins())
+                        .setBackPlugins(action.getBackPlugins())
+                        .addExtra(Redirections.class, redirections)
+                        .addExtra(Redirector.class, count)
+                        .promise();
+            }
         }
         Promise promise = (Promise) action.execute();
         return new RedirectPromise(action, promise);
@@ -127,7 +133,8 @@ public class Redirector implements BackPlugin {
                     redirections.add(redirection);
                     if (redirect.permanent(action, thrown, result, exception)) {
                         Direction direction = new Direction(action.getRestful().getMethod(), action.getURL());
-                        recorder.put(direction, redirection);
+                        // 如果永久重定向到当前的请求那就没必要记录了
+                        if (!direction.equals(redirection)) recorder.record(direction, redirection);
                     }
 
                     return promise.acquire();
@@ -174,7 +181,8 @@ public class Redirector implements BackPlugin {
                                 redirections.add(redirection);
                                 if (redirect.permanent(action, exception != null, result, exception)) {
                                     Direction direction = new Direction(action.getRestful().getMethod(), action.getURL());
-                                    recorder.put(direction, redirection);
+                                    // 如果永久重定向到当前的请求那就没必要记录了
+                                    if (!direction.equals(redirection)) recorder.record(direction, redirection);
                                 }
 
                                 promise.accept(callback);

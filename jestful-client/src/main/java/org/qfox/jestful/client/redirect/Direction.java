@@ -11,6 +11,10 @@ public class Direction {
         this.URL = URL;
     }
 
+    public boolean equals(Redirection redirection) {
+        return method.equals(redirection.getMethod()) && URL.equals(redirection.getURL());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
