@@ -39,17 +39,9 @@ public class Jdk1_4NioOptions implements NioOptions {
         if (trafficClass != null) socket.setTrafficClass(trafficClass);
     }
 
-    public Boolean getKeepAlive() {
-        return keepAlive;
-    }
-
     public Jdk1_4NioOptions setKeepAlive(Boolean keepAlive) {
         this.keepAlive = keepAlive;
         return this;
-    }
-
-    public Boolean getOobInline() {
-        return oobInline;
     }
 
     public Jdk1_4NioOptions setOobInline(Boolean oobInline) {
@@ -57,41 +49,9 @@ public class Jdk1_4NioOptions implements NioOptions {
         return this;
     }
 
-    public Integer getConnectionTime() {
-        return connectionTime;
-    }
-
-    public void setConnectionTime(Integer connectionTime) {
-        this.connectionTime = connectionTime;
-    }
-
-    public Integer getLatency() {
-        return latency;
-    }
-
-    public void setLatency(Integer latency) {
-        this.latency = latency;
-    }
-
-    public Integer getBandwidth() {
-        return bandwidth;
-    }
-
-    public void setBandwidth(Integer bandwidth) {
-        this.bandwidth = bandwidth;
-    }
-
-    public Boolean getReuseAddress() {
-        return reuseAddress;
-    }
-
     public Jdk1_4NioOptions setReuseAddress(Boolean reuseAddress) {
         this.reuseAddress = reuseAddress;
         return this;
-    }
-
-    public Integer getReceiveBufferSize() {
-        return receiveBufferSize;
     }
 
     public Jdk1_4NioOptions setReceiveBufferSize(Integer receiveBufferSize) {
@@ -99,17 +59,9 @@ public class Jdk1_4NioOptions implements NioOptions {
         return this;
     }
 
-    public Integer getSendBufferSize() {
-        return sendBufferSize;
-    }
-
     public Jdk1_4NioOptions setSendBufferSize(Integer sendBufferSize) {
         this.sendBufferSize = sendBufferSize;
         return this;
-    }
-
-    public Integer getSoLinger() {
-        return soLinger;
     }
 
     public Jdk1_4NioOptions setSoLinger(Integer soLinger) {
@@ -117,26 +69,14 @@ public class Jdk1_4NioOptions implements NioOptions {
         return this;
     }
 
-    public Integer getSoTimeout() {
-        return soTimeout;
-    }
-
     public Jdk1_4NioOptions setSoTimeout(Integer soTimeout) {
         this.soTimeout = soTimeout;
         return this;
     }
 
-    public Boolean getTcpNoDelay() {
-        return tcpNoDelay;
-    }
-
     public Jdk1_4NioOptions setTcpNoDelay(Boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
         return this;
-    }
-
-    public Integer getTrafficClass() {
-        return trafficClass;
     }
 
     public Jdk1_4NioOptions setTrafficClass(Integer trafficClass) {
@@ -149,5 +89,53 @@ public class Jdk1_4NioOptions implements NioOptions {
         this.latency = latency;
         this.bandwidth = bandwidth;
         return this;
+    }
+
+    public Boolean getKeepAlive() {
+        return keepAlive;
+    }
+
+    public Boolean getOobInline() {
+        return oobInline;
+    }
+
+    public Integer getConnectionTime() {
+        return connectionTime;
+    }
+
+    public Integer getLatency() {
+        return latency;
+    }
+
+    public Integer getBandwidth() {
+        return bandwidth;
+    }
+
+    public Boolean getReuseAddress() {
+        return reuseAddress;
+    }
+
+    public Integer getReceiveBufferSize() {
+        return receiveBufferSize;
+    }
+
+    public Integer getSendBufferSize() {
+        return sendBufferSize;
+    }
+
+    public Integer getSoLinger() {
+        return soLinger;
+    }
+
+    public Integer getSoTimeout() {
+        return soTimeout;
+    }
+
+    public Boolean getTcpNoDelay() {
+        return tcpNoDelay;
+    }
+
+    public Integer getTrafficClass() {
+        return trafficClass;
     }
 }

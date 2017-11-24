@@ -37,21 +37,9 @@ public class Jdk1_7NioOptions implements NioOptions {
         if (tcp_nodelay != null) channel.setOption(StandardSocketOptions.TCP_NODELAY, tcp_nodelay);
     }
 
-    public Boolean getSo_broadcast() {
-        return so_broadcast;
-    }
-
     public Jdk1_7NioOptions setSo_broadcast(boolean so_broadcast) {
         this.so_broadcast = so_broadcast;
         return this;
-    }
-
-    public void setSo_broadcast(Boolean so_broadcast) {
-        this.so_broadcast = so_broadcast;
-    }
-
-    public Boolean getSo_keepalive() {
-        return so_keepalive;
     }
 
     public Jdk1_7NioOptions setSo_keepalive(boolean so_keepalive) {
@@ -59,25 +47,9 @@ public class Jdk1_7NioOptions implements NioOptions {
         return this;
     }
 
-    public void setSo_keepalive(Boolean so_keepalive) {
-        this.so_keepalive = so_keepalive;
-    }
-
-    public Integer getSo_sndbuf() {
-        return so_sndbuf;
-    }
-
     public Jdk1_7NioOptions setSo_sndbuf(int so_sndbuf) {
         this.so_sndbuf = so_sndbuf;
         return this;
-    }
-
-    public void setSo_sndbuf(Integer so_sndbuf) {
-        this.so_sndbuf = so_sndbuf;
-    }
-
-    public Integer getSo_rcvbuf() {
-        return so_rcvbuf;
     }
 
     public Jdk1_7NioOptions setSo_rcvbuf(int so_rcvbuf) {
@@ -85,25 +57,9 @@ public class Jdk1_7NioOptions implements NioOptions {
         return this;
     }
 
-    public void setSo_rcvbuf(Integer so_rcvbuf) {
-        this.so_rcvbuf = so_rcvbuf;
-    }
-
-    public Boolean getSo_reuseaddr() {
-        return so_reuseaddr;
-    }
-
     public Jdk1_7NioOptions setSo_reuseaddr(boolean so_reuseaddr) {
         this.so_reuseaddr = so_reuseaddr;
         return this;
-    }
-
-    public void setSo_reuseaddr(Boolean so_reuseaddr) {
-        this.so_reuseaddr = so_reuseaddr;
-    }
-
-    public Integer getSo_linger() {
-        return so_linger;
     }
 
     public Jdk1_7NioOptions setSo_linger(int so_linger) {
@@ -111,25 +67,9 @@ public class Jdk1_7NioOptions implements NioOptions {
         return this;
     }
 
-    public void setSo_linger(Integer so_linger) {
-        this.so_linger = so_linger;
-    }
-
-    public Integer getIp_tos() {
-        return ip_tos;
-    }
-
     public Jdk1_7NioOptions setIp_tos(int ip_tos) {
         this.ip_tos = ip_tos;
         return this;
-    }
-
-    public void setIp_tos(Integer ip_tos) {
-        this.ip_tos = ip_tos;
-    }
-
-    public NetworkInterface getIp_multicast_if() {
-        return ip_multicast_if;
     }
 
     public Jdk1_7NioOptions setIp_multicast_if(NetworkInterface ip_multicast_if) {
@@ -137,21 +77,9 @@ public class Jdk1_7NioOptions implements NioOptions {
         return this;
     }
 
-    public Integer getIp_multicast_ttl() {
-        return ip_multicast_ttl;
-    }
-
     public Jdk1_7NioOptions setIp_multicast_ttl(int ip_multicast_ttl) {
         this.ip_multicast_ttl = ip_multicast_ttl;
         return this;
-    }
-
-    public void setIp_multicast_ttl(Integer ip_multicast_ttl) {
-        this.ip_multicast_ttl = ip_multicast_ttl;
-    }
-
-    public Boolean getIp_multicast_loop() {
-        return ip_multicast_loop;
     }
 
     public Jdk1_7NioOptions setIp_multicast_loop(boolean ip_multicast_loop) {
@@ -159,20 +87,52 @@ public class Jdk1_7NioOptions implements NioOptions {
         return this;
     }
 
-    public void setIp_multicast_loop(Boolean ip_multicast_loop) {
-        this.ip_multicast_loop = ip_multicast_loop;
-    }
-
-    public Boolean getTcp_nodelay() {
-        return tcp_nodelay;
-    }
-
     public Jdk1_7NioOptions setTcp_nodelay(boolean tcp_nodelay) {
         this.tcp_nodelay = tcp_nodelay;
         return this;
     }
 
-    public void setTcp_nodelay(Boolean tcp_nodelay) {
-        this.tcp_nodelay = tcp_nodelay;
+    public Boolean getSo_broadcast() {
+        return so_broadcast;
+    }
+
+    public Boolean getSo_keepalive() {
+        return so_keepalive;
+    }
+
+    public Integer getSo_sndbuf() {
+        return so_sndbuf;
+    }
+
+    public Integer getSo_rcvbuf() {
+        return so_rcvbuf;
+    }
+
+    public Boolean getSo_reuseaddr() {
+        return so_reuseaddr;
+    }
+
+    public Integer getSo_linger() {
+        return so_linger;
+    }
+
+    public Integer getIp_tos() {
+        return ip_tos;
+    }
+
+    public NetworkInterface getIp_multicast_if() {
+        return ip_multicast_if;
+    }
+
+    public Integer getIp_multicast_ttl() {
+        return ip_multicast_ttl;
+    }
+
+    public Boolean getIp_multicast_loop() {
+        return ip_multicast_loop;
+    }
+
+    public Boolean getTcp_nodelay() {
+        return tcp_nodelay;
     }
 }
