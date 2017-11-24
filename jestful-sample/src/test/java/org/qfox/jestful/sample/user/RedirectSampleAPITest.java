@@ -2,6 +2,9 @@ package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.connection.KeepAlive;
+import org.qfox.jestful.client.nio.Jdk1_7NioOptions;
+import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
@@ -14,10 +17,12 @@ public class RedirectSampleAPITest {
 
     @Test
     public void get() throws Exception {
-        RedirectSampleAPI userAPI = Client.builder()
+        RedirectSampleAPI userAPI = NioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
                 .setPort(8080)
+                .setKeepAlive(KeepAlive.ON)
+                .setOptions(Jdk1_7NioOptions.create().setSo_keepalive(true))
                 .build()
                 .creator()
                 .addBackPlugins(new Redirector())

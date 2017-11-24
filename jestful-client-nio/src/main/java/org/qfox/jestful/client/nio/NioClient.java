@@ -26,7 +26,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -50,17 +52,7 @@ public class NioClient extends Client implements NioConnector {
     private final ExecutorService cpu;
     private final NioProcessor[] processors;
     private final NioBalancer balancer;
-    private final Boolean so_broadcast;
-    private final Boolean so_keepalive;
-    private final Integer so_sndbuf;
-    private final Integer so_rcvbuf;
-    private final Boolean so_reuseaddr;
-    private final Integer so_linger;
-    private final Integer ip_tos;
-    private final Integer ip_multicast_ttl;
-    private final Boolean ip_multicast_loop;
-    private final Boolean tcp_nodelay;
-    private NetworkInterface ip_multicast_if;
+    private final NioOptions options;
 
     private NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
@@ -71,18 +63,7 @@ public class NioClient extends Client implements NioConnector {
         this.processors = new NioKernel[concurrency];
         for (int i = 0; i < concurrency; i++) cpu.execute(processors[i] = new NioKernel());
         this.balancer = builder.balancer;
-
-        this.so_broadcast = builder.so_broadcast;
-        this.so_keepalive = builder.so_keepalive;
-        this.so_sndbuf = builder.so_sndbuf;
-        this.so_rcvbuf = builder.so_rcvbuf;
-        this.so_reuseaddr = builder.so_reuseaddr;
-        this.so_linger = builder.so_linger;
-        this.ip_tos = builder.ip_tos;
-        this.ip_multicast_if = builder.ip_multicast_if;
-        this.ip_multicast_ttl = builder.ip_multicast_ttl;
-        this.ip_multicast_loop = builder.ip_multicast_loop;
-        this.tcp_nodelay = builder.tcp_nodelay;
+        this.options = builder.options;
     }
 
     public static NioClient getDefaultClient() {
@@ -170,12 +151,8 @@ public class NioClient extends Client implements NioConnector {
         return balancer;
     }
 
-    public Boolean getSo_broadcast() {
-        return so_broadcast;
-    }
-
-    public Boolean getSo_keepalive() {
-        return so_keepalive;
+    public NioOptions getOptions() {
+        return options;
     }
 
     private class NioPromise extends BioPromise {
@@ -318,62 +295,12 @@ public class NioClient extends Client implements NioConnector {
         }
     }
 
-    public Integer getSo_sndbuf() {
-        return so_sndbuf;
-    }
-
-    public Integer getSo_rcvbuf() {
-        return so_rcvbuf;
-    }
-
-    public Boolean getSo_reuseaddr() {
-        return so_reuseaddr;
-    }
-
-    public Integer getSo_linger() {
-        return so_linger;
-    }
-
-    public Integer getIp_tos() {
-        return ip_tos;
-    }
-
-    public NetworkInterface getIp_multicast_if() {
-        return ip_multicast_if;
-    }
-
-    public void setIp_multicast_if(NetworkInterface ip_multicast_if) {
-        this.ip_multicast_if = ip_multicast_if;
-    }
-
-    public Integer getIp_multicast_ttl() {
-        return ip_multicast_ttl;
-    }
-
-    public Boolean getIp_multicast_loop() {
-        return ip_multicast_loop;
-    }
-
-    public Boolean getTcp_nodelay() {
-        return tcp_nodelay;
-    }
-
     public static class NioBuilder<B extends NioBuilder<B>> extends Client.Builder<B> {
         private long selectTimeout = 1000L;
         private SSLContext sslContext;
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private NioBalancer balancer = new LoopedNioBalancer();
-        private Boolean so_broadcast;
-        private Boolean so_keepalive;
-        private Integer so_sndbuf;
-        private Integer so_rcvbuf;
-        private Boolean so_reuseaddr;
-        private Integer so_linger;
-        private Integer ip_tos;
-        private NetworkInterface ip_multicast_if;
-        private Integer ip_multicast_ttl;
-        private Boolean ip_multicast_loop;
-        private Boolean tcp_nodelay;
+        private NioOptions options = NioOptions.DEFAULT;
 
         public NioBuilder() {
             this.setConnTimeout(20 * 1000);
@@ -442,60 +369,14 @@ public class NioClient extends Client implements NioConnector {
             return (B) this;
         }
 
-        public B setSo_broadcast(boolean so_broadcast) {
-            this.so_broadcast = so_broadcast;
+        public B setOptions(NioOptions options) {
+            if (options == null) {
+                throw new IllegalArgumentException("options can not be null");
+            }
+            this.options = options;
             return (B) this;
         }
 
-        public B setSo_keepalive(boolean so_keepalive) {
-            this.so_keepalive = so_keepalive;
-            return (B) this;
-        }
-
-        public B setSo_sndbuf(int so_sndbuf) {
-            this.so_sndbuf = so_sndbuf;
-            return (B) this;
-        }
-
-        public B setSo_rcvbuf(int so_rcvbuf) {
-            this.so_rcvbuf = so_rcvbuf;
-            return (B) this;
-        }
-
-        public B setSo_reuseaddr(boolean so_reuseaddr) {
-            this.so_reuseaddr = so_reuseaddr;
-            return (B) this;
-        }
-
-        public B setSo_linger(int so_linger) {
-            this.so_linger = so_linger;
-            return (B) this;
-        }
-
-        public B setIp_tos(int ip_tos) {
-            this.ip_tos = ip_tos;
-            return (B) this;
-        }
-
-        public B setIp_multicast_if(NetworkInterface ip_multicast_if) {
-            this.ip_multicast_if = ip_multicast_if;
-            return (B) this;
-        }
-
-        public B setIp_multicast_ttl(int ip_multicast_ttl) {
-            this.ip_multicast_ttl = ip_multicast_ttl;
-            return (B) this;
-        }
-
-        public B setIp_multicast_loop(boolean ip_multicast_loop) {
-            this.ip_multicast_loop = ip_multicast_loop;
-            return (B) this;
-        }
-
-        public B setTcp_nodelay(boolean tcp_nodelay) {
-            this.tcp_nodelay = tcp_nodelay;
-            return (B) this;
-        }
     }
 
     private class NioKernel implements NioProcessor, NioCalls.NioConsumer, Closeable {
@@ -625,17 +506,7 @@ public class NioClient extends Client implements NioConnector {
         }
 
         private void doChannelConf(SocketChannel channel) throws IOException {
-            if (so_broadcast != null) channel.setOption(StandardSocketOptions.SO_BROADCAST, so_broadcast);
-            if (so_keepalive != null) channel.setOption(StandardSocketOptions.SO_KEEPALIVE, so_keepalive);
-            if (so_sndbuf != null) channel.setOption(StandardSocketOptions.SO_SNDBUF, so_sndbuf);
-            if (so_rcvbuf != null) channel.setOption(StandardSocketOptions.SO_RCVBUF, so_rcvbuf);
-            if (so_reuseaddr != null) channel.setOption(StandardSocketOptions.SO_REUSEADDR, so_reuseaddr);
-            if (so_linger != null) channel.setOption(StandardSocketOptions.SO_LINGER, so_linger);
-            if (ip_tos != null) channel.setOption(StandardSocketOptions.IP_TOS, ip_tos);
-            if (ip_multicast_if != null) channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, ip_multicast_if);
-            if (ip_multicast_ttl != null) channel.setOption(StandardSocketOptions.IP_MULTICAST_TTL, ip_multicast_ttl);
-            if (ip_multicast_loop != null) channel.setOption(StandardSocketOptions.IP_MULTICAST_LOOP, ip_multicast_loop);
-            if (tcp_nodelay != null) channel.setOption(StandardSocketOptions.TCP_NODELAY, tcp_nodelay);
+            options.config(channel);
         }
 
         @Override
