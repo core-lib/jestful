@@ -3,7 +3,6 @@ package org.qfox.jestful.client;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connection;
 import org.qfox.jestful.client.connection.Connector;
-import org.qfox.jestful.client.connection.KeepAlive;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
@@ -88,7 +87,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final int readTimeout;
     protected final int writeTimeout;
     protected final Gateway gateway;
-    protected final KeepAlive keepAlive;
+    protected final Boolean keepAlive;
     protected final HostnameVerifier hostnameVerifier;
     protected final SSLSocketFactory SSLSocketFactory;
     protected final String userAgent;
@@ -299,7 +298,6 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             if (connector.supports(action)) {
                 connection = connector.connect(action, gateway, this);
                 action.getExtra().put(Connection.class, connection);
-                keepAlive.config(connection);
                 return connection;
             }
         }
@@ -622,7 +620,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return gateway;
     }
 
-    public KeepAlive getKeepAlive() {
+    public Boolean getKeepAlive() {
         return keepAlive;
     }
 
@@ -676,7 +674,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         protected int writeTimeout = 0;
 
         protected Gateway gateway = Gateway.NULL;
-        protected KeepAlive keepAlive = KeepAlive.DEFAULT;
+        protected Boolean keepAlive = null; // 用通讯协议的缺省方案
 
         protected HostnameVerifier hostnameVerifier;
         protected SSLSocketFactory SSLSocketFactory;
@@ -952,10 +950,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             return (B) this;
         }
 
-        public B setKeepAlive(KeepAlive keepAlive) {
-            if (keepAlive == null) {
-                throw new IllegalArgumentException("can not set null keep-alive type");
-            }
+        public B setKeepAlive(Boolean keepAlive) {
             this.keepAlive = keepAlive;
             return (B) this;
         }

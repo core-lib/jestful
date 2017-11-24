@@ -4,7 +4,6 @@ import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.aio.connection.AioConnector;
 import org.qfox.jestful.client.connection.Connector;
-import org.qfox.jestful.client.connection.KeepAlive;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Callback;
@@ -108,8 +107,6 @@ public class AioClient extends Client implements AioConnector {
                 AioConnector aioConnector = (AioConnector) connector;
                 connection = aioConnector.aioConnect(action, gateway, this);
                 action.getExtra().put(AioConnection.class, connection);
-                // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
-                (keepAlive == KeepAlive.DEFAULT ? KeepAlive.OFF : keepAlive).config(connection);
                 return connection;
             }
         }
@@ -198,7 +195,7 @@ public class AioClient extends Client implements AioConnector {
          * @return this
          */
         @Override
-        public B setKeepAlive(KeepAlive keepAlive) {
+        public B setKeepAlive(Boolean keepAlive) {
             return (B) this;
         }
     }

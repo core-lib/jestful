@@ -29,7 +29,15 @@ public class HttpsNioConnector extends HttpsConnector implements NioConnector {
         NioSSLChannel nioSSLChannel = new JestfulNioSSLChannel(engine);
         NioRequest request = new JestfulNioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), nioSSLChannel);
         NioResponse response = new JestfulNioHttpsClientResponse(action, this, gateway, nioSSLChannel);
-        return new NioConnection(request, response);
+        NioConnection connection = new NioConnection(request, response);
+
+        // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
+        Boolean keepAlive = client.getKeepAlive();
+        if (keepAlive == null) request.setRequestHeader("Connection", "close");
+        else if (keepAlive) request.setRequestHeader("Connection", "keep-alive");
+        else request.setRequestHeader("Connection", "close");
+
+        return connection;
     }
 
     private SSLContext getDefaultSSLContext() throws IOException {

@@ -55,7 +55,15 @@ public class HttpsConnector implements Connector {
 
             Request request = new HttpRequest(httpsURLConnection);
             Response response = new HttpResponse(httpsURLConnection);
-            return new Connection(request, response);
+            Connection connection = new Connection(request, response);
+
+            // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
+            Boolean keepAlive = client.getKeepAlive();
+            if (keepAlive == null) return connection;
+            else if (keepAlive) request.setRequestHeader("Connection", "keep-alive");
+            else request.setRequestHeader("Connection", "close");
+
+            return connection;
         } catch (Exception e) {
             error = true;
             throw new JestfulIOException(e);
