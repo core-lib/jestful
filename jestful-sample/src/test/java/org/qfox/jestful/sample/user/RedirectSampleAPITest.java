@@ -2,6 +2,7 @@ package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.connection.KeepAlive;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.commons.Lock;
@@ -15,7 +16,7 @@ public class RedirectSampleAPITest {
 
     @Test
     public void get() throws Exception {
-        RedirectSampleAPI userAPI = Client.builder()
+        RedirectSampleAPI userAPI = AioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
                 .setPort(8080)

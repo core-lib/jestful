@@ -108,6 +108,7 @@ public class AioClient extends Client implements AioConnector {
                 AioConnector aioConnector = (AioConnector) connector;
                 connection = aioConnector.aioConnect(action, gateway, this);
                 action.getExtra().put(AioConnection.class, connection);
+                // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
                 (keepAlive == KeepAlive.DEFAULT ? KeepAlive.OFF : keepAlive).config(connection);
                 return connection;
             }
