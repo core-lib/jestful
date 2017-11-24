@@ -17,12 +17,12 @@ public class Jdk1_9NioOptions extends Jdk1_7NioOptions implements NioOptions {
         super.config(channel);
     }
 
-    public Boolean getSo_reuseport() {
-        return so_reuseport;
-    }
-
     public Jdk1_9NioOptions setSo_reuseport(Boolean so_reuseport) {
         this.so_reuseport = so_reuseport;
         return this;
+    }
+
+    public Boolean getSo_reuseport() {
+        return so_reuseport;
     }
 }

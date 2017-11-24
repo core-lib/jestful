@@ -27,6 +27,8 @@ public class PrepareCompletionHandler extends AioCompletionHandler<Void> impleme
         Gateway gateway = client.getGateway();
         SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
+        AioOptions options = client.getOptions();
+        options.config(channel);
         channel.connect(address, action, new ConnectCompletionHandler(client, channel));
     }
 

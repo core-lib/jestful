@@ -35,6 +35,7 @@ public class AioClient extends Client implements AioConnector {
     private final ExecutorService cpu;
     private final AsynchronousChannelGroup aioChannelGroup;
     private final SSLContext sslContext;
+    private final AioOptions options;
 
     private AioClient(AioBuilder<?> builder) throws IOException {
         super(builder);
@@ -42,6 +43,7 @@ public class AioClient extends Client implements AioConnector {
         this.cpu = concurrency > 0 ? Executors.newFixedThreadPool(concurrency) : Executors.newCachedThreadPool();
         this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(cpu);
         this.sslContext = builder.sslContext;
+        this.options = builder.options;
     }
 
     public static AioClient getDefaultClient() {
@@ -121,9 +123,14 @@ public class AioClient extends Client implements AioConnector {
         return sslContext;
     }
 
+    public AioOptions getOptions() {
+        return options;
+    }
+
     public static class AioBuilder<B extends AioBuilder<B>> extends Client.Builder<B> {
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private SSLContext sslContext;
+        private AioOptions options = AioOptions.DEFAULT;
 
         AioBuilder() {
             this.connTimeout = 20 * 1000;
@@ -172,6 +179,14 @@ public class AioClient extends Client implements AioConnector {
             if (sslContext == null) {
                 throw new IllegalArgumentException("SSLContext can not be null");
             }
+            return (B) this;
+        }
+
+        public B setOptions(AioOptions options) {
+            if (options == null) {
+                throw new IllegalArgumentException("options can not be null");
+            }
+            this.options = options;
             return (B) this;
         }
 

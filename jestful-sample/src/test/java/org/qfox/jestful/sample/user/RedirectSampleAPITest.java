@@ -20,7 +20,6 @@ public class RedirectSampleAPITest {
                 .setHostname("localhost")
                 .setPort(8080)
                 .setKeepAlive(KeepAlive.ON)
-//                .setOptions(Jdk1_7NioOptions.create().setSo_keepalive(true))
                 .build()
                 .creator()
                 .addBackPlugins(new Redirector())
