@@ -507,7 +507,6 @@ public class NioClient extends Client implements NioConnector {
 
         private void doChannelConf(SocketChannel channel) throws IOException {
             options.config(channel);
-            channel.socket().setKeepAlive(false);
         }
 
         @Override
