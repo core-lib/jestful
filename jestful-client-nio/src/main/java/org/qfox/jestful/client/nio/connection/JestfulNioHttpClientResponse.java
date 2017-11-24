@@ -67,6 +67,8 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
     }
 
     public boolean doLoad(ByteBuffer buffer) throws IOException {
+        if (loaded) return true;
+
         // 协议头还没读完
         if (chunked == null) {
             while (buffer.hasRemaining()) {
