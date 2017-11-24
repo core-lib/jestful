@@ -20,10 +20,6 @@ public class Module extends Config implements Serializable {
     private Module() {
     }
 
-    public static void main(String[] args) {
-        System.out.println(new Module());
-    }
-
     public static Module getInstance() {
         if (instance != null) {
             return instance;
