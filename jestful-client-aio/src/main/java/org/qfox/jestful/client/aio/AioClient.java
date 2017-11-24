@@ -191,7 +191,12 @@ public class AioClient extends Client implements AioConnector {
             return (B) this;
         }
 
-        // 暂时不支持 AIO 的长连接
+        /**
+         * 暂时不支持 AIO 的长连接
+         *
+         * @param keepAlive 是否保持长连接
+         * @return this
+         */
         @Override
         public B setKeepAlive(KeepAlive keepAlive) {
             return (B) this;
