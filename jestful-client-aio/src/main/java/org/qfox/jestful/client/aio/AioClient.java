@@ -174,6 +174,12 @@ public class AioClient extends Client implements AioConnector {
             }
             return (B) this;
         }
+
+        // 暂时不支持 AIO 的长连接
+        @Override
+        public B setKeepAlive(KeepAlive keepAlive) {
+            return (B) this;
+        }
     }
 
     private class AioPromise extends BioPromise {
