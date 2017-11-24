@@ -26,10 +26,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.URL;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -53,16 +50,17 @@ public class NioClient extends Client implements NioConnector {
     private final ExecutorService cpu;
     private final NioProcessor[] processors;
     private final NioBalancer balancer;
-    private final Boolean keepAlive;
-    private final Boolean oobInline;
-    private final Performance performance;
-    private final Boolean reuseAddress;
-    private final Integer recvBufferSize;
-    private final Integer sendBufferSize;
-    private final SoLinger soLinger;
-    private final Integer soTimeout;
-    private final Boolean tcpNoDelay;
-    private final Integer trafficClass;
+    private final Boolean so_broadcast;
+    private final Boolean so_keepalive;
+    private final Integer so_sndbuf;
+    private final Integer so_rcvbuf;
+    private final Boolean so_reuseaddr;
+    private final Integer so_linger;
+    private final Integer ip_tos;
+    private final Integer ip_multicast_ttl;
+    private final Boolean ip_multicast_loop;
+    private final Boolean tcp_nodelay;
+    private NetworkInterface ip_multicast_if;
 
     private NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
@@ -73,16 +71,18 @@ public class NioClient extends Client implements NioConnector {
         this.processors = new NioKernel[concurrency];
         for (int i = 0; i < concurrency; i++) cpu.execute(processors[i] = new NioKernel());
         this.balancer = builder.balancer;
-        this.keepAlive = builder.keepAlive;
-        this.oobInline = builder.oobInline;
-        this.performance = builder.performance;
-        this.reuseAddress = builder.reuseAddress;
-        this.recvBufferSize = builder.recvBufferSize;
-        this.sendBufferSize = builder.sendBufferSize;
-        this.soLinger = builder.soLinger;
-        this.soTimeout = builder.soTimeout;
-        this.tcpNoDelay = builder.tcpNoDelay;
-        this.trafficClass = builder.trafficClass;
+
+        this.so_broadcast = builder.so_broadcast;
+        this.so_keepalive = builder.so_keepalive;
+        this.so_sndbuf = builder.so_sndbuf;
+        this.so_rcvbuf = builder.so_rcvbuf;
+        this.so_reuseaddr = builder.so_reuseaddr;
+        this.so_linger = builder.so_linger;
+        this.ip_tos = builder.ip_tos;
+        this.ip_multicast_if = builder.ip_multicast_if;
+        this.ip_multicast_ttl = builder.ip_multicast_ttl;
+        this.ip_multicast_loop = builder.ip_multicast_loop;
+        this.tcp_nodelay = builder.tcp_nodelay;
     }
 
     public static NioClient getDefaultClient() {
@@ -143,6 +143,7 @@ public class NioClient extends Client implements NioConnector {
                 NioConnector nioConnector = (NioConnector) connector;
                 connection = nioConnector.nioConnect(action, gateway, this);
                 action.getExtra().put(NioConnection.class, connection);
+                keepAlive.config(connection);
                 return connection;
             }
         }
@@ -169,325 +170,12 @@ public class NioClient extends Client implements NioConnector {
         return balancer;
     }
 
-    public static class NioBuilder<B extends NioBuilder<B>> extends Client.Builder<B> {
-        private long selectTimeout = 1000L;
-        private SSLContext sslContext;
-        private int concurrency = Runtime.getRuntime().availableProcessors();
-        private NioBalancer balancer = new LoopedNioBalancer();
-        private Boolean keepAlive;
-        private Boolean oobInline;
-        private Performance performance;
-        private Boolean reuseAddress;
-        private Integer recvBufferSize;
-        private Integer sendBufferSize;
-        private SoLinger soLinger;
-        private Integer soTimeout;
-        private Boolean tcpNoDelay;
-        private Integer trafficClass;
-
-        public NioBuilder() {
-            this.setConnTimeout(20 * 1000);
-            this.setReadTimeout(Integer.MAX_VALUE);
-            this.setWriteTimeout(Integer.MAX_VALUE);
-            String userAgent = "Mozilla/5.0"
-                    + " "
-                    + "("
-                    + System.getProperty("os.name")
-                    + " "
-                    + System.getProperty("os.version")
-                    + "; "
-                    + System.getProperty("os.arch")
-                    + "; "
-                    + System.getProperty("user.language")
-                    + ")"
-                    + " "
-                    + Module.getInstance().getParentName()
-                    + "/"
-                    + Module.getInstance().getParentVersion()
-                    + " "
-                    + Module.getInstance().getName()
-                    + "/"
-                    + Module.getInstance().getVersion();
-            this.setUserAgent(userAgent);
-        }
-
-        @Override
-        public NioClient build() {
-            try {
-                return new NioClient(this);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public B setSelectTimeout(long selectTimeout) {
-            if (selectTimeout < 0) {
-                throw new IllegalArgumentException("selected timeout is negative");
-            }
-            this.selectTimeout = selectTimeout;
-            return (B) this;
-        }
-
-        public B setSslContext(SSLContext sslContext) {
-            this.sslContext = sslContext;
-            if (sslContext == null) {
-                throw new IllegalArgumentException("SSLContext can not be null");
-            }
-            return (B) this;
-        }
-
-        public B setConcurrency(int concurrency) {
-            if (concurrency < 1) {
-                throw new IllegalArgumentException("concurrency can not lesser than 1");
-            }
-            this.concurrency = concurrency;
-            return (B) this;
-        }
-
-        public B setBalancer(NioBalancer balancer) {
-            if (balancer == null) {
-                throw new IllegalArgumentException("balancer can not be null");
-            }
-            this.balancer = balancer;
-            return (B) this;
-        }
-
-        public B setKeepAlive(Boolean keepAlive) {
-            this.keepAlive = keepAlive;
-            return (B) this;
-        }
-
-        public B setOobInline(Boolean oobInline) {
-            this.oobInline = oobInline;
-            return (B) this;
-        }
-
-        public B setPerformance(Performance performance) {
-            this.performance = performance;
-            return (B) this;
-        }
-
-        public B setReuseAddress(Boolean reuseAddress) {
-            this.reuseAddress = reuseAddress;
-            return (B) this;
-        }
-
-        public B setRecvBufferSize(Integer recvBufferSize) {
-            this.recvBufferSize = recvBufferSize;
-            return (B) this;
-        }
-
-        public B setSendBufferSize(Integer sendBufferSize) {
-            this.sendBufferSize = sendBufferSize;
-            return (B) this;
-        }
-
-        public B setSoLinger(SoLinger soLinger) {
-            this.soLinger = soLinger;
-            return (B) this;
-        }
-
-        public B setSoTimeout(Integer soTimeout) {
-            this.soTimeout = soTimeout;
-            return (B) this;
-        }
-
-        public B setTcpNoDelay(Boolean tcpNoDelay) {
-            this.tcpNoDelay = tcpNoDelay;
-            return (B) this;
-        }
-
-        public B setTrafficClass(Integer trafficClass) {
-            this.trafficClass = trafficClass;
-            return (B) this;
-        }
+    public Boolean getSo_broadcast() {
+        return so_broadcast;
     }
 
-    private class NioKernel implements NioProcessor, NioCalls.NioConsumer, Closeable {
-        private final TimeoutManager timeoutManager;
-        private final Selector selector;
-        private final ByteBuffer buffer;
-        private final NioCalls calls;
-
-        NioKernel() throws IOException {
-            this.timeoutManager = new SortedTimeoutManager();
-            this.selector = Selector.open();
-            this.buffer = ByteBuffer.allocate(4096);
-            this.calls = new NioCalls(selector);
-        }
-
-        @Override
-        public void consume(Action action) {
-            try {
-                String protocol = action.getProtocol();
-                String host = action.getHostname();
-                Integer port = action.getPort();
-                port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
-                Gateway gateway = NioClient.this.getGateway();
-                SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
-                (gateway != null ? gateway : Gateway.NULL).onConnected(action);
-
-                SocketChannel channel = SocketChannel.open();
-                channel.configureBlocking(false);
-                doChannelConf(channel);
-                channel.connect(address);
-                SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT, action);
-                NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
-                timeoutManager.addConnTimeoutHandler(key, request.getConnTimeout());
-            } catch (Exception e) {
-                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
-                listener.onException(action, e);
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public void process(Action action) {
-            calls.offer(action);
-        }
-
-        @Override
-        public int tasks() {
-            return selector.keys().size();
-        }
-
-        private void doKeyCancel(SelectionKey key) {
-            key.cancel();
-            IOKit.close(key.channel());
-        }
-
-        private void doExceptionCatch(SelectionKey key, StatusException statusException) {
-            try {
-                Action action = (Action) key.attachment();
-                for (Catcher catcher : catchers.values()) {
-                    if (catcher instanceof NioCatcher && catcher.catchable(statusException)) {
-                        ((NioCatcher) catcher).nioCaught(NioClient.this, action, statusException);
-                        return;
-                    }
-                }
-                throw statusException;
-            } catch (Exception e) {
-                doChannelException(key, e);
-            }
-        }
-
-        private void doChannelException(SelectionKey key, Exception e) {
-            try {
-                Action action = (Action) key.attachment();
-                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
-                listener.onException(action, e);
-            } catch (RuntimeException re) {
-                logger.warn("", re);
-            }
-        }
-
-        private void doChannelRecv(SelectionKey key) throws Exception {
-            SocketChannel channel = (SocketChannel) key.channel();
-            Action action = (Action) key.attachment();
-            NioResponse response = (NioResponse) action.getExtra().get(NioResponse.class);
-            buffer.clear();
-            channel.read(buffer);
-            buffer.flip();
-            boolean finished = response.load(buffer);
-            if (finished) {
-                doKeyCancel(key);
-
-                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
-                listener.onCompleted(action);
-            }
-        }
-
-        private void doChannelSend(SelectionKey key) throws Exception {
-            SocketChannel channel = (SocketChannel) key.channel();
-            Action action = (Action) key.attachment();
-            NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
-            buffer.clear();
-            request.copy(buffer);
-            buffer.flip();
-            int n = channel.write(buffer);
-            if (request.move(n)) {
-                // 请求发送成功后只注册READ把之前的 WRITE | READ 注销掉 开始计算Read Timeout
-                channel.register(selector, SelectionKey.OP_READ, action);
-                timeoutManager.addRecvTimeoutHandler(key, request.getReadTimeout());
-
-                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
-                listener.onRequested(action);
-            }
-        }
-
-        private void doChannelConn(SelectionKey key) throws Exception {
-            SocketChannel channel = (SocketChannel) key.channel();
-            Action action = (Action) key.attachment();
-            NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
-            if (channel.isConnectionPending() && channel.finishConnect()) {
-                // 本来HTTP 模式情况下这里只需要注册WRITE即可 但是为了适配SSL模式的握手过程的握手数据读写 这里必须注册成WRITE | READ 但是只计算Write Timeout
-                channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
-                timeoutManager.addSendTimeoutHandler(key, request.getWriteTimeout());
-
-                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
-                listener.onConnected(action);
-            }
-        }
-
-        private void doChannelConf(SocketChannel channel) throws IOException {
-            Socket socket = channel.socket();
-            if (socket == null) return;
-
-            if (keepAlive != null) socket.setKeepAlive(keepAlive);
-            if (oobInline != null) socket.setOOBInline(oobInline);
-            if (performance != null) socket.setPerformancePreferences(performance.connectionTime, performance.latency, performance.bandwidth);
-            if (reuseAddress != null) socket.setReuseAddress(reuseAddress);
-            if (recvBufferSize != null) socket.setReceiveBufferSize(recvBufferSize);
-            if (sendBufferSize != null) socket.setSendBufferSize(sendBufferSize);
-            if (soLinger != null) socket.setSoLinger(soLinger.on, soLinger.linger);
-            if (soTimeout != null) socket.setSoTimeout(soTimeout);
-            if (tcpNoDelay != null) socket.setTcpNoDelay(tcpNoDelay);
-            if (trafficClass != null) socket.setTrafficClass(trafficClass);
-        }
-
-        @Override
-        public void run() {
-            // 运行
-            while (!isDestroyed() && selector.isOpen()) {
-                SelectionKey key = null;
-                try {
-                    // 处理超时
-                    timeoutManager.fire();
-                    // 处理注册
-                    calls.foreach(this);
-                    // 最多等待 selected timeout 时间进行一次超时检查
-                    if (selector.select(selectTimeout) == 0) continue;
-                    // 如果客户端被摧毁
-                    if (isDestroyed() || !selector.isOpen()) break;
-                    // 迭代处理
-                    Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
-                    while (iterator.hasNext()) {
-                        key = iterator.next();
-                        iterator.remove();
-                        if (!key.isValid()) continue;
-                        if (key.isConnectable()) doChannelConn(key);
-                        if (key.isWritable()) doChannelSend(key);
-                        if (key.isReadable()) doChannelRecv(key);
-                    }
-                    // 异常捕获
-                } catch (StatusException e) {
-                    if (key != null && key.isValid()) doKeyCancel(key);
-                    if (key != null) doExceptionCatch(key, e);
-                    else logger.warn("unexpected exception", e);
-                } catch (Exception e) {
-                    if (key != null && key.isValid()) doKeyCancel(key);
-                    if (key != null) doChannelException(key, e);
-                    else logger.warn("unexpected exception", e);
-                }
-            }
-            IOKit.close(this);
-        }
-
-        @Override
-        public synchronized void close() throws IOException {
-            if (selector.isOpen()) selector.close();
-        }
-
+    public Boolean getSo_keepalive() {
+        return so_keepalive;
     }
 
     private class NioPromise extends BioPromise {
@@ -628,5 +316,370 @@ public class NioClient extends Client implements NioConnector {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    public Integer getSo_sndbuf() {
+        return so_sndbuf;
+    }
+
+    public Integer getSo_rcvbuf() {
+        return so_rcvbuf;
+    }
+
+    public Boolean getSo_reuseaddr() {
+        return so_reuseaddr;
+    }
+
+    public Integer getSo_linger() {
+        return so_linger;
+    }
+
+    public Integer getIp_tos() {
+        return ip_tos;
+    }
+
+    public NetworkInterface getIp_multicast_if() {
+        return ip_multicast_if;
+    }
+
+    public void setIp_multicast_if(NetworkInterface ip_multicast_if) {
+        this.ip_multicast_if = ip_multicast_if;
+    }
+
+    public Integer getIp_multicast_ttl() {
+        return ip_multicast_ttl;
+    }
+
+    public Boolean getIp_multicast_loop() {
+        return ip_multicast_loop;
+    }
+
+    public Boolean getTcp_nodelay() {
+        return tcp_nodelay;
+    }
+
+    public static class NioBuilder<B extends NioBuilder<B>> extends Client.Builder<B> {
+        private long selectTimeout = 1000L;
+        private SSLContext sslContext;
+        private int concurrency = Runtime.getRuntime().availableProcessors();
+        private NioBalancer balancer = new LoopedNioBalancer();
+        private Boolean so_broadcast;
+        private Boolean so_keepalive;
+        private Integer so_sndbuf;
+        private Integer so_rcvbuf;
+        private Boolean so_reuseaddr;
+        private Integer so_linger;
+        private Integer ip_tos;
+        private NetworkInterface ip_multicast_if;
+        private Integer ip_multicast_ttl;
+        private Boolean ip_multicast_loop;
+        private Boolean tcp_nodelay;
+
+        public NioBuilder() {
+            this.setConnTimeout(20 * 1000);
+            this.setReadTimeout(Integer.MAX_VALUE);
+            this.setWriteTimeout(Integer.MAX_VALUE);
+            String userAgent = "Mozilla/5.0"
+                    + " "
+                    + "("
+                    + System.getProperty("os.name")
+                    + " "
+                    + System.getProperty("os.version")
+                    + "; "
+                    + System.getProperty("os.arch")
+                    + "; "
+                    + System.getProperty("user.language")
+                    + ")"
+                    + " "
+                    + Module.getInstance().getParentName()
+                    + "/"
+                    + Module.getInstance().getParentVersion()
+                    + " "
+                    + Module.getInstance().getName()
+                    + "/"
+                    + Module.getInstance().getVersion();
+            this.setUserAgent(userAgent);
+        }
+
+        @Override
+        public NioClient build() {
+            try {
+                return new NioClient(this);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public B setSelectTimeout(long selectTimeout) {
+            if (selectTimeout < 0) {
+                throw new IllegalArgumentException("selected timeout is negative");
+            }
+            this.selectTimeout = selectTimeout;
+            return (B) this;
+        }
+
+        public B setSslContext(SSLContext sslContext) {
+            this.sslContext = sslContext;
+            if (sslContext == null) {
+                throw new IllegalArgumentException("SSLContext can not be null");
+            }
+            return (B) this;
+        }
+
+        public B setConcurrency(int concurrency) {
+            if (concurrency < 1) {
+                throw new IllegalArgumentException("concurrency can not lesser than 1");
+            }
+            this.concurrency = concurrency;
+            return (B) this;
+        }
+
+        public B setBalancer(NioBalancer balancer) {
+            if (balancer == null) {
+                throw new IllegalArgumentException("balancer can not be null");
+            }
+            this.balancer = balancer;
+            return (B) this;
+        }
+
+        public B setSo_broadcast(boolean so_broadcast) {
+            this.so_broadcast = so_broadcast;
+            return (B) this;
+        }
+
+        public B setSo_keepalive(boolean so_keepalive) {
+            this.so_keepalive = so_keepalive;
+            return (B) this;
+        }
+
+        public B setSo_sndbuf(int so_sndbuf) {
+            this.so_sndbuf = so_sndbuf;
+            return (B) this;
+        }
+
+        public B setSo_rcvbuf(int so_rcvbuf) {
+            this.so_rcvbuf = so_rcvbuf;
+            return (B) this;
+        }
+
+        public B setSo_reuseaddr(boolean so_reuseaddr) {
+            this.so_reuseaddr = so_reuseaddr;
+            return (B) this;
+        }
+
+        public B setSo_linger(int so_linger) {
+            this.so_linger = so_linger;
+            return (B) this;
+        }
+
+        public B setIp_tos(int ip_tos) {
+            this.ip_tos = ip_tos;
+            return (B) this;
+        }
+
+        public B setIp_multicast_if(NetworkInterface ip_multicast_if) {
+            this.ip_multicast_if = ip_multicast_if;
+            return (B) this;
+        }
+
+        public B setIp_multicast_ttl(int ip_multicast_ttl) {
+            this.ip_multicast_ttl = ip_multicast_ttl;
+            return (B) this;
+        }
+
+        public B setIp_multicast_loop(boolean ip_multicast_loop) {
+            this.ip_multicast_loop = ip_multicast_loop;
+            return (B) this;
+        }
+
+        public B setTcp_nodelay(boolean tcp_nodelay) {
+            this.tcp_nodelay = tcp_nodelay;
+            return (B) this;
+        }
+    }
+
+    private class NioKernel implements NioProcessor, NioCalls.NioConsumer, Closeable {
+        private final TimeoutManager timeoutManager;
+        private final Selector selector;
+        private final ByteBuffer buffer;
+        private final NioCalls calls;
+
+        NioKernel() throws IOException {
+            this.timeoutManager = new SortedTimeoutManager();
+            this.selector = Selector.open();
+            this.buffer = ByteBuffer.allocate(4096);
+            this.calls = new NioCalls(selector);
+        }
+
+        @Override
+        public void consume(Action action) {
+            try {
+                String protocol = action.getProtocol();
+                String host = action.getHostname();
+                Integer port = action.getPort();
+                port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
+                Gateway gateway = NioClient.this.getGateway();
+                SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
+                (gateway != null ? gateway : Gateway.NULL).onConnected(action);
+
+                SocketChannel channel = SocketChannel.open();
+                channel.configureBlocking(false);
+                doChannelConf(channel);
+                channel.connect(address);
+                SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT, action);
+                NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
+                timeoutManager.addConnTimeoutHandler(key, request.getConnTimeout());
+            } catch (Exception e) {
+                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
+                listener.onException(action, e);
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void process(Action action) {
+            calls.offer(action);
+        }
+
+        @Override
+        public int tasks() {
+            return selector.keys().size();
+        }
+
+        private void doKeyCancel(SelectionKey key) {
+            key.cancel();
+            IOKit.close(key.channel());
+        }
+
+        private void doExceptionCatch(SelectionKey key, StatusException statusException) {
+            try {
+                Action action = (Action) key.attachment();
+                for (Catcher catcher : catchers.values()) {
+                    if (catcher instanceof NioCatcher && catcher.catchable(statusException)) {
+                        ((NioCatcher) catcher).nioCaught(NioClient.this, action, statusException);
+                        return;
+                    }
+                }
+                throw statusException;
+            } catch (Exception e) {
+                doChannelException(key, e);
+            }
+        }
+
+        private void doChannelException(SelectionKey key, Exception e) {
+            try {
+                Action action = (Action) key.attachment();
+                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
+                listener.onException(action, e);
+            } catch (RuntimeException re) {
+                logger.warn("", re);
+            }
+        }
+
+        private void doChannelRecv(SelectionKey key) throws Exception {
+            SocketChannel channel = (SocketChannel) key.channel();
+            Action action = (Action) key.attachment();
+            NioResponse response = (NioResponse) action.getExtra().get(NioResponse.class);
+            buffer.clear();
+            channel.read(buffer);
+            buffer.flip();
+            boolean finished = response.load(buffer);
+            if (finished) {
+                doKeyCancel(key);
+
+                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
+                listener.onCompleted(action);
+            }
+        }
+
+        private void doChannelSend(SelectionKey key) throws Exception {
+            SocketChannel channel = (SocketChannel) key.channel();
+            Action action = (Action) key.attachment();
+            NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
+            buffer.clear();
+            request.copy(buffer);
+            buffer.flip();
+            int n = channel.write(buffer);
+            if (request.move(n)) {
+                // 请求发送成功后只注册READ把之前的 WRITE | READ 注销掉 开始计算Read Timeout
+                channel.register(selector, SelectionKey.OP_READ, action);
+                timeoutManager.addRecvTimeoutHandler(key, request.getReadTimeout());
+
+                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
+                listener.onRequested(action);
+            }
+        }
+
+        private void doChannelConn(SelectionKey key) throws Exception {
+            SocketChannel channel = (SocketChannel) key.channel();
+            Action action = (Action) key.attachment();
+            NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
+            if (channel.isConnectionPending() && channel.finishConnect()) {
+                // 本来HTTP 模式情况下这里只需要注册WRITE即可 但是为了适配SSL模式的握手过程的握手数据读写 这里必须注册成WRITE | READ 但是只计算Write Timeout
+                channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
+                timeoutManager.addSendTimeoutHandler(key, request.getWriteTimeout());
+
+                NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
+                listener.onConnected(action);
+            }
+        }
+
+        private void doChannelConf(SocketChannel channel) throws IOException {
+            if (so_broadcast != null) channel.setOption(StandardSocketOptions.SO_BROADCAST, so_broadcast);
+            if (so_keepalive != null) channel.setOption(StandardSocketOptions.SO_KEEPALIVE, so_keepalive);
+            if (so_sndbuf != null) channel.setOption(StandardSocketOptions.SO_SNDBUF, so_sndbuf);
+            if (so_rcvbuf != null) channel.setOption(StandardSocketOptions.SO_RCVBUF, so_rcvbuf);
+            if (so_reuseaddr != null) channel.setOption(StandardSocketOptions.SO_REUSEADDR, so_reuseaddr);
+            if (so_linger != null) channel.setOption(StandardSocketOptions.SO_LINGER, so_linger);
+            if (ip_tos != null) channel.setOption(StandardSocketOptions.IP_TOS, ip_tos);
+            if (ip_multicast_if != null) channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, ip_multicast_if);
+            if (ip_multicast_ttl != null) channel.setOption(StandardSocketOptions.IP_MULTICAST_TTL, ip_multicast_ttl);
+            if (ip_multicast_loop != null) channel.setOption(StandardSocketOptions.IP_MULTICAST_LOOP, ip_multicast_loop);
+            if (tcp_nodelay != null) channel.setOption(StandardSocketOptions.TCP_NODELAY, tcp_nodelay);
+        }
+
+        @Override
+        public void run() {
+            // 运行
+            while (!isDestroyed() && selector.isOpen()) {
+                SelectionKey key = null;
+                try {
+                    // 处理超时
+                    timeoutManager.fire();
+                    // 处理注册
+                    calls.foreach(this);
+                    // 最多等待 selected timeout 时间进行一次超时检查
+                    if (selector.select(selectTimeout) == 0) continue;
+                    // 如果客户端被摧毁
+                    if (isDestroyed() || !selector.isOpen()) break;
+                    // 迭代处理
+                    Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+                    while (iterator.hasNext()) {
+                        key = iterator.next();
+                        iterator.remove();
+                        if (!key.isValid()) continue;
+                        if (key.isConnectable()) doChannelConn(key);
+                        if (key.isWritable()) doChannelSend(key);
+                        if (key.isReadable()) doChannelRecv(key);
+                    }
+                    // 异常捕获
+                } catch (StatusException e) {
+                    if (key != null && key.isValid()) doKeyCancel(key);
+                    if (key != null) doExceptionCatch(key, e);
+                    else logger.warn("unexpected exception", e);
+                } catch (Exception e) {
+                    if (key != null && key.isValid()) doKeyCancel(key);
+                    if (key != null) doChannelException(key, e);
+                    else logger.warn("unexpected exception", e);
+                }
+            }
+            IOKit.close(this);
+        }
+
+        @Override
+        public synchronized void close() throws IOException {
+            if (selector.isOpen()) selector.close();
+        }
+
     }
 }
