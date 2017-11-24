@@ -125,7 +125,7 @@ public class AioClient extends Client implements AioConnector {
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private SSLContext sslContext;
 
-        public AioBuilder() {
+        AioBuilder() {
             this.connTimeout = 20 * 1000;
             this.readTimeout = Integer.MAX_VALUE;
             this.writeTimeout = Integer.MAX_VALUE;
