@@ -4,6 +4,7 @@ import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.aio.connection.AioConnector;
 import org.qfox.jestful.client.connection.Connector;
+import org.qfox.jestful.client.connection.KeepAlive;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Callback;
@@ -105,6 +106,7 @@ public class AioClient extends Client implements AioConnector {
                 AioConnector aioConnector = (AioConnector) connector;
                 connection = aioConnector.aioConnect(action, gateway, this);
                 action.getExtra().put(AioConnection.class, connection);
+                (keepAlive == KeepAlive.DEFAULT ? KeepAlive.OFF : keepAlive).config(connection);
                 return connection;
             }
         }

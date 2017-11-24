@@ -3,6 +3,7 @@ package org.qfox.jestful.client.nio;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connector;
+import org.qfox.jestful.client.connection.KeepAlive;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.nio.balancer.LoopedNioBalancer;
@@ -124,7 +125,7 @@ public class NioClient extends Client implements NioConnector {
                 NioConnector nioConnector = (NioConnector) connector;
                 connection = nioConnector.nioConnect(action, gateway, this);
                 action.getExtra().put(NioConnection.class, connection);
-                keepAlive.config(connection);
+                (keepAlive == KeepAlive.DEFAULT ? KeepAlive.OFF : keepAlive).config(connection);
                 return connection;
             }
         }
