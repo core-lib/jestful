@@ -38,11 +38,8 @@ public class HttpConnector implements Connector {
             error = true;
             throw new JestfulIOException(e);
         } finally {
-            if (error && httpURLConnection != null) {
-                httpURLConnection.disconnect();
-            } else {
-                gateway.onConnected(action);
-            }
+            if (error && httpURLConnection != null) httpURLConnection.disconnect();
+            else gateway.onConnected(action);
         }
     }
 

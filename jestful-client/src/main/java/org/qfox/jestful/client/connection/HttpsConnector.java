@@ -48,14 +48,10 @@ public class HttpsConnector implements Connector {
             httpsURLConnection.setInstanceFollowRedirects(false);
 
             HostnameVerifier hostnameVerifier = client.getHostnameVerifier();
-            if (hostnameVerifier != null) {
-                httpsURLConnection.setHostnameVerifier(hostnameVerifier);
-            }
+            if (hostnameVerifier != null) httpsURLConnection.setHostnameVerifier(hostnameVerifier);
 
             SSLSocketFactory SSLSocketFactory = client.getSSLSocketFactory();
-            if (SSLSocketFactory != null) {
-                httpsURLConnection.setSSLSocketFactory(SSLSocketFactory);
-            }
+            if (SSLSocketFactory != null) httpsURLConnection.setSSLSocketFactory(SSLSocketFactory);
 
             Request request = new HttpRequest(httpsURLConnection);
             Response response = new HttpResponse(httpsURLConnection);
@@ -64,11 +60,8 @@ public class HttpsConnector implements Connector {
             error = true;
             throw new JestfulIOException(e);
         } finally {
-            if (error && httpsURLConnection != null) {
-                httpsURLConnection.disconnect();
-            } else {
-                gateway.onConnected(action);
-            }
+            if (error && httpsURLConnection != null) httpsURLConnection.disconnect();
+            else gateway.onConnected(action);
         }
     }
 

@@ -3,6 +3,7 @@ package org.qfox.jestful.client;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connection;
 import org.qfox.jestful.client.connection.Connector;
+import org.qfox.jestful.client.connection.KeepAlive;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
@@ -87,10 +88,11 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final int readTimeout;
     protected final int writeTimeout;
     protected final Gateway gateway;
+    protected final KeepAlive keepAlive;
     protected final HostnameVerifier hostnameVerifier;
     protected final SSLSocketFactory SSLSocketFactory;
     protected final String userAgent;
-    protected final boolean configValidation;
+    protected final boolean configValidated;
     protected boolean destroyed = false;
 
     protected Client(Builder<?> builder) throws IOException {
@@ -102,10 +104,10 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         this.classLoader = builder.classLoader;
         this.resources = new LinkedHashMap<Class<?>, Resource>();
         this.configLocations = integrate(classLoader).toArray(new URL[0]);
-        this.configValidation = builder.configValidation;
+        this.configValidated = builder.configValidating;
         DefaultListableBeanFactory defaultListableBeanFactory = new DefaultListableBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(defaultListableBeanFactory);
-        reader.setValidating(configValidation);
+        reader.setValidating(configValidated);
         reader.setBeanClassLoader(classLoader);
         for (URL url : configLocations) reader.loadBeanDefinitions(new UrlResource(url));
         this.beanContainer = defaultListableBeanFactory.getBean(builder.beanContainer, BeanContainer.class);
@@ -131,6 +133,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         this.writeTimeout = builder.writeTimeout;
 
         this.gateway = builder.gateway;
+        this.keepAlive = builder.keepAlive;
+
         this.hostnameVerifier = builder.hostnameVerifier;
         this.SSLSocketFactory = builder.SSLSocketFactory;
         this.userAgent = builder.userAgent;
@@ -295,6 +299,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             if (connector.supports(action)) {
                 connection = connector.connect(action, gateway, this);
                 action.getExtra().put(Connection.class, connection);
+                keepAlive.config(connection);
                 return connection;
             }
         }
@@ -617,6 +622,10 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return gateway;
     }
 
+    public KeepAlive getKeepAlive() {
+        return keepAlive;
+    }
+
     public HostnameVerifier getHostnameVerifier() {
         return hostnameVerifier;
     }
@@ -627,6 +636,10 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
     public String getUserAgent() {
         return userAgent;
+    }
+
+    public boolean isConfigValidated() {
+        return configValidated;
     }
 
     @Override
@@ -663,6 +676,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         private int writeTimeout = 0;
 
         private Gateway gateway = Gateway.NULL;
+        private KeepAlive keepAlive = KeepAlive.DEFAULT;
 
         private HostnameVerifier hostnameVerifier;
         private SSLSocketFactory SSLSocketFactory;
@@ -687,7 +701,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 + "/"
                 + Module.getInstance().getVersion();
 
-        private boolean configValidation = false;
+        private boolean configValidating = false;
 
         public Client build() {
             try {
@@ -934,6 +948,14 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             return (B) this;
         }
 
+        public B setKeepAlive(KeepAlive keepAlive) {
+            if (keepAlive == null) {
+                throw new IllegalArgumentException("can not set null keep-alive type");
+            }
+            this.keepAlive = keepAlive;
+            return (B) this;
+        }
+
         public B setHostnameVerifier(HostnameVerifier hostnameVerifier) {
             if (hostnameVerifier == null) {
                 throw new IllegalArgumentException("can not set null hostnameVerifier");
@@ -958,8 +980,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             return (B) this;
         }
 
-        public B setConfigValidation(boolean configValidation) {
-            this.configValidation = configValidation;
+        public B setConfigValidating(boolean configValidating) {
+            this.configValidating = configValidating;
             return (B) this;
         }
     }
