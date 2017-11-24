@@ -18,8 +18,7 @@ public class HttpAioConnector extends HttpConnector implements AioConnector {
     public AioConnection aioConnect(Action action, Gateway gateway, AioClient client) throws IOException {
         AioRequest request = new JestfulAioHttpClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout());
         AioResponse response = new JestfulAioHttpClientResponse(action, this, gateway);
-        AioConnection connection = new AioConnection(request, response);
-        return connection;
+        return new AioConnection(request, response);
     }
 
 }
