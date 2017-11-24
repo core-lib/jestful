@@ -648,60 +648,64 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     }
 
     public static class Builder<B extends Builder<B>> {
-        private String protocol = "http";
-        private String hostname = "localhost";
-        private Integer port = null;
-        private String route = null;
-        private ClassLoader classLoader = this.getClass().getClassLoader();
-        private String beanContainer = "defaultBeanContainer";
-        private List<String> plugins = new ArrayList<String>(Collections.singletonList("client"));
+        protected String protocol = "http";
+        protected String hostname = "localhost";
+        protected Integer port = null;
+        protected String route = null;
+        protected ClassLoader classLoader = this.getClass().getClassLoader();
+        protected String beanContainer = "defaultBeanContainer";
+        protected List<String> plugins = new ArrayList<String>(Collections.singletonList("client"));
 
-        private List<String> acceptCharsets = new ArrayList<String>();
-        private List<String> acceptEncodings = new ArrayList<String>();
-        private List<String> acceptLanguages = new ArrayList<String>();
+        protected List<String> acceptCharsets = new ArrayList<String>();
+        protected List<String> acceptEncodings = new ArrayList<String>();
+        protected List<String> acceptLanguages = new ArrayList<String>();
 
-        private List<String> contentCharsets = new ArrayList<String>();
-        private List<String> contentEncodings = new ArrayList<String>();
-        private List<String> contentLanguages = new ArrayList<String>();
+        protected List<String> contentCharsets = new ArrayList<String>();
+        protected List<String> contentEncodings = new ArrayList<String>();
+        protected List<String> contentLanguages = new ArrayList<String>();
 
-        private boolean allowEncode = false;
-        private boolean acceptEncode = true;
+        protected boolean allowEncode = false;
+        protected boolean acceptEncode = true;
 
-        private String pathEncodeCharset = "UTF-8";
-        private String queryEncodeCharset = "UTF-8";
-        private String headerEncodeCharset = "UTF-8";
+        protected String pathEncodeCharset = "UTF-8";
+        protected String queryEncodeCharset = "UTF-8";
+        protected String headerEncodeCharset = "UTF-8";
 
-        private int connTimeout = 0;
-        private int readTimeout = 0;
-        private int writeTimeout = 0;
+        protected int connTimeout = 0;
+        protected int readTimeout = 0;
+        protected int writeTimeout = 0;
 
-        private Gateway gateway = Gateway.NULL;
-        private KeepAlive keepAlive = KeepAlive.DEFAULT;
+        protected Gateway gateway = Gateway.NULL;
+        protected KeepAlive keepAlive = KeepAlive.DEFAULT;
 
-        private HostnameVerifier hostnameVerifier;
-        private SSLSocketFactory SSLSocketFactory;
+        protected HostnameVerifier hostnameVerifier;
+        protected SSLSocketFactory SSLSocketFactory;
 
-        private String userAgent = "Mozilla/5.0"
-                + " "
-                + "("
-                + System.getProperty("os.name")
-                + " "
-                + System.getProperty("os.version")
-                + "; "
-                + System.getProperty("os.arch")
-                + "; "
-                + System.getProperty("user.language")
-                + ")"
-                + " "
-                + Module.getInstance().getParentName()
-                + "/"
-                + Module.getInstance().getParentVersion()
-                + " "
-                + Module.getInstance().getName()
-                + "/"
-                + Module.getInstance().getVersion();
+        protected String userAgent = null;
 
-        private boolean configValidating = false;
+        protected boolean configValidating = false;
+
+        protected Builder() {
+            this.userAgent = "Mozilla/5.0"
+                    + " "
+                    + "("
+                    + System.getProperty("os.name")
+                    + " "
+                    + System.getProperty("os.version")
+                    + "; "
+                    + System.getProperty("os.arch")
+                    + "; "
+                    + System.getProperty("user.language")
+                    + ")"
+                    + " "
+                    + Module.getInstance().getParentName()
+                    + "/"
+                    + Module.getInstance().getParentVersion()
+                    + " "
+                    + Module.getInstance().getName()
+                    + "/"
+                    + Module.getInstance().getVersion();
+        }
 
         public Client build() {
             try {

@@ -126,10 +126,10 @@ public class AioClient extends Client implements AioConnector {
         private SSLContext sslContext;
 
         public AioBuilder() {
-            this.setConnTimeout(20 * 1000);
-            this.setReadTimeout(Integer.MAX_VALUE);
-            this.setWriteTimeout(Integer.MAX_VALUE);
-            String userAgent = "Mozilla/5.0"
+            this.connTimeout = 20 * 1000;
+            this.readTimeout = Integer.MAX_VALUE;
+            this.writeTimeout = Integer.MAX_VALUE;
+            this.userAgent = "Mozilla/5.0"
                     + " "
                     + "("
                     + System.getProperty("os.name")
@@ -148,7 +148,6 @@ public class AioClient extends Client implements AioConnector {
                     + Module.getInstance().getName()
                     + "/"
                     + Module.getInstance().getVersion();
-            this.setUserAgent(userAgent);
         }
 
         @Override

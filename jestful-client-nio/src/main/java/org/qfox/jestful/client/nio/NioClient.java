@@ -303,11 +303,11 @@ public class NioClient extends Client implements NioConnector {
         private NioBalancer balancer = new LoopedNioBalancer();
         private NioOptions options = NioOptions.DEFAULT;
 
-        public NioBuilder() {
-            this.setConnTimeout(20 * 1000);
-            this.setReadTimeout(Integer.MAX_VALUE);
-            this.setWriteTimeout(Integer.MAX_VALUE);
-            String userAgent = "Mozilla/5.0"
+        NioBuilder() {
+            this.connTimeout = 20 * 1000;
+            this.readTimeout = Integer.MAX_VALUE;
+            this.writeTimeout = Integer.MAX_VALUE;
+            this.userAgent = "Mozilla/5.0"
                     + " "
                     + "("
                     + System.getProperty("os.name")
@@ -326,7 +326,6 @@ public class NioClient extends Client implements NioConnector {
                     + Module.getInstance().getName()
                     + "/"
                     + Module.getInstance().getVersion();
-            this.setUserAgent(userAgent);
         }
 
         @Override
