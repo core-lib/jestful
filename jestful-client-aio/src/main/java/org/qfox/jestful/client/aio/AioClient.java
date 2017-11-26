@@ -5,6 +5,7 @@ import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.aio.connection.AioConnector;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
+import org.qfox.jestful.client.exception.UnsupportedProtocolException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.commons.IOKit;
@@ -16,6 +17,7 @@ import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -110,7 +112,22 @@ public class AioClient extends Client implements AioConnector {
                 return connection;
             }
         }
-        throw new IOException("unsupported protocol " + action.getProtocol());
+        throw new UnsupportedProtocolException(action.getProtocol());
+    }
+
+    @Override
+    public SocketAddress aioAddress(Action action, Gateway gateway, AioClient client) throws IOException {
+        AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
+        if (connection != null) {
+            return connection.getAddress();
+        }
+        for (Connector connector : connectors.values()) {
+            if (connector instanceof AioConnector && connector.supports(action)) {
+                AioConnector aioConnector = (AioConnector) connector;
+                return aioConnector.aioAddress(action, gateway, this);
+            }
+        }
+        throw new UnsupportedProtocolException(action.getProtocol());
     }
 
     public int getConcurrency() {

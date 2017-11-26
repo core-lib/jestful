@@ -6,6 +6,7 @@ import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.core.Action;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 
 /**
  * Created by payne on 2017/4/2.
@@ -13,5 +14,7 @@ import java.io.IOException;
 public interface AioConnector extends Connector {
 
     AioConnection aioConnect(Action action, Gateway gateway, AioClient client) throws IOException;
+
+    SocketAddress aioAddress(Action action, Gateway gateway, AioClient client) throws IOException;
 
 }

@@ -4,12 +4,15 @@ import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
+import org.qfox.jestful.client.exception.UnsupportedProtocolException;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.nio.balancer.LoopedNioBalancer;
 import org.qfox.jestful.client.nio.balancer.NioBalancer;
 import org.qfox.jestful.client.nio.catcher.NioCatcher;
 import org.qfox.jestful.client.nio.connection.NioConnection;
 import org.qfox.jestful.client.nio.connection.NioConnector;
+import org.qfox.jestful.client.nio.pool.ConcurrentSocketChannelConnectionPool;
+import org.qfox.jestful.client.nio.pool.SocketChannelConnectionPool;
 import org.qfox.jestful.client.nio.timeout.SortedTimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
 import org.qfox.jestful.client.scheduler.Callback;
@@ -26,7 +29,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -53,6 +55,7 @@ public class NioClient extends Client implements NioConnector {
     private final NioProcessor[] processors;
     private final NioBalancer balancer;
     private final NioOptions options;
+    private final SocketChannelConnectionPool socketChannelConnectionPool;
 
     private NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
@@ -64,6 +67,7 @@ public class NioClient extends Client implements NioConnector {
         for (int i = 0; i < concurrency; i++) cpu.execute(processors[i] = new NioKernel());
         this.balancer = builder.balancer;
         this.options = builder.options;
+        this.socketChannelConnectionPool = builder.socketChannelConnectionPool;
     }
 
     public static NioClient getDefaultClient() {
@@ -119,6 +123,7 @@ public class NioClient extends Client implements NioConnector {
         if (connection != null) {
             return connection;
         }
+
         for (Connector connector : connectors.values()) {
             if (connector instanceof NioConnector && connector.supports(action)) {
                 NioConnector nioConnector = (NioConnector) connector;
@@ -127,7 +132,23 @@ public class NioClient extends Client implements NioConnector {
                 return connection;
             }
         }
-        throw new IOException("unsupported protocol " + action.getProtocol());
+        throw new UnsupportedProtocolException(action.getProtocol());
+    }
+
+    @Override
+    public SocketAddress nioAddress(Action action, Gateway gateway, NioClient client) throws IOException {
+        NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
+        if (connection != null) {
+            return connection.getAddress();
+        }
+
+        for (Connector connector : connectors.values()) {
+            if (connector instanceof NioConnector && connector.supports(action)) {
+                NioConnector nioConnector = (NioConnector) connector;
+                return nioConnector.nioAddress(action, gateway, this);
+            }
+        }
+        throw new UnsupportedProtocolException(action.getProtocol());
     }
 
     public long getSelectTimeout() {
@@ -152,6 +173,10 @@ public class NioClient extends Client implements NioConnector {
 
     public NioOptions getOptions() {
         return options;
+    }
+
+    public SocketChannelConnectionPool getSocketChannelConnectionPool() {
+        return socketChannelConnectionPool;
     }
 
     private class NioPromise extends BioPromise {
@@ -300,6 +325,7 @@ public class NioClient extends Client implements NioConnector {
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private NioBalancer balancer = new LoopedNioBalancer();
         private NioOptions options = NioOptions.DEFAULT;
+        private SocketChannelConnectionPool socketChannelConnectionPool = new ConcurrentSocketChannelConnectionPool();
 
         NioBuilder() {
             this.connTimeout = 20 * 1000;
@@ -375,14 +401,11 @@ public class NioClient extends Client implements NioConnector {
             return (B) this;
         }
 
-        /**
-         * 暂时不支持 NIO 的长连接
-         *
-         * @param keepAlive 是否保持长连接
-         * @return this
-         */
-        @Override
-        public B setKeepAlive(Boolean keepAlive) {
+        public B setSocketChannelConnectionPool(SocketChannelConnectionPool socketChannelConnectionPool) {
+            if (options == null) {
+                throw new IllegalArgumentException("socket channel connection pool can not be null");
+            }
+            this.socketChannelConnectionPool = socketChannelConnectionPool;
             return (B) this;
         }
     }
@@ -403,20 +426,16 @@ public class NioClient extends Client implements NioConnector {
         @Override
         public void consume(Action action) {
             try {
-                String protocol = action.getProtocol();
-                String host = action.getHostname();
-                Integer port = action.getPort();
-                port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
-                Gateway gateway = NioClient.this.getGateway();
-                SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
                 (gateway != null ? gateway : Gateway.NULL).onConnected(action);
 
                 SocketChannel channel = SocketChannel.open();
                 channel.configureBlocking(false);
                 doChannelConf(channel);
+                NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
+                SocketAddress address = connection.getAddress();
                 channel.connect(address);
                 SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT, action);
-                NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
+                NioRequest request = connection.getRequest();
                 timeoutManager.addConnTimeoutHandler(key, request.getConnTimeout());
             } catch (Exception e) {
                 NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);

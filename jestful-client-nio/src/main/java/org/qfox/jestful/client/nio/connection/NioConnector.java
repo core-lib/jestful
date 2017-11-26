@@ -6,6 +6,7 @@ import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.core.Action;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 
 /**
  * Created by payne on 2017/4/2.
@@ -13,5 +14,7 @@ import java.io.IOException;
 public interface NioConnector extends Connector {
 
     NioConnection nioConnect(Action action, Gateway gateway, NioClient client) throws IOException;
+
+    SocketAddress nioAddress(Action action, Gateway gateway, NioClient client) throws IOException;
 
 }

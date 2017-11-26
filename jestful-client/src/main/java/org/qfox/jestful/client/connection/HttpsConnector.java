@@ -12,7 +12,9 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketAddress;
 import java.net.URL;
 
 /**
@@ -53,9 +55,10 @@ public class HttpsConnector implements Connector {
             SSLSocketFactory SSLSocketFactory = client.getSSLSocketFactory();
             if (SSLSocketFactory != null) httpsURLConnection.setSSLSocketFactory(SSLSocketFactory);
 
+            SocketAddress address = address(action, gateway, client);
             Request request = new JestfulHttpsClientRequest(httpsURLConnection);
             Response response = new JestfulHttpsClientResponse(httpsURLConnection);
-            Connection connection = new Connection(request, response);
+            Connection connection = new Connection(address, request, response);
 
             // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
             Boolean keepAlive = client.getKeepAlive();
@@ -71,6 +74,14 @@ public class HttpsConnector implements Connector {
             if (error && httpsURLConnection != null) httpsURLConnection.disconnect();
             else gateway.onConnected(action);
         }
+    }
+
+    @Override
+    public SocketAddress address(Action action, Gateway gateway, Client client) {
+        String host = action.getHostname();
+        Integer port = action.getPort();
+        port = port != null && port >= 0 ? port : 443;
+        return gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
     }
 
 }

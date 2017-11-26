@@ -17,21 +17,43 @@ import java.nio.ByteBuffer;
  */
 public class JestfulAioHttpClientResponse extends JestfulClientResponse implements AioResponse {
     private final Object lock = new Object();
-    private AioByteArrayOutputStream head = new AioByteArrayOutputStream();
-    private AioByteArrayOutputStream body = new AioByteArrayOutputStream();
+    private final AioByteArrayOutputStream head = new AioByteArrayOutputStream();
+    private final AioByteArrayOutputStream body = new AioByteArrayOutputStream();
     private Boolean chunked;
     private int crlfs;
     private int total;
     private int position;
     private ByteBuffer last;
     private boolean loaded;
-    private Status status = new Status(200, "OK");
+    private Status status;
     private InputStream in;
     private Reader reader;
     private boolean closed;
 
     protected JestfulAioHttpClientResponse(Action action, Connector connector, Gateway gateway) {
         super(action, connector, gateway);
+    }
+
+    @Override
+    public boolean isKeepAlive() {
+        return "keep-alive".equalsIgnoreCase(getResponseHeader("Connection"));
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        if (this.head != null) this.head.reset(); // 初始化的时候这个方法会被调用 而此时 head 字段还没被实例化
+        if (this.body != null) this.body.reset(); // 初始化的时候这个方法会被调用 而此时 body 字段还没被实例化
+        this.chunked = null;
+        this.crlfs = 0;
+        this.total = 0;
+        this.position = 0;
+        this.last = null;
+        this.loaded = false;
+        this.status = new Status(200, "OK");
+        this.in = null;
+        this.reader = null;
+        this.closed = false;
     }
 
     private void doReadHeader() throws IOException {

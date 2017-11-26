@@ -8,6 +8,7 @@ import org.qfox.jestful.client.nio.NioResponse;
 import org.qfox.jestful.core.Action;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 
 /**
  * Created by payne on 2017/4/2.
@@ -16,9 +17,10 @@ public class HttpNioConnector extends HttpConnector implements NioConnector {
 
     @Override
     public NioConnection nioConnect(Action action, Gateway gateway, NioClient client) throws IOException {
+        SocketAddress address = nioAddress(action, gateway, client);
         NioRequest request = new JestfulNioHttpClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout());
         NioResponse response = new JestfulNioHttpClientResponse(action, this, gateway);
-        NioConnection connection = new NioConnection(request, response);
+        NioConnection connection = new NioConnection(address, request, response);
 
         // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
         Boolean keepAlive = client.getKeepAlive();
@@ -27,6 +29,11 @@ public class HttpNioConnector extends HttpConnector implements NioConnector {
         else request.setRequestHeader("Connection", "close");
 
         return connection;
+    }
+
+    @Override
+    public SocketAddress nioAddress(Action action, Gateway gateway, NioClient client) throws IOException {
+        return address(action, gateway, client);
     }
 
 }

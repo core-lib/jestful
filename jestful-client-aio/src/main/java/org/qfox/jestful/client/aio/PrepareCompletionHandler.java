@@ -1,9 +1,9 @@
 package org.qfox.jestful.client.aio;
 
+import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.core.Action;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.AsynchronousSocketChannel;
 
@@ -20,15 +20,12 @@ public class PrepareCompletionHandler extends AioCompletionHandler<Void> impleme
 
     @Override
     public void onCompleted(Void result, Action action) throws Exception {
-        String protocol = action.getProtocol();
-        String host = action.getHostname();
-        Integer port = action.getPort();
-        port = port != null && port >= 0 ? port : "https".equalsIgnoreCase(protocol) ? 443 : "http".equalsIgnoreCase(protocol) ? 80 : 0;
         Gateway gateway = client.getGateway();
-        SocketAddress address = gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
         AioOptions options = client.getOptions();
         options.config(channel);
+        AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
+        SocketAddress address = connection.getAddress();
         channel.connect(address, action, new ConnectCompletionHandler(client, channel));
     }
 

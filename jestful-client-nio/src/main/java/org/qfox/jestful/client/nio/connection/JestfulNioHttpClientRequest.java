@@ -33,6 +33,21 @@ public class JestfulNioHttpClientRequest extends JestfulClientRequest implements
     }
 
     @Override
+    public boolean isKeepAlive() {
+        return "keep-alive".equalsIgnoreCase(getRequestHeader("Connection"));
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        this.out = null;
+        this.writer = null;
+        this.closed = false;
+        this.head = null;
+        this.body = null;
+    }
+
+    @Override
     public InputStream getRequestInputStream() throws IOException {
         throw new UnsupportedOperationException();
     }

@@ -10,6 +10,7 @@ import org.qfox.jestful.core.Action;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import java.io.IOException;
+import java.net.SocketAddress;
 
 /**
  * Created by payne on 2017/4/5.
@@ -27,9 +28,10 @@ public class HttpsAioConnector extends HttpsConnector implements AioConnector {
         engine.setUseClientMode(true);
         engine.beginHandshake();
         AioSSLChannel aioSSLChannel = new JestfulAioSSLChannel(engine);
+        SocketAddress address = aioAddress(action, gateway, client);
         AioRequest request = new JestfulAioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), aioSSLChannel);
         AioResponse response = new JestfulAioHttpsClientResponse(action, this, gateway, aioSSLChannel);
-        AioConnection connection = new AioConnection(request, response);
+        AioConnection connection = new AioConnection(address, request, response);
 
         // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
         Boolean keepAlive = client.getKeepAlive();
@@ -38,6 +40,11 @@ public class HttpsAioConnector extends HttpsConnector implements AioConnector {
         else request.setRequestHeader("Connection", "close");
 
         return connection;
+    }
+
+    @Override
+    public SocketAddress aioAddress(Action action, Gateway gateway, AioClient client) throws IOException {
+        return address(action, gateway, client);
     }
 
     private SSLContext getDefaultSSLContext() throws IOException {

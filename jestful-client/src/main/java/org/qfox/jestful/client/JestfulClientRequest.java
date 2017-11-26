@@ -12,11 +12,11 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class JestfulClientRequest implements Request {
-    protected final Action action;
-    protected final Connector connector;
-    protected final Gateway gateway;
+public class JestfulClientRequest implements Request, ReusableRequest {
     protected final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
+    protected Action action;
+    protected Connector connector;
+    protected Gateway gateway;
     protected Request request;
     protected int connTimeout;
     protected int readTimeout;
@@ -24,7 +24,30 @@ public class JestfulClientRequest implements Request {
     protected String characterEncoding;
 
     protected JestfulClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
-        super();
+        reset(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
+    }
+
+    @Override
+    public boolean isKeepAlive() {
+        return false;
+    }
+
+    @Override
+    public void clear() {
+        this.header.clear();
+        this.action = null;
+        this.connector = null;
+        this.gateway = null;
+        this.request = null;
+        this.connTimeout = 0;
+        this.readTimeout = 0;
+        this.writeTimeout = 0;
+        this.characterEncoding = null;
+    }
+
+    @Override
+    public void reset(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
+        this.clear();
         this.action = action;
         this.connector = connector;
         this.gateway = gateway;

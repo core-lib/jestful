@@ -13,16 +13,36 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class JestfulClientResponse implements Response {
-    protected final Action action;
-    protected final Connector connector;
-    protected final Gateway gateway;
+public class JestfulClientResponse implements Response, ReusableResponse {
     protected final Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
+    protected Action action;
+    protected Connector connector;
+    protected Gateway gateway;
     protected Response response;
     protected String characterEncoding;
 
     protected JestfulClientResponse(Action action, Connector connector, Gateway gateway) {
-        super();
+        reset(action, connector, gateway);
+    }
+
+    @Override
+    public boolean isKeepAlive() {
+        return false;
+    }
+
+    @Override
+    public void clear() {
+        this.header.clear();
+        this.action = null;
+        this.connector = null;
+        this.gateway = null;
+        this.response = null;
+        this.characterEncoding = null;
+    }
+
+    @Override
+    public void reset(Action action, Connector connector, Gateway gateway) {
+        this.clear();
         this.action = action;
         this.connector = connector;
         this.gateway = gateway;

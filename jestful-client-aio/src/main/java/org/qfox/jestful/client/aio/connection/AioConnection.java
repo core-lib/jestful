@@ -4,13 +4,15 @@ import org.qfox.jestful.client.aio.AioRequest;
 import org.qfox.jestful.client.aio.AioResponse;
 import org.qfox.jestful.client.connection.Connection;
 
+import java.net.SocketAddress;
+
 /**
  * Created by payne on 2017/4/2.
  */
 public class AioConnection extends Connection {
 
-    public AioConnection(AioRequest request, AioResponse response) {
-        super(request, response);
+    public AioConnection(SocketAddress address, AioRequest request, AioResponse response) {
+        super(address, request, response);
     }
 
     @Override

@@ -9,9 +9,7 @@ import org.qfox.jestful.core.Restful;
 import org.qfox.jestful.core.exception.JestfulIOException;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.net.URL;
+import java.net.*;
 
 public class HttpConnector implements Connector {
 
@@ -25,15 +23,17 @@ public class HttpConnector implements Connector {
         HttpURLConnection httpURLConnection = null;
         try {
             String url = action.getURL();
+
             httpURLConnection = (HttpURLConnection) new URL(url).openConnection(gateway.isProxy() ? gateway.toProxy() : Proxy.NO_PROXY);
             Restful restful = action.getRestful();
             httpURLConnection.setRequestMethod(restful.getMethod());
             httpURLConnection.setDoOutput(restful.isAcceptBody());
             httpURLConnection.setDoInput(true);
             httpURLConnection.setInstanceFollowRedirects(false);
+            SocketAddress address = address(action, gateway, client);
             Request request = new JestfulHttpClientRequest(httpURLConnection);
             Response response = new JestfulHttpClientResponse(httpURLConnection);
-            Connection connection = new Connection(request, response);
+            Connection connection = new Connection(address, request, response);
 
             // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
             Boolean keepAlive = client.getKeepAlive();
@@ -51,4 +51,11 @@ public class HttpConnector implements Connector {
         }
     }
 
+    @Override
+    public SocketAddress address(Action action, Gateway gateway, Client client) {
+        String host = action.getHostname();
+        Integer port = action.getPort();
+        port = port != null && port >= 0 ? port : 80;
+        return gateway != null && gateway.isProxy() ? gateway.toSocketAddress() : new InetSocketAddress(host, port);
+    }
 }

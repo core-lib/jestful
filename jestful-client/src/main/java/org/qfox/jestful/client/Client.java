@@ -30,6 +30,7 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
@@ -299,6 +300,19 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 connection = connector.connect(action, gateway, this);
                 action.getExtra().put(Connection.class, connection);
                 return connection;
+            }
+        }
+        throw new UnsupportedProtocolException(action.getProtocol());
+    }
+
+    public SocketAddress address(Action action, Gateway gateway, Client client) throws IOException {
+        Connection connection = (Connection) action.getExtra().get(Connection.class);
+        if (connection != null) {
+            return connection.getAddress();
+        }
+        for (Connector connector : connectors.values()) {
+            if (connector.supports(action)) {
+                return connector.address(action, gateway, this);
             }
         }
         throw new UnsupportedProtocolException(action.getProtocol());

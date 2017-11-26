@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
  */
 public class JestfulAioHttpsClientResponse extends JestfulAioHttpClientResponse {
     private final AioSSLChannel aioSSLChannel;
-    private ByteBuffer block = ByteBuffer.allocate(4096);
+    private final ByteBuffer block = ByteBuffer.allocate(4096);
 
     protected JestfulAioHttpsClientResponse(Action action,
                                             Connector connector,
@@ -22,6 +22,12 @@ public class JestfulAioHttpsClientResponse extends JestfulAioHttpClientResponse 
                                             AioSSLChannel aioSSLChannel) {
         super(action, connector, gateway);
         this.aioSSLChannel = aioSSLChannel;
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        if (this.block != null) this.block.clear();
     }
 
     @Override

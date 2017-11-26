@@ -8,7 +8,7 @@ public class UnsupportedProtocolException extends JestfulRuntimeException {
     private final String protocol;
 
     public UnsupportedProtocolException(String protocol) {
-        this(protocol, protocol);
+        this("unsupported protocol " + protocol, protocol);
     }
 
     public UnsupportedProtocolException(String message, Throwable cause, String protocol) {
