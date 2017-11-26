@@ -25,7 +25,7 @@ public class SimpleLock implements Lock {
     }
 
     @Override
-    public synchronized void doWithLock(LockBlock block) throws Exception {
+    public synchronized void doWithLock(LockBlock block) {
         block.execute();
     }
 }

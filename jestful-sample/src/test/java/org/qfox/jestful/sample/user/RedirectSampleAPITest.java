@@ -8,8 +8,6 @@ import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
 import org.qfox.jestful.sample.RedirectSampleAPI;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Created by yangchangpei on 17/9/27.
  */
@@ -27,18 +25,11 @@ public class RedirectSampleAPITest {
                 .addBackPlugins(new Redirector())
                 .create(RedirectSampleAPI.class);
 
-        Lock lock = new SimpleLock();
-        AtomicInteger remain = new AtomicInteger(100);
-        for (int i = 0; i < 100; i++) {
-            new Thread(() -> {
-                User user = userAPI.source();
-//                System.out.println(user);
-                if (remain.decrementAndGet() == 0) {
-                    lock.openAll();
-                }
-            }).start();
-        }
-        lock.lockOne();
+        User user = userAPI.source();
+        System.out.println(user);
+
+        user = userAPI.source();
+        System.out.println(user);
     }
 
     @Test

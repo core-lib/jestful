@@ -5,6 +5,6 @@ package org.qfox.jestful.commons;
  */
 public interface LockBlock {
 
-    void execute() throws Exception;
+    void execute();
 
 }

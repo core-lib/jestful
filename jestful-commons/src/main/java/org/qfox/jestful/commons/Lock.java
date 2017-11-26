@@ -11,6 +11,6 @@ public interface Lock {
 
     void openAll();
 
-    void doWithLock(LockBlock block) throws Exception;
+    void doWithLock(LockBlock block);
 
 }
