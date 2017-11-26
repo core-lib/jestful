@@ -53,8 +53,8 @@ public class HttpsConnector implements Connector {
             SSLSocketFactory SSLSocketFactory = client.getSSLSocketFactory();
             if (SSLSocketFactory != null) httpsURLConnection.setSSLSocketFactory(SSLSocketFactory);
 
-            Request request = new HttpRequest(httpsURLConnection);
-            Response response = new HttpResponse(httpsURLConnection);
+            Request request = new JestfulHttpsClientRequest(httpsURLConnection);
+            Response response = new JestfulHttpsClientResponse(httpsURLConnection);
             Connection connection = new Connection(request, response);
 
             // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题

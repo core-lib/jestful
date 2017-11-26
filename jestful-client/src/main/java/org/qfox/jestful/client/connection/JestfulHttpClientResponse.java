@@ -21,13 +21,13 @@ import java.util.List;
  * @date 2016年4月27日 下午9:30:33
  * @since 1.0.0
  */
-public class HttpResponse implements Response {
+public class JestfulHttpClientResponse implements Response {
     private final HttpURLConnection httpURLConnection;
     private String characterEncoding;
     private InputStream inputStream;
     private Reader reader;
 
-    public HttpResponse(HttpURLConnection httpURLConnection) {
+    public JestfulHttpClientResponse(HttpURLConnection httpURLConnection) {
         super();
         this.httpURLConnection = httpURLConnection;
     }

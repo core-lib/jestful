@@ -31,8 +31,8 @@ public class HttpConnector implements Connector {
             httpURLConnection.setDoOutput(restful.isAcceptBody());
             httpURLConnection.setDoInput(true);
             httpURLConnection.setInstanceFollowRedirects(false);
-            Request request = new HttpRequest(httpURLConnection);
-            Response response = new HttpResponse(httpURLConnection);
+            Request request = new JestfulHttpClientRequest(httpURLConnection);
+            Response response = new JestfulHttpClientResponse(httpURLConnection);
             Connection connection = new Connection(request, response);
 
             // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题

@@ -2,7 +2,6 @@ package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
-import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
@@ -15,7 +14,7 @@ public class RedirectSampleAPITest {
 
     @Test
     public void get() throws Exception {
-        RedirectSampleAPI userAPI = NioClient.builder()
+        RedirectSampleAPI userAPI = Client.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
                 .setPort(8080)

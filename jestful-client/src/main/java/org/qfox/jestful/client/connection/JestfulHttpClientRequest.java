@@ -20,13 +20,13 @@ import java.util.List;
  * @date 2016年4月27日 下午9:17:47
  * @since 1.0.0
  */
-public class HttpRequest implements Request {
+public class JestfulHttpClientRequest implements Request {
     private final HttpURLConnection httpURLConnection;
     private String characterEncoding;
     private OutputStream outputStream;
     private Writer writer;
 
-    public HttpRequest(HttpURLConnection httpURLConnection) {
+    public JestfulHttpClientRequest(HttpURLConnection httpURLConnection) {
         super();
         this.httpURLConnection = httpURLConnection;
     }
