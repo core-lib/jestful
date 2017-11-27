@@ -12,7 +12,7 @@ public class Redirection implements Serializable {
     public Redirection(String name, String method, String URL) {
         if (name == null) throw new IllegalArgumentException("name == null");
         if (method == null) throw new IllegalArgumentException("method == null");
-        if (URL == null) throw new IllegalArgumentException("method == null");
+        if (URL == null) throw new IllegalArgumentException("URL == null");
         this.name = name;
         this.method = method;
         this.URL = URL;

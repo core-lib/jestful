@@ -9,6 +9,8 @@ public interface ReusableRequest extends Request {
 
     boolean isKeepAlive();
 
+    void setKeepAlive(boolean keepAlive);
+
     void clear();
 
     void reset(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout);

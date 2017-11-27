@@ -38,6 +38,11 @@ public class JestfulAioHttpClientRequest extends JestfulClientRequest implements
     }
 
     @Override
+    public void setKeepAlive(boolean keepAlive) {
+        setRequestHeader("Connection", keepAlive ? "keep-alive" : "close");
+    }
+
+    @Override
     public void clear() {
         super.clear();
         this.out = null;

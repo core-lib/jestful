@@ -33,6 +33,10 @@ public class JestfulClientRequest implements Request, ReusableRequest {
     }
 
     @Override
+    public void setKeepAlive(boolean keepAlive) {
+    }
+
+    @Override
     public void clear() {
         this.header.clear();
         this.action = null;

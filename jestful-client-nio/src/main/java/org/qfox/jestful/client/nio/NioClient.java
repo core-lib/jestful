@@ -11,8 +11,6 @@ import org.qfox.jestful.client.nio.balancer.NioBalancer;
 import org.qfox.jestful.client.nio.catcher.NioCatcher;
 import org.qfox.jestful.client.nio.connection.NioConnection;
 import org.qfox.jestful.client.nio.connection.NioConnector;
-import org.qfox.jestful.client.nio.pool.ConcurrentSocketChannelConnectionPool;
-import org.qfox.jestful.client.nio.pool.SocketChannelConnectionPool;
 import org.qfox.jestful.client.nio.timeout.SortedTimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
 import org.qfox.jestful.client.scheduler.Callback;
@@ -55,7 +53,6 @@ public class NioClient extends Client implements NioConnector {
     private final NioProcessor[] processors;
     private final NioBalancer balancer;
     private final NioOptions options;
-    private final SocketChannelConnectionPool socketChannelConnectionPool;
 
     private NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
@@ -67,7 +64,6 @@ public class NioClient extends Client implements NioConnector {
         for (int i = 0; i < concurrency; i++) cpu.execute(processors[i] = new NioKernel());
         this.balancer = builder.balancer;
         this.options = builder.options;
-        this.socketChannelConnectionPool = builder.socketChannelConnectionPool;
     }
 
     public static NioClient getDefaultClient() {
@@ -128,6 +124,7 @@ public class NioClient extends Client implements NioConnector {
             if (connector instanceof NioConnector && connector.supports(action)) {
                 NioConnector nioConnector = (NioConnector) connector;
                 connection = nioConnector.nioConnect(action, gateway, this);
+                connection.setKeepAlive(keepAlive != null ? keepAlive : false);
                 action.getExtra().put(NioConnection.class, connection);
                 return connection;
             }
@@ -173,10 +170,6 @@ public class NioClient extends Client implements NioConnector {
 
     public NioOptions getOptions() {
         return options;
-    }
-
-    public SocketChannelConnectionPool getSocketChannelConnectionPool() {
-        return socketChannelConnectionPool;
     }
 
     private class NioPromise extends BioPromise {
@@ -325,7 +318,6 @@ public class NioClient extends Client implements NioConnector {
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private NioBalancer balancer = new LoopedNioBalancer();
         private NioOptions options = NioOptions.DEFAULT;
-        private SocketChannelConnectionPool socketChannelConnectionPool = new ConcurrentSocketChannelConnectionPool();
 
         NioBuilder() {
             this.connTimeout = 20 * 1000;
@@ -401,13 +393,6 @@ public class NioClient extends Client implements NioConnector {
             return (B) this;
         }
 
-        public B setSocketChannelConnectionPool(SocketChannelConnectionPool socketChannelConnectionPool) {
-            if (options == null) {
-                throw new IllegalArgumentException("socket channel connection pool can not be null");
-            }
-            this.socketChannelConnectionPool = socketChannelConnectionPool;
-            return (B) this;
-        }
     }
 
     private class NioKernel implements NioProcessor, NioCalls.NioConsumer, Closeable {
