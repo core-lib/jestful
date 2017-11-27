@@ -6,9 +6,9 @@ import org.qfox.jestful.core.Response;
 import java.net.SocketAddress;
 
 public class Connection {
-    private final SocketAddress address;
-    private final Request request;
-    private final Response response;
+    protected final SocketAddress address;
+    protected final Request request;
+    protected final Response response;
 
     public Connection(SocketAddress address, Request request, Response response) {
         super();

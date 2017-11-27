@@ -32,7 +32,6 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -423,15 +422,11 @@ public class NioClient extends Client implements NioConnector {
             try {
                 (gateway != null ? gateway : Gateway.NULL).onConnected(action);
 
-                SocketChannel channel = SocketChannel.open();
-                channel.configureBlocking(false);
-                doChannelConf(channel);
                 NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
-                SocketAddress address = connection.getAddress();
-                channel.connect(address);
-                SelectionKey key = channel.register(selector, SelectionKey.OP_CONNECT, action);
-                NioRequest request = connection.getRequest();
-                timeoutManager.addConnTimeoutHandler(key, request.getConnTimeout());
+                connection.config(options);
+                connection.connect();
+                SelectionKey key = connection.register(selector, SelectionKey.OP_CONNECT, action);
+                timeoutManager.addConnTimeoutHandler(key, connection.getConnTimeout());
             } catch (Exception e) {
                 NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                 listener.onException(action, e);
@@ -449,12 +444,12 @@ public class NioClient extends Client implements NioConnector {
             return selector.keys().size();
         }
 
-        private void doKeyCancel(SelectionKey key) {
+        private void release(SelectionKey key) {
             key.cancel();
             IOKit.close(key.channel());
         }
 
-        private void doExceptionCatch(SelectionKey key, StatusException statusException) {
+        private void handle(SelectionKey key, StatusException statusException) {
             try {
                 Action action = (Action) key.attachment();
                 for (Catcher catcher : catchers.values()) {
@@ -465,11 +460,11 @@ public class NioClient extends Client implements NioConnector {
                 }
                 throw statusException;
             } catch (Exception e) {
-                doChannelException(key, e);
+                handle(key, e);
             }
         }
 
-        private void doChannelException(SelectionKey key, Exception e) {
+        private void handle(SelectionKey key, Exception e) {
             try {
                 Action action = (Action) key.attachment();
                 NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
@@ -479,56 +474,49 @@ public class NioClient extends Client implements NioConnector {
             }
         }
 
-        private void doChannelRecv(SelectionKey key) throws Exception {
-            SocketChannel channel = (SocketChannel) key.channel();
+        private void read(SelectionKey key) throws Exception {
             Action action = (Action) key.attachment();
-            NioResponse response = (NioResponse) action.getExtra().get(NioResponse.class);
+            NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
             buffer.clear();
-            channel.read(buffer);
+            connection.read(buffer);
             buffer.flip();
-            boolean finished = response.load(buffer);
+            boolean finished = connection.load(buffer);
             if (finished) {
-                doKeyCancel(key);
+                release(key);
 
                 NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                 listener.onCompleted(action);
             }
         }
 
-        private void doChannelSend(SelectionKey key) throws Exception {
-            SocketChannel channel = (SocketChannel) key.channel();
+        private void write(SelectionKey key) throws Exception {
             Action action = (Action) key.attachment();
-            NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
+            NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
             buffer.clear();
-            request.copy(buffer);
+            connection.copy(buffer);
             buffer.flip();
-            int n = channel.write(buffer);
-            if (request.move(n)) {
+            int n = connection.write(buffer);
+            if (connection.move(n)) {
                 // 请求发送成功后只注册READ把之前的 WRITE | READ 注销掉 开始计算Read Timeout
-                channel.register(selector, SelectionKey.OP_READ, action);
-                timeoutManager.addRecvTimeoutHandler(key, request.getReadTimeout());
+                connection.register(selector, SelectionKey.OP_READ, action);
+                timeoutManager.addRecvTimeoutHandler(key, connection.getReadTimeout());
 
                 NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                 listener.onRequested(action);
             }
         }
 
-        private void doChannelConn(SelectionKey key) throws Exception {
-            SocketChannel channel = (SocketChannel) key.channel();
+        private void connect(SelectionKey key) throws Exception {
             Action action = (Action) key.attachment();
-            NioRequest request = (NioRequest) action.getExtra().get(NioRequest.class);
-            if (channel.isConnectionPending() && channel.finishConnect()) {
+            NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
+            if (connection.isConnectionPending() && connection.finishConnect()) {
                 // 本来HTTP 模式情况下这里只需要注册WRITE即可 但是为了适配SSL模式的握手过程的握手数据读写 这里必须注册成WRITE | READ 但是只计算Write Timeout
-                channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
-                timeoutManager.addSendTimeoutHandler(key, request.getWriteTimeout());
+                connection.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, action);
+                timeoutManager.addSendTimeoutHandler(key, connection.getWriteTimeout());
 
                 NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                 listener.onConnected(action);
             }
-        }
-
-        private void doChannelConf(SocketChannel channel) throws IOException {
-            options.config(channel);
         }
 
         @Override
@@ -551,18 +539,18 @@ public class NioClient extends Client implements NioConnector {
                         key = iterator.next();
                         iterator.remove();
                         if (!key.isValid()) continue;
-                        if (key.isConnectable()) doChannelConn(key);
-                        if (key.isWritable()) doChannelSend(key);
-                        if (key.isReadable()) doChannelRecv(key);
+                        if (key.isConnectable()) connect(key);
+                        if (key.isWritable()) write(key);
+                        if (key.isReadable()) read(key);
                     }
                     // 异常捕获
                 } catch (StatusException e) {
-                    if (key != null && key.isValid()) doKeyCancel(key);
-                    if (key != null) doExceptionCatch(key, e);
+                    if (key != null && key.isValid()) release(key);
+                    if (key != null) handle(key, e);
                     else logger.warn("unexpected exception", e);
                 } catch (Exception e) {
-                    if (key != null && key.isValid()) doKeyCancel(key);
-                    if (key != null) doChannelException(key, e);
+                    if (key != null && key.isValid()) release(key);
+                    if (key != null) handle(key, e);
                     else logger.warn("unexpected exception", e);
                 }
             }
