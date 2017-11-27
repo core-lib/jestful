@@ -27,6 +27,7 @@ public class QueryParameterProcessor implements Actor, Initialable {
         query = query != null ? query : "";
         String charset = action.getQueryEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.QUERY);
+        StringBuilder sb = new StringBuilder(query);
         for (Parameter parameter : parameters) {
             String[] values = queryStringConversion.convert(parameter);
             for (int i = 0; values != null && i < values.length; i++) {
@@ -43,10 +44,11 @@ public class QueryParameterProcessor implements Actor, Initialable {
                 if (parameter.isCoding() && !parameter.isEncoded()) {
                     value = URLEncoder.encode(value, charset);
                 }
-                query += (query.length() == 0 ? "" : "&") + name + "=" + value;
+                sb.append(sb.length() == 0 ? "" : "&").append(name).append("=").append(value);
             }
         }
-        action.setQuery(query == null || query.length() == 0 ? null : query);
+        query = sb.toString();
+        action.setQuery(query.length() == 0 ? null : query);
         return action.execute();
     }
 
