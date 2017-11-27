@@ -1,8 +1,7 @@
 package org.qfox.jestful.client.nio.connection;
 
-import org.qfox.jestful.client.connection.Connection;
-import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
+import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.nio.NioOptions;
 import org.qfox.jestful.client.nio.NioRequest;
 import org.qfox.jestful.client.nio.NioResponse;
@@ -20,13 +19,19 @@ import java.nio.channels.SocketChannel;
 /**
  * Created by payne on 2017/4/2.
  */
-public class NioConnection extends Connection implements Closeable {
-    private final SocketChannel channel;
+public abstract class NioConnection implements Closeable {
+    protected final NioConnector connector;
+    protected final SocketChannel channel;
+    protected final SocketAddress address;
+    protected NioRequest request;
+    protected NioResponse response;
 
-    public NioConnection(SocketAddress address, NioRequest request, NioResponse response) throws IOException {
-        super(address, request, response);
+    public NioConnection(NioConnector connector, SocketAddress address, Action action, Gateway gateway, NioClient client) throws IOException {
+        this.connector = connector;
         this.channel = SocketChannel.open();
         this.channel.configureBlocking(false);
+        this.address = address;
+        reset(action, gateway, client);
     }
 
     public void config(NioOptions options) throws IOException {
@@ -38,6 +43,11 @@ public class NioConnection extends Connection implements Closeable {
     }
 
     // ------------------- SocketChannel Delegate Methods Start ------------------ //
+
+
+    public boolean isConnected() {
+        return channel.isConnected();
+    }
 
     public boolean isConnectionPending() {
         return channel.isConnectionPending();
@@ -53,6 +63,10 @@ public class NioConnection extends Connection implements Closeable {
 
     public SelectionKey register(Selector sel, int ops) throws ClosedChannelException {
         return channel.register(sel, ops);
+    }
+
+    public SelectionKey keyFor(Selector sel) {
+        return channel.keyFor(sel);
     }
 
     public int read(ByteBuffer dst) throws IOException {
@@ -84,11 +98,11 @@ public class NioConnection extends Connection implements Closeable {
     // ------------------- NioRequest Delegate Methods Start ------------------ //
 
     public void copy(ByteBuffer buffer) throws IOException {
-        getRequest().copy(buffer);
+        request.copy(buffer);
     }
 
     public boolean move(int n) throws IOException {
-        return getRequest().move(n);
+        return request.move(n);
     }
 
     public int getConnTimeout() {
@@ -120,45 +134,53 @@ public class NioConnection extends Connection implements Closeable {
     // ------------------- NioResponse Delegate Methods Start ------------------ //
 
     public boolean load(ByteBuffer buffer) throws IOException {
-        return getResponse().load(buffer);
+        return response.load(buffer);
     }
 
     // ------------------- NioResponse Delegate Methods End ------------------ //
 
     public boolean isKeepAlive() {
-        return getRequest().isKeepAlive() && getResponse().isKeepAlive();
+        return request.isKeepAlive() && response.isKeepAlive();
     }
 
     public void setKeepAlive(boolean keepAlive) {
-        getRequest().setKeepAlive(keepAlive);
+        request.setKeepAlive(keepAlive);
     }
 
     public void clear() {
-        getRequest().clear();
-        getResponse().clear();
+        request.clear();
+        response.clear();
     }
 
-    public void reset(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
-        getRequest().reset(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
-        getResponse().reset(action, connector, gateway);
-    }
+    public abstract void reset(Action action, Gateway gateway, NioClient client);
 
-    @Override
-    public NioRequest getRequest() {
-        return (NioRequest) request;
-    }
-
-    @Override
-    public NioResponse getResponse() {
-        return (NioResponse) response;
+    public NioConnector getConnector() {
+        return connector;
     }
 
     public SocketChannel getChannel() {
         return channel;
     }
 
+    public SocketAddress getAddress() {
+        return address;
+    }
+
+    public NioRequest getRequest() {
+        return request;
+    }
+
+    public NioResponse getResponse() {
+        return response;
+    }
+
     @Override
     public void close() throws IOException {
+        channel.close();
+    }
 
+    @Override
+    public String toString() {
+        return channel.toString();
     }
 }

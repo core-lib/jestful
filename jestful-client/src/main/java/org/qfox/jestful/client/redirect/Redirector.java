@@ -48,6 +48,9 @@ public class Redirector implements BackPlugin {
         if (redirection != null) {
             Redirect redirect = redirects.match(action, redirection);
             if (redirect != null) {
+                Promise promise = (Promise) action.execute();
+                promise.cancel();
+
                 Client client = (Client) action.getExtra().get(Client.class);
                 Redirections redirections = (Redirections) action.getExtra().get(Redirections.class);
                 Integer count = (Integer) action.getExtra().get(Redirector.class);
@@ -200,6 +203,11 @@ public class Redirector implements BackPlugin {
                     new Calling(callback, result, exception).call();
                 }
             });
+        }
+
+        @Override
+        public void cancel() {
+            promise.cancel();
         }
 
         @Override

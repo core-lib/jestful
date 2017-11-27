@@ -28,7 +28,12 @@ public class JestfulNioHttpClientRequest extends JestfulClientRequest implements
     protected ByteBuffer head;
     protected ByteBuffer body;
 
-    protected JestfulNioHttpClientRequest(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
+    protected JestfulNioHttpClientRequest(Action action,
+                                          Connector connector,
+                                          Gateway gateway,
+                                          int connTimeout,
+                                          int readTimeout,
+                                          int writeTimeout) {
         super(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
     }
 

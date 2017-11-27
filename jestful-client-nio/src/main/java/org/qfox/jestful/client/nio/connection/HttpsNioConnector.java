@@ -3,8 +3,6 @@ package org.qfox.jestful.client.nio.connection;
 import org.qfox.jestful.client.connection.HttpsConnector;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.client.nio.NioClient;
-import org.qfox.jestful.client.nio.NioRequest;
-import org.qfox.jestful.client.nio.NioResponse;
 import org.qfox.jestful.core.Action;
 
 import javax.net.ssl.SSLContext;
@@ -29,9 +27,7 @@ public class HttpsNioConnector extends HttpsConnector implements NioConnector {
         engine.beginHandshake();
         NioSSLChannel nioSSLChannel = new JestfulNioSSLChannel(engine);
         SocketAddress address = nioAddress(action, gateway, client);
-        NioRequest request = new JestfulNioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), nioSSLChannel);
-        NioResponse response = new JestfulNioHttpsClientResponse(action, this, gateway, nioSSLChannel);
-        return new NioConnection(address, request, response);
+        return new HttpsNioConnection(this, address, action, gateway, client, nioSSLChannel);
     }
 
     @Override

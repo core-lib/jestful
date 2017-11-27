@@ -1006,6 +1006,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         protected volatile Boolean success;
         protected volatile Object result;
         protected volatile Exception exception;
+        protected volatile boolean canceled;
 
         protected BioPromise(Action action) {
             this.action = action;
@@ -1015,6 +1016,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         public Object acquire() throws Exception {
             if (success == null) {
                 synchronized (lock) {
+                    if (canceled) throw new IllegalStateException("canceled");
                     if (success == null) {
                         try {
                             result = call(action);
@@ -1049,6 +1051,13 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                     }
                 }
             });
+        }
+
+        @Override
+        public void cancel() {
+            synchronized (lock) {
+                canceled = true;
+            }
         }
 
         @Override

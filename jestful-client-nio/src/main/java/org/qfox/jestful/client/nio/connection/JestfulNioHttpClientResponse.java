@@ -30,7 +30,9 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
     private Reader reader;
     private boolean closed;
 
-    protected JestfulNioHttpClientResponse(Action action, Connector connector, Gateway gateway) {
+    protected JestfulNioHttpClientResponse(Action action,
+                                           Connector connector,
+                                           Gateway gateway) {
         super(action, connector, gateway);
     }
 

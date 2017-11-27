@@ -55,7 +55,9 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
             throw new IllegalConfigException(message, controller);
         }
         String value = jestful.value();
-        this.expression = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
+        if (!value.equals("/")) value = ("/" + value).replaceAll("/+", "/");
+        if (!value.equals("/")) value = value.replaceAll("/+$", "");
+        this.expression = value;
         Method[] methods = klass.getMethods();
         for (Method method : methods) {
             if (method.isSynthetic()) {

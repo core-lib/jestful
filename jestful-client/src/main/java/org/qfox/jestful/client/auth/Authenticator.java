@@ -282,6 +282,11 @@ public class Authenticator implements BackPlugin {
         }
 
         @Override
+        public void cancel() {
+            promise.cancel();
+        }
+
+        @Override
         public Client client() {
             return promise.client();
         }

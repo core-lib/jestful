@@ -91,7 +91,9 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
                 this.produces = new Accepts(produceMediaTypes);
 
                 String value = restful.annotationType().getMethod("value").invoke(restful).toString();
-                this.expression = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
+                if (!value.equals("/")) value = ("/" + value).replaceAll("/+", "/");
+                if (!value.equals("/")) value = value.replaceAll("/+$", "");
+                this.expression = value;
                 this.regex = bind(resource.getExpression() + expression);
                 this.pattern = Pattern.compile(regex);
 

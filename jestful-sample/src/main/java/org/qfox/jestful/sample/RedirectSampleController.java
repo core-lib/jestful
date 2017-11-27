@@ -14,14 +14,14 @@ public class RedirectSampleController {
 
     @GET("/source")
     public void getSource(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println(request.getRemoteUser() + "," + request.getRemoteAddr() + "," + request.getRemoteHost() + "," + request.getRemotePort());
+        System.out.print(request.getRemotePort() + ",");
         response.addHeader("Location", "http://localhost:8080/redirect/target?name=Payne");
         response.sendError(301);
     }
 
     @GET("/target")
     public User getTarget(HttpServletRequest request, @Query("name") String name) {
-        System.out.println(request.getRemoteUser() + "," + request.getRemoteAddr() + "," + request.getRemoteHost() + "," + request.getRemotePort());
+        System.out.print(request.getRemotePort() + ",");
         return new User("Payne", 1L, null, null);
     }
 

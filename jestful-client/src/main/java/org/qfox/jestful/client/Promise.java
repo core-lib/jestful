@@ -11,6 +11,8 @@ public interface Promise {
 
     void accept(Callback<Object> callback);
 
+    void cancel();
+
     Client client();
 
 }

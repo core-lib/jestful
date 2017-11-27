@@ -134,6 +134,11 @@ public class RetryController implements ForePlugin, BackPlugin {
         }
 
         @Override
+        public void cancel() {
+            promise.cancel();
+        }
+
+        @Override
         public Client client() {
             return promise.client();
         }
