@@ -31,15 +31,7 @@ public class HttpsAioConnector extends HttpsConnector implements AioConnector {
         SocketAddress address = aioAddress(action, gateway, client);
         AioRequest request = new JestfulAioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), aioSSLChannel);
         AioResponse response = new JestfulAioHttpsClientResponse(action, this, gateway, aioSSLChannel);
-        AioConnection connection = new AioConnection(address, request, response);
-
-        // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
-        Boolean keepAlive = client.getKeepAlive();
-        if (keepAlive == null) request.setRequestHeader("Connection", "close");
-        else if (keepAlive) request.setRequestHeader("Connection", "keep-alive");
-        else request.setRequestHeader("Connection", "close");
-
-        return connection;
+        return new AioConnection(address, request, response);
     }
 
     @Override

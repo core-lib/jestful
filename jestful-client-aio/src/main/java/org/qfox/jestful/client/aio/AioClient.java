@@ -108,6 +108,7 @@ public class AioClient extends Client implements AioConnector {
             if (connector instanceof AioConnector && connector.supports(action)) {
                 AioConnector aioConnector = (AioConnector) connector;
                 connection = aioConnector.aioConnect(action, gateway, this);
+                connection.setKeepAlive(keepAlive != null ? keepAlive : false);
                 action.getExtra().put(AioConnection.class, connection);
                 return connection;
             }
