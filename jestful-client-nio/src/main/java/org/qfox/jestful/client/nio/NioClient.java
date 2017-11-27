@@ -393,6 +393,16 @@ public class NioClient extends Client implements NioConnector {
             return (B) this;
         }
 
+        /**
+         * 暂时不支持 NIO 的长连接
+         *
+         * @param keepAlive 是否保持长连接
+         * @return this
+         */
+        @Override
+        public B setKeepAlive(Boolean keepAlive) {
+            return (B) this;
+        }
     }
 
     private class NioKernel implements NioProcessor, NioCalls.NioConsumer, Closeable {
