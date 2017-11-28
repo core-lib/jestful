@@ -36,7 +36,7 @@ public class JestfulAioHttpClientResponse extends JestfulClientResponse implemen
 
     @Override
     public boolean isKeepAlive() {
-        return getResponseHeader("Connection") == null || "keep-alive".equalsIgnoreCase(getResponseHeader("Connection"));
+        return "keep-alive".equalsIgnoreCase(getResponseHeader("Connection"));
     }
 
     @Override
