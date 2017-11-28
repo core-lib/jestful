@@ -25,6 +25,7 @@ public abstract class AioConnection implements Closeable {
     protected final SocketAddress address;
     protected AioRequest request;
     protected AioResponse response;
+    protected volatile boolean connected;
 
     public AioConnection(AioConnector connector, SocketAddress address, Action action, Gateway gateway, AioClient client) throws IOException {
         this.connector = connector;
@@ -37,12 +38,21 @@ public abstract class AioConnection implements Closeable {
         options.config(channel);
     }
 
-    public <A> void connect(A attachment, CompletionHandler<Void, ? super A> handler) {
+    public synchronized <A> void connect(A attachment, CompletionHandler<Void, ? super A> handler) {
+        if (connected) throw new IllegalStateException("channel is connected");
         channel.connect(address, attachment, handler);
+        connected = true;
     }
 
-    public Future<Void> connect() {
-        return channel.connect(address);
+    public synchronized Future<Void> connect() {
+        if (connected) throw new IllegalStateException("channel is connected");
+        Future<Void> future = channel.connect(address);
+        connected = true;
+        return future;
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 
     // ------------------- AsynchronousSocketChannel Delegate Methods Start ------------------ //

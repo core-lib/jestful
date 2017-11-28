@@ -2,7 +2,7 @@ package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
 import org.qfox.jestful.client.Client;
-import org.qfox.jestful.client.nio.NioClient;
+import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
@@ -34,7 +34,7 @@ public class RedirectSampleAPITest {
 
     @Test
     public void get() throws Exception {
-        NioClient client = NioClient.builder()
+        AioClient client = AioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
                 .setPort(8080)
@@ -45,22 +45,10 @@ public class RedirectSampleAPITest {
                 .addBackPlugins(new Redirector())
                 .create(RedirectSampleAPI.class);
 
-        Lock lock = new SimpleLock();
-        AtomicInteger remain = new AtomicInteger(1);
-        for (int i = 0; i < 1; i++) {
-            int finalI = i;
-            new Thread(() -> {
-                try {
-                    User user = userAPI.source();
-                    System.out.print(finalI + ",");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (remain.decrementAndGet() == 0) lock.openAll();
-                }
-            }).start();
+        for (int i = 0; i < 10; i++) {
+            User user = userAPI.source();
+            System.out.println(user);
         }
-        lock.lockOne();
     }
 
     @Test

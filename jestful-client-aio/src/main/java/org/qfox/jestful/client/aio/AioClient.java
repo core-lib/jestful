@@ -3,6 +3,8 @@ package org.qfox.jestful.client.aio;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.aio.connection.AioConnector;
+import org.qfox.jestful.client.aio.pool.AioConnectionPool;
+import org.qfox.jestful.client.aio.pool.ConcurrentAioConnectionPool;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnsupportedProtocolException;
@@ -36,6 +38,7 @@ public class AioClient extends Client implements AioConnector {
     private final AsynchronousChannelGroup aioChannelGroup;
     private final SSLContext sslContext;
     private final AioOptions options;
+    private final AioConnectionPool connectionPool;
 
     private AioClient(AioBuilder<?> builder) throws IOException {
         super(builder);
@@ -44,6 +47,7 @@ public class AioClient extends Client implements AioConnector {
         this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(cpu);
         this.sslContext = builder.sslContext;
         this.options = builder.options;
+        this.connectionPool = builder.connectionPool;
     }
 
     public static AioClient getDefaultClient() {
@@ -97,13 +101,23 @@ public class AioClient extends Client implements AioConnector {
         if (connection != null) {
             return connection;
         }
+
         for (Connector connector : connectors.values()) {
             if (connector instanceof AioConnector && connector.supports(action)) {
                 AioConnector aioConnector = (AioConnector) connector;
-                connection = aioConnector.aioConnect(action, gateway, this);
-                connection.setKeepAlive(keepAlive != null ? keepAlive : false);
-                action.getExtra().put(AioConnection.class, connection);
-                return connection;
+                SocketAddress address = aioConnector.aioAddress(action, gateway, this);
+                connection = connectionPool.acquire(address);
+                if (connection != null) {
+                    connection.reset(action, gateway, this);
+                    connection.setKeepAlive(keepAlive != null ? keepAlive : false);
+                    action.getExtra().put(AioConnection.class, connection);
+                    return connection;
+                } else {
+                    connection = aioConnector.aioConnect(action, gateway, this);
+                    connection.setKeepAlive(keepAlive != null ? keepAlive : false);
+                    action.getExtra().put(AioConnection.class, connection);
+                    return connection;
+                }
             }
         }
         throw new UnsupportedProtocolException(action.getProtocol());
@@ -140,10 +154,15 @@ public class AioClient extends Client implements AioConnector {
         return options;
     }
 
+    public AioConnectionPool getConnectionPool() {
+        return connectionPool;
+    }
+
     public static class AioBuilder<B extends AioBuilder<B>> extends Client.Builder<B> {
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private SSLContext sslContext;
         private AioOptions options = AioOptions.DEFAULT;
+        private AioConnectionPool connectionPool = new ConcurrentAioConnectionPool();
 
         AioBuilder() {
             this.connTimeout = 20 * 1000;
@@ -203,14 +222,11 @@ public class AioClient extends Client implements AioConnector {
             return (B) this;
         }
 
-        /**
-         * 暂时不支持 AIO 的长连接
-         *
-         * @param keepAlive 是否保持长连接
-         * @return this
-         */
-        @Override
-        public B setKeepAlive(Boolean keepAlive) {
+        public B setConnectionPool(AioConnectionPool connectionPool) {
+            if (options == null) {
+                throw new IllegalArgumentException("connection pool can not be null");
+            }
+            this.connectionPool = connectionPool;
             return (B) this;
         }
     }
@@ -261,6 +277,22 @@ public class AioClient extends Client implements AioConnector {
                 }
             } else {
                 super.accept(callback);
+            }
+        }
+
+        @Override
+        public void cancel() {
+            synchronized (lock) {
+                canceled = true;
+                lock.notifyAll();
+                // 回收连接
+                AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
+                if (connection.isKeepAlive()) {
+                    SocketAddress address = connection.getAddress();
+                    connectionPool.release(address, connection);
+                } else {
+                    IOKit.close(connection);
+                }
             }
         }
 
