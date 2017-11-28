@@ -1,12 +1,12 @@
 package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.aio.catcher.AioCatcher;
+import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.exception.StatusException;
 
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.Map;
 
@@ -15,16 +15,16 @@ import java.util.Map;
  */
 public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Action> {
     protected final AioClient client;
-    protected final AsynchronousSocketChannel channel;
+    protected final AioConnection connection;
     protected final long timeExpired;
 
-    protected AioCompletionHandler(AioClient client, AsynchronousSocketChannel channel, long timeout) {
+    protected AioCompletionHandler(AioClient client, AioConnection connection, long timeout) {
         if (client == null) throw new IllegalArgumentException("client can not be null");
-        if (channel == null) throw new IllegalArgumentException("asynchronous socket channel can not be null");
+        if (connection == null) throw new IllegalArgumentException("aio connection can not be null");
         if (timeout < 0) throw new IllegalArgumentException("timeout can not be negative");
 
         this.client = client;
-        this.channel = channel;
+        this.connection = connection;
         this.timeExpired = System.currentTimeMillis() + timeout;
     }
 
@@ -64,7 +64,7 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
     public void onFailed(Exception exception, Action action) {
         AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
         listener.onException(action, exception);
-        if (channel.isOpen()) IOKit.close(channel);
+        if (connection.isOpen()) IOKit.close(connection);
     }
 
     protected long toTimeAvailable() {

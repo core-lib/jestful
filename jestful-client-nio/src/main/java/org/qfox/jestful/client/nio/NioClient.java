@@ -99,13 +99,13 @@ public class NioClient extends Client implements NioConnector {
         return promise;
     }
 
-    protected Request newRequest(Action action) throws Exception {
+    protected NioRequest newRequest(Action action) throws Exception {
         NioRequest request = nioConnect(action, gateway, this).getRequest();
         request.setRequestHeader("User-Agent", userAgent);
         return request;
     }
 
-    protected Response newResponse(Action action) throws Exception {
+    protected NioResponse newResponse(Action action) throws Exception {
         return nioConnect(action, gateway, this).getResponse();
     }
 

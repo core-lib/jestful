@@ -1,7 +1,7 @@
 package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
-import org.qfox.jestful.client.nio.NioClient;
+import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.sample.repository.Repository;
 import org.qfox.jestful.sample.repository.RepositoryAPI;
 
@@ -14,7 +14,7 @@ public class RepositoryAPITest {
 
     @Test
     public void list() throws Exception {
-        RepositoryAPI repositoryAPI = NioClient.builder()
+        RepositoryAPI repositoryAPI = AioClient.builder()
                 .setProtocol("https")
                 .setHostname("api.github.com")
                 .setKeepAlive(false)

@@ -19,4 +19,6 @@ public interface AioSSLChannel extends Closeable {
 
     void load(ByteBuffer buffer) throws IOException;
 
+    void reset();
+
 }

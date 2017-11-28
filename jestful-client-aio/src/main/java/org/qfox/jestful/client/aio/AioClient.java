@@ -20,7 +20,6 @@ import java.io.InputStreamReader;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.channels.AsynchronousChannelGroup;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -67,23 +66,17 @@ public class AioClient extends Client implements AioConnector {
         AioPromise promise = new AioPromise(action);
         AioEventListener listener = new JestfulAioEventListener(promise);
         action.getExtra().put(AioEventListener.class, listener);
-        AsynchronousSocketChannel channel = AsynchronousSocketChannel.open(aioChannelGroup);
-        PrepareCompletionHandler handler = new PrepareCompletionHandler(this, channel, action);
-        cpu.execute(handler);
         return promise;
     }
 
-    protected Request newRequest(Action action) throws Exception {
+    protected AioRequest newRequest(Action action) throws Exception {
         AioRequest request = aioConnect(action, gateway, this).getRequest();
         request.setRequestHeader("User-Agent", userAgent);
-        action.getExtra().put(AioRequest.class, request);
         return request;
     }
 
-    protected Response newResponse(Action action) throws Exception {
-        AioResponse response = aioConnect(action, gateway, this).getResponse();
-        action.getExtra().put(AioResponse.class, response);
-        return response;
+    protected AioResponse newResponse(Action action) throws Exception {
+        return aioConnect(action, gateway, this).getResponse();
     }
 
     @Override
@@ -133,6 +126,10 @@ public class AioClient extends Client implements AioConnector {
 
     public int getConcurrency() {
         return concurrency;
+    }
+
+    public AsynchronousChannelGroup getAioChannelGroup() {
+        return aioChannelGroup;
     }
 
     public SSLContext getSslContext() {
@@ -218,8 +215,13 @@ public class AioClient extends Client implements AioConnector {
         }
     }
 
+    private enum State {
+        STANDING, HANDLED
+    }
+
     private class AioPromise extends BioPromise {
-        private Set<Callback<Object>> callbacks;
+        private volatile Set<Callback<Object>> callbacks;
+        private volatile State state = State.STANDING;
 
         AioPromise(Action action) {
             super(action);
@@ -229,6 +231,13 @@ public class AioClient extends Client implements AioConnector {
         public Object acquire() throws Exception {
             if (success == null) {
                 synchronized (lock) {
+                    if (canceled) throw new IllegalStateException("canceled");
+                    if (state == State.STANDING) {
+                        AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
+                        PrepareCompletionHandler handler = new PrepareCompletionHandler(AioClient.this, connection, action);
+                        cpu.execute(handler);
+                        state = State.HANDLED;
+                    }
                     if (success == null) lock.wait();
                     return acquire();
                 }

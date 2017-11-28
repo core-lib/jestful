@@ -1,8 +1,6 @@
 package org.qfox.jestful.client.aio.connection;
 
 import org.qfox.jestful.client.aio.AioClient;
-import org.qfox.jestful.client.aio.AioRequest;
-import org.qfox.jestful.client.aio.AioResponse;
 import org.qfox.jestful.client.connection.HttpsConnector;
 import org.qfox.jestful.client.gateway.Gateway;
 import org.qfox.jestful.core.Action;
@@ -27,11 +25,9 @@ public class HttpsAioConnector extends HttpsConnector implements AioConnector {
         SSLEngine engine = sslContext.createSSLEngine();
         engine.setUseClientMode(true);
         engine.beginHandshake();
-        AioSSLChannel aioSSLChannel = new JestfulAioSSLChannel(engine);
+        AioSSLChannel nioSSLChannel = new JestfulAioSSLChannel(engine);
         SocketAddress address = aioAddress(action, gateway, client);
-        AioRequest request = new JestfulAioHttpsClientRequest(action, this, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), aioSSLChannel);
-        AioResponse response = new JestfulAioHttpsClientResponse(action, this, gateway, aioSSLChannel);
-        return new AioConnection(address, request, response);
+        return new HttpsAioConnection(this, address, action, gateway, client, nioSSLChannel);
     }
 
     @Override
