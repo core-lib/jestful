@@ -1,7 +1,6 @@
 package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
-import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.auth.Authenticator;
 import org.qfox.jestful.client.auth.Scope;
 import org.qfox.jestful.client.auth.impl.SimpleCredence;
@@ -20,10 +19,12 @@ public class UserAPITest {
         Authenticator authenticator = new Authenticator();
         authenticator.getCredenceProvider().setCredence(new Scope("api.github.com", Scope.ANY_PORT), new SimpleCredence("core-lib", "wan20100101"));
 
-        UserAPI userAPI = Client.builder()
+        UserAPI userAPI = NioClient.builder()
                 .setProtocol("https")
                 .setHostname("api.github.com")
-                .setKeepAlive(false)
+                .setKeepAlive(true)
+                .setAllowEncode(false)
+                .setAcceptEncode(false)
                 .build()
                 .creator()
                 .setBackPlugins(authenticator)

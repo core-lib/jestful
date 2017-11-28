@@ -11,23 +11,20 @@ import java.nio.ByteBuffer;
  * Version: 1.0
  */
 public class JestfulNioSSLChannel implements NioSSLChannel {
-    private SSLEngine sslEngine;
-    private ByteBuffer netInputBuffer;
-    private ByteBuffer appInputBuffer;
-    private ByteBuffer netOutputBuffer;
-    private ByteBuffer appOutputBuffer;
+    private final SSLEngine sslEngine;
+    private final ByteBuffer netInputBuffer;
+    private final ByteBuffer appInputBuffer;
+    private final ByteBuffer netOutputBuffer;
+    private final ByteBuffer appOutputBuffer;
 
     public JestfulNioSSLChannel(SSLEngine sslEngine) {
         this.sslEngine = sslEngine;
         SSLSession session = sslEngine.getSession();
-        appInputBuffer = ByteBuffer.allocate(session.getApplicationBufferSize());
-        appInputBuffer.flip();
-        netInputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
-        netInputBuffer.flip();
-        appOutputBuffer = ByteBuffer.allocate(session.getApplicationBufferSize());
-        appOutputBuffer.flip();
-        netOutputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
-        netOutputBuffer.flip();
+        this.appInputBuffer = ByteBuffer.allocate(session.getApplicationBufferSize());
+        this.netInputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
+        this.appOutputBuffer = ByteBuffer.allocate(session.getApplicationBufferSize());
+        this.netOutputBuffer = ByteBuffer.allocate(session.getPacketBufferSize());
+        reset();
     }
 
     @Override
@@ -66,6 +63,19 @@ public class JestfulNioSSLChannel implements NioSSLChannel {
         while (netInputBuffer.hasRemaining() && buffer.hasRemaining()) netInputBuffer.put(buffer.get());
         netInputBuffer.flip();
         handshake();
+    }
+
+    @Override
+    public void reset() {
+        this.netInputBuffer.clear();
+        this.appInputBuffer.clear();
+        this.netOutputBuffer.clear();
+        this.appOutputBuffer.clear();
+
+        this.netInputBuffer.flip();
+        this.appInputBuffer.flip();
+        this.netOutputBuffer.flip();
+        this.appOutputBuffer.flip();
     }
 
     private void handshake() throws IOException {

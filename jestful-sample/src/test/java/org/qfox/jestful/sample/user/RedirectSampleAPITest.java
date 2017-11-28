@@ -46,8 +46,8 @@ public class RedirectSampleAPITest {
                 .create(RedirectSampleAPI.class);
 
         Lock lock = new SimpleLock();
-        AtomicInteger remain = new AtomicInteger(100);
-        for (int i = 0; i < 100; i++) {
+        AtomicInteger remain = new AtomicInteger(1);
+        for (int i = 0; i < 1; i++) {
             int finalI = i;
             new Thread(() -> {
                 try {

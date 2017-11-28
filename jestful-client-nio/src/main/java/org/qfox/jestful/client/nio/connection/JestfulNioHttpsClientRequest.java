@@ -2,7 +2,6 @@ package org.qfox.jestful.client.nio.connection;
 
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.gateway.Gateway;
-import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 
 import java.io.IOException;
@@ -48,6 +47,5 @@ public class JestfulNioHttpsClientRequest extends JestfulNioHttpClientRequest {
     @Override
     public void close() throws IOException {
         super.close();
-        IOKit.close(nioSSLChannel);
     }
 }

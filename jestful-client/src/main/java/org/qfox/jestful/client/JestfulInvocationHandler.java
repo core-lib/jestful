@@ -44,6 +44,14 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
     }
 
     public Object invoke(Object target, Method method, Object[] args) throws Throwable {
+        if (resource == null) {
+            // Object 方法
+            if (method.getDeclaringClass() == Object.class) {
+                return method.invoke(this, args);
+            } else {
+                throw new IllegalStateException("Proxy object is not ready for now");
+            }
+        }
         if (!resource.getMappings().containsKey(method)) {
             // Object 方法
             if (method.getDeclaringClass() == Object.class) {

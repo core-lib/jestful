@@ -4,7 +4,7 @@ import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
 
 @Jestful("/")
-public interface BaiduAPI {
+public interface QfoxyAPI {
 
     @GET("/")
     String index();
