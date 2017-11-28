@@ -14,7 +14,7 @@ public class RedirectSampleController {
 
     @GET("/source")
     public void getSource(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println(request.getRemotePort());
+        System.out.print(request.getRemotePort() + ",");
         System.out.flush();
         response.addHeader("Location", "http://localhost:8080/redirect/target?name=Payne");
         response.sendError(301);
@@ -22,7 +22,7 @@ public class RedirectSampleController {
 
     @GET("/target")
     public User getTarget(HttpServletRequest request, @Query("name") String name) {
-        System.out.println(request.getRemotePort());
+        System.out.print(request.getRemotePort() + ",");
         System.out.flush();
         return new User("Payne", 1L, null, null);
     }

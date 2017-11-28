@@ -18,7 +18,7 @@ public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
     }
 
     @Override
-    public void onCompleted(Integer count, Action action) throws Exception {
+    protected void onCompleted(Integer count, Action action) throws Exception {
         buffer.clear();
         if (count != -1 && connection.move(count)) {
             AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);

@@ -13,7 +13,7 @@ public class ConnectCompletionHandler extends AioCompletionHandler<Void> {
     }
 
     @Override
-    public void onCompleted(Void result, Action action) throws Exception {
+    protected void onCompleted(Void result, Action action) throws Exception {
         AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
         listener.onConnected(action);
 

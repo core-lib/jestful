@@ -44,6 +44,9 @@ public abstract class NioConnection implements Closeable {
 
     // ------------------- SocketChannel Delegate Methods Start ------------------ //
 
+    public boolean isOpen() {
+        return channel.isOpen();
+    }
 
     public boolean isConnected() {
         return channel.isConnected();

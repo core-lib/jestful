@@ -16,7 +16,7 @@ public class PrepareCompletionHandler extends AioCompletionHandler<Void> impleme
     }
 
     @Override
-    public void onCompleted(Void result, Action action) throws Exception {
+    protected void onCompleted(Void result, Action action) throws Exception {
         Gateway gateway = client.getGateway();
         (gateway != null ? gateway : Gateway.NULL).onConnected(action);
         if (connection.isConnected()) {

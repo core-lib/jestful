@@ -17,7 +17,7 @@ public class RepositoryAPITest {
         RepositoryAPI repositoryAPI = AioClient.builder()
                 .setProtocol("https")
                 .setHostname("api.github.com")
-                .setKeepAlive(false)
+                .setKeepAlive(true)
                 .build()
                 .creator()
                 .create(RepositoryAPI.class);

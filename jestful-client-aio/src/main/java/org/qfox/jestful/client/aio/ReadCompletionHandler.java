@@ -1,11 +1,8 @@
 package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.aio.connection.AioConnection;
-import org.qfox.jestful.client.aio.pool.AioConnectionPool;
-import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.InterruptedByTimeoutException;
 import java.util.concurrent.TimeUnit;
@@ -21,19 +18,12 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
     }
 
     @Override
-    public void onCompleted(Integer count, Action action) throws Exception {
+    protected void onCompleted(Integer count, Action action) throws Exception {
         buffer.flip();
         if (connection.load(buffer)) {
             AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
             listener.onCompleted(action);
-            // 回收Keep Alive连接
-            if (connection.isKeepAlive()) {
-                SocketAddress address = connection.getAddress();
-                AioConnectionPool connectionPool = client.getConnectionPool();
-                connectionPool.release(address, connection);
-            } else {
-                IOKit.close(connection);
-            }
+            this.release();
         } else {
             long timeAvailable = toTimeAvailable();
             if (timeAvailable <= 0) throw new InterruptedByTimeoutException();

@@ -2,11 +2,13 @@ package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.aio.catcher.AioCatcher;
 import org.qfox.jestful.client.aio.connection.AioConnection;
+import org.qfox.jestful.client.aio.pool.AioConnectionPool;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.exception.StatusException;
 
+import java.net.SocketAddress;
 import java.nio.channels.CompletionHandler;
 import java.util.Map;
 
@@ -37,7 +39,7 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
         }
     }
 
-    public abstract void onCompleted(V result, Action action) throws Exception;
+    protected abstract void onCompleted(V result, Action action) throws Exception;
 
     @Override
     public void failed(Throwable throwable, Action action) {
@@ -61,10 +63,21 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
         }
     }
 
-    public void onFailed(Exception exception, Action action) {
+    protected void onFailed(Exception exception, Action action) {
         AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
         listener.onException(action, exception);
-        if (connection.isOpen()) IOKit.close(connection);
+        this.release();
+    }
+
+    protected void release() {
+        // 回收Keep Alive连接
+        if (connection.isOpen() && connection.isConnected() && connection.isKeepAlive()) {
+            SocketAddress address = connection.getAddress();
+            AioConnectionPool connectionPool = client.getConnectionPool();
+            connectionPool.release(address, connection);
+        } else {
+            IOKit.close(connection);
+        }
     }
 
     protected long toTimeAvailable() {

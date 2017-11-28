@@ -506,7 +506,7 @@ public class NioClient extends Client implements NioConnector {
             key.cancel();
             Action action = (Action) key.attachment();
             NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
-            if (connection.isKeepAlive()) {
+            if (connection.isOpen() && connection.isConnected() && connection.isKeepAlive()) {
                 SocketAddress address = connection.getAddress();
                 connectionPool.release(address, connection);
             } else {
