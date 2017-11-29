@@ -37,6 +37,16 @@ public class JestfulClientRequest implements Request, ReusableRequest {
     }
 
     @Override
+    public int getIdleTimeout() {
+        return -1;
+    }
+
+    @Override
+    public void setIdleTimeout(int idleTimeout) {
+
+    }
+
+    @Override
     public void clear() {
         this.header.clear();
         this.action = null;

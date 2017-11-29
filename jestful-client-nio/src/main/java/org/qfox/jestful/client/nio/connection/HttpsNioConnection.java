@@ -17,7 +17,7 @@ public class HttpsNioConnection extends NioConnection {
     }
 
     @Override
-    public void reset(Action action, Gateway gateway, NioClient client) {
+    public void doReset(Action action, Gateway gateway, NioClient client) {
         if (nioSSLChannel == null) return;
         nioSSLChannel.reset();
         request = new JestfulNioHttpsClientRequest(action, connector, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), nioSSLChannel);

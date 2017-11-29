@@ -12,6 +12,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Created by yangchangpei on 17/3/24.
@@ -48,6 +49,28 @@ public class JestfulNioHttpClientRequest extends JestfulClientRequest implements
     }
 
     @Override
+    public int getIdleTimeout() {
+        String keepAlive = getRequestHeader("Keep-Alive");
+        if (keepAlive == null) return -1; // NOT SET
+        // Keep-Alive: timeout=seconds
+        StringTokenizer tokenizer = new StringTokenizer(keepAlive, ",; ");
+        while (tokenizer.hasMoreTokens()) {
+            String element = tokenizer.nextToken();
+            StringTokenizer t = new StringTokenizer(element, "=: ");
+            if (t.countTokens() != 2) continue;
+            String name = t.nextToken();
+            String value = t.nextToken();
+            if (name.equalsIgnoreCase("timeout")) return Integer.valueOf(value);
+        }
+        return -1; // NOT SET
+    }
+
+    @Override
+    public void setIdleTimeout(int idleTimeout) {
+        setRequestHeader("Keep-Alive", "timeout=" + idleTimeout);
+    }
+
+    @Override
     public void clear() {
         super.clear();
         this.out = null;
@@ -55,6 +78,12 @@ public class JestfulNioHttpClientRequest extends JestfulClientRequest implements
         this.closed = false;
         this.head = null;
         this.body = null;
+    }
+
+    @Override
+    public void reset(Action action, Connector connector, Gateway gateway, int connTimeout, int readTimeout, int writeTimeout) {
+        super.reset(action, connector, gateway, connTimeout, readTimeout, writeTimeout);
+        setRequestHeader("Connection", "keep-alive");
     }
 
     @Override

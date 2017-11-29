@@ -31,8 +31,8 @@ public class JestfulClientResponse implements Response, ReusableResponse {
     }
 
     @Override
-    public long getKeepAlive() {
-        return 0L;
+    public int getIdleTimeout() {
+        return -1;
     }
 
     @Override

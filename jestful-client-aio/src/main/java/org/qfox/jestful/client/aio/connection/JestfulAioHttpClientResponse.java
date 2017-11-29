@@ -43,7 +43,7 @@ public class JestfulAioHttpClientResponse extends JestfulClientResponse implemen
 
     // RFC-2068
     @Override
-    public long getKeepAlive() {
+    public int getIdleTimeout() {
         String keepAlive = getResponseHeader("Keep-Alive");
         if (keepAlive == null) return -1; // NOT SET
         // Keep-Alive: timeout=seconds
@@ -54,7 +54,7 @@ public class JestfulAioHttpClientResponse extends JestfulClientResponse implemen
             if (t.countTokens() != 2) continue;
             String name = t.nextToken();
             String value = t.nextToken();
-            if (name.equalsIgnoreCase("timeout")) return Long.valueOf(value);
+            if (name.equalsIgnoreCase("timeout")) return Integer.valueOf(value);
         }
         return -1; // NOT SET
     }

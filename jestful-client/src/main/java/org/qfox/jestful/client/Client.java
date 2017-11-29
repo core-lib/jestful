@@ -89,6 +89,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final int writeTimeout;
     protected final Gateway gateway;
     protected final Boolean keepAlive;
+    protected final Integer idleTimeout;
     protected final HostnameVerifier hostnameVerifier;
     protected final SSLSocketFactory SSLSocketFactory;
     protected final String userAgent;
@@ -134,6 +135,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
         this.gateway = builder.gateway;
         this.keepAlive = builder.keepAlive;
+        this.idleTimeout = builder.idleTimeout;
 
         this.hostnameVerifier = builder.hostnameVerifier;
         this.SSLSocketFactory = builder.SSLSocketFactory;
@@ -165,6 +167,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         while (enumeration.hasMoreElements()) {
             URL url = enumeration.nextElement();
             if (url == null) {
+                throw new NullPointerException();
             } else if (url.getProtocol().equalsIgnoreCase("file")) {
                 File file = new File(url.getFile());
                 if (file.isDirectory()) {
@@ -638,6 +641,10 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return keepAlive;
     }
 
+    public Integer getIdleTimeout() {
+        return idleTimeout;
+    }
+
     public HostnameVerifier getHostnameVerifier() {
         return hostnameVerifier;
     }
@@ -689,6 +696,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
         protected Gateway gateway = Gateway.NULL;
         protected Boolean keepAlive = null; // 用通讯协议的缺省方案
+        protected Integer idleTimeout = null;
 
         protected HostnameVerifier hostnameVerifier;
         protected SSLSocketFactory SSLSocketFactory;
@@ -966,6 +974,11 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
         public B setKeepAlive(Boolean keepAlive) {
             this.keepAlive = keepAlive;
+            return (B) this;
+        }
+
+        public B setIdleTimeout(Integer idleTimeout) {
+            this.idleTimeout = idleTimeout;
             return (B) this;
         }
 

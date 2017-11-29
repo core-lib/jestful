@@ -5,7 +5,6 @@ import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.nio.NioOptions;
 import org.qfox.jestful.client.nio.NioRequest;
 import org.qfox.jestful.client.nio.NioResponse;
-import org.qfox.jestful.client.nio.pool.NioConnectionPool;
 import org.qfox.jestful.core.Action;
 
 import java.io.Closeable;
@@ -21,11 +20,15 @@ import java.nio.channels.SocketChannel;
  * Created by payne on 2017/4/2.
  */
 public abstract class NioConnection implements Closeable {
+    protected final Object lock = new Object();
+
     protected final NioConnector connector;
     protected final SocketChannel channel;
     protected final SocketAddress address;
-    protected NioRequest request;
-    protected NioResponse response;
+    protected volatile NioRequest request;
+    protected volatile NioResponse response;
+    protected volatile long timeExpired;
+    protected volatile boolean idled = true;
 
     public NioConnection(NioConnector connector, SocketAddress address, Action action, Gateway gateway, NioClient client) throws IOException {
         this.connector = connector;
@@ -41,10 +44,6 @@ public abstract class NioConnection implements Closeable {
 
     public void connect() throws IOException {
         channel.connect(address);
-    }
-
-    public void idle(NioConnectionPool connectionPool) {
-
     }
 
     // ------------------- SocketChannel Delegate Methods Start ------------------ //
@@ -148,11 +147,46 @@ public abstract class NioConnection implements Closeable {
     // ------------------- NioResponse Delegate Methods End ------------------ //
 
     public boolean isKeepAlive() {
-        return request.isKeepAlive() && response.isKeepAlive();
+        return request.isKeepAlive() && response.isKeepAlive() && this.getIdleTimeout() != 0; // Keep-Alive: timeout=0 也认为是不保持长连接
     }
 
     public void setKeepAlive(boolean keepAlive) {
         request.setKeepAlive(keepAlive);
+    }
+
+    public int getIdleTimeout() {
+        int reqIdleTimeout = request.getIdleTimeout();
+        int respIdleTimeout = response.getIdleTimeout();
+        return reqIdleTimeout < 0 || respIdleTimeout < 0 ? Math.max(reqIdleTimeout, respIdleTimeout) : Math.min(reqIdleTimeout, respIdleTimeout);
+    }
+
+    public void setIdleTimeout(int idleTimeout) {
+        request.setIdleTimeout(idleTimeout);
+    }
+
+    /**
+     * idle this connection. you should check whether this connection is can be keep alive
+     * this method should call before release this connection every times
+     *
+     * @return time to expired
+     */
+    public final long idle() {
+        if (idled) return this.timeExpired;
+        synchronized (lock) {
+            if (idled) return this.timeExpired;
+            idled = true;
+            return this.timeExpired = doIdle();
+        }
+    }
+
+    protected long doIdle() {
+        int idleTimeout = this.getIdleTimeout();
+        if (idleTimeout >= 0) return System.currentTimeMillis() + idleTimeout * 1000L;// 有超时时间
+        else return -1L;// 永不超时
+    }
+
+    public boolean available() {
+        return !idled || this.timeExpired < 0 || this.timeExpired > System.currentTimeMillis(); // 当前正在使用或永不超时或还没超时
     }
 
     public void clear() {
@@ -160,7 +194,24 @@ public abstract class NioConnection implements Closeable {
         response.clear();
     }
 
-    public abstract void reset(Action action, Gateway gateway, NioClient client);
+    /**
+     * reset this connection.
+     * this method should call before reuse this connection every times
+     *
+     * @param action  action
+     * @param gateway gateway
+     * @param client  client
+     */
+    public final void reset(Action action, Gateway gateway, NioClient client) {
+        if (!idled) return;
+        synchronized (lock) {
+            if (!idled) return;
+            idled = false;
+            doReset(action, gateway, client);
+        }
+    }
+
+    protected abstract void doReset(Action action, Gateway gateway, NioClient client);
 
     public NioConnector getConnector() {
         return connector;

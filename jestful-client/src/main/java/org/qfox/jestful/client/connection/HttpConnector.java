@@ -37,9 +37,10 @@ public class HttpConnector implements Connector {
 
             // HTTP/1.1 要求不支持 Keep-Alive 的客户端必须在请求头声明 Connection: close 否则访问Github这样的网站就会有非常严重的性能问题
             Boolean keepAlive = client.getKeepAlive();
-            if (keepAlive == null) return connection;
-            else if (keepAlive) request.setRequestHeader("Connection", "keep-alive");
-            else request.setRequestHeader("Connection", "close");
+            if (keepAlive != null) request.setRequestHeader("Connection", keepAlive ? "keep-alive" : "close");
+
+            Integer idleTimeout = client.getIdleTimeout();
+            if (idleTimeout != null && idleTimeout >= 0L) request.setRequestHeader("Keep-Alive", "timeout=" + idleTimeout);
 
             return connection;
         } catch (Exception e) {

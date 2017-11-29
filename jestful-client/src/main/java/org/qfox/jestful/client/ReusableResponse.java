@@ -12,11 +12,11 @@ public interface ReusableResponse extends Response {
     /**
      * return the response specified Keep-Alive timeout seconds.
      * if NOT SET return -1.
-     * and any long value less than zero should be recognized as NOT SET.
+     * and any long value that less than zero should be recognized as NOT SET.
      *
      * @return the response specified Keep-Alive timeout seconds. or -1 if NOT SET
      */
-    long getKeepAlive();
+    int getIdleTimeout();
 
     void clear();
 
