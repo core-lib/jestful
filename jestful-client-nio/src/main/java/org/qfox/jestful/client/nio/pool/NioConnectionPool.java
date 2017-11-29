@@ -3,14 +3,12 @@ package org.qfox.jestful.client.nio.pool;
 import org.qfox.jestful.client.nio.connection.NioConnection;
 import org.qfox.jestful.commons.pool.Pool;
 
-import java.net.SocketAddress;
-
-public interface NioConnectionPool extends Pool<SocketAddress, NioConnection> {
+public interface NioConnectionPool extends Pool<NioConnectionKey, NioConnection> {
     @Override
-    NioConnection acquire(SocketAddress address);
+    NioConnection acquire(NioConnectionKey key);
 
     @Override
-    void release(SocketAddress address, NioConnection connection);
+    void release(NioConnectionKey key, NioConnection connection);
 
     @Override
     void destroy();

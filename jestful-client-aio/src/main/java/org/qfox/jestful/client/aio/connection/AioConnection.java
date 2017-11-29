@@ -189,10 +189,12 @@ public abstract class AioConnection implements Closeable {
      * @param action  action
      * @param gateway gateway
      * @param client  client
+     * @return if the connection had already bean reset return {@code false} else {@code true}
      */
-    public void reset(Action action, Gateway gateway, AioClient client) {
-        if (!idled) return;
+    public boolean reset(Action action, Gateway gateway, AioClient client) {
+        if (!idled) return false;
         idled = false;
+        return true;
     }
 
     public AioConnector getConnector() {

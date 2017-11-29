@@ -2,6 +2,7 @@ package org.qfox.jestful.client.aio;
 
 import org.qfox.jestful.client.aio.catcher.AioCatcher;
 import org.qfox.jestful.client.aio.connection.AioConnection;
+import org.qfox.jestful.client.aio.pool.AioConnectionKey;
 import org.qfox.jestful.client.aio.pool.AioConnectionPool;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.commons.IOKit;
@@ -74,8 +75,9 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
         if (connection.isOpen() && connection.isConnected() && connection.isKeepAlive()) {
             connection.idle();
             SocketAddress address = connection.getAddress();
+            AioConnectionKey connectionKey = new AioConnectionKey(address);
             AioConnectionPool connectionPool = client.getConnectionPool();
-            connectionPool.release(address, connection);
+            connectionPool.release(connectionKey, connection);
         } else {
             IOKit.close(connection);
         }

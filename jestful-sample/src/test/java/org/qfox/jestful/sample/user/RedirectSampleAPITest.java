@@ -23,6 +23,7 @@ public class RedirectSampleAPITest {
                 .setProtocol("http")
                 .setHostname("localhost")
                 .setPort(8080)
+                .setKeepAlive(true)
                 .setIdleTimeout(100)
                 .build()
                 .creator()

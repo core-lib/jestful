@@ -3,6 +3,7 @@ package org.qfox.jestful.client.aio;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.connection.AioConnection;
 import org.qfox.jestful.client.aio.connection.AioConnector;
+import org.qfox.jestful.client.aio.pool.AioConnectionKey;
 import org.qfox.jestful.client.aio.pool.AioConnectionPool;
 import org.qfox.jestful.client.aio.pool.ConcurrentAioConnectionPool;
 import org.qfox.jestful.client.connection.Connector;
@@ -106,25 +107,13 @@ public class AioClient extends Client implements AioConnector {
             if (connector instanceof AioConnector && connector.supports(action)) {
                 AioConnector aioConnector = (AioConnector) connector;
                 SocketAddress address = aioConnector.aioAddress(action, gateway, this);
-                connection = connectionPool.acquire(address);
-                if (connection != null) {
-                    if (connection.available()) {
-                        connection.reset(action, gateway, this);
-                        if (keepAlive != null) connection.setKeepAlive(keepAlive);
-                        if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
-                        action.getExtra().put(AioConnection.class, connection);
-                        return connection;
-                    } else {
-                        IOKit.close(connection);
-                        return aioConnect(action, gateway, client);
-                    }
-                } else {
-                    connection = aioConnector.aioConnect(action, gateway, this);
-                    if (keepAlive != null) connection.setKeepAlive(keepAlive);
-                    if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
-                    action.getExtra().put(AioConnection.class, connection);
-                    return connection;
-                }
+                AioConnectionKey connectionKey = new AioConnectionKey(address, aioConnector, action, gateway, client);
+                connection = connectionPool.acquire(connectionKey);
+                connection.reset(action, gateway, this);
+                if (keepAlive != null) connection.setKeepAlive(keepAlive);
+                if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
+                action.getExtra().put(AioConnection.class, connection);
+                return connection;
             }
         }
         throw new UnsupportedProtocolException(action.getProtocol());
@@ -296,7 +285,8 @@ public class AioClient extends Client implements AioConnector {
                 AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
                 if (connection.isKeepAlive()) {
                     SocketAddress address = connection.getAddress();
-                    connectionPool.release(address, connection);
+                    AioConnectionKey connectionKey = new AioConnectionKey(address);
+                    connectionPool.release(connectionKey, connection);
                 } else {
                     IOKit.close(connection);
                 }

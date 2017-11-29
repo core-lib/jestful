@@ -3,16 +3,16 @@ package org.qfox.jestful.client.nio.pool;
 import org.qfox.jestful.client.nio.connection.NioConnection;
 import org.qfox.jestful.commons.pool.ConcurrentPool;
 import org.qfox.jestful.commons.pool.Destroyer;
+import org.qfox.jestful.commons.pool.Producer;
+import org.qfox.jestful.commons.pool.Validator;
 
-import java.net.SocketAddress;
-
-public class ConcurrentNioConnectionPool extends ConcurrentPool<SocketAddress, NioConnection> implements NioConnectionPool {
+public class ConcurrentNioConnectionPool extends ConcurrentPool<NioConnectionKey, NioConnection> implements NioConnectionPool {
 
     public ConcurrentNioConnectionPool() {
-        this(new NioConnectionDestroyer());
+        this(new NioConnectionProducer(), new NioConnectionValidator(), new NioConnectionDestroyer());
     }
 
-    public ConcurrentNioConnectionPool(Destroyer<NioConnection> destroyer) {
-        super(destroyer);
+    public ConcurrentNioConnectionPool(Producer<NioConnectionKey, NioConnection> producer, Validator<NioConnection> validator, Destroyer<NioConnection> destroyer) {
+        super(producer, validator, destroyer);
     }
 }

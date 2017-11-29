@@ -192,10 +192,12 @@ public abstract class NioConnection implements Closeable {
      * @param action  action
      * @param gateway gateway
      * @param client  client
+     * @return if the connection had already bean reset return {@code false} else {@code true}
      */
-    public void reset(Action action, Gateway gateway, NioClient client) {
-        if (!idled) return;
+    public boolean reset(Action action, Gateway gateway, NioClient client) {
+        if (!idled) return false;
         idled = false;
+        return true;
     }
 
     public NioConnector getConnector() {

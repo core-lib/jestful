@@ -17,12 +17,15 @@ public class HttpsAioConnection extends AioConnection {
     }
 
     @Override
-    public void reset(Action action, Gateway gateway, AioClient client) {
-        super.reset(action, gateway, client);
-        if (nioSSLChannel == null) return;
-        nioSSLChannel.reset();
-        request = new JestfulAioHttpsClientRequest(action, connector, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), nioSSLChannel);
-        response = new JestfulAioHttpsClientResponse(action, connector, gateway, nioSSLChannel);
+    public boolean reset(Action action, Gateway gateway, AioClient client) {
+        if (super.reset(action, gateway, client)) {
+            if (nioSSLChannel == null) return true;
+            nioSSLChannel.reset();
+            request = new JestfulAioHttpsClientRequest(action, connector, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout(), nioSSLChannel);
+            response = new JestfulAioHttpsClientResponse(action, connector, gateway, nioSSLChannel);
+            return true;
+        }
+        return false;
     }
 
     @Override

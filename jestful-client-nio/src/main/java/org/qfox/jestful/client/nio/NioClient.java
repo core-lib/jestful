@@ -12,6 +12,7 @@ import org.qfox.jestful.client.nio.catcher.NioCatcher;
 import org.qfox.jestful.client.nio.connection.NioConnection;
 import org.qfox.jestful.client.nio.connection.NioConnector;
 import org.qfox.jestful.client.nio.pool.ConcurrentNioConnectionPool;
+import org.qfox.jestful.client.nio.pool.NioConnectionKey;
 import org.qfox.jestful.client.nio.pool.NioConnectionPool;
 import org.qfox.jestful.client.nio.timeout.SortedTimeoutManager;
 import org.qfox.jestful.client.nio.timeout.TimeoutManager;
@@ -124,44 +125,29 @@ public class NioClient extends Client implements NioConnector {
             if (connector instanceof NioConnector && connector.supports(action)) {
                 NioConnector nioConnector = (NioConnector) connector;
                 SocketAddress address = nioConnector.nioAddress(action, gateway, this);
-                connection = connectionPool.acquire(address);
-                if (connection != null) {
-                    // 如果连接 Keep-Alive 未超时
-                    if (connection.available()) {
-                        boolean usable = true;
-                        for (NioProcessor processor : processors) {
-                            NioKernel kernel = (NioKernel) processor;
-                            Selector selector = kernel.selector;
-                            SelectionKey key = connection.keyFor(selector);
-                            if (key != null) {
-                                key.cancel();
-                                usable = false;
-                                break;
-                            }
-                        }
-                        if (usable) {
-                            connection.reset(action, gateway, this);
-                            if (keepAlive != null) connection.setKeepAlive(keepAlive);
-                            if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
-                            action.getExtra().put(NioConnection.class, connection);
-                            return connection;
-                        } else {
-                            NioConnection newConnection = nioConnect(action, gateway, client);
-                            connectionPool.release(address, connection);
-                            return newConnection;
-                        }
+                NioConnectionKey connectionKey = new NioConnectionKey(address, nioConnector, action, gateway, this);
+                connection = connectionPool.acquire(connectionKey);
+                boolean usable = true;
+                for (NioProcessor processor : processors) {
+                    NioKernel kernel = (NioKernel) processor;
+                    Selector selector = kernel.selector;
+                    SelectionKey key = connection.keyFor(selector);
+                    if (key != null) {
+                        key.cancel();
+                        usable = false;
+                        break;
                     }
-                    // 如果超时了就关闭再丢弃该连接
-                    else {
-                        IOKit.close(connection);
-                        return nioConnect(action, gateway, client);
-                    }
-                } else {
-                    connection = nioConnector.nioConnect(action, gateway, this);
+                }
+                if (usable) {
+                    connection.reset(action, gateway, this);
                     if (keepAlive != null) connection.setKeepAlive(keepAlive);
                     if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
                     action.getExtra().put(NioConnection.class, connection);
                     return connection;
+                } else {
+                    NioConnection newConnection = nioConnect(action, gateway, client);
+                    connectionPool.release(connectionKey, connection);
+                    return newConnection;
                 }
             }
         }
@@ -441,7 +427,8 @@ public class NioClient extends Client implements NioConnector {
                 NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
                 if (connection.isKeepAlive()) {
                     SocketAddress address = connection.getAddress();
-                    connectionPool.release(address, connection);
+                    NioConnectionKey connectionKey = new NioConnectionKey(address);
+                    connectionPool.release(connectionKey, connection);
                 } else {
                     IOKit.close(connection);
                 }
@@ -522,7 +509,8 @@ public class NioClient extends Client implements NioConnector {
             if (connection.isOpen() && connection.isConnected() && connection.isKeepAlive()) {
                 connection.idle();// 闲置该连接为了计算Keep-Alive的失效时间
                 SocketAddress address = connection.getAddress();
-                connectionPool.release(address, connection);
+                NioConnectionKey connectionKey = new NioConnectionKey(address);
+                connectionPool.release(connectionKey, connection);
             } else {
                 IOKit.close(connection);
             }
