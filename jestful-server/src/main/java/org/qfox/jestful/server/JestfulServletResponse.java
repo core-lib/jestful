@@ -2,6 +2,7 @@ package org.qfox.jestful.server;
 
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;
+import org.qfox.jestful.core.http.HttpStatus;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -31,8 +32,8 @@ public class JestfulServletResponse extends HttpServletResponseWrapper implement
 
     public Status getResponseStatus() throws IOException {
         int code = response.getStatus();
-        String reason = Status.SPECIFICATIONS.get(code);
-        return new Status(code, reason);
+        String reason = HttpStatus.SPECIFICATIONS.get(code);
+        return new HttpStatus(code, reason);
     }
 
     public void setResponseStatus(Status status) throws IOException {
@@ -45,8 +46,7 @@ public class JestfulServletResponse extends HttpServletResponseWrapper implement
 
     public boolean isResponseSuccess() throws IOException {
         Status status = getResponseStatus();
-        int code = status.getCode();
-        return code >= 200 && code < 300;
+        return status.isSuccess();
     }
 
     public String[] getHeaderKeys() {

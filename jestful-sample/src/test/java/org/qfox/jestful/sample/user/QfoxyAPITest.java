@@ -1,10 +1,10 @@
 package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
-import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.auth.Authenticator;
 import org.qfox.jestful.client.auth.Scope;
 import org.qfox.jestful.client.auth.impl.SimpleCredence;
+import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 
 public class QfoxyAPITest {
@@ -14,9 +14,9 @@ public class QfoxyAPITest {
         Authenticator authenticator = new Authenticator();
         authenticator.getCredenceProvider().setCredence(new Scope("api.github.com", Scope.ANY_PORT), new SimpleCredence("core-lib", "wan20100101"));
 
-        QfoxyAPI qfoxyAPI = AioClient.builder()
+        QfoxyAPI qfoxyAPI = NioClient.builder()
                 .setProtocol("https")
-                .setHostname("api.qfoxy.com")
+                .setHostname("www.baidu.com")
                 .setKeepAlive(true)
                 .build()
                 .creator()

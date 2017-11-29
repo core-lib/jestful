@@ -190,7 +190,7 @@ public class Authenticator implements BackPlugin {
                     Authentication[] authentications = (Authentication[]) action.getExtra().get(Authentication[].class);
                     for (int i = 0; authentications != null && i < authentications.length; i++) {
                         if (challenge.getProvoker() != authentications[i].getChallenge().getProvoker()) continue;
-                        if (!StringKit.isEqual(challenge.getRealm(), authentications[i].getChallenge().getRealm())) continue;
+                        if (StringKit.isDiffer(challenge.getRealm(), authentications[i].getChallenge().getRealm())) continue;
                         failure(authentications[i]);
                     }
                 }
@@ -260,7 +260,7 @@ public class Authenticator implements BackPlugin {
                                 Authentication[] authentications = (Authentication[]) action.getExtra().get(Authentication[].class);
                                 for (int i = 0; authentications != null && i < authentications.length; i++) {
                                     if (challenge.getProvoker() != authentications[i].getChallenge().getProvoker()) continue;
-                                    if (!StringKit.isEqual(challenge.getRealm(), authentications[i].getChallenge().getRealm())) continue;
+                                    if (StringKit.isDiffer(challenge.getRealm(), authentications[i].getChallenge().getRealm())) continue;
                                     failure(authentications[i]);
                                 }
                             }

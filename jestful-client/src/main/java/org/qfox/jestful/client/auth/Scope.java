@@ -35,12 +35,12 @@ public class Scope implements Serializable {
 
     public int match(Scope that) {
         int degree = 0;
-        if (StringKit.isEqual(this.scheme, that.scheme, true)) {
+        if (StringKit.isEquals(this.scheme, that.scheme, true)) {
             degree += 1;
         } else {
             if (this.scheme != ANY_SCHEME && that.scheme != ANY_SCHEME) return -1;
         }
-        if (StringKit.isEqual(this.realm, that.realm, true)) {
+        if (StringKit.isEquals(this.realm, that.realm, true)) {
             degree += 2;
         } else {
             if (this.realm != ANY_REALM && that.realm != ANY_REALM) return -1;
@@ -50,7 +50,7 @@ public class Scope implements Serializable {
         } else {
             if (this.port != ANY_PORT && that.port != ANY_PORT) return -1;
         }
-        if (StringKit.isEqual(this.host, that.host, true)) {
+        if (StringKit.isEquals(this.host, that.host, true)) {
             degree += 8;
         } else {
             if (this.host != ANY_HOST && that.host != ANY_HOST) return -1;

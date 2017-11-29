@@ -134,6 +134,7 @@ public class NioClient extends Client implements NioConnector {
                         if (key != null) key.cancel();
                         usable &= key == null;
                     }
+                    System.out.println(usable);
                     if (usable) {
                         connection.reset(action, gateway, this);
                         connection.setKeepAlive(keepAlive != null ? keepAlive : false);

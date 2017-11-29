@@ -5,7 +5,7 @@ import org.qfox.jestful.commons.MapKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.core.Response;
-import org.qfox.jestful.core.Status;
+import org.qfox.jestful.core.http.HttpStatus;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -51,7 +51,7 @@ public class StatusRenderer implements Renderer {
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
                     response.setResponseHeader(entry.getKey(), entry.getValue());
                 }
-                response.setResponseStatus(new Status(code, message));
+                response.setResponseStatus(new HttpStatus(code, message));
 
                 OutputStream out = response.getResponseOutputStream();
                 Writer writer = new OutputStreamWriter(out, charset);

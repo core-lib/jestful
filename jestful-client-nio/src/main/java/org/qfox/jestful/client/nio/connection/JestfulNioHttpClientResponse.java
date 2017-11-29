@@ -8,6 +8,7 @@ import org.qfox.jestful.client.nio.NioResponse;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Status;
+import org.qfox.jestful.core.http.HttpStatus;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -38,7 +39,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
 
     @Override
     public boolean isKeepAlive() {
-        return "keep-alive".equalsIgnoreCase(getResponseHeader("Connection"));
+        return getResponseHeader("Connection") == null || "keep-alive".equalsIgnoreCase(getResponseHeader("Connection"));
     }
 
     @Override
@@ -52,7 +53,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
         this.position = 0;
         this.last = null;
         this.loaded = false;
-        this.status = new Status(200, "OK");
+        this.status = HttpStatus.OK;
         this.in = null;
         this.reader = null;
         this.closed = false;
@@ -61,7 +62,7 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
     private void doReadHeader() throws IOException {
         InputStream in = head.toInputStream();
         String head = IOKit.readln(in);
-        status = new Status(head);
+        status = HttpStatus.valueOf(head);
 
         while (in.available() > 0) {
             String line = IOKit.readln(in);

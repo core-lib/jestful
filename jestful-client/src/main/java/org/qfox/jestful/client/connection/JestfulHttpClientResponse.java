@@ -2,6 +2,7 @@ package org.qfox.jestful.client.connection;
 
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;
+import org.qfox.jestful.core.http.HttpStatus;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -85,7 +86,7 @@ public class JestfulHttpClientResponse implements Response {
     public Status getResponseStatus() throws IOException {
         int code = httpURLConnection.getResponseCode();
         String reason = httpURLConnection.getResponseMessage();
-        return new Status(code, reason);
+        return new HttpStatus(code, reason);
     }
 
     public void setResponseStatus(Status status) throws IOException {
@@ -94,8 +95,7 @@ public class JestfulHttpClientResponse implements Response {
 
     public boolean isResponseSuccess() throws IOException {
         Status status = getResponseStatus();
-        int code = status.getCode();
-        return code >= 200 && code < 300;
+        return status.isSuccess();
     }
 
     public String getContentType() {

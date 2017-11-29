@@ -15,12 +15,20 @@ public class StringKit {
         return value == null || value.trim().length() == 0;
     }
 
-    public static boolean isEqual(String a, String b) {
-        return isEqual(a, b, false);
+    public static boolean isEquals(String a, String b) {
+        return isEquals(a, b, false);
     }
 
-    public static boolean isEqual(String a, String b, boolean isCaseIgnored) {
+    public static boolean isEquals(String a, String b, boolean isCaseIgnored) {
         return a == null ? b == null : isCaseIgnored ? a.equalsIgnoreCase(b) : a.equals(b);
+    }
+
+    public static boolean isDiffer(String a, String b) {
+        return !isEquals(a, b);
+    }
+
+    public static boolean isDiffer(String a, String b, boolean isCaseIgnored) {
+        return !isEquals(a, b, isCaseIgnored);
     }
 
     public static String concat(String... values) {
