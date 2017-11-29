@@ -5,6 +5,7 @@ import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.nio.NioOptions;
 import org.qfox.jestful.client.nio.NioRequest;
 import org.qfox.jestful.client.nio.NioResponse;
+import org.qfox.jestful.client.nio.pool.NioConnectionPool;
 import org.qfox.jestful.core.Action;
 
 import java.io.Closeable;
@@ -40,6 +41,10 @@ public abstract class NioConnection implements Closeable {
 
     public void connect() throws IOException {
         channel.connect(address);
+    }
+
+    public void idle(NioConnectionPool connectionPool) {
+
     }
 
     // ------------------- SocketChannel Delegate Methods Start ------------------ //

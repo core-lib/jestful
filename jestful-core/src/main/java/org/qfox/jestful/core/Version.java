@@ -1,6 +1,6 @@
 package org.qfox.jestful.core;
 
-public interface Version {
+public interface Version extends Comparable<Version> {
 
     int getMajor();
 

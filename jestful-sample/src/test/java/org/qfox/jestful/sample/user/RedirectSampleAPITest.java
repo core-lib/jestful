@@ -8,6 +8,8 @@ import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
 import org.qfox.jestful.sample.RedirectSampleAPI;
 
+import java.util.StringTokenizer;
+
 /**
  * Created by yangchangpei on 17/9/27.
  */
@@ -15,8 +17,27 @@ public class RedirectSampleAPITest {
 
     @Test
     public void count() {
-        System.setProperty("sun.jnu.encoding", "UTF-8");
-        System.getProperties().forEach((key, value) -> System.out.println(key + "=" + value));
+        System.out.println(getKeepAlive(""));
+    }
+
+    public long getKeepAlive(String keepAlive) {
+        if (keepAlive == null) return -1; // NOT SET
+        try {
+            // Keep-Alive: seconds
+            return Long.valueOf(keepAlive);
+        } catch (Exception e) {
+            // Keep-Alive: timeout=seconds
+            StringTokenizer tokenizer = new StringTokenizer(keepAlive, ",; ");
+            while (tokenizer.hasMoreTokens()) {
+                String element = tokenizer.nextToken();
+                StringTokenizer t = new StringTokenizer(element, "=: ");
+                if (t.countTokens() != 2) continue;
+                String name = t.nextToken();
+                String value = t.nextToken();
+                if (name.equalsIgnoreCase("timeout")) return Long.valueOf(value);
+            }
+            return -1;
+        }
     }
 
     @Test
@@ -24,7 +45,6 @@ public class RedirectSampleAPITest {
         NioClient client = NioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
-                .setPort(8080)
                 .setKeepAlive(true)
                 .build();
         RedirectSampleAPI userAPI = client
@@ -32,7 +52,7 @@ public class RedirectSampleAPITest {
                 .addBackPlugins(new Redirector())
                 .create(RedirectSampleAPI.class);
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             User user = userAPI.source();
             System.out.println(user);
         }

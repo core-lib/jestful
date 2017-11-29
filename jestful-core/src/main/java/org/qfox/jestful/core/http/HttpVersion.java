@@ -29,6 +29,14 @@ public class HttpVersion implements Version {
     }
 
     @Override
+    public int compareTo(Version o) {
+        if (o == null) throw new NullPointerException();
+        if (o.getClass() != this.getClass()) throw new IllegalArgumentException("can not compare with a different type version:" + o);
+        HttpVersion that = (HttpVersion) o;
+        return this.major > that.major ? 1 : this.major == that.major ? this.minor > that.minor ? 1 : this.minor == that.minor ? 0 : -1 : -1;
+    }
+
+    @Override
     public int getMajor() {
         return major;
     }

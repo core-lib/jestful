@@ -31,6 +31,11 @@ public class JestfulClientResponse implements Response, ReusableResponse {
     }
 
     @Override
+    public long getKeepAlive() {
+        return 0L;
+    }
+
+    @Override
     public void clear() {
         this.header.clear();
         this.action = null;

@@ -12,6 +12,7 @@ import org.qfox.jestful.core.http.HttpStatus;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.util.StringTokenizer;
 
 /**
  * Created by yangchangpei on 17/3/25.
@@ -40,6 +41,23 @@ public class JestfulNioHttpClientResponse extends JestfulClientResponse implemen
     @Override
     public boolean isKeepAlive() {
         return getResponseHeader("Connection") == null || "keep-alive".equalsIgnoreCase(getResponseHeader("Connection"));
+    }
+
+    @Override
+    public long getKeepAlive() {
+        String keepAlive = getResponseHeader("Keep-Alive");
+        if (keepAlive == null) return -1; // NOT SET
+        // Keep-Alive: timeout=seconds
+        StringTokenizer tokenizer = new StringTokenizer(keepAlive, ",; ");
+        while (tokenizer.hasMoreTokens()) {
+            String element = tokenizer.nextToken();
+            StringTokenizer t = new StringTokenizer(element, "=: ");
+            if (t.countTokens() != 2) continue;
+            String name = t.nextToken();
+            String value = t.nextToken();
+            if (name.equalsIgnoreCase("timeout")) return Long.valueOf(value);
+        }
+        return -1; // NOT SET
     }
 
     @Override
