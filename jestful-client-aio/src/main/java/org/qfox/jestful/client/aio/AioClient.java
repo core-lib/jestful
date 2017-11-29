@@ -108,13 +108,20 @@ public class AioClient extends Client implements AioConnector {
                 SocketAddress address = aioConnector.aioAddress(action, gateway, this);
                 connection = connectionPool.acquire(address);
                 if (connection != null) {
-                    connection.reset(action, gateway, this);
-                    connection.setKeepAlive(keepAlive != null ? keepAlive : false);
-                    action.getExtra().put(AioConnection.class, connection);
-                    return connection;
+                    if (connection.available()) {
+                        connection.reset(action, gateway, this);
+                        if (keepAlive != null) connection.setKeepAlive(keepAlive);
+                        if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
+                        action.getExtra().put(AioConnection.class, connection);
+                        return connection;
+                    } else {
+                        IOKit.close(connection);
+                        return aioConnect(action, gateway, client);
+                    }
                 } else {
                     connection = aioConnector.aioConnect(action, gateway, this);
-                    connection.setKeepAlive(keepAlive != null ? keepAlive : false);
+                    if (keepAlive != null) connection.setKeepAlive(keepAlive);
+                    if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
                     action.getExtra().put(AioConnection.class, connection);
                     return connection;
                 }

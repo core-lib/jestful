@@ -72,6 +72,7 @@ public abstract class AioCompletionHandler<V> implements CompletionHandler<V, Ac
     protected void release() {
         // 回收Keep Alive连接
         if (connection.isOpen() && connection.isConnected() && connection.isKeepAlive()) {
+            connection.idle();
             SocketAddress address = connection.getAddress();
             AioConnectionPool connectionPool = client.getConnectionPool();
             connectionPool.release(address, connection);

@@ -142,7 +142,7 @@ public class NioClient extends Client implements NioConnector {
                         if (usable) {
                             connection.reset(action, gateway, this);
                             if (keepAlive != null) connection.setKeepAlive(keepAlive);
-                            if (idleTimeout != null && idleTimeout >= 0L) connection.setIdleTimeout(idleTimeout);
+                            if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
                             action.getExtra().put(NioConnection.class, connection);
                             return connection;
                         } else {
@@ -159,7 +159,7 @@ public class NioClient extends Client implements NioConnector {
                 } else {
                     connection = nioConnector.nioConnect(action, gateway, this);
                     if (keepAlive != null) connection.setKeepAlive(keepAlive);
-                    if (idleTimeout != null && idleTimeout >= 0L) connection.setIdleTimeout(idleTimeout);
+                    if (idleTimeout != null && idleTimeout >= 0) connection.setIdleTimeout(idleTimeout);
                     action.getExtra().put(NioConnection.class, connection);
                     return connection;
                 }

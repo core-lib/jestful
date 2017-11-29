@@ -26,6 +26,8 @@ public abstract class AioConnection implements Closeable {
     protected AioRequest request;
     protected AioResponse response;
     protected volatile boolean connected;
+    protected volatile boolean idled = true;
+    protected volatile long timeExpired;
 
     public AioConnection(AioConnector connector, SocketAddress address, Action action, Gateway gateway, AioClient client) throws IOException {
         this.connector = connector;
@@ -140,11 +142,39 @@ public abstract class AioConnection implements Closeable {
     // ------------------- AioResponse Delegate Methods End ------------------ //
 
     public boolean isKeepAlive() {
-        return request.isKeepAlive() && response.isKeepAlive();
+        return request.isKeepAlive() && response.isKeepAlive() && this.getIdleTimeout() != 0; // Keep-Alive: timeout=0 也认为是不保持长连接
     }
 
     public void setKeepAlive(boolean keepAlive) {
         request.setKeepAlive(keepAlive);
+    }
+
+    public int getIdleTimeout() {
+        int reqIdleTimeout = request.getIdleTimeout();
+        int respIdleTimeout = response.getIdleTimeout();
+        return reqIdleTimeout < 0 || respIdleTimeout < 0 ? Math.max(reqIdleTimeout, respIdleTimeout) : Math.min(reqIdleTimeout, respIdleTimeout);
+    }
+
+    public void setIdleTimeout(int idleTimeout) {
+        request.setIdleTimeout(idleTimeout);
+    }
+
+    /**
+     * idle this connection. you should check whether this connection is can be keep alive
+     * this method should call before release this connection every times
+     *
+     * @return time to expired
+     */
+    public final long idle() {
+        if (idled) return this.timeExpired;
+        idled = true;
+        int idleTimeout = this.getIdleTimeout();
+        if (idleTimeout >= 0) return this.timeExpired = System.currentTimeMillis() + idleTimeout * 1000L;// 有超时时间
+        else return this.timeExpired = -1L;// 永不超时
+    }
+
+    public boolean available() {
+        return !idled || this.timeExpired < 0 || this.timeExpired > System.currentTimeMillis(); // 当前正在使用或永不超时或还没超时
     }
 
     public void clear() {
@@ -152,7 +182,18 @@ public abstract class AioConnection implements Closeable {
         response.clear();
     }
 
-    public abstract void reset(Action action, Gateway gateway, AioClient client);
+    /**
+     * reset this connection.
+     * this method should call before reuse this connection every times
+     *
+     * @param action  action
+     * @param gateway gateway
+     * @param client  client
+     */
+    public void reset(Action action, Gateway gateway, AioClient client) {
+        if (!idled) return;
+        idled = false;
+    }
 
     public AioConnector getConnector() {
         return connector;

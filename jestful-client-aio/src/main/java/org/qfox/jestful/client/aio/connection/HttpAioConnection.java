@@ -15,6 +15,7 @@ public class HttpAioConnection extends AioConnection {
 
     @Override
     public void reset(Action action, Gateway gateway, AioClient client) {
+        super.reset(action, gateway, client);
         request = new JestfulAioHttpClientRequest(action, connector, gateway, client.getConnTimeout(), client.getReadTimeout(), client.getWriteTimeout());
         response = new JestfulAioHttpClientResponse(action, connector, gateway);
     }

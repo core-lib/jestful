@@ -25,8 +25,8 @@ public abstract class NioConnection implements Closeable {
     protected final SocketAddress address;
     protected volatile NioRequest request;
     protected volatile NioResponse response;
-    protected volatile long timeExpired;
     protected volatile boolean idled = true;
+    protected volatile long timeExpired;
 
     public NioConnection(NioConnector connector, SocketAddress address, Action action, Gateway gateway, NioClient client) throws IOException {
         this.connector = connector;
