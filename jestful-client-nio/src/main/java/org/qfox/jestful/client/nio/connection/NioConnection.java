@@ -20,8 +20,6 @@ import java.nio.channels.SocketChannel;
  * Created by payne on 2017/4/2.
  */
 public abstract class NioConnection implements Closeable {
-    protected final Object lock = new Object();
-
     protected final NioConnector connector;
     protected final SocketChannel channel;
     protected final SocketAddress address;
@@ -172,17 +170,10 @@ public abstract class NioConnection implements Closeable {
      */
     public final long idle() {
         if (idled) return this.timeExpired;
-        synchronized (lock) {
-            if (idled) return this.timeExpired;
-            idled = true;
-            return this.timeExpired = doIdle();
-        }
-    }
-
-    protected long doIdle() {
+        idled = true;
         int idleTimeout = this.getIdleTimeout();
-        if (idleTimeout >= 0) return System.currentTimeMillis() + idleTimeout * 1000L;// 有超时时间
-        else return -1L;// 永不超时
+        if (idleTimeout >= 0) return this.timeExpired = System.currentTimeMillis() + idleTimeout * 1000L;// 有超时时间
+        else return this.timeExpired = -1L;// 永不超时
     }
 
     public boolean available() {
@@ -202,16 +193,10 @@ public abstract class NioConnection implements Closeable {
      * @param gateway gateway
      * @param client  client
      */
-    public final void reset(Action action, Gateway gateway, NioClient client) {
+    public void reset(Action action, Gateway gateway, NioClient client) {
         if (!idled) return;
-        synchronized (lock) {
-            if (!idled) return;
-            idled = false;
-            doReset(action, gateway, client);
-        }
+        idled = false;
     }
-
-    protected abstract void doReset(Action action, Gateway gateway, NioClient client);
 
     public NioConnector getConnector() {
         return connector;

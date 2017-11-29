@@ -17,7 +17,7 @@ public class RepositoryAPITest {
         RepositoryAPI repositoryAPI = Client.builder()
                 .setProtocol("https")
                 .setHostname("api.github.com")
-                .setKeepAlive(true)
+                .setKeepAlive(false)
                 .build()
                 .creator()
                 .create(RepositoryAPI.class);

@@ -22,6 +22,7 @@ public class RedirectSampleAPITest {
         RedirectSampleAPI redirectSampleAPI = NioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
+                .setPort(8080)
                 .setKeepAlive(true)
                 .setIdleTimeout(100)
                 .build()
