@@ -1,37 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.qfoxtech.com/schema/jestful" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans"
-	targetNamespace="http://www.qfoxtech.com/schema/jestful" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            targetNamespace="http://www.qfoxtech.com/schema/jestful" elementFormDefault="qualified">
 
-	<xsd:import namespace="http://www.springframework.org/schema/beans" />
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
 
-	<xsd:element name="group">
-		<xsd:complexType>
-			<xsd:complexContent>
-				<xsd:extension base="beans:identifiedType">
-					<xsd:sequence>
-						<xsd:choice minOccurs="1" maxOccurs="unbounded">
-							<xsd:element ref="beans:bean" />
-							<xsd:element ref="beans:ref" />
-						</xsd:choice>
-					</xsd:sequence>
-				</xsd:extension>
-			</xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
-	
-	<xsd:element name="component">
-		<xsd:complexType>
-			<xsd:complexContent>
-				<xsd:extension base="beans:identifiedType">
-					<xsd:sequence>
-						<xsd:choice minOccurs="1" maxOccurs="unbounded">
-							<xsd:element ref="beans:bean" />
-							<xsd:element ref="beans:ref" />
-						</xsd:choice>
-					</xsd:sequence>
-				</xsd:extension>
-			</xsd:complexContent>
-		</xsd:complexType>
-	</xsd:element>
+    <xsd:element name="group">
+        <xsd:complexType mixed="true">
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:sequence>
+                        <xsd:choice maxOccurs="unbounded">
+                            <xsd:element ref="beans:bean"/>
+                            <xsd:element ref="beans:ref"/>
+                        </xsd:choice>
+                    </xsd:sequence>
+                    <xsd:attribute name="lazy-init" default="true" type="xsd:boolean">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+	Indicates whether this bean is to be lazily initialized. If "false",
+	it will be instantiated on startup by bean factories that perform eager
+	initialization of singletons. The effective default is "false".
+
+	Note: This attribute will not be inherited by child bean definitions.
+	Hence, it needs to be specified per concrete bean definition. It can be
+	shared through the 'default-lazy-init' attribute at the 'beans' level
+	and potentially inherited from outer 'beans' defaults in case of nested
+	'beans' sections (e.g. with different profiles).
+				]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="component">
+        <xsd:complexType mixed="true">
+            <xsd:complexContent>
+                <xsd:extension base="beans:identifiedType">
+                    <xsd:sequence>
+                        <xsd:choice maxOccurs="unbounded">
+                            <xsd:element ref="beans:bean"/>
+                            <xsd:element ref="beans:ref"/>
+                        </xsd:choice>
+                    </xsd:sequence>
+                    <xsd:attribute name="lazy-init" default="true" type="xsd:boolean">
+                        <xsd:annotation>
+                            <xsd:documentation><![CDATA[
+	Indicates whether this bean is to be lazily initialized. If "false",
+	it will be instantiated on startup by bean factories that perform eager
+	initialization of singletons. The effective default is "false".
+
+	Note: This attribute will not be inherited by child bean definitions.
+	Hence, it needs to be specified per concrete bean definition. It can be
+	shared through the 'default-lazy-init' attribute at the 'beans' level
+	and potentially inherited from outer 'beans' defaults in case of nested
+	'beans' sections (e.g. with different profiles).
+				]]></xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:attribute>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
 
 </xsd:schema>

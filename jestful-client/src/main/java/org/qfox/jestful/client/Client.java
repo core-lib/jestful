@@ -258,15 +258,10 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     }
 
     @Override
-    public void destroy() {
-        if (destroyed) {
-            return;
-        }
+    public synchronized void destroy() {
+        if (destroyed) return;
         destroyed = true;
-        Collection<Destroyable> destroyables = this.beanContainer.find(Destroyable.class).values();
-        for (Destroyable destroyable : destroyables) {
-            destroyable.destroy();
-        }
+        if (beanContainer != null) beanContainer.destroy();
     }
 
     public boolean isDestroyed() {

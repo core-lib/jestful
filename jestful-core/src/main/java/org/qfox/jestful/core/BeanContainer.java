@@ -1,5 +1,6 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.commons.Destructible;
 import org.qfox.jestful.commons.collection.Enumerable;
 import org.qfox.jestful.core.exception.BeanNonuniqueException;
 import org.qfox.jestful.core.exception.BeanUndefinedException;
@@ -20,7 +21,7 @@ import java.util.Map;
  * @date 2016年4月20日 上午11:55:44
  * @since 1.0.0
  */
-public interface BeanContainer extends Enumerable<Bean> {
+public interface BeanContainer extends Enumerable<Bean>, Destructible {
 
     String ROOT_BEAN_CONTAINER_CONTEXT_ATTRIBUTE = BeanContainer.class.getName() + ".ROOT";
 
@@ -70,13 +71,25 @@ public interface BeanContainer extends Enumerable<Bean> {
     <T> T get(Class<T> type) throws BeanUndefinedException, BeanNonuniqueException;
 
     /**
-     * find all beans instance of specified type parameter and use it name as entry key, itself as entry value
+     * find all beans instance of specified type parameter and use it name as entry key, itself as entry value.
+     * including non singletons and eager init beans
      *
      * @param type bean type
      * @return <bean name, bean> map, it may be an empty map when the bean container doesn't contains any bean is
      * instance of the specified type parameter
      */
     <T> Map<String, T> find(Class<T> type);
+
+    /**
+     * find all beans instance of specified type parameter and use it name as entry key, itself as entry value.
+     * if including non singletons please set includeNonSingletons = true.
+     * if allow eager init please set allowEagerInit = true
+     *
+     * @param type bean type
+     * @return <bean name, bean> map, it may be an empty map when the bean container doesn't contains any bean is
+     * instance of the specified type parameter
+     */
+    <T> Map<String, T> find(Class<T> type, boolean includeNonSingletons, boolean allowEagerInit);
 
     /**
      * find all beans which type is present an annotation of specified annotation type and use it name as entry key,

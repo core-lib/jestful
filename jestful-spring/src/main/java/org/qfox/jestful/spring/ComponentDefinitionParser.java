@@ -1,6 +1,8 @@
 package org.qfox.jestful.spring;
 
+import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Component;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -31,7 +33,10 @@ public class ComponentDefinitionParser extends AbstractSimpleBeanDefinitionParse
     @Override
     protected void doParse(Element element, ParserContext context, BeanDefinitionBuilder builder) {
         super.doParse(element, context, builder);
-        List<?> members = context.getDelegate().parseListElement(element, builder.getBeanDefinition());
+        AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
+        String isLazyInit = element.getAttribute("lazy-init");
+        beanDefinition.setLazyInit(StringKit.isEmpty(isLazyInit) ? true : Boolean.valueOf(isLazyInit));
+        List<?> members = context.getDelegate().parseListElement(element, beanDefinition);
         builder.addPropertyValue("members", members);
     }
 

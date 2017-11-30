@@ -87,10 +87,11 @@ public class NioClient extends Client implements NioConnector {
     }
 
     @Override
-    public void destroy() {
-        this.cpu.shutdown();
-        this.connectionPool.destroy();
+    public synchronized void destroy() {
+        if (destroyed) return;
         super.destroy();
+        if (cpu != null) cpu.shutdown();
+        if (connectionPool != null) connectionPool.destroy();
     }
 
     public Object react(Action action) throws Exception {

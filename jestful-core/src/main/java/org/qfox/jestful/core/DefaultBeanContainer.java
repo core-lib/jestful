@@ -1,5 +1,8 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.commons.Destructible;
+import org.qfox.jestful.commons.Destruction;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.collection.Enumerator;
 import org.qfox.jestful.core.exception.BeanNonuniqueException;
 import org.qfox.jestful.core.exception.BeanUndefinedException;
@@ -9,11 +12,11 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * <p>
@@ -29,6 +32,8 @@ import java.util.Map.Entry;
  * @since 1.0.0
  */
 public class DefaultBeanContainer implements BeanContainer, BeanPostProcessor, BeanFactoryAware {
+    private final ConcurrentMap<String, Queue<Object>> beans = new ConcurrentHashMap<String, Queue<Object>>();
+    private volatile boolean destroyed;
     private ListableBeanFactory listableBeanFactory;
 
     public Enumeration<Bean> enumeration() {
@@ -76,6 +81,11 @@ public class DefaultBeanContainer implements BeanContainer, BeanPostProcessor, B
         return listableBeanFactory.getBeansOfType(type);
     }
 
+    @Override
+    public <T> Map<String, T> find(Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) {
+        return listableBeanFactory.getBeansOfType(type, includeNonSingletons, allowEagerInit);
+    }
+
     public Map<String, ?> with(Class<? extends Annotation> annotationType) {
         return listableBeanFactory.getBeansWithAnnotation(annotationType);
     }
@@ -85,6 +95,12 @@ public class DefaultBeanContainer implements BeanContainer, BeanPostProcessor, B
     }
 
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        Queue<Object> queue = beans.get(beanName);
+        if (queue == null) {
+            Queue<Object> old = beans.putIfAbsent(beanName, queue = new ConcurrentLinkedQueue<Object>());
+            if (old != null) queue = old;
+        }
+        queue.offer(bean);
         if (bean instanceof Initialable) {
             Initialable initialable = (Initialable) bean;
             initialable.initialize(this);
@@ -100,4 +116,18 @@ public class DefaultBeanContainer implements BeanContainer, BeanPostProcessor, B
         this.listableBeanFactory = (ListableBeanFactory) beanFactory;
     }
 
+    @Override
+    public synchronized void destroy() {
+        if (destroyed) return;
+        destroyed = true;
+        for (Queue<Object> queue : beans.values()) {
+            for (Object bean : queue) {
+                if (bean instanceof Destroyable) {
+                    IOKit.close(new Destruction((Destructible) bean));
+                }
+            }
+            queue.clear();
+        }
+        beans.clear();
+    }
 }

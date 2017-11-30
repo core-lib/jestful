@@ -1,5 +1,7 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.commons.Destructible;
+
 /**
  * <p>
  * Description:
@@ -13,8 +15,6 @@ package org.qfox.jestful.core;
  * @date 2016年4月20日 下午12:09:51
  * @since 1.0.0
  */
-public interface Destroyable {
-
-    void destroy();
+public interface Destroyable extends Destructible {
 
 }

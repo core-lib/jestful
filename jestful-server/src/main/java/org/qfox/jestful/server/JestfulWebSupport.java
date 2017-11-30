@@ -227,8 +227,7 @@ public class JestfulWebSupport implements Actor {
     }
 
     public void destroy() {
-        Collection<Destroyable> destroyables = beanContainer.find(Destroyable.class).values();
-        for (Destroyable destroyable : destroyables) destroyable.destroy();
+        if (beanContainer != null) beanContainer.destroy();
     }
 
 }

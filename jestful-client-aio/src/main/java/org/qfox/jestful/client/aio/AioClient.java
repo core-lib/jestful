@@ -85,10 +85,12 @@ public class AioClient extends Client implements AioConnector {
     }
 
     @Override
-    public void destroy() {
+    public synchronized void destroy() {
+        if (destroyed) return;
         super.destroy();
         if (aioChannelGroup != null) aioChannelGroup.shutdown();
         if (cpu != null) cpu.shutdown();
+        if (connectionPool != null) connectionPool.destroy();
     }
 
     @Override
