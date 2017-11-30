@@ -1,10 +1,12 @@
-package org.qfox.jestful.core.annotation;
+package org.qfox.jestful.core.http;
+
+import org.qfox.jestful.core.annotation.Command;
 
 import java.lang.annotation.*;
 
 /**
  * <p>
- * Description: request server to get it's supported methods of specified URL or '*' to check the server's performance
+ * Description: Just get the resource' header from server like 'GET' method but does not got it's body
  * </p>
  * <p>
  * <p>
@@ -12,14 +14,14 @@ import java.lang.annotation.*;
  * </p>
  *
  * @author Payne 646742615@qq.com
- * @date 2016年6月1日 下午9:41:54
+ * @date 2016年6月1日 下午9:41:04
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Command(name = "OPTIONS", acceptBody = false, returnBody = false, idempotent = true)
-public @interface OPTIONS {
+@Command(name = "HEAD", acceptBody = false, returnBody = false, idempotent = true)
+public @interface HEAD {
 
     /**
      * specify the path to map

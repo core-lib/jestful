@@ -1,6 +1,6 @@
 package org.qfox.jestful.interception.annotation;
 
-import org.qfox.jestful.core.annotation.DELETE;
+import org.qfox.jestful.core.http.DELETE;
 
 import java.lang.annotation.*;
 

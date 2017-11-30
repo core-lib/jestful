@@ -1,10 +1,12 @@
-package org.qfox.jestful.core.annotation;
+package org.qfox.jestful.core.http;
+
+import org.qfox.jestful.core.annotation.Command;
 
 import java.lang.annotation.*;
 
 /**
  * <p>
- * Description: Mapping the annotated method to a specified or default path for http POST method
+ * Description: Mapping the annotated method to a specified or default path for http PUT method
  * </p>
  * <p>
  * <p>
@@ -12,14 +14,14 @@ import java.lang.annotation.*;
  * </p>
  *
  * @author Payne 646742615@qq.com
- * @date 2016年1月15日 下午7:58:26
+ * @date 2016年1月15日 下午8:07:59
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Command(name = "POST", acceptBody = true, returnBody = true, idempotent = false)
-public @interface POST {
+@Command(name = "PUT", acceptBody = true, returnBody = true, idempotent = true)
+public @interface PUT {
 
     /**
      * specify the path to map

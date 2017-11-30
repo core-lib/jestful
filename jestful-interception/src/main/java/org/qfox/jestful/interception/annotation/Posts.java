@@ -1,6 +1,6 @@
 package org.qfox.jestful.interception.annotation;
 
-import org.qfox.jestful.core.annotation.POST;
+import org.qfox.jestful.core.http.POST;
 
 import java.lang.annotation.*;
 

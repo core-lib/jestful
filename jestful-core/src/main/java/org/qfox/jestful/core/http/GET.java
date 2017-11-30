@@ -1,10 +1,12 @@
-package org.qfox.jestful.core.annotation;
+package org.qfox.jestful.core.http;
+
+import org.qfox.jestful.core.annotation.Command;
 
 import java.lang.annotation.*;
 
 /**
  * <p>
- * Description: Mapping the annotated method to a specified or default path for http PUT method
+ * Description: Mapping the annotated method to a specified or default path for http GET method
  * </p>
  * <p>
  * <p>
@@ -12,14 +14,14 @@ import java.lang.annotation.*;
  * </p>
  *
  * @author Payne 646742615@qq.com
- * @date 2016年1月15日 下午8:07:59
+ * @date 2016年1月15日 下午7:56:39
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Command(name = "PUT", acceptBody = true, returnBody = true, idempotent = true)
-public @interface PUT {
+@Command(name = "GET", acceptBody = false, returnBody = true, idempotent = true)
+public @interface GET {
 
     /**
      * specify the path to map
@@ -27,13 +29,6 @@ public @interface PUT {
      * @return
      */
     String value() default "";
-
-    /**
-     * indicated some content types to accept, by default, all of the content types is accepted;
-     *
-     * @return
-     */
-    String[] consumes() default {};
 
     /**
      * indicated some content types will return, by default, any content type can resolve the request

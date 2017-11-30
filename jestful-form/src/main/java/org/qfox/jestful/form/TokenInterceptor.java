@@ -2,10 +2,10 @@ package org.qfox.jestful.form;
 
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
-import org.qfox.jestful.core.annotation.DELETE;
-import org.qfox.jestful.core.annotation.GET;
-import org.qfox.jestful.core.annotation.POST;
-import org.qfox.jestful.core.annotation.PUT;
+import org.qfox.jestful.core.http.DELETE;
+import org.qfox.jestful.core.http.GET;
+import org.qfox.jestful.core.http.POST;
+import org.qfox.jestful.core.http.PUT;
 import org.qfox.jestful.interception.Interceptor;
 import org.qfox.jestful.interception.Invocation;
 

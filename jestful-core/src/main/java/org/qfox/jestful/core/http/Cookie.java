@@ -1,6 +1,7 @@
-package org.qfox.jestful.core.annotation;
+package org.qfox.jestful.core.http;
 
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.annotation.Variable;
 
 import java.lang.annotation.*;
 

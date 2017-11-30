@@ -1,7 +1,7 @@
 package org.qfox.jestful.sample;
 
-import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
+import org.qfox.jestful.core.http.GET;
 import org.springframework.stereotype.Controller;
 
 @Controller

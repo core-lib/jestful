@@ -1,6 +1,10 @@
 package org.qfox.jestful.sample;
 
-import org.qfox.jestful.core.annotation.*;
+import org.qfox.jestful.core.annotation.Jestful;
+import org.qfox.jestful.core.http.Body;
+import org.qfox.jestful.core.http.GET;
+import org.qfox.jestful.core.http.POST;
+import org.qfox.jestful.core.http.Query;
 import org.qfox.jestful.sample.user.User;
 import org.springframework.stereotype.Controller;
 

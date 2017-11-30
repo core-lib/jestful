@@ -4,8 +4,8 @@ import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.OnCompleted;
 import org.qfox.jestful.client.scheduler.OnFail;
 import org.qfox.jestful.client.scheduler.OnSuccess;
-import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
+import org.qfox.jestful.core.http.GET;
 
 /**
  * Created by yangchangpei on 17/9/27.

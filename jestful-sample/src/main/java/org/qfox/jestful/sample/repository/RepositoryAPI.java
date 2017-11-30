@@ -1,8 +1,8 @@
 package org.qfox.jestful.sample.repository;
 
-import org.qfox.jestful.core.annotation.GET;
 import org.qfox.jestful.core.annotation.Jestful;
-import org.qfox.jestful.core.annotation.Path;
+import org.qfox.jestful.core.http.GET;
+import org.qfox.jestful.core.http.Path;
 
 import java.util.List;
 

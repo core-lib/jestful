@@ -1,12 +1,13 @@
-package org.qfox.jestful.core.annotation;
+package org.qfox.jestful.core.http;
 
 import org.qfox.jestful.core.Position;
+import org.qfox.jestful.core.annotation.Variable;
 
 import java.lang.annotation.*;
 
 /**
  * <p>
- * Description: 查询字符串参数注解
+ * Description: 请求路径参数注解
  * </p>
  * <p>
  * <p>
@@ -14,15 +15,20 @@ import java.lang.annotation.*;
  * </p>
  *
  * @author Payne 646742615@qq.com
- * @date 2016年4月12日 上午10:28:00
+ * @date 2016年4月12日 上午10:27:45
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@Variable(position = Position.QUERY, coding = true)
-public @interface Query {
+@Variable(position = Position.PATH, coding = true)
+public @interface Path {
 
+    /**
+     * 参数名称
+     *
+     * @return
+     */
     String value();
 
     boolean encoded() default false;
