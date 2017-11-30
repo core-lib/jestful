@@ -7,10 +7,10 @@ import org.qfox.jestful.sample.user.User;
 @Jestful("/redirect")
 public interface RedirectSampleAPI {
 
-    @GET("/target")
+    @GET("/source")
     User source();
 
-    @GET("/source")
+    @GET("/target")
     void source(OnCompleted<User> callback);
 
     @POST("/source")

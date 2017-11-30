@@ -267,6 +267,12 @@ public class AioClient extends Client implements AioConnector {
                     if (success == null) {
                         if (callbacks == null) callbacks = new HashSet<>();
                         callbacks.add(callback);
+                        if (state == State.STANDING) {
+                            AioConnection connection = (AioConnection) action.getExtra().get(AioConnection.class);
+                            PrepareCompletionHandler handler = new PrepareCompletionHandler(AioClient.this, connection, action);
+                            cpu.execute(handler);
+                            state = State.HANDLED;
+                        }
                     } else {
                         super.accept(callback);
                     }

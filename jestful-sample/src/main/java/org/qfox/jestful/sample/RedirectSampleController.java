@@ -28,13 +28,17 @@ public class RedirectSampleController {
     }
 
     @POST("/source")
-    public void postSource(@Query("job") String job, @Body User user, HttpServletResponse response) throws IOException {
+    public void postSource(HttpServletRequest request, @Query("job") String job, @Body User user, HttpServletResponse response) throws IOException {
+        System.out.print(request.getRemotePort() + ",");
+        System.out.flush();
         response.addHeader("Location", "http://localhost:8080/redirect/target?name=Payne");
         response.sendError(307);
     }
 
     @POST("/target")
-    public User postTarget(@Query("job") String job, @Query("name") String name, @Body User user, HttpServletResponse response) throws IOException {
+    public User postTarget(HttpServletRequest request, @Query("job") String job, @Query("name") String name, @Body User user, HttpServletResponse response) throws IOException {
+        System.out.print(request.getRemotePort() + ",");
+        System.out.flush();
         return new User("Payne", 1L, null, null);
     }
 

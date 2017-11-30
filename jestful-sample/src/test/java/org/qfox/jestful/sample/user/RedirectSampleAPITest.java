@@ -1,12 +1,13 @@
 package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
-import org.qfox.jestful.client.Client;
 import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.SimpleLock;
 import org.qfox.jestful.sample.RedirectSampleAPI;
+
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by yangchangpei on 17/9/27.
@@ -30,18 +31,24 @@ public class RedirectSampleAPITest {
                 .addBackPlugins(new Redirector())
                 .create(RedirectSampleAPI.class);
 
+        CountDownLatch latch = new CountDownLatch(100);
         for (int i = 0; i < 100; i++) {
-            User user = redirectSampleAPI.source();
-            System.out.println(user);
+            redirectSampleAPI.source((success, user, exception) -> {
+                System.out.println(user);
+                latch.countDown();
+            });
         }
+        latch.await();
     }
 
     @Test
     public void post() throws Exception {
-        RedirectSampleAPI userAPI = Client.builder()
+        RedirectSampleAPI userAPI = AioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
                 .setPort(8080)
+                .setKeepAlive(true)
+                .setIdleTimeout(100)
                 .build()
                 .creator()
                 .addBackPlugins(new Redirector())
@@ -57,6 +64,8 @@ public class RedirectSampleAPITest {
             lock.openAll();
         });
         lock.lockOne();
+
+
     }
 
 }

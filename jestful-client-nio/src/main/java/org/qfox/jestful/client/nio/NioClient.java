@@ -409,6 +409,10 @@ public class NioClient extends Client implements NioConnector {
                     if (success == null) {
                         if (callbacks == null) callbacks = new HashSet<Callback<Object>>();
                         callbacks.add(callback);
+                        if (state == State.STANDING) {
+                            balancer.dispatch(action, NioClient.this, processors);
+                            state = State.DISPATCHED;
+                        }
                     } else {
                         super.accept(callback);
                     }
