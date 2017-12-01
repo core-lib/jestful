@@ -1,9 +1,10 @@
 package org.qfox.jestful.commons.clock;
 
-import org.qfox.jestful.commons.Destructible;
 import org.qfox.jestful.commons.Lock;
 import org.qfox.jestful.commons.LockBlock;
 import org.qfox.jestful.commons.SimpleLock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -11,7 +12,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Payne on 2017/12/1.
  */
-public class LinkedClocker implements Clocker, Runnable, Destructible {
+public class LinkedClock implements Clock, Runnable {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final Lock lock = new SimpleLock();
     private final Thread thread;
 
@@ -20,42 +23,11 @@ public class LinkedClocker implements Clocker, Runnable, Destructible {
     private volatile Schedule tail;
     private volatile boolean destroyed;
 
-    public static void main(String... args) {
-        Clocker clocker = new LinkedClocker();
-        clocker.apply(new Execution() {
-            @Override
-            public void execute() {
-                System.out.println("5");
-            }
-        }, 5, TimeUnit.SECONDS);
-        clocker.apply(new Execution() {
-            @Override
-            public void execute() {
-                System.out.println("7");
-            }
-        }, 7, TimeUnit.SECONDS);
-        clocker.apply(new Execution() {
-            @Override
-            public void execute() {
-                System.out.println("6");
-            }
-        }, 6, TimeUnit.SECONDS);
-        clocker.apply(new Execution() {
-            @Override
-            public void execute() {
-                System.out.println("4");
-            }
-        }, 4, TimeUnit.SECONDS);
-
-
-        new SimpleLock().lockOne();
+    public LinkedClock() {
+        this(new DefaultExecutor());
     }
 
-    public LinkedClocker() {
-        this(new CurrentThreadExecutor());
-    }
-
-    public LinkedClocker(Executor executor) {
+    public LinkedClock(Executor executor) {
         if (executor == null) throw new NullPointerException("executor == null");
         this.executor = executor;
 
@@ -130,22 +102,28 @@ public class LinkedClocker implements Clocker, Runnable, Destructible {
     @Override
     public void run() {
         while (!destroyed) {
-            lock.doWithLock(new LockBlock() {
-                @Override
-                public void execute() {
-                    if (head == null) {
-                        lock.lockOne();
-                        return;
+            try {
+                lock.doWithLock(new LockBlock() {
+                    @Override
+                    public void execute() {
+                        if (head == null) {
+                            lock.lockOne();
+                            return;
+                        }
+                        long delay = head.delay();
+                        if (delay <= 0) {
+                            head.schedule(executor);
+                            head = head.next();
+                        } else {
+                            lock.lockOne(delay);
+                        }
                     }
-                    long delay = head.delay();
-                    if (delay <= 0) {
-                        head.schedule(executor);
-                        head = head.next();
-                    } else {
-                        lock.lockOne(delay);
-                    }
-                }
-            });
+                });
+            } catch (Exception e) {
+                logger.error("execution schedule error", e);
+            } finally {
+                if (destroyed) executor.destroy();
+            }
         }
     }
 
@@ -155,6 +133,7 @@ public class LinkedClocker implements Clocker, Runnable, Destructible {
             @Override
             public void execute() {
                 destroyed = true;
+                lock.openAll();
             }
         });
     }

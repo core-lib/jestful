@@ -1,12 +1,14 @@
 package org.qfox.jestful.commons.clock;
 
+import org.qfox.jestful.commons.Destructible;
+
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Payne on 2017/12/1.
  */
-public interface Clocker {
+public interface Clock extends Destructible {
 
     void apply(Execution execution, Date date) throws NegativeDelayException;
 
