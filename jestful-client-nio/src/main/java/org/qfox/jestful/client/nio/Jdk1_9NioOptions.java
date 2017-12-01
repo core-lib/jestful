@@ -13,7 +13,7 @@ public class Jdk1_9NioOptions extends Jdk1_7NioOptions implements NioOptions {
 
     @Override
     public void config(SocketChannel channel) throws IOException {
-        if (so_reuseport != null) channel.setOption(StandardSocketOptions.SO_REUSEPORT, so_reuseport);
+//        if (so_reuseport != null) channel.setOption(StandardSocketOptions.SO_REUSEPORT, so_reuseport);
         super.config(channel);
     }
 
