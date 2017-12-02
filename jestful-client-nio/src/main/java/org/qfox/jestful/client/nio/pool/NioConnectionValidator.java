@@ -8,4 +8,10 @@ public class NioConnectionValidator implements Validator<NioConnection> {
     public boolean validate(NioConnection connection) {
         return connection.available();
     }
+
+    @Override
+    public long timeout(NioConnection connection) {
+        long timeout = connection.getIdleTimeout();
+        return timeout < 0 ? timeout : timeout * 1000L;
+    }
 }

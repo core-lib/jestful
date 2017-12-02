@@ -3,11 +3,15 @@ package org.qfox.jestful.commons.pool;
 import org.qfox.jestful.commons.Equivocal;
 import org.qfox.jestful.commons.LockBlock;
 import org.qfox.jestful.commons.SimpleLock;
+import org.qfox.jestful.commons.clock.Clock;
+import org.qfox.jestful.commons.clock.Execution;
+import org.qfox.jestful.commons.clock.LinkedClock;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConcurrentPool<Key, Item> implements Pool<Key, Item> {
@@ -17,6 +21,7 @@ public class ConcurrentPool<Key, Item> implements Pool<Key, Item> {
     private final Producer<Key, Item> producer;
     private final Validator<Item> validator;
     private final Destroyer<Item> destroyer;
+    private final Clock clock;
 
     public ConcurrentPool() {
         this(new Producer<Key, Item>() {
@@ -29,6 +34,11 @@ public class ConcurrentPool<Key, Item> implements Pool<Key, Item> {
             public boolean validate(Item item) {
                 return true;
             }
+
+            @Override
+            public long timeout(Item item) {
+                return -1;
+            }
         }, new Destroyer<Item>() {
             @Override
             public void destroy(Item item) {
@@ -38,9 +48,14 @@ public class ConcurrentPool<Key, Item> implements Pool<Key, Item> {
     }
 
     public ConcurrentPool(Producer<Key, Item> producer, Validator<Item> validator, Destroyer<Item> destroyer) {
+        this(producer, validator, destroyer, new LinkedClock());
+    }
+
+    public ConcurrentPool(Producer<Key, Item> producer, Validator<Item> validator, Destroyer<Item> destroyer, Clock clock) {
         this.producer = producer;
         this.validator = validator;
         this.destroyer = destroyer;
+        this.clock = clock;
     }
 
     @Override
@@ -87,7 +102,10 @@ public class ConcurrentPool<Key, Item> implements Pool<Key, Item> {
                     if (old != null) queue = old;
                 }
                 if (validator.validate(item)) {
-                    queue.offer(Equivocal.of(item));
+                    Equivocal<Item> equivocal = Equivocal.of(item);
+                    queue.offer(equivocal);
+                    long delay = validator.timeout(item);
+                    if (delay >= 0) clock.apply(new DestroyExecution(key, equivocal), delay, TimeUnit.MILLISECONDS);
                 } else {
                     destroyer.destroy(item);
                 }
@@ -119,6 +137,26 @@ public class ConcurrentPool<Key, Item> implements Pool<Key, Item> {
             queue.clear();
         }
         pool.clear();
+    }
+
+    private class DestroyExecution implements Execution {
+        private final Key key;
+        private final Equivocal<Item> equivocal;
+
+        DestroyExecution(Key key, Equivocal<Item> equivocal) {
+            this.key = key;
+            this.equivocal = equivocal;
+        }
+
+        @Override
+        public void execute() {
+            Queue<Equivocal<Item>> queue = pool.get(key);
+            // 如果还没被使用
+            if (queue != null && queue.remove(equivocal)) {
+                Item item = equivocal.get();
+                destroyer.destroy(item);
+            }
+        }
     }
 
     @Override

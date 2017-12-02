@@ -4,4 +4,6 @@ public interface Validator<Item> {
 
     boolean validate(Item item);
 
+    long timeout(Item item);
+
 }

@@ -6,6 +6,7 @@ import org.qfox.jestful.client.auth.Scope;
 import org.qfox.jestful.client.auth.impl.SimpleCredence;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
+import org.qfox.jestful.commons.SimpleLock;
 
 public class QfoxyAPITest {
 
@@ -18,6 +19,7 @@ public class QfoxyAPITest {
                 .setProtocol("https")
                 .setHostname("www.baidu.com")
                 .setKeepAlive(true)
+                .setIdleTimeout(10)
                 .build()
                 .creator()
                 .setBackPlugins(authenticator)
@@ -28,6 +30,8 @@ public class QfoxyAPITest {
             String index = qfoxyAPI.index();
             System.out.println(index.length());
         }
+
+        new SimpleLock().lockOne();
     }
 
 }
