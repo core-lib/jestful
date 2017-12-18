@@ -14,7 +14,7 @@ public class QfoxyAPITest {
         QfoxyAPI qfoxyAPI = NioClient.builder()
                 .setProtocol("https")
                 .setHostname("fex.bdstatic.com")
-                .setKeepAlive(false)
+                .setKeepAlive(true)
                 .setIdleTimeout(10)
                 .build()
                 .creator()

@@ -44,14 +44,15 @@ public class LinkedClock extends AbstractClock implements Clock, Runnable {
         lock.doWithLock(new LockBlock() {
             @Override
             public void execute() {
-                // 如果当前一个调度都还没有
+                // 如果当前一个调度都还没有或者是已经调度过了而且当前没有等待的调度
                 if (head == null) {
                     head = schedule;
                     tail = schedule;
                     // 启动线程  这里需要注意的一个地方是: 为了避免指令重排的问题 head 和 tail 变量我都用volatile来修饰 这样就能保证这两个变量的赋值并刷新回主存
                     // 一定先于 thread.start(); 指令的执行
                     // 不然的话, 由于指令重排的问题 如果thread.start(); 先执行就会有可能子线程访问head和tail的时候取到的值是 null !!
-                    thread.start();
+                    if (thread.isAlive()) lock.openAll();
+                    else thread.start();
                 }
                 // 否则
                 else {
@@ -76,6 +77,8 @@ public class LinkedClock extends AbstractClock implements Clock, Runnable {
                                 schedule.next(current.next());
                                 current.next(schedule);
                                 return;
+                            } else {
+                                current = current.next();
                             }
                         }
                         // 到最后都没有找到比该调度还要后的 那么该调度就是最后一个 不过由于上面的分支判断 理论上不会到这里来 为了更严谨就写上吧
