@@ -18,7 +18,7 @@ import java.io.OutputStream;
  */
 public abstract class LazyOutputStream extends OutputStream {
     private final Object lock = new Object();
-    private OutputStream outputStream;
+    private volatile OutputStream outputStream;
 
     @Override
     public void write(int b) throws IOException {

@@ -6,4 +6,6 @@ public interface Protocol {
 
     Version getVersion();
 
+    String toString();
+
 }

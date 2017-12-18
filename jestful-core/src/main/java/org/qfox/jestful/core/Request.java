@@ -1,6 +1,6 @@
 package org.qfox.jestful.core;
 
-import org.qfox.jestful.core.io.IOConstants;
+import org.qfox.jestful.commons.io.IOConstants;
 
 import java.io.*;
 

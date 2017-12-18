@@ -12,11 +12,6 @@
 </head>
 <body>
 Hello Jestful
-<a href="/sample">测试</a>
-
-<form action="/sample" method="post">
-    <input type="text" name="test"/>
-    <button type="submit">提交</button>
-</form>
+<a href="/cache/no-cache">测试</a>
 </body>
 </html>

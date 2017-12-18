@@ -18,7 +18,7 @@ import java.io.InputStream;
  */
 public abstract class LazyInputStream extends InputStream {
     private final Object lock = new Object();
-    private InputStream inputSream;
+    private volatile InputStream inputStream;
 
     @Override
     public int read() throws IOException {
@@ -66,15 +66,15 @@ public abstract class LazyInputStream extends InputStream {
     }
 
     private InputStream get() {
-        if (inputSream != null) {
-            return inputSream;
+        if (inputStream != null) {
+            return inputStream;
         }
         synchronized (lock) {
-            if (inputSream != null) {
-                return inputSream;
+            if (inputStream != null) {
+                return inputStream;
             }
             try {
-                return inputSream = getInputStream();
+                return inputStream = getInputStream();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

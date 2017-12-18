@@ -6,4 +6,6 @@ public interface Version extends Comparable<Version> {
 
     int getMinor();
 
+    String toString();
+
 }

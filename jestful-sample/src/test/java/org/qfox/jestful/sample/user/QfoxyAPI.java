@@ -9,4 +9,7 @@ public interface QfoxyAPI {
     @GET("/")
     String index();
 
+    @GET("/js/jquery.js")
+    String jQuery();
+
 }

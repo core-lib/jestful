@@ -316,7 +316,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         throw new UnsupportedProtocolException(action.getProtocol());
     }
 
-    protected void serialize(Action action) throws Exception {
+    public void serialize(Action action) throws Exception {
         Request request = action.getRequest();
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
         if (bodies.isEmpty()) {
@@ -355,7 +355,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
     }
 
-    protected void deserialize(Action action) throws Exception {
+    public void deserialize(Action action) throws Exception {
         Response response = action.getResponse();
         Body body = action.getResult().getBody();
         if (body.getType() != Void.TYPE) {
@@ -423,17 +423,14 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, header, body);
             }
 
-            // 回应
             if (restful.isReturnBody()) {
                 deserialize(action);
+                return action.getResult().getBody().getValue();
             } else {
                 Map<String, String> header = new CaseInsensitiveMap<String, String>();
                 for (String key : response.getHeaderKeys()) header.put(key != null ? key : "", response.getResponseHeader(key));
                 return header;
             }
-
-            // 返回
-            return action.getResult().getBody().getValue();
         } catch (StatusException se) {
             for (Catcher catcher : catchers.values()) if (catcher.catchable(se)) return catcher.caught(Client.this, action, se);
             throw se;

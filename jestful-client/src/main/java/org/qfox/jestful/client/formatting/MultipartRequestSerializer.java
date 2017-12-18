@@ -48,12 +48,12 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
         Accepts consumes = action.getConsumes();
         String base = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String nonce = "";
+        StringBuilder nonce = new StringBuilder();
         Random random = new Random(System.currentTimeMillis());
         for (int i = 0; i < 16; i++) {
             int bound = base.length();
             int index = random.nextInt(bound);
-            nonce += base.charAt(index);
+            nonce.append(base.charAt(index));
         }
         String boundary = "----JestfulFormBoundary" + nonce;
         action.getRequest().setContentType(contentType + ";boundary=" + boundary);
@@ -84,7 +84,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
         } catch (NoSuchSerializerException e) {
             throw new JestfulIOException(e);
         } finally {
-            mos.close(true);
+            if (mos != null) mos.close(true);
         }
     }
 
@@ -99,7 +99,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
             String filename = file.getName();
             Disposition disposition = new Disposition("form-data", name, filename);
             Collection<?> mediaTypes = MimeUtil.getMimeTypes(file);
-            String mediaType = mediaTypes == null || mediaTypes.isEmpty() ? "application/octet-stream" : mediaTypes.toArray()[0].toString();
+            String mediaType = mediaTypes.isEmpty() ? "application/octet-stream" : mediaTypes.toArray()[0].toString();
             MediaType type = MediaType.valueOf(mediaType);
             Multihead multihead = new Multihead(disposition, type);
             out.setNextMultihead(multihead);

@@ -10,4 +10,6 @@ public interface Status {
 
     String getReason();
 
+    String toString();
+
 }

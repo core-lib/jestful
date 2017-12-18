@@ -1,6 +1,7 @@
 package org.qfox.jestful.core.io;
 
 import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.commons.io.IOConstants;
 import org.qfox.jestful.core.Multihead;
 
 import java.io.IOException;
