@@ -16,6 +16,9 @@ public class LinkedClockTests {
         Random random = new Random();
         for (int i = 0; i < 1000; i++) new Thread(() -> clock.apply(latch::countDown, System.currentTimeMillis() + random.nextInt(1000))).start();
         latch.await();
+        clock.destroy();
+        clock.apply(() -> {
+        }, System.currentTimeMillis() + 10);
     }
 
 }

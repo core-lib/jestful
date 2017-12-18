@@ -44,6 +44,7 @@ public class LinkedClock extends AbstractClock implements Clock, Runnable {
         lock.doWithLock(new LockBlock() {
             @Override
             public void execute() {
+                if (destroyed) throw new IllegalStateException("destroyed");
                 // 如果当前一个调度都还没有或者是已经调度过了而且当前没有等待的调度
                 if (head == null) {
                     head = schedule;
