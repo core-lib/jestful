@@ -13,8 +13,8 @@ public class QfoxyAPITest {
     public void index() throws Exception {
         QfoxyAPI qfoxyAPI = NioClient.builder()
                 .setProtocol("https")
-                .setHostname("fex.bdstatic.com")
-                .setKeepAlive(false)
+                .setHostname("api.qfoxy.com")
+                .setKeepAlive(true)
                 .setIdleTimeout(10)
                 .build()
                 .creator()
@@ -33,14 +33,6 @@ public class QfoxyAPITest {
             });
         }
         latch.await();
-        qfoxyAPI.jQuery(new CallbackAdapter<String>() {
-            @Override
-            public void onCompleted(boolean success, String result, Exception exception) {
-                if (success) System.out.println(result.length());
-                else exception.printStackTrace();
-            }
-        });
-        Thread.sleep(1000000);
     }
 
 }
