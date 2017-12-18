@@ -13,7 +13,7 @@ public class QfoxyAPITest {
     public void index() throws Exception {
         QfoxyAPI qfoxyAPI = NioClient.builder()
                 .setProtocol("https")
-                .setHostname("fex.bdstatic.com")
+                .setHostname("api.qfoxy.com")
                 .setKeepAlive(true)
                 .setIdleTimeout(10)
                 .build()

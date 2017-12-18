@@ -52,7 +52,7 @@ public class LinkedClock extends AbstractClock implements Clock, Runnable {
                     // 启动线程  这里需要注意的一个地方是: 为了避免指令重排的问题 head 和 tail 变量我都用volatile来修饰 这样就能保证这两个变量的赋值并刷新回主存
                     // 一定先于 thread.start(); 指令的执行
                     // 不然的话, 由于指令重排的问题 如果thread.start(); 先执行就会有可能子线程访问head和tail的时候取到的值是 null !!
-                    if (thread.isAlive()) lock.openAll();
+                    if (thread.isAlive()) lock.openAll(); // 线程有可能已经启动但是已经调度了所有的任务所以 head == null
                     else thread.start();
                 }
                 // 否则
