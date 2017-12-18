@@ -23,7 +23,7 @@ public class UserAPITest {
         UserAPI userAPI = AioClient.builder()
                 .setProtocol("https")
                 .setHostname("api.github.com")
-                .setKeepAlive(true)
+                .setKeepAlive(false)
                 .build()
                 .creator()
                 .setBackPlugins(authenticator)

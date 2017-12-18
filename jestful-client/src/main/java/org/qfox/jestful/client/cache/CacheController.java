@@ -5,6 +5,8 @@ import org.qfox.jestful.client.Promise;
 import org.qfox.jestful.client.cache.impl.*;
 import org.qfox.jestful.client.cache.impl.http.HttpCacheManager;
 import org.qfox.jestful.client.scheduler.Callback;
+import org.qfox.jestful.client.scheduler.CallbackAdapter;
+import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.core.*;
 
 import java.io.InputStream;
@@ -77,7 +79,7 @@ public class CacheController implements ForePlugin, BackPlugin {
             final CachedRequest cachedRequest = new CachedRequest(srcRequest);
             action.setRequest(cachedRequest);
             client().serialize(action);
-            InputStream in = cachedRequest.getRequestBodyInputStream();
+            final InputStream in = cachedRequest.getRequestBodyInputStream();
             final String hash = in != null && in.available() > 0 ? strEncoder.encode(msgDigester.digest(in)) : null;
             final String key = keyGenerator.generate(action.getRestful().getMethod(), new URL(action.getURL()), hash);
             final Cache cache = cacheManager.find(key);
@@ -138,7 +140,109 @@ public class CacheController implements ForePlugin, BackPlugin {
 
         @Override
         public void accept(Callback<Object> callback) {
-            promise.accept(callback);
+            try {
+                // 为了适配有请求体的请求缓存 所以需要序列化请求体 并且计算请求体的hash值
+                final Request srcRequest = action.getRequest();
+                final CachedRequest cachedRequest = new CachedRequest(srcRequest);
+                action.setRequest(cachedRequest);
+                client().serialize(action);
+                final InputStream in = cachedRequest.getRequestBodyInputStream();
+                final String hash = in != null && in.available() > 0 ? strEncoder.encode(msgDigester.digest(in)) : null;
+                final String key = keyGenerator.generate(action.getRestful().getMethod(), new URL(action.getURL()), hash);
+                final Cache cache = cacheManager.find(key);
+                // 没有缓存
+                if (cache == null) {
+                    action.setRequest(srcRequest);
+                    getFromServer(key, callback);
+                }
+                // 如果缓存是新鲜的
+                else if (cache.fresh()) {
+                    promise.cancel();
+                    getFromCache(cache, callback);
+                }
+                // 如果缓存是可协商的
+                else if (cache.negotiable()) {
+                    NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
+                    cache.negotiate(negotiatedRequest);
+                    action.setRequest(negotiatedRequest);
+                    getFromNegotiation(key, cache, callback);
+                }
+                // 存在缓存但是不是新鲜的也不能协商
+                else {
+                    action.setRequest(srcRequest);
+                    getFromServer(key, callback);
+                }
+            } catch (Exception e) {
+                new Calling(callback, null, e).call();
+            }
+        }
+
+        private void getFromServer(final String key, final Callback<Object> callback) {
+            final Response srcResponse = action.getResponse();
+            final NegotiatedResponse negotiatedResponse = new NegotiatedResponse(srcResponse);
+            action.setResponse(negotiatedResponse);
+            promise.accept(new CallbackAdapter<Object>() {
+                @Override
+                public void onCompleted(boolean success, Object result, Exception exception) {
+                    try {
+                        if (success) cacheManager.save(key, negotiatedResponse);
+                    } catch (Exception e) {
+                        exception = e;
+                    } finally {
+                        new Calling(callback, result, exception).call();
+                    }
+                }
+            });
+        }
+
+        private void getFromCache(final Cache cache, final Callback<Object> callback) {
+            client().execute(new Runnable() {
+                @Override
+                public void run() {
+                    Object result = null;
+                    Exception exception = null;
+                    try {
+                        final Response srcResponse = action.getResponse();
+                        final CachedResponse cachedResponse = new CachedResponse(srcResponse, cache);
+                        action.setResponse(cachedResponse);
+                        client().deserialize(action);
+                        result = action.getResult().getBody().getValue();
+                    } catch (Exception e) {
+                        exception = e;
+                    } finally {
+                        new Calling(callback, result, exception).call();
+                    }
+                }
+            });
+        }
+
+        private void getFromNegotiation(final String key, final Cache cache, final Callback<Object> callback) {
+            final Response srcResponse = action.getResponse();
+            final NegotiatedResponse negotiatedResponse = new NegotiatedResponse(srcResponse);
+            action.setResponse(negotiatedResponse);
+            promise.accept(new CallbackAdapter<Object>() {
+                @Override
+                public void onCompleted(boolean success, Object result, Exception exception) {
+                    if (cache.negotiated(negotiatedResponse)) {
+                        try {
+                            result = getFromCache(cache);
+                            exception = null;
+                        } catch (Exception e) {
+                            exception = e;
+                        } finally {
+                            new Calling(callback, result, exception);
+                        }
+                        return;
+                    }
+                    try {
+                        if (success) cacheManager.save(key, negotiatedResponse);
+                    } catch (Exception e) {
+                        exception = e;
+                    } finally {
+                        new Calling(callback, result, exception);
+                    }
+                }
+            });
         }
 
         @Override
