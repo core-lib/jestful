@@ -10,7 +10,7 @@ import java.util.concurrent.CountDownLatch;
 public class CacheAPITests {
 
     @Test
-    public void noCache() throws Exception {
+    public void get() throws Exception {
         CacheAPI cacheAPI = NioClient.builder()
                 .setProtocol("http")
                 .setHostname("localhost")
@@ -23,7 +23,7 @@ public class CacheAPITests {
                 .create(CacheAPI.class);
 
         CountDownLatch latch = new CountDownLatch(2);
-        cacheAPI.noCache(new CallbackAdapter<String>() {
+        cacheAPI.get(new CallbackAdapter<String>() {
             @Override
             public void onSuccess(String result) {
                 System.out.println(result);
@@ -37,7 +37,57 @@ public class CacheAPITests {
             @Override
             public void onCompleted(boolean success, String result, Exception exception) {
                 latch.countDown();
-                cacheAPI.noCache(new CallbackAdapter<String>() {
+                cacheAPI.get(new CallbackAdapter<String>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        System.out.println(result);
+                    }
+
+                    @Override
+                    public void onFail(Exception exception) {
+                        exception.printStackTrace();
+                    }
+
+                    @Override
+                    public void onCompleted(boolean success, String result, Exception exception) {
+                        latch.countDown();
+
+                    }
+                });
+            }
+        });
+        latch.await();
+    }
+
+    @Test
+    public void post() throws Exception {
+        CacheAPI cacheAPI = NioClient.builder()
+                .setProtocol("http")
+                .setHostname("localhost")
+                .setPort(8080)
+                .setKeepAlive(true)
+                .setIdleTimeout(10)
+                .build()
+                .creator()
+                .addBackPlugins(new CacheController())
+                .create(CacheAPI.class);
+
+        CountDownLatch latch = new CountDownLatch(2);
+        cacheAPI.post("Payne", new CallbackAdapter<String>() {
+            @Override
+            public void onSuccess(String result) {
+                System.out.println(result);
+            }
+
+            @Override
+            public void onFail(Exception exception) {
+                exception.printStackTrace();
+            }
+
+            @Override
+            public void onCompleted(boolean success, String result, Exception exception) {
+                latch.countDown();
+                cacheAPI.post("Payne", new CallbackAdapter<String>() {
                     @Override
                     public void onSuccess(String result) {
                         System.out.println(result);

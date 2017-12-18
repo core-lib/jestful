@@ -223,7 +223,14 @@ public class CacheController implements ForePlugin, BackPlugin {
             promise.accept(new CallbackAdapter<Object>() {
                 @Override
                 public void onCompleted(boolean success, Object result, Exception exception) {
-                    if (cache.negotiated(negotiatedResponse)) {
+                    boolean negotiated;
+                    try {
+                        negotiated = cache.negotiated(negotiatedResponse);
+                    } catch (Exception e) {
+                        new Calling(callback, result, e).call();
+                        return;
+                    }
+                    if (negotiated) {
                         try {
                             result = getFromCache(cache);
                             exception = null;
@@ -232,14 +239,14 @@ public class CacheController implements ForePlugin, BackPlugin {
                         } finally {
                             new Calling(callback, result, exception).call();
                         }
-                        return;
-                    }
-                    try {
-                        if (success) cacheManager.save(key, negotiatedResponse);
-                    } catch (Exception e) {
-                        exception = e;
-                    } finally {
-                        new Calling(callback, result, exception).call();
+                    } else {
+                        try {
+                            if (success) cacheManager.save(key, negotiatedResponse);
+                        } catch (Exception e) {
+                            exception = e;
+                        } finally {
+                            new Calling(callback, result, exception).call();
+                        }
                     }
                 }
             });

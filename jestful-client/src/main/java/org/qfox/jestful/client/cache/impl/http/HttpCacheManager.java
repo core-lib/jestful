@@ -30,8 +30,8 @@ public class HttpCacheManager implements CacheManager, HttpCacheConstants {
         HttpCacheControl directive = HttpCacheControl.valueOf(response);
         String lastModified = response.getResponseHeader(LAST_MODIFIED);
         String eTag = response.getResponseHeader(E_TAG);
-        // 不缓存
-        if ((directive == null || directive.isNoStore()) && lastModified == null && eTag == null) {
+        // 如果缓存指令存在no-store则无论如何都不应该缓存 或者 没有缓存指令而且也没有 Last-Modified 和 ETag
+        if ((directive != null && directive.isNoStore()) || (directive == null && lastModified == null && eTag == null)) {
             return null;
         }
         // 否则该回应需要缓存
