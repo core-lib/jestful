@@ -50,7 +50,7 @@ class HttpCache implements Cache, Data.Reader, Data.Writer, HttpCacheConstants {
     @Override
     public boolean fresh() {
         // 有缓存指令但没有包含no-cache同时有max-age且max-age未超时
-        return directive != null && !directive.isNoCache() && directive.hasMaxAge() && timeCached + directive.getMaxAge() * 1000L < System.currentTimeMillis();
+        return directive != null && !directive.isNoCache() && directive.hasMaxAge() && timeCached + directive.getMaxAge() * 1000L > System.currentTimeMillis();
     }
 
     @Override

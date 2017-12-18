@@ -230,7 +230,7 @@ public class CacheController implements ForePlugin, BackPlugin {
                         } catch (Exception e) {
                             exception = e;
                         } finally {
-                            new Calling(callback, result, exception);
+                            new Calling(callback, result, exception).call();
                         }
                         return;
                     }
@@ -239,7 +239,7 @@ public class CacheController implements ForePlugin, BackPlugin {
                     } catch (Exception e) {
                         exception = e;
                     } finally {
-                        new Calling(callback, result, exception);
+                        new Calling(callback, result, exception).call();
                     }
                 }
             });
