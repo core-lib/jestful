@@ -59,6 +59,16 @@ class CachedResponse extends ResponseWrapper {
     }
 
     @Override
+    public String getContentType() {
+        return getResponseHeader("Content-Type");
+    }
+
+    @Override
+    public void setContentType(String type) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public InputStream getResponseInputStream() throws IOException {
         return body;
     }

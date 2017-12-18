@@ -5,6 +5,7 @@ import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.auth.Authenticator;
 import org.qfox.jestful.client.auth.Scope;
 import org.qfox.jestful.client.auth.impl.SimpleCredence;
+import org.qfox.jestful.client.cache.CacheController;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.commons.Lock;
@@ -28,6 +29,7 @@ public class UserAPITest {
                 .creator()
                 .setBackPlugins(authenticator)
                 .addBackPlugins(new Redirector())
+                .addBackPlugins(new CacheController())
                 .create(UserAPI.class);
 
         for (int i = 0; i < 10; i++) {
