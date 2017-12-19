@@ -562,7 +562,6 @@ public class NioClient extends Client implements NioConnector {
         }
 
         private void read(SelectionKey key) throws Exception {
-            System.out.println("read");
             Action action = (Action) key.attachment();
             NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
             buffer.clear();

@@ -2,7 +2,6 @@ package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
 import org.qfox.jestful.client.cache.CacheController;
-import org.qfox.jestful.client.nio.Jdk1_7NioOptions;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 
@@ -17,8 +16,6 @@ public class QfoxyAPITest {
                 .setHostname("api.qfoxy.com")
                 .setKeepAlive(true)
                 .setIdleTimeout(10)
-                .setBufferSize(8192)
-                .setOptions(Jdk1_7NioOptions.create().setTcp_nodelay(true))
                 .build()
                 .creator()
                 .addBackPlugins(new CacheController())
