@@ -31,13 +31,20 @@ public class JestfulNioHttpsClientResponse extends JestfulNioHttpClientResponse 
 
     @Override
     public boolean load(ByteBuffer buffer) throws IOException {
-        nioSSLChannel.load(buffer);
-
-        block.clear();
-        nioSSLChannel.read(block);
-        block.flip();
-
-        return super.load(block);
+        // 这里非常重要!!!因为有可能客户端已经接收到了所有的服务端要发送过来的数据
+        // 但是只从SSLEngine里面读取一次是不能完全读取出来的!!!
+        // 需要重复读取到SSLEngine没有可读的数据或者回应体结束
+        // 否则会造成程序莫名其妙的卡刚好一分钟最后收到31个byte(估计是心跳包)才顺利完成
+        while (true) {
+            nioSSLChannel.load(buffer);
+            block.clear();
+            nioSSLChannel.read(block);
+            block.flip();
+            // 没有可读得了
+            if (block.remaining() == 0) return super.load(block);
+            // 回应体读取结束
+            if (super.load(block)) return true;
+        }
     }
 
     @Override

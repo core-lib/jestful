@@ -13,7 +13,7 @@ public interface QfoxyAPI {
     @GET("/js/jquery.js")
     String jQuery();
 
-    @GET("/hunter/alog/monkey.min.js")
+    @GET("/js/jquery.js")
     void jQuery(Callback<String> callback);
 
 }

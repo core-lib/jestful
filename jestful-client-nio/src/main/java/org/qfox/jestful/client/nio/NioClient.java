@@ -587,7 +587,6 @@ public class NioClient extends Client implements NioConnector {
                 // 请求发送成功后只注册READ把之前的 WRITE | READ 注销掉 开始计算Read Timeout
                 connection.register(selector, SelectionKey.OP_READ, action);
                 timeoutManager.addRecvTimeoutHandler(key, connection.getReadTimeout());
-
                 NioEventListener listener = (NioEventListener) action.getExtra().get(NioEventListener.class);
                 listener.onRequested(action);
             }

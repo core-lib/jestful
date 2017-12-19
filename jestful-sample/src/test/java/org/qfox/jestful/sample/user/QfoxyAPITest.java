@@ -1,8 +1,8 @@
 package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
+import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.client.cache.CacheController;
-import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 
@@ -12,9 +12,9 @@ public class QfoxyAPITest {
 
     @Test
     public void index() throws Exception {
-        QfoxyAPI qfoxyAPI = NioClient.builder()
-                .setProtocol("http")
-                .setHostname("fex.bdstatic.com")
+        QfoxyAPI qfoxyAPI = AioClient.builder()
+                .setProtocol("https")
+                .setHostname("api.qfoxy.com")
                 .setKeepAlive(true)
                 .setIdleTimeout(10)
                 .build()
@@ -23,8 +23,8 @@ public class QfoxyAPITest {
                 .addBackPlugins(new CacheController())
                 .create(QfoxyAPI.class);
 
-        CountDownLatch latch = new CountDownLatch(1);
-        for (int i = 0; i < 1; i++) {
+        CountDownLatch latch = new CountDownLatch(100);
+        for (int i = 0; i < 100; i++) {
             qfoxyAPI.jQuery(new CallbackAdapter<String>() {
                 @Override
                 public void onCompleted(boolean success, String result, Exception exception) {
