@@ -11,10 +11,11 @@ import java.util.concurrent.TimeUnit;
  * Created by payne on 2017/3/29.
  */
 public class WriteCompletionHandler extends AioCompletionHandler<Integer> {
-    private final ByteBuffer buffer = ByteBuffer.allocate(4096);
+    private final ByteBuffer buffer;
 
     WriteCompletionHandler(AioClient client, AioConnection connection, long timeout) {
         super(client, connection, timeout);
+        this.buffer = ByteBuffer.allocate(client.getBufferSize());
     }
 
     @Override

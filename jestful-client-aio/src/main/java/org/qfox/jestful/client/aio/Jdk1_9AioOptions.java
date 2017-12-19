@@ -1,11 +1,13 @@
 package org.qfox.jestful.client.aio;
 
 import java.io.IOException;
-import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousSocketChannel;
 
 public class Jdk1_9AioOptions extends Jdk1_7AioOptions implements AioOptions {
     private Boolean so_reuseport;
+
+    protected Jdk1_9AioOptions() {
+    }
 
     public static Jdk1_9AioOptions create() {
         return new Jdk1_9AioOptions();

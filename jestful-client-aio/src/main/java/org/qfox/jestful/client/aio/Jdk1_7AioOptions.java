@@ -18,6 +18,9 @@ public class Jdk1_7AioOptions implements AioOptions {
     private Boolean ip_multicast_loop;
     private Boolean tcp_nodelay;
 
+    protected Jdk1_7AioOptions() {
+    }
+
     public static Jdk1_7AioOptions create() {
         return new Jdk1_7AioOptions();
     }

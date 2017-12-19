@@ -18,6 +18,9 @@ public class Jdk1_4NioOptions implements NioOptions {
     private Boolean tcpNoDelay;
     private Integer trafficClass;
 
+    protected Jdk1_4NioOptions() {
+    }
+
     public static Jdk1_4NioOptions create() {
         return new Jdk1_4NioOptions();
     }

@@ -2,6 +2,7 @@ package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
 import org.qfox.jestful.client.cache.CacheController;
+import org.qfox.jestful.client.nio.Jdk1_7NioOptions;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 
@@ -16,13 +17,15 @@ public class QfoxyAPITest {
                 .setHostname("api.qfoxy.com")
                 .setKeepAlive(true)
                 .setIdleTimeout(10)
+                .setBufferSize(8192)
+                .setOptions(Jdk1_7NioOptions.create().setTcp_nodelay(true))
                 .build()
                 .creator()
                 .addBackPlugins(new CacheController())
                 .create(QfoxyAPI.class);
 
-        CountDownLatch latch = new CountDownLatch(10);
-        for (int i = 0; i < 10; i++) {
+        CountDownLatch latch = new CountDownLatch(1);
+        for (int i = 0; i < 1; i++) {
             qfoxyAPI.jQuery(new CallbackAdapter<String>() {
                 @Override
                 public void onCompleted(boolean success, String result, Exception exception) {
@@ -33,14 +36,6 @@ public class QfoxyAPITest {
             });
         }
         latch.await();
-        qfoxyAPI.jQuery(new CallbackAdapter<String>() {
-            @Override
-            public void onCompleted(boolean success, String result, Exception exception) {
-                if (success) System.out.println(result.length());
-                else exception.printStackTrace();
-            }
-        });
-        Thread.sleep(1000000);
     }
 
 }

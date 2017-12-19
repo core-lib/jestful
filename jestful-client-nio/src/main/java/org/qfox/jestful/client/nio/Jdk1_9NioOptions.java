@@ -1,11 +1,13 @@
 package org.qfox.jestful.client.nio;
 
 import java.io.IOException;
-import java.net.StandardSocketOptions;
 import java.nio.channels.SocketChannel;
 
 public class Jdk1_9NioOptions extends Jdk1_7NioOptions implements NioOptions {
     private Boolean so_reuseport;
+
+    protected Jdk1_9NioOptions() {
+    }
 
     public static Jdk1_9NioOptions create() {
         return new Jdk1_9NioOptions();
@@ -17,12 +19,12 @@ public class Jdk1_9NioOptions extends Jdk1_7NioOptions implements NioOptions {
         super.config(channel);
     }
 
+    public Boolean getSo_reuseport() {
+        return so_reuseport;
+    }
+
     public Jdk1_9NioOptions setSo_reuseport(Boolean so_reuseport) {
         this.so_reuseport = so_reuseport;
         return this;
-    }
-
-    public Boolean getSo_reuseport() {
-        return so_reuseport;
     }
 }

@@ -49,6 +49,7 @@ public class NioClient extends Client implements NioConnector {
     private static NioClient defaultClient;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final long selectTimeout;
+    private final int bufferSize;
     private final SSLContext sslContext;
     private final int concurrency;
     private final ExecutorService cpu;
@@ -60,6 +61,7 @@ public class NioClient extends Client implements NioConnector {
     private NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
         this.selectTimeout = builder.selectTimeout;
+        this.bufferSize = builder.bufferSize;
         this.sslContext = builder.sslContext;
         this.concurrency = builder.concurrency;
         this.cpu = Executors.newFixedThreadPool(concurrency);
@@ -175,6 +177,10 @@ public class NioClient extends Client implements NioConnector {
         return selectTimeout;
     }
 
+    public int getBufferSize() {
+        return bufferSize;
+    }
+
     public SSLContext getSslContext() {
         return sslContext;
     }
@@ -201,6 +207,7 @@ public class NioClient extends Client implements NioConnector {
 
     public static class NioBuilder<B extends NioBuilder<B>> extends Client.Builder<B> {
         private long selectTimeout = 1000L;
+        private int bufferSize = 4096;
         private SSLContext sslContext;
         private int concurrency = Runtime.getRuntime().availableProcessors();
         private NioBalancer balancer = new LoopedNioBalancer();
@@ -243,9 +250,17 @@ public class NioClient extends Client implements NioConnector {
 
         public B setSelectTimeout(long selectTimeout) {
             if (selectTimeout < 0) {
-                throw new IllegalArgumentException("selected timeout is negative");
+                throw new IllegalArgumentException("select timeout is negative");
             }
             this.selectTimeout = selectTimeout;
+            return (B) this;
+        }
+
+        public B setBufferSize(int bufferSize) {
+            if (bufferSize <= 0) {
+                throw new IllegalArgumentException("buffer size must bigger than zero");
+            }
+            this.bufferSize = bufferSize;
             return (B) this;
         }
 
@@ -466,7 +481,7 @@ public class NioClient extends Client implements NioConnector {
         NioKernel() throws IOException {
             this.timeoutManager = new SortedTimeoutManager();
             this.selector = Selector.open();
-            this.buffer = ByteBuffer.allocate(4096);
+            this.buffer = ByteBuffer.allocate(bufferSize);
             this.calls = new NioCalls(selector);
         }
 
@@ -547,6 +562,7 @@ public class NioClient extends Client implements NioConnector {
         }
 
         private void read(SelectionKey key) throws Exception {
+            System.out.println("read");
             Action action = (Action) key.attachment();
             NioConnection connection = (NioConnection) action.getExtra().get(NioConnection.class);
             buffer.clear();

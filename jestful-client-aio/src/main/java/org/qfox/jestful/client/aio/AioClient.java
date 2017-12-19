@@ -35,6 +35,7 @@ import java.util.concurrent.Executors;
 public class AioClient extends Client implements AioConnector {
     private static AioClient defaultClient;
     private final int concurrency;
+    private final int bufferSize;
     private final ExecutorService cpu;
     private final AsynchronousChannelGroup aioChannelGroup;
     private final SSLContext sslContext;
@@ -44,6 +45,7 @@ public class AioClient extends Client implements AioConnector {
     private AioClient(AioBuilder<?> builder) throws IOException {
         super(builder);
         this.concurrency = builder.concurrency;
+        this.bufferSize = builder.bufferSize;
         this.cpu = concurrency > 0 ? Executors.newFixedThreadPool(concurrency) : Executors.newCachedThreadPool();
         this.aioChannelGroup = AsynchronousChannelGroup.withThreadPool(cpu);
         this.sslContext = builder.sslContext;
@@ -140,6 +142,10 @@ public class AioClient extends Client implements AioConnector {
         return concurrency;
     }
 
+    public int getBufferSize() {
+        return bufferSize;
+    }
+
     public AsynchronousChannelGroup getAioChannelGroup() {
         return aioChannelGroup;
     }
@@ -156,8 +162,13 @@ public class AioClient extends Client implements AioConnector {
         return connectionPool;
     }
 
+    private enum State {
+        STANDING, HANDLED
+    }
+
     public static class AioBuilder<B extends AioBuilder<B>> extends Client.Builder<B> {
         private int concurrency = Runtime.getRuntime().availableProcessors();
+        private int bufferSize = 4096;
         private SSLContext sslContext;
         private AioOptions options = AioOptions.DEFAULT;
         private AioConnectionPool connectionPool = new ConcurrentAioConnectionPool();
@@ -204,6 +215,14 @@ public class AioClient extends Client implements AioConnector {
             return (B) this;
         }
 
+        public B setBufferSize(int bufferSize) {
+            if (bufferSize <= 0) {
+                throw new IllegalArgumentException("buffer size must bigger than zero");
+            }
+            this.bufferSize = bufferSize;
+            return (B) this;
+        }
+
         public B setSslContext(SSLContext sslContext) {
             this.sslContext = sslContext;
             if (sslContext == null) {
@@ -227,10 +246,6 @@ public class AioClient extends Client implements AioConnector {
             this.connectionPool = connectionPool;
             return (B) this;
         }
-    }
-
-    private enum State {
-        STANDING, HANDLED
     }
 
     private class AioPromise extends BioPromise {
