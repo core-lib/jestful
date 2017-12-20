@@ -34,12 +34,11 @@ public class FileDataStorage implements DataStorage {
     private static String normalize(String key) throws UnsupportedEncodingException {
         if (key == null) throw new NullPointerException();
         StringBuilder path = new StringBuilder();
-        String[] paths = key.split("/+");
-        for (int i = 0; i < paths.length; i++) {
-            String p = paths[i];
-            if (i == paths.length - 1) p = URLEncoder.encode(p, "UTF-8");
-            if (p.length() > 255) p = StringKit.md5Hex(p);
-            path.append(File.separator).append(p);
+        String[] parts = key.split("/+");
+        for (String part : parts) {
+            part = URLEncoder.encode(part, "UTF-8");
+            if (part.length() > 255) part = StringKit.md5Hex(part);
+            path.append(File.separator).append(part);
         }
         return path.toString();
     }
