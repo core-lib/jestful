@@ -3,8 +3,12 @@ package org.qfox.jestful.client.cache.impl;
 import org.qfox.jestful.client.cache.Data;
 import org.qfox.jestful.client.cache.DataStorage;
 import org.qfox.jestful.commons.StringKit;
+import org.qfox.jestful.commons.io.RandomAccessFileInputStream;
+import org.qfox.jestful.commons.io.RandomAccessFileOutputStream;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 public class FileDataStorage implements DataStorage {
@@ -70,12 +74,12 @@ public class FileDataStorage implements DataStorage {
 
         @Override
         public void read(Reader reader) throws IOException {
-            reader.read(new RandomAccessFileInputStream(file));
+            reader.read(new RandomAccessFileInputStream(file, "rws"));
         }
 
         @Override
         public void write(Writer writer) throws IOException {
-            writer.write(new RandomAccessFileOutputStream(file));
+            writer.write(new RandomAccessFileOutputStream(file, "rws"));
         }
 
         @Override
@@ -84,89 +88,4 @@ public class FileDataStorage implements DataStorage {
         }
     }
 
-    private static class RandomAccessFileInputStream extends InputStream {
-        private final RandomAccessFile raf;
-
-        RandomAccessFileInputStream(File file) throws IOException {
-            this.raf = new RandomAccessFile(file, "rws");
-        }
-
-        @Override
-        public int read() throws IOException {
-            return raf.read();
-        }
-
-        @Override
-        public int read(byte[] b) throws IOException {
-            return raf.read(b);
-        }
-
-        @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            return raf.read(b, off, len);
-        }
-
-        @Override
-        public long skip(long n) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int available() throws IOException {
-            return -1;
-        }
-
-        @Override
-        public void close() throws IOException {
-            raf.close();
-        }
-
-        @Override
-        public void mark(int readlimit) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void reset() throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean markSupported() {
-            return false;
-        }
-
-    }
-
-    private static class RandomAccessFileOutputStream extends OutputStream {
-        private final RandomAccessFile raf;
-
-        RandomAccessFileOutputStream(File file) throws IOException {
-            this.raf = new RandomAccessFile(file, "rws");
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            raf.write(b);
-        }
-
-        @Override
-        public void write(byte[] b) throws IOException {
-            raf.write(b);
-        }
-
-        @Override
-        public void write(byte[] b, int off, int len) throws IOException {
-            raf.write(b, off, len);
-        }
-
-        @Override
-        public void flush() throws IOException {
-        }
-
-        @Override
-        public void close() throws IOException {
-            raf.close();
-        }
-    }
 }
