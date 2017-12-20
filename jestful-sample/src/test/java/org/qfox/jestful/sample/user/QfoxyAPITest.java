@@ -21,7 +21,7 @@ public class QfoxyAPITest {
 
         QfoxyAPI qfoxyAPI = NioClient.builder()
                 .setProtocol("https")
-                .setHostname("api.qfoxy.com")
+                .setHostname("fex.bdstatic.com")
                 .setKeepAlive(true)
                 .setIdleTimeout(10)
                 .build()
@@ -30,8 +30,8 @@ public class QfoxyAPITest {
                 .addBackPlugins(cacheController)
                 .create(QfoxyAPI.class);
 
-        CountDownLatch latch = new CountDownLatch(100);
-        for (int i = 0; i < 100; i++) {
+        CountDownLatch latch = new CountDownLatch(1);
+        for (int i = 0; i < 1; i++) {
             qfoxyAPI.jQuery(new CallbackAdapter<String>() {
                 @Override
                 public void onCompleted(boolean success, String result, Exception exception) {

@@ -1,6 +1,8 @@
 package org.qfox.jestful.commons;
 
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by yangchangpei on 17/9/29.
@@ -57,6 +59,38 @@ public class StringKit {
         if (value == null) throw new NullPointerException("value is null");
         if (charset == null) throw new NullPointerException("charset is null");
         return value.getBytes(charset);
+    }
+
+    public static byte[] md5(String text) {
+        return md5(text, "UTF-8");
+    }
+
+    public static byte[] md5(String text, String charset) {
+        return md5(text, Charset.forName(charset));
+    }
+
+    public static byte[] md5(String text, Charset charset) {
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            byte[] bytes = bytes(text, charset);
+            return md5.digest(bytes);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String md5Hex(String text) {
+        return md5Hex(text, "UTF-8");
+    }
+
+    public static String md5Hex(String text, String charset) {
+        return md5Hex(text, Charset.forName(charset));
+    }
+
+    public static String md5Hex(String text, Charset charset) {
+        byte[] md5 = md5(text, charset);
+        byte[] hex = Hex.encode(md5);
+        return new String(hex);
     }
 
 }

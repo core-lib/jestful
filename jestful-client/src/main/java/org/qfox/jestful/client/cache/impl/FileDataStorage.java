@@ -2,8 +2,10 @@ package org.qfox.jestful.client.cache.impl;
 
 import org.qfox.jestful.client.cache.Data;
 import org.qfox.jestful.client.cache.DataStorage;
+import org.qfox.jestful.commons.StringKit;
 
 import java.io.*;
+import java.net.URLEncoder;
 
 public class FileDataStorage implements DataStorage {
     private final File directory;
@@ -29,18 +31,31 @@ public class FileDataStorage implements DataStorage {
         this.suffix = suffix != null ? suffix.startsWith(".") ? suffix : '.' + suffix : "";
     }
 
+    private static String normalize(String key) throws UnsupportedEncodingException {
+        if (key == null) throw new NullPointerException();
+        StringBuilder path = new StringBuilder();
+        String[] paths = key.split("/+");
+        for (int i = 0; i < paths.length; i++) {
+            String p = paths[i];
+            if (i == paths.length - 1) p = URLEncoder.encode(p, "UTF-8");
+            if (p.length() > 255) p = StringKit.md5Hex(p);
+            path.append(File.separator).append(p);
+        }
+        return path.toString();
+    }
+
     @Override
     public Data get(String key) throws IOException {
-        if (key == null) throw new NullPointerException();
-        File file = new File(directory, key + suffix);
+        String path = normalize(key);
+        File file = new File(directory, path + suffix);
         if (file.exists() && file.isFile()) return new FileData(file);
         else return null;
     }
 
     @Override
     public Data alloc(String key) throws IOException {
-        if (key == null) throw new NullPointerException();
-        File file = new File(directory, key + suffix);
+        String path = normalize(key);
+        File file = new File(directory, path + suffix);
         File directory = file.getParentFile();
         if (!directory.exists() && !directory.mkdirs()) throw new IOException("could not create directory: " + directory);
         return new FileData(file);
