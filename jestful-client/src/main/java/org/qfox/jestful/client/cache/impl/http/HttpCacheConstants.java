@@ -6,7 +6,7 @@ public interface HttpCacheConstants {
     String E_TAG = "ETag";
     String IF_MODIFIED_SINCE = "If-Modified-Since";
     String IF_NONE_MATCH = "If-None-Match";
-    String CACHE_TIME = "Cache-Time";
+    String CACHE_TIME = "Request-Time";
 
     String PUBLIC = "public";
     String PRIVATE = "private";

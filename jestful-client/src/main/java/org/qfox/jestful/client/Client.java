@@ -1060,7 +1060,9 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
         @Override
         public void cancel() {
+            if (canceled) return;
             synchronized (lock) {
+                if (canceled) return;
                 canceled = true;
             }
         }

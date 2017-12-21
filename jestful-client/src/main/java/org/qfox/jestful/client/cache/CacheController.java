@@ -83,54 +83,50 @@ public class CacheController implements ForePlugin, BackPlugin {
             final String hash = in != null && in.available() > 0 ? strEncoder.encode(msgDigester.digest(in)) : null;
             final String key = keyGenerator.generate(action.getRestful().getMethod(), new URL(action.getURL()), hash);
             final Cache cache = cacheManager.find(key);
-            // 没有缓存
-            if (cache == null) {
-                action.setRequest(srcRequest);
-                return getFromServer(key);
-            }
-            // 如果缓存是新鲜的
-            else if (cache.fresh()) {
-                promise.cancel();
-                return getFromCache(cache);
-            }
-            // 如果缓存是可协商的
-            else if (cache.negotiable()) {
-                NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
-                cache.negotiate(negotiatedRequest);
-                action.setRequest(negotiatedRequest);
-                return getFromNegotiation(key, cache);
-            }
-            // 存在缓存但是不是新鲜的也不能协商
-            else {
-                action.setRequest(srcRequest);
-                return getFromServer(key);
-            }
+            action.setRequest(srcRequest);
+            if (cache == null) return getFromServer(key);// 没有缓存
+            else if (cache.fresh()) return getFromCache(cache); // 如果缓存是新鲜的
+            else if (cache.negotiable()) return getFromNegotiation(key, cache); // 如果缓存是可协商的
+            else return getFromServer(key); // 存在缓存但是不是新鲜的也不能协商
         }
 
         private Object getFromServer(String key) throws Exception {
+            final Request srcRequest = action.getRequest();
+            final NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
+            action.setRequest(negotiatedRequest);
+
             final Response srcResponse = action.getResponse();
             final NegotiatedResponse negotiatedResponse = new NegotiatedResponse(srcResponse);
             action.setResponse(negotiatedResponse);
+
             final Object value = promise.acquire();
-            cacheManager.save(key, negotiatedResponse);
+            cacheManager.save(key, negotiatedRequest, negotiatedResponse);
             return value;
         }
 
         private Object getFromCache(Cache cache) throws Exception {
+            promise.cancel();
+
             final Response srcResponse = action.getResponse();
             final CachedResponse cachedResponse = new CachedResponse(srcResponse, cache);
             action.setResponse(cachedResponse);
+
             client().deserialize(action);
             return action.getResult().getBody().getValue();
         }
 
         private Object getFromNegotiation(String key, Cache cache) throws Exception {
+            final Request srcRequest = action.getRequest();
+            final NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
+            cache.negotiate(negotiatedRequest);
+            action.setRequest(negotiatedRequest);
+
             final Response srcResponse = action.getResponse();
             final NegotiatedResponse negotiatedResponse = new NegotiatedResponse(srcResponse);
             action.setResponse(negotiatedResponse);
             try {
                 final Object value = promise.acquire();
-                cacheManager.save(key, negotiatedResponse);
+                cacheManager.save(key, negotiatedRequest, negotiatedResponse);
                 return value;
             } catch (Exception e) {
                 if (cache.negotiated(negotiatedResponse)) return getFromCache(cache);
@@ -150,34 +146,21 @@ public class CacheController implements ForePlugin, BackPlugin {
                 final String hash = in != null && in.available() > 0 ? strEncoder.encode(msgDigester.digest(in)) : null;
                 final String key = keyGenerator.generate(action.getRestful().getMethod(), new URL(action.getURL()), hash);
                 final Cache cache = cacheManager.find(key);
-                // 没有缓存
-                if (cache == null) {
-                    action.setRequest(srcRequest);
-                    getFromServer(key, callback);
-                }
-                // 如果缓存是新鲜的
-                else if (cache.fresh()) {
-                    promise.cancel();
-                    getFromCache(cache, callback);
-                }
-                // 如果缓存是可协商的
-                else if (cache.negotiable()) {
-                    NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
-                    cache.negotiate(negotiatedRequest);
-                    action.setRequest(negotiatedRequest);
-                    getFromNegotiation(key, cache, callback);
-                }
-                // 存在缓存但是不是新鲜的也不能协商
-                else {
-                    action.setRequest(srcRequest);
-                    getFromServer(key, callback);
-                }
+                action.setRequest(srcRequest);
+                if (cache == null) getFromServer(key, callback);// 没有缓存
+                else if (cache.fresh()) getFromCache(cache, callback);// 如果缓存是新鲜的
+                else if (cache.negotiable()) getFromNegotiation(key, cache, callback);// 如果缓存是可协商的
+                else getFromServer(key, callback);// 存在缓存但是不是新鲜的也不能协商
             } catch (Exception e) {
                 new Calling(callback, null, e).call();
             }
         }
 
         private void getFromServer(final String key, final Callback<Object> callback) {
+            final Request srcRequest = action.getRequest();
+            final NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
+            action.setRequest(negotiatedRequest);
+
             final Response srcResponse = action.getResponse();
             final NegotiatedResponse negotiatedResponse = new NegotiatedResponse(srcResponse);
             action.setResponse(negotiatedResponse);
@@ -185,7 +168,7 @@ public class CacheController implements ForePlugin, BackPlugin {
                 @Override
                 public void onCompleted(boolean success, Object result, Exception exception) {
                     try {
-                        if (success) cacheManager.save(key, negotiatedResponse);
+                        if (success) cacheManager.save(key, negotiatedRequest, negotiatedResponse);
                     } catch (Exception e) {
                         exception = e;
                     } finally {
@@ -196,6 +179,7 @@ public class CacheController implements ForePlugin, BackPlugin {
         }
 
         private void getFromCache(final Cache cache, final Callback<Object> callback) {
+            promise.cancel();
             client().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -217,6 +201,11 @@ public class CacheController implements ForePlugin, BackPlugin {
         }
 
         private void getFromNegotiation(final String key, final Cache cache, final Callback<Object> callback) {
+            final Request srcRequest = action.getRequest();
+            final NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
+            cache.negotiate(negotiatedRequest);
+            action.setRequest(negotiatedRequest);
+
             final Response srcResponse = action.getResponse();
             final NegotiatedResponse negotiatedResponse = new NegotiatedResponse(srcResponse);
             action.setResponse(negotiatedResponse);
@@ -241,7 +230,7 @@ public class CacheController implements ForePlugin, BackPlugin {
                         }
                     } else {
                         try {
-                            if (success) cacheManager.save(key, negotiatedResponse);
+                            if (success) cacheManager.save(key, negotiatedRequest, negotiatedResponse);
                         } catch (Exception e) {
                             exception = e;
                         } finally {

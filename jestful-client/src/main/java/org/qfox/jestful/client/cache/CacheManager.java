@@ -7,6 +7,6 @@ public interface CacheManager {
 
     Cache find(String key) throws IOException;
 
-    Cache save(String key, NegotiatedResponse response) throws IOException;
+    Cache save(String key, NegotiatedRequest request, NegotiatedResponse response) throws IOException;
 
 }

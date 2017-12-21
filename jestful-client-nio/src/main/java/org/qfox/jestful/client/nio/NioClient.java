@@ -440,7 +440,9 @@ public class NioClient extends Client implements NioConnector {
 
         @Override
         public void cancel() {
+            if (canceled) return;
             synchronized (lock) {
+                if (canceled) return;
                 canceled = true;
                 lock.notifyAll();
                 // 回收连接

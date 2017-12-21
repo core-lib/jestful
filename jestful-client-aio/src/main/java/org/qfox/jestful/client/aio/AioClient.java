@@ -301,7 +301,9 @@ public class AioClient extends Client implements AioConnector {
 
         @Override
         public void cancel() {
+            if (canceled) return;
             synchronized (lock) {
+                if (canceled) return;
                 canceled = true;
                 lock.notifyAll();
                 // 回收连接

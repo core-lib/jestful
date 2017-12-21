@@ -26,7 +26,7 @@ public class HttpCacheManager implements CacheManager, HttpCacheConstants {
     }
 
     @Override
-    public Cache save(String key, NegotiatedResponse response) throws IOException {
+    public Cache save(String key, NegotiatedRequest request, NegotiatedResponse response) throws IOException {
         HttpCacheControl directive = HttpCacheControl.valueOf(response);
         String lastModified = response.getResponseHeader(LAST_MODIFIED);
         String eTag = response.getResponseHeader(E_TAG);
@@ -37,7 +37,7 @@ public class HttpCacheManager implements CacheManager, HttpCacheConstants {
         // 否则该回应需要缓存
         else {
             Data data = dataStorage.alloc(key);
-            return new HttpCache(data, response);
+            return new HttpCache(data, request, response);
         }
     }
 
