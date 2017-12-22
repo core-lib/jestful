@@ -39,6 +39,10 @@ public class Authenticator implements BackPlugin {
         this.setMaxCount(maxCount);
     }
 
+    public static AuthenticatorBuilder builder() {
+        return new AuthenticatorBuilder();
+    }
+
     @Override
     public Object react(Action action) throws Exception {
         Authentication[] authentications = (Authentication[]) action.getExtra().get(Authentication[].class);

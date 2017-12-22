@@ -30,6 +30,9 @@ public class Redirector implements BackPlugin {
         this.setRecorder(recorder);
     }
 
+    public static RedirectorBuilder builder() {
+        return new RedirectorBuilder();
+    }
 
     @Override
     public Object react(Action action) throws Exception {

@@ -25,6 +25,10 @@ public class RetryController implements ForePlugin, BackPlugin {
         this.setMaxCount(maxCount);
     }
 
+    public static RetryControllerBuilder builder() {
+        return new RetryControllerBuilder();
+    }
+
     @Override
     public Object react(Action action) throws Exception {
         Promise promise = (Promise) action.execute();
