@@ -2,7 +2,6 @@ package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
 import org.qfox.jestful.client.cache.CacheController;
-import org.qfox.jestful.client.cache.CacheManager;
 import org.qfox.jestful.client.cache.impl.FileDataStorage;
 import org.qfox.jestful.client.cache.impl.http.HttpCacheManager;
 import org.qfox.jestful.client.nio.NioClient;
@@ -15,10 +14,6 @@ public class QfoxyAPITest {
 
     @Test
     public void index() throws Exception {
-        CacheManager cacheManager = new HttpCacheManager(new FileDataStorage());
-        CacheController cacheController = new CacheController();
-        cacheController.setCacheManager(cacheManager);
-
         QfoxyAPI qfoxyAPI = NioClient.builder()
                 .setProtocol("https")
                 .setHostname("fex.bdstatic.com")
@@ -27,7 +22,9 @@ public class QfoxyAPITest {
                 .build()
                 .creator()
                 .addBackPlugins(new Redirector())
-                .addBackPlugins(cacheController)
+                .addBackPlugins(CacheController.builder()
+                        .setCacheManager(new HttpCacheManager(new FileDataStorage()))
+                        .build())
                 .create(QfoxyAPI.class);
 
         CountDownLatch latch = new CountDownLatch(1);

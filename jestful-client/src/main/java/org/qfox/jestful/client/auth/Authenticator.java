@@ -10,6 +10,7 @@ import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BackPlugin;
+import org.qfox.jestful.core.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +27,16 @@ public class Authenticator implements BackPlugin {
     private int maxCount;
 
     public Authenticator() {
-        this(new MapCredenceProvider(), new MapStateStorage(), new RFC2617SchemeRegistry(), new RFC2617SchemePreference(), new DefaultPortResolver(), 3);
+
     }
 
     public Authenticator(CredenceProvider credenceProvider, StateStorage stateStorage, SchemeRegistry schemeRegistry, SchemePreference schemePreference, PortResolver portResolver, int maxCount) {
-        this.credenceProvider = credenceProvider;
-        this.stateStorage = stateStorage;
-        this.schemeRegistry = schemeRegistry;
-        this.schemePreference = schemePreference;
-        this.portResolver = portResolver;
-        this.maxCount = maxCount;
+        this.setCredenceProvider(credenceProvider);
+        this.setStateStorage(stateStorage);
+        this.setSchemeRegistry(schemeRegistry);
+        this.setSchemePreference(schemePreference);
+        this.setPortResolver(portResolver);
+        this.setMaxCount(maxCount);
     }
 
     @Override
@@ -120,8 +121,65 @@ public class Authenticator implements BackPlugin {
     }
 
     public void setMaxCount(int maxCount) {
-        if (maxCount <= 0) throw new IllegalArgumentException("maxCount <= 0");
+        if (maxCount <= 0) throw new IllegalArgumentException("authenticate max count must bigger than zero");
         this.maxCount = maxCount;
+    }
+
+    public static class AuthenticatorBuilder implements Builder<Authenticator> {
+        private CredenceProvider credenceProvider;
+        private StateStorage stateStorage;
+        private SchemeRegistry schemeRegistry;
+        private SchemePreference schemePreference;
+        private PortResolver portResolver;
+        private int maxCount;
+
+        @Override
+        public Authenticator build() {
+            return new Authenticator(
+                    credenceProvider != null ? credenceProvider : new MapCredenceProvider(),
+                    stateStorage != null ? stateStorage : new MapStateStorage(),
+                    schemeRegistry != null ? schemeRegistry : new RFC2617SchemeRegistry(),
+                    schemePreference != null ? schemePreference : new RFC2617SchemePreference(),
+                    portResolver != null ? portResolver : new DefaultPortResolver(),
+                    maxCount > 0 ? maxCount : 3
+            );
+        }
+
+        public AuthenticatorBuilder setCredenceProvider(CredenceProvider credenceProvider) {
+            if (credenceProvider == null) throw new NullPointerException();
+            this.credenceProvider = credenceProvider;
+            return this;
+        }
+
+        public AuthenticatorBuilder setStateStorage(StateStorage stateStorage) {
+            if (stateStorage == null) throw new NullPointerException();
+            this.stateStorage = stateStorage;
+            return this;
+        }
+
+        public AuthenticatorBuilder setSchemeRegistry(SchemeRegistry schemeRegistry) {
+            if (schemeRegistry == null) throw new NullPointerException();
+            this.schemeRegistry = schemeRegistry;
+            return this;
+        }
+
+        public AuthenticatorBuilder setSchemePreference(SchemePreference schemePreference) {
+            if (schemePreference == null) throw new NullPointerException();
+            this.schemePreference = schemePreference;
+            return this;
+        }
+
+        public AuthenticatorBuilder setPortResolver(PortResolver portResolver) {
+            if (portResolver == null) throw new NullPointerException();
+            this.portResolver = portResolver;
+            return this;
+        }
+
+        public AuthenticatorBuilder setMaxCount(int maxCount) {
+            if (maxCount <= 0) throw new IllegalArgumentException("authenticate max count must bigger than zero");
+            this.maxCount = maxCount;
+            return this;
+        }
     }
 
     private class AuthPromise implements Promise {

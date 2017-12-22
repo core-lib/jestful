@@ -19,10 +19,17 @@ public class CacheController implements ForePlugin, BackPlugin {
     private CacheManager cacheManager;
 
     public CacheController() {
-        this.msgDigester = new ConcurrentMsgDigester(new BasicMsgDigesterFactory("MD5"));
-        this.strEncoder = new HexStrEncoder();
-        this.keyGenerator = new DefaultKeyGenerator();
-        this.cacheManager = new HttpCacheManager(new BasicDataStorage());
+    }
+
+    public CacheController(MsgDigester msgDigester, StrEncoder strEncoder, KeyGenerator keyGenerator, CacheManager cacheManager) {
+        this.setMsgDigester(msgDigester);
+        this.setStrEncoder(strEncoder);
+        this.setKeyGenerator(keyGenerator);
+        this.setCacheManager(cacheManager);
+    }
+
+    public static CacheControllerBuilder builder() {
+        return new CacheControllerBuilder();
     }
 
     @Override
@@ -36,6 +43,7 @@ public class CacheController implements ForePlugin, BackPlugin {
     }
 
     public void setMsgDigester(MsgDigester msgDigester) {
+        if (msgDigester == null) throw new NullPointerException("msgDigester == null");
         this.msgDigester = msgDigester;
     }
 
@@ -44,6 +52,7 @@ public class CacheController implements ForePlugin, BackPlugin {
     }
 
     public void setStrEncoder(StrEncoder strEncoder) {
+        if (strEncoder == null) throw new NullPointerException("strEncoder == null");
         this.strEncoder = strEncoder;
     }
 
@@ -52,6 +61,7 @@ public class CacheController implements ForePlugin, BackPlugin {
     }
 
     public void setKeyGenerator(KeyGenerator keyGenerator) {
+        if (keyGenerator == null) throw new NullPointerException("keyGenerator == null");
         this.keyGenerator = keyGenerator;
     }
 
@@ -60,7 +70,49 @@ public class CacheController implements ForePlugin, BackPlugin {
     }
 
     public void setCacheManager(CacheManager cacheManager) {
+        if (cacheManager == null) throw new NullPointerException("cacheManager == null");
         this.cacheManager = cacheManager;
+    }
+
+    public static class CacheControllerBuilder implements Builder<CacheController> {
+        private MsgDigester msgDigester;
+        private StrEncoder strEncoder;
+        private KeyGenerator keyGenerator;
+        private CacheManager cacheManager;
+
+        @Override
+        public CacheController build() {
+            return new CacheController(
+                    msgDigester != null ? msgDigester : new ConcurrentMsgDigester(new BasicMsgDigesterFactory("MD5")),
+                    strEncoder != null ? strEncoder : new HexStrEncoder(),
+                    keyGenerator != null ? keyGenerator : new DefaultKeyGenerator(),
+                    cacheManager != null ? cacheManager : new HttpCacheManager(new BasicDataStorage())
+            );
+        }
+
+        public CacheControllerBuilder setMsgDigester(MsgDigester msgDigester) {
+            if (msgDigester == null) throw new NullPointerException();
+            this.msgDigester = msgDigester;
+            return this;
+        }
+
+        public CacheControllerBuilder setStrEncoder(StrEncoder strEncoder) {
+            if (strEncoder == null) throw new NullPointerException();
+            this.strEncoder = strEncoder;
+            return this;
+        }
+
+        public CacheControllerBuilder setKeyGenerator(KeyGenerator keyGenerator) {
+            if (keyGenerator == null) throw new NullPointerException();
+            this.keyGenerator = keyGenerator;
+            return this;
+        }
+
+        public CacheControllerBuilder setCacheManager(CacheManager cacheManager) {
+            if (cacheManager == null) throw new NullPointerException();
+            this.cacheManager = cacheManager;
+            return this;
+        }
     }
 
     private class CachePromise implements Promise {

@@ -10,6 +10,7 @@ import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BackPlugin;
+import org.qfox.jestful.core.Builder;
 
 /**
  * Created by yangchangpei on 17/10/31.
@@ -20,16 +21,13 @@ public class Redirector implements BackPlugin {
     private Recorder recorder;
 
     public Redirector() {
-        this(30, new HTTP3xxRedirects(), new HashMapRecorder());
+
     }
 
     public Redirector(int maxCount, Redirects redirects, Recorder recorder) {
-        if (maxCount <= 0) throw new IllegalArgumentException("maxCount must greater than zero");
-        if (redirects == null) throw new IllegalArgumentException("redirects must not be null");
-        if (recorder == null) throw new IllegalArgumentException("recorder must not be null");
-        this.maxCount = maxCount;
-        this.redirects = redirects;
-        this.recorder = recorder;
+        this.setMaxCount(maxCount);
+        this.setRedirects(redirects);
+        this.setRecorder(recorder);
     }
 
 
@@ -72,6 +70,7 @@ public class Redirector implements BackPlugin {
     }
 
     public void setMaxCount(int maxCount) {
+        if (maxCount <= 0) throw new IllegalArgumentException("redirect max count must greater than zero");
         this.maxCount = maxCount;
     }
 
@@ -80,6 +79,7 @@ public class Redirector implements BackPlugin {
     }
 
     public void setRedirects(Redirects redirects) {
+        if (redirects == null) throw new IllegalArgumentException("redirects must not be null");
         this.redirects = redirects;
     }
 
@@ -88,7 +88,41 @@ public class Redirector implements BackPlugin {
     }
 
     public void setRecorder(Recorder recorder) {
+        if (recorder == null) throw new IllegalArgumentException("recorder must not be null");
         this.recorder = recorder;
+    }
+
+    public static class RedirectorBuilder implements Builder<Redirector> {
+        private int maxCount;
+        private Redirects redirects;
+        private Recorder recorder;
+
+        @Override
+        public Redirector build() {
+            return new Redirector(
+                    maxCount > 0 ? maxCount : 30,
+                    redirects != null ? redirects : new HTTP3xxRedirects(),
+                    recorder != null ? recorder : new HashMapRecorder()
+            );
+        }
+
+        public RedirectorBuilder setMaxCount(int maxCount) {
+            if (maxCount <= 0) throw new IllegalArgumentException("redirect max count must bigger than zero");
+            this.maxCount = maxCount;
+            return this;
+        }
+
+        public RedirectorBuilder setRedirects(Redirects redirects) {
+            if (redirects == null) throw new NullPointerException();
+            this.redirects = redirects;
+            return this;
+        }
+
+        public RedirectorBuilder setRecorder(Recorder recorder) {
+            if (recorder == null) throw new NullPointerException();
+            this.recorder = recorder;
+            return this;
+        }
     }
 
     private class RedirectPromise implements Promise {
@@ -216,6 +250,5 @@ public class Redirector implements BackPlugin {
             return promise.client();
         }
     }
-
 
 }

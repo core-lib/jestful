@@ -7,6 +7,7 @@ import org.qfox.jestful.client.scheduler.CallbackAdapter;
 import org.qfox.jestful.client.scheduler.Calling;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.BackPlugin;
+import org.qfox.jestful.core.Builder;
 import org.qfox.jestful.core.ForePlugin;
 
 /**
@@ -20,13 +21,12 @@ public class RetryController implements ForePlugin, BackPlugin {
     }
 
     public RetryController(RetryCondition retryCondition, int maxCount) {
-        this.retryCondition = retryCondition;
-        this.maxCount = maxCount;
+        this.setRetryCondition(retryCondition);
+        this.setMaxCount(maxCount);
     }
 
     @Override
     public Object react(Action action) throws Exception {
-        if (retryCondition == null || maxCount <= 0) return action.execute();
         Promise promise = (Promise) action.execute();
         return new RetryPromise(action, promise);
     }
@@ -36,6 +36,7 @@ public class RetryController implements ForePlugin, BackPlugin {
     }
 
     public void setRetryCondition(RetryCondition retryCondition) {
+        if (retryCondition == null) throw new NullPointerException("retryCondition == null");
         this.retryCondition = retryCondition;
     }
 
@@ -44,7 +45,38 @@ public class RetryController implements ForePlugin, BackPlugin {
     }
 
     public void setMaxCount(int maxCount) {
+        if (maxCount <= 0) throw new IllegalArgumentException("retry max count must bigger than zero");
         this.maxCount = maxCount;
+    }
+
+    public static class RetryControllerBuilder implements Builder<RetryController> {
+        private RetryCondition retryCondition;
+        private int maxCount;
+
+        @Override
+        public RetryController build() {
+            return new RetryController(
+                    retryCondition != null ? retryCondition : new RetryCondition() {
+                        @Override
+                        public boolean matches(Action action, boolean thrown, Object result, Exception exception) {
+                            return false;
+                        }
+                    },
+                    maxCount > 0 ? maxCount : 3
+            );
+        }
+
+        public RetryControllerBuilder setRetryCondition(RetryCondition retryCondition) {
+            if (retryCondition == null) throw new NullPointerException();
+            this.retryCondition = retryCondition;
+            return this;
+        }
+
+        public RetryControllerBuilder setMaxCount(int maxCount) {
+            if (maxCount <= 0) throw new IllegalArgumentException("retry max count must bigger than zero");
+            this.maxCount = maxCount;
+            return this;
+        }
     }
 
     private class RetryPromise implements Promise {
