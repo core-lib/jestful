@@ -36,7 +36,7 @@ class HttpCache implements Cache, Data.Reader, Data.Writer, HttpCacheConstants {
         this.status = response.getResponseStatus();
         this.header = new CaseInsensitiveMap<String, String[]>();
         final String[] names = response.getHeaderKeys();
-        for (String name : names) if (!StringKit.isEmpty(name)) this.header.put(name, response.getResponseHeaders(name));
+        for (String name : names) this.header.put(name, response.getResponseHeaders(name));
         this.body = response.getResponseBodyInputStream();
         this.timeRequested = request.getTimeRequested();
         data.write(this);
@@ -126,6 +126,10 @@ class HttpCache implements Cache, Data.Reader, Data.Writer, HttpCacheConstants {
         String[] names = response.getHeaderKeys();
         for (String name : names) {
             if (StringKit.isEmpty(name)) continue;
+            if (StringKit.isEquals(name, "Transfer-Encoding", true)) continue;
+            if (StringKit.isEquals(name, "Content-Encoding", true)) continue;
+            if (StringKit.isEquals(name, "Connection", true)) continue;
+            if (StringKit.isEquals(name, "Keep-Alive", true)) continue;
             String[] values = response.getResponseHeaders(name);
             for (String value : values) IOKit.writeln(name + ": " + value, out);
         }

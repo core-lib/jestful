@@ -3,6 +3,8 @@ package org.qfox.jestful.sample.user;
 import org.junit.Test;
 import org.qfox.jestful.client.auth.Authenticator;
 import org.qfox.jestful.client.cache.CacheController;
+import org.qfox.jestful.client.cache.impl.FileDataStorage;
+import org.qfox.jestful.client.cache.impl.http.HttpCacheManager;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.client.retry.RetryController;
@@ -25,7 +27,7 @@ public class QfoxyAPITest {
                 .addBackPlugins(Redirector.builder().build())
                 .addBackPlugins(Authenticator.builder().build())
                 .addBackPlugins(RetryController.builder().build())
-                .addBackPlugins(cacheController = CacheController.builder().build())
+                .addBackPlugins(cacheController = CacheController.builder().setCacheManager(new HttpCacheManager(new FileDataStorage())).build())
                 .create(QfoxyAPI.class);
 
         CountDownLatch latch = new CountDownLatch(1);
