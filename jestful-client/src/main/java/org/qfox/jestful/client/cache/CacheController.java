@@ -12,7 +12,7 @@ import org.qfox.jestful.core.*;
 import java.io.InputStream;
 import java.net.URL;
 
-public class CacheController implements ForePlugin, BackPlugin {
+public class CacheController implements ForePlugin, BackPlugin, CacheStatistics {
     private MsgDigester msgDigester;
     private StrEncoder strEncoder;
     private KeyGenerator keyGenerator;
@@ -36,6 +36,36 @@ public class CacheController implements ForePlugin, BackPlugin {
     public Object react(Action action) throws Exception {
         Promise promise = (Promise) action.execute();
         return new CachePromise(action, promise);
+    }
+
+    @Override
+    public void hit() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long hits() {
+        return cacheManager.hits();
+    }
+
+    @Override
+    public void miss() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long misses() {
+        return cacheManager.misses();
+    }
+
+    @Override
+    public void update() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long updates() {
+        return cacheManager.updates();
     }
 
     public MsgDigester getMsgDigester() {
@@ -143,6 +173,8 @@ public class CacheController implements ForePlugin, BackPlugin {
         }
 
         private Object getFromServer(String key) throws Exception {
+            cacheManager.miss();
+
             final Request srcRequest = action.getRequest();
             final NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
             action.setRequest(negotiatedRequest);
@@ -157,6 +189,7 @@ public class CacheController implements ForePlugin, BackPlugin {
         }
 
         private Object getFromCache(Cache cache) throws Exception {
+            cacheManager.hit();
             promise.cancel();
 
             final Response srcResponse = action.getResponse();
@@ -178,6 +211,7 @@ public class CacheController implements ForePlugin, BackPlugin {
             action.setResponse(negotiatedResponse);
             try {
                 final Object value = promise.acquire();
+                cacheManager.update();
                 cacheManager.save(key, negotiatedRequest, negotiatedResponse);
                 return value;
             } catch (Exception e) {
@@ -209,6 +243,8 @@ public class CacheController implements ForePlugin, BackPlugin {
         }
 
         private void getFromServer(final String key, final Callback<Object> callback) {
+            cacheManager.miss();
+
             final Request srcRequest = action.getRequest();
             final NegotiatedRequest negotiatedRequest = new NegotiatedRequest(srcRequest);
             action.setRequest(negotiatedRequest);
@@ -231,7 +267,9 @@ public class CacheController implements ForePlugin, BackPlugin {
         }
 
         private void getFromCache(final Cache cache, final Callback<Object> callback) {
+            cacheManager.hit();
             promise.cancel();
+
             client().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -282,7 +320,10 @@ public class CacheController implements ForePlugin, BackPlugin {
                         }
                     } else {
                         try {
-                            if (success) cacheManager.save(key, negotiatedRequest, negotiatedResponse);
+                            if (success) {
+                                cacheManager.update();
+                                cacheManager.save(key, negotiatedRequest, negotiatedResponse);
+                            }
                         } catch (Exception e) {
                             exception = e;
                         } finally {

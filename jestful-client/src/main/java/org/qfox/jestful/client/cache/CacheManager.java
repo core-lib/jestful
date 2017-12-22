@@ -3,7 +3,7 @@ package org.qfox.jestful.client.cache;
 
 import java.io.IOException;
 
-public interface CacheManager {
+public interface CacheManager extends CacheStatistics {
 
     Cache find(String key) throws IOException;
 

@@ -1,11 +1,11 @@
 package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
+import org.qfox.jestful.client.auth.Authenticator;
 import org.qfox.jestful.client.cache.CacheController;
-import org.qfox.jestful.client.cache.impl.FileDataStorage;
-import org.qfox.jestful.client.cache.impl.http.HttpCacheManager;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
+import org.qfox.jestful.client.retry.RetryController;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 
 import java.util.concurrent.CountDownLatch;
@@ -14,6 +14,7 @@ public class QfoxyAPITest {
 
     @Test
     public void index() throws Exception {
+        CacheController cacheController;
         QfoxyAPI qfoxyAPI = NioClient.builder()
                 .setProtocol("https")
                 .setHostname("fex.bdstatic.com")
@@ -21,10 +22,10 @@ public class QfoxyAPITest {
                 .setIdleTimeout(10)
                 .build()
                 .creator()
-                .addBackPlugins(new Redirector())
-                .addBackPlugins(CacheController.builder()
-                        .setCacheManager(new HttpCacheManager(new FileDataStorage()))
-                        .build())
+                .addBackPlugins(Redirector.builder().build())
+                .addBackPlugins(Authenticator.builder().build())
+                .addBackPlugins(RetryController.builder().build())
+                .addBackPlugins(cacheController = CacheController.builder().build())
                 .create(QfoxyAPI.class);
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -39,6 +40,7 @@ public class QfoxyAPITest {
             });
         }
         latch.await();
+        System.out.println(cacheController.hits() + ":" + cacheController.misses() + ":" + cacheController.updates());
     }
 
 }

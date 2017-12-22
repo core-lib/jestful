@@ -36,8 +36,6 @@ public class Redirector implements BackPlugin {
 
     @Override
     public Object react(Action action) throws Exception {
-        if (maxCount <= 0 || redirects == null || recorder == null) return action.execute();
-
         Direction direction = new Direction(action.getRestful().getMethod(), action.getURL());
         Redirection redirection = null;
         int i = 0;

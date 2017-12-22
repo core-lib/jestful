@@ -1,10 +1,11 @@
 package org.qfox.jestful.client.cache.impl.http;
 
 import org.qfox.jestful.client.cache.*;
+import org.qfox.jestful.client.cache.impl.AtomicLongCacheStatistics;
 
 import java.io.IOException;
 
-public class HttpCacheManager implements CacheManager, HttpCacheConstants {
+public class HttpCacheManager extends AtomicLongCacheStatistics implements CacheManager, HttpCacheConstants {
     private final DataStorage dataStorage;
 
     public HttpCacheManager(DataStorage dataStorage) {
