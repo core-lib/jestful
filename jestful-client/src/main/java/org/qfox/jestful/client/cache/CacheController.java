@@ -167,8 +167,10 @@ public class CacheController implements ForePlugin, BackPlugin, CacheStatistics 
             final Cache cache = cacheManager.find(key);
             action.setRequest(srcRequest);
             if (cache == null) return getFromServer(key);// 没有缓存
-            else if (cache.fresh()) return getFromCache(cache); // 如果缓存是新鲜的
-            else if (cache.negotiable()) return getFromNegotiation(key, cache); // 如果缓存是可协商的
+            else if (cache.fresh()) {
+                promise.cancel();
+                return getFromCache(cache); // 如果缓存是新鲜的
+            } else if (cache.negotiable()) return getFromNegotiation(key, cache); // 如果缓存是可协商的
             else return getFromServer(key); // 存在缓存但是不是新鲜的也不能协商
         }
 
@@ -190,7 +192,6 @@ public class CacheController implements ForePlugin, BackPlugin, CacheStatistics 
 
         private Object getFromCache(Cache cache) throws Exception {
             cacheManager.hit();
-            promise.cancel();
 
             final Response srcResponse = action.getResponse();
             final CachedResponse cachedResponse = new CachedResponse(srcResponse, cache);
@@ -234,8 +235,10 @@ public class CacheController implements ForePlugin, BackPlugin, CacheStatistics 
                 final Cache cache = cacheManager.find(key);
                 action.setRequest(srcRequest);
                 if (cache == null) getFromServer(key, callback);// 没有缓存
-                else if (cache.fresh()) getFromCache(cache, callback);// 如果缓存是新鲜的
-                else if (cache.negotiable()) getFromNegotiation(key, cache, callback);// 如果缓存是可协商的
+                else if (cache.fresh()) {
+                    promise.cancel();
+                    getFromCache(cache, callback);// 如果缓存是新鲜的
+                } else if (cache.negotiable()) getFromNegotiation(key, cache, callback);// 如果缓存是可协商的
                 else getFromServer(key, callback);// 存在缓存但是不是新鲜的也不能协商
             } catch (Exception e) {
                 new Calling(callback, null, e).call();
@@ -268,7 +271,6 @@ public class CacheController implements ForePlugin, BackPlugin, CacheStatistics 
 
         private void getFromCache(final Cache cache, final Callback<Object> callback) {
             cacheManager.hit();
-            promise.cancel();
 
             client().execute(new Runnable() {
                 @Override

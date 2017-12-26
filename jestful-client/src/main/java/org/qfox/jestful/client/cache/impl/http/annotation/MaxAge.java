@@ -10,5 +10,4 @@ import java.lang.annotation.*;
 @Target(ElementType.PARAMETER)
 @CacheDirective(type = {Byte.class, Short.class, Integer.class, Long.class}, name = HttpCacheConstants.MAX_AGE, resolver = IntegralHttpCacheDirectiveResolver.class)
 public @interface MaxAge {
-
 }
