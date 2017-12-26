@@ -15,6 +15,11 @@ import java.util.concurrent.CountDownLatch;
 public class QfoxyAPITest {
 
     @Test
+    public void test() {
+        System.out.println(Number.class.isAssignableFrom(Integer.class));
+    }
+
+    @Test
     public void index() throws Exception {
         CacheController cacheController;
         QfoxyAPI qfoxyAPI = NioClient.builder()
@@ -39,7 +44,7 @@ public class QfoxyAPITest {
                     else exception.printStackTrace();
                     latch.countDown();
                 }
-            });
+            }, false);
         }
         latch.await();
         System.out.println(cacheController.hits() + ":" + cacheController.misses() + ":" + cacheController.updates());

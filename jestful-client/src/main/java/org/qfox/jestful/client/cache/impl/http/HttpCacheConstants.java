@@ -18,4 +18,8 @@ public interface HttpCacheConstants {
     String MAX_AGE = "max-age";
     String SHARED_MAX_AGE = "s-maxage";
 
+    String MAX_STALE = "max-stale";
+    String MIN_FRESH = "min-fresh";
+    String ONLY_IF_CACHED = "only-if-cached";
+
 }

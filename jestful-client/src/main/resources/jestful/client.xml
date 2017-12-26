@@ -22,6 +22,8 @@
                 <bean class="org.qfox.jestful.client.processor.CookieParameterProcessor"/>
                 <bean class="org.qfox.jestful.client.wrapper.RequestEncodeWrapper"/>
                 <bean class="org.qfox.jestful.client.wrapper.ResponseDecodeWrapper"/>
+                <bean class="org.qfox.jestful.client.cache.impl.http.HttpCacheConstantDirector"/>
+                <bean class="org.qfox.jestful.client.cache.impl.http.HttpCacheVariableDirector"/>
             </list>
         </constructor-arg>
     </bean>
