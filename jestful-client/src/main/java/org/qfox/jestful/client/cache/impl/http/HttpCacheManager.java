@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.cache.impl.http;
 
 import org.qfox.jestful.client.cache.*;
-import org.qfox.jestful.client.cache.impl.AtomicLongCacheStatistics;
+import org.qfox.jestful.client.cache.impl.DefaultCacheStatistics;
 import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Request;
@@ -13,7 +13,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Map;
 
-public class HttpCacheManager extends AtomicLongCacheStatistics implements CacheManager, HttpCacheConstants {
+public class HttpCacheManager extends DefaultCacheStatistics implements CacheManager, HttpCacheConstants {
     private final DataStorage dataStorage;
 
     public HttpCacheManager(DataStorage dataStorage) {

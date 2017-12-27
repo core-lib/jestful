@@ -4,7 +4,7 @@ import org.qfox.jestful.client.cache.CacheStatistics;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-public class AtomicLongCacheStatistics implements CacheStatistics {
+public class DefaultCacheStatistics implements CacheStatistics {
     private final AtomicLong hits = new AtomicLong();
     private final AtomicLong misses = new AtomicLong();
     private final AtomicLong updates = new AtomicLong();
