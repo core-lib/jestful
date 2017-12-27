@@ -67,8 +67,6 @@ public class HttpCacheManager extends AtomicLongCacheStatistics implements Cache
                 // 缓存被认为是过期的也没有max-stale
                 return new StaleHttpCache(cache);
             }
-
-
             return cache;
         }
     }
