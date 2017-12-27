@@ -1,6 +1,6 @@
 package org.qfox.jestful.client.cache.impl.http.annotation;
 
-import org.qfox.jestful.client.cache.impl.http.ExtendedHttpCacheDirectiveResolver;
+import org.qfox.jestful.client.cache.impl.http.resolver.CacheExtensionHttpCacheDirectiveResolver;
 
 import java.lang.annotation.*;
 
@@ -22,7 +22,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE, ElementType.PARAMETER})
-@CacheDirective(type = String.class, name = "", resolver = ExtendedHttpCacheDirectiveResolver.class)
+@CacheDirective(type = String.class, name = "", resolver = CacheExtensionHttpCacheDirectiveResolver.class)
 public @interface CacheExtension {
 
     /**

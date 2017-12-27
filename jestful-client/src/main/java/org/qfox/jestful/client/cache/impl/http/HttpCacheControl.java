@@ -84,6 +84,10 @@ public class HttpCacheControl implements HttpCacheConstants {
         return directive.remove(name);
     }
 
+    public boolean isEmpty() {
+        return directive.isEmpty();
+    }
+
     // --------------- cache-response-directive ---------------
     public boolean isPublic() {
         return has(PUBLIC);
@@ -128,7 +132,7 @@ public class HttpCacheControl implements HttpCacheConstants {
 
     public Long getMaxAge() {
         String value = get(MAX_AGE);
-        return value != null ? Long.valueOf(value) : null;
+        return value != null && value.matches("\\d+") ? Long.valueOf(value) : null;
     }
 
     public boolean hasSharedMaxAge() {
@@ -138,7 +142,7 @@ public class HttpCacheControl implements HttpCacheConstants {
 
     public Long getSharedMaxAge() {
         String value = get(SHARED_MAX_AGE);
-        return value != null ? Long.valueOf(value) : null;
+        return value != null && value.matches("\\d+") ? Long.valueOf(value) : null;
     }
 
     // --------------- cache-request-directive ---------------
@@ -149,16 +153,17 @@ public class HttpCacheControl implements HttpCacheConstants {
 
     public Long getMaxStale() {
         String value = get(MAX_STALE);
-        return value != null ? Long.valueOf(value) : null;
+        return value != null && value.matches("\\d+") ? Long.valueOf(value) : null;
     }
 
     public boolean hasMinFresh() {
-        return has(MIN_FRESH);
+        String value = get(MIN_FRESH);
+        return value != null && value.matches("\\d+");
     }
 
     public Long getMinFresh() {
         String value = get(MIN_FRESH);
-        return value != null ? Long.valueOf(value) : null;
+        return value != null && value.matches("\\d+") ? Long.valueOf(value) : null;
     }
 
     public boolean isOnlyIfCached() {

@@ -164,7 +164,8 @@ public class CacheController implements ForePlugin, BackPlugin, CacheStatistics 
             final InputStream in = cachedRequest.getRequestBodyInputStream();
             final String hash = in != null && in.available() > 0 ? strEncoder.encode(msgDigester.digest(in)) : null;
             final String key = keyGenerator.generate(action.getRestful().getMethod(), new URL(action.getURL()), hash);
-            final Cache cache = cacheManager.find(key);
+            final Cache cache = cacheManager.find(key, action);
+
             action.setRequest(srcRequest);
             if (cache == null) return getFromServer(key);// 没有缓存
             else if (cache.fresh()) {
@@ -232,7 +233,7 @@ public class CacheController implements ForePlugin, BackPlugin, CacheStatistics 
                 final InputStream in = cachedRequest.getRequestBodyInputStream();
                 final String hash = in != null && in.available() > 0 ? strEncoder.encode(msgDigester.digest(in)) : null;
                 final String key = keyGenerator.generate(action.getRestful().getMethod(), new URL(action.getURL()), hash);
-                final Cache cache = cacheManager.find(key);
+                final Cache cache = cacheManager.find(key, action);
                 action.setRequest(srcRequest);
                 if (cache == null) getFromServer(key, callback);// 没有缓存
                 else if (cache.fresh()) {

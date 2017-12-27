@@ -9,14 +9,50 @@ import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.redirect.Redirector;
 import org.qfox.jestful.client.retry.RetryController;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
+import org.qfox.jestful.commons.Base64;
 
+import javax.crypto.Cipher;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.concurrent.CountDownLatch;
 
 public class QfoxyAPITest {
 
-    @Test
-    public void test() {
-        System.out.println(Number.class.isAssignableFrom(Integer.class));
+    private static final String ALGORITHM = "RSA/NONE/NoPadding";
+
+    public void encrypt(String publicKeyEncoded, int keysize, InputStream in, OutputStream out) throws Exception {
+        byte[] publicKeyDecoded = Base64.decode(publicKeyEncoded.toCharArray());
+        X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKeyDecoded);
+        PublicKey publicKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        cipher.init(Cipher.PUBLIC_KEY, publicKey);
+        int length;
+        byte[] segment = new byte[keysize / 8 - 11];
+        while ((length = in.read(segment)) != -1) {
+            out.write(cipher.doFinal(segment, 0, length));
+        }
+    }
+
+    public void decrypt(String privateKeyEncoded, int keysize, InputStream in, OutputStream out) throws Exception {
+        byte[] privateKeyDecoded = Base64.decode(privateKeyEncoded.toCharArray());
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyDecoded);
+        PrivateKey privateKey = KeyFactory.getInstance("RSA").generatePrivate(spec);
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        cipher.init(Cipher.PRIVATE_KEY, privateKey);
+        int length;
+        byte[] segment = new byte[keysize / 8];
+        while ((length = in.read(segment)) != -1) {
+            out.write(cipher.doFinal(segment, 0, length));
+        }
     }
 
     @Test

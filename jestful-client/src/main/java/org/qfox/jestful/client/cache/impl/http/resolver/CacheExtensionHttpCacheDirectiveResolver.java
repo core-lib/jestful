@@ -1,8 +1,8 @@
-package org.qfox.jestful.client.cache.impl.http;
+package org.qfox.jestful.client.cache.impl.http.resolver;
 
 import org.qfox.jestful.client.cache.impl.http.annotation.CacheExtension;
 
-public class ExtendedHttpCacheDirectiveResolver implements HttpCacheDirectiveResolver<CacheExtension> {
+public class CacheExtensionHttpCacheDirectiveResolver implements HttpCacheDirectiveResolver<CacheExtension> {
 
     @Override
     public String resolve(CacheExtension annotation, Object value) {

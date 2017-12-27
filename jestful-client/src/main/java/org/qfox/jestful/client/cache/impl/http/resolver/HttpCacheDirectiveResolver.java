@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.cache.impl.http;
+package org.qfox.jestful.client.cache.impl.http.resolver;
 
 import java.lang.annotation.Annotation;
 

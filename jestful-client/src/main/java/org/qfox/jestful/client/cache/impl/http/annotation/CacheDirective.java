@@ -1,6 +1,6 @@
 package org.qfox.jestful.client.cache.impl.http.annotation;
 
-import org.qfox.jestful.client.cache.impl.http.HttpCacheDirectiveResolver;
+import org.qfox.jestful.client.cache.impl.http.resolver.HttpCacheDirectiveResolver;
 
 import java.io.Serializable;
 import java.lang.annotation.*;

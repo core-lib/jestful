@@ -2,6 +2,7 @@ package org.qfox.jestful.client.cache.impl.http;
 
 public interface HttpCacheConstants {
     String CACHE_CONTROL = "Cache-Control";
+    String AGE = "Age";
     String LAST_MODIFIED = "Last-Modified";
     String E_TAG = "ETag";
     String IF_MODIFIED_SINCE = "If-Modified-Since";

@@ -28,7 +28,8 @@ class HttpCache implements Cache, Data.Reader, Data.Writer, HttpCacheConstants {
     private volatile Status status;
     private volatile Map<String, String[]> header;
     private volatile InputStream body;
-    private volatile HttpCacheControl directive;
+    private volatile HttpCacheControl cacheControl;
+    private volatile long ageResponded;
     private volatile long timeRequested;
 
     HttpCache(Data data, NegotiatedRequest request, NegotiatedResponse response) throws IOException {
@@ -38,6 +39,8 @@ class HttpCache implements Cache, Data.Reader, Data.Writer, HttpCacheConstants {
         final String[] names = response.getHeaderKeys();
         for (String name : names) this.header.put(name, response.getResponseHeaders(name));
         this.body = response.getResponseBodyInputStream();
+        this.cacheControl = header.containsKey(CACHE_CONTROL) ? HttpCacheControl.valueOf(header.get(CACHE_CONTROL)[0]) : HttpCacheControl.valueOf("");
+        this.ageResponded = response.getAgeResponded();
         this.timeRequested = request.getTimeRequested();
         data.write(this);
     }
@@ -50,7 +53,7 @@ class HttpCache implements Cache, Data.Reader, Data.Writer, HttpCacheConstants {
     @Override
     public boolean fresh() {
         // 有缓存指令但没有包含no-cache同时有max-age且max-age未超时
-        return directive != null && !directive.isNoCache() && directive.hasMaxAge() && timeRequested + directive.getMaxAge() * 1000L > System.currentTimeMillis();
+        return cacheControl != null && !cacheControl.isNoCache() && cacheControl.hasMaxAge() && timeRequested + (cacheControl.getMaxAge() - ageResponded) * 1000L > System.currentTimeMillis();
     }
 
     @Override
@@ -113,7 +116,8 @@ class HttpCache implements Cache, Data.Reader, Data.Writer, HttpCacheConstants {
             }
         }
         body = in;
-        directive = header.containsKey(CACHE_CONTROL) ? HttpCacheControl.valueOf(header.get(CACHE_CONTROL)[0]) : null;
+        cacheControl = header.containsKey(CACHE_CONTROL) ? HttpCacheControl.valueOf(header.get(CACHE_CONTROL)[0]) : HttpCacheControl.valueOf("");
+        ageResponded = header.containsKey(AGE) ? Long.valueOf(header.get(AGE)[0]) : 0L;
         timeRequested = header.containsKey(CACHE_TIME) ? Long.valueOf(header.remove(CACHE_TIME)[0]) : Long.MIN_VALUE;
     }
 
@@ -140,5 +144,17 @@ class HttpCache implements Cache, Data.Reader, Data.Writer, HttpCacheConstants {
         // 回应体
         InputStream body = response.getResponseBodyInputStream();
         IOKit.transfer(body, out);
+    }
+
+    public HttpCacheControl getCacheControl() {
+        return cacheControl;
+    }
+
+    public long getAgeResponded() {
+        return ageResponded;
+    }
+
+    public long getTimeRequested() {
+        return timeRequested;
     }
 }

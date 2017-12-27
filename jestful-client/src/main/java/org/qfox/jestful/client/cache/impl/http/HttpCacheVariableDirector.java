@@ -1,6 +1,7 @@
 package org.qfox.jestful.client.cache.impl.http;
 
 import org.qfox.jestful.client.cache.impl.http.annotation.CacheDirective;
+import org.qfox.jestful.client.cache.impl.http.resolver.HttpCacheDirectiveResolver;
 import org.qfox.jestful.client.exception.NotAllowedTypeException;
 import org.qfox.jestful.commons.Primaries;
 import org.qfox.jestful.commons.StringKit;
@@ -36,7 +37,7 @@ public class HttpCacheVariableDirector implements Actor, HttpCacheConstants {
             }
         }
 
-        request.setRequestHeader(CACHE_CONTROL, hcc.toString());
+        if (!hcc.isEmpty() || !StringKit.isEmpty(cc)) request.setRequestHeader(CACHE_CONTROL, hcc.toString());
 
         return action.execute();
     }
