@@ -26,7 +26,7 @@ public class HttpCacheManager extends DefaultCacheStatistics implements CacheMan
         final Request request = action.getRequest();
         final String directive = request.getRequestHeader(CACHE_CONTROL);
         final HttpCacheControl reqCacheControl = HttpCacheControl.valueOf(directive != null ? directive : "");
-        // no-store 或者 no-cache 即忽略所有缓存
+        // no-store 或者 no-cache 即忽略所有缓存 这个优先级最高
         if (reqCacheControl.isNoStore() || reqCacheControl.isNoCache()) return null;
         final Data data = dataStorage.get(key);
         // 没有缓存
@@ -43,31 +43,32 @@ public class HttpCacheManager extends DefaultCacheStatistics implements CacheMan
             if (reqCacheControl.isOnlyIfCached()) return new FreshHttpCache(cache);
             // max-age=delta-seconds 表明客户端愿接受一个这样一个响应，此响应的年龄不大于客户端请求里max-age指定时间（以秒为单位）（译注：如果大于的话，表明此响应是陈旧的）。
             // 除非max-stale缓存控制指令也包含在请求里，否则客户端是不能接收一个陈旧响应的。
-            final Long reqMaxAge = reqCacheControl.getMaxAge();
-            if (reqMaxAge != null) {
-                final long ageResponded = cache.getAgeResponded();
-                final long timeRequested = cache.getTimeRequested();
-                final long ageCurrent = (System.currentTimeMillis() - timeRequested) / 1000L + ageResponded;
-                final Long resMaxAge = resCacheControl.getMaxAge();
-                final long theMaxAge = resMaxAge != null ? Math.min(reqMaxAge, resMaxAge) : reqMaxAge;
-                // 如果大于缓存的当前年龄则认为缓存是新鲜的
-                if (theMaxAge > ageCurrent) return new FreshHttpCache(cache);
-                // 否则缓存已经过期了 则看 请求头里面是否有max-stale
-                if (reqCacheControl.hasMaxStale()) {
-                    final Long maxStale = reqCacheControl.getMaxStale();
-                    // 如果max-stale存在但没有值 则表示客户端接受任意过期的缓存
-                    if (maxStale == null) return new FreshHttpCache(cache);
-                    // 否则接受过期时间内的请求
-                    final long theStale = ageCurrent - theMaxAge;
-                    // 如果过期时间可接受
-                    if (maxStale > theStale) return new FreshHttpCache(cache);
-                    // 如果不可接受
-                    return new StaleHttpCache(cache);
-                }
-                // 缓存被认为是过期的也没有max-stale
+            final long reqMaxAge = reqCacheControl.hasMaxAge() ? reqCacheControl.getMaxAge() : Long.MAX_VALUE;
+            final long ageResponded = cache.getAgeResponded();
+            final long timeRequested = cache.getTimeRequested();
+            final long ageCurrent = (System.currentTimeMillis() - timeRequested) / 1000L + ageResponded;
+            final long resMaxAge = resCacheControl.hasMaxAge() ? resCacheControl.getMaxAge() : 0L;
+            final long theMaxAge = Math.min(reqMaxAge, resMaxAge);
+            // 如果有最小保鲜值 那么需要保证缓存在 min-fresh 时间内还是保鲜的
+            final long reqMinFresh = reqCacheControl.hasMinFresh() ? reqCacheControl.getMinFresh() : 0L;
+            // 如果大于缓存的当前年龄 + 最小保鲜值则认为缓存是新鲜的
+            if (theMaxAge > ageCurrent + reqMinFresh) return new FreshHttpCache(cache);
+            // 否则缓存已经过期了 则看 请求头里面是否有max-stale
+            if (reqCacheControl.hasMaxStale()) {
+                final Long maxStale = reqCacheControl.getMaxStale();
+                // 如果max-stale存在但没有值 则表示客户端接受任意过期的缓存
+                if (maxStale == null) return new FreshHttpCache(cache);
+                // 否则接受过期时间内的请求
+                final long theStale = ageCurrent - theMaxAge;
+                // 如果过期时间可接受
+                if (maxStale > theStale) return new FreshHttpCache(cache);
+                // 如果不可接受
                 return new StaleHttpCache(cache);
             }
-            return cache;
+            // 缓存被认为是过期的也没有max-stale
+            else {
+                return new StaleHttpCache(cache);
+            }
         }
     }
 

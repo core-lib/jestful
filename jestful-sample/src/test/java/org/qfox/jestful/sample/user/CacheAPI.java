@@ -1,5 +1,6 @@
 package org.qfox.jestful.sample.user;
 
+import org.qfox.jestful.client.cache.impl.http.annotation.OnlyIfCached;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.http.Body;
@@ -13,7 +14,7 @@ public interface CacheAPI {
     String get();
 
     @GET("/get")
-    void get(Callback<String> callback);
+    void get(@OnlyIfCached boolean onlyIfCached, Callback<String> callback);
 
     @POST("/post")
     String post(@Body("name") String name);

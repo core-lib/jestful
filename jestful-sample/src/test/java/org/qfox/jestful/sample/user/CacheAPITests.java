@@ -2,6 +2,8 @@ package org.qfox.jestful.sample.user;
 
 import org.junit.Test;
 import org.qfox.jestful.client.cache.CacheController;
+import org.qfox.jestful.client.cache.impl.FileDataStorage;
+import org.qfox.jestful.client.cache.impl.http.HttpCacheManager;
 import org.qfox.jestful.client.nio.NioClient;
 import org.qfox.jestful.client.scheduler.CallbackAdapter;
 
@@ -19,11 +21,11 @@ public class CacheAPITests {
                 .setIdleTimeout(10)
                 .build()
                 .creator()
-                .addBackPlugins(new CacheController())
+                .addBackPlugins(CacheController.builder().setCacheManager(new HttpCacheManager(new FileDataStorage())).build())
                 .create(CacheAPI.class);
 
         CountDownLatch latch = new CountDownLatch(2);
-        cacheAPI.get(new CallbackAdapter<String>() {
+        cacheAPI.get(true, new CallbackAdapter<String>() {
             @Override
             public void onSuccess(String result) {
                 System.out.println(result);
@@ -37,7 +39,7 @@ public class CacheAPITests {
             @Override
             public void onCompleted(boolean success, String result, Exception exception) {
                 latch.countDown();
-                cacheAPI.get(new CallbackAdapter<String>() {
+                cacheAPI.get(true, new CallbackAdapter<String>() {
                     @Override
                     public void onSuccess(String result) {
                         System.out.println(result);
