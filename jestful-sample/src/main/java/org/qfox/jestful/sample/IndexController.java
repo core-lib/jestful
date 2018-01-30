@@ -1,11 +1,9 @@
 package org.qfox.jestful.sample;
 
-import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.http.GET;
-import org.springframework.stereotype.Controller;
+import org.qfox.jestful.core.http.HTTP;
 
-@Controller
-@Jestful("/")
+@HTTP("/")
 public class IndexController {
 
     @GET("/")

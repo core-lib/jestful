@@ -1,10 +1,12 @@
-package org.qfox.jestful.core.annotation;
+package org.qfox.jestful.core.http;
+
+import org.qfox.jestful.core.annotation.Controller;
 
 import java.lang.annotation.*;
 
 /**
  * <p>
- * Description: Make a class to be an resource controller class for RESTful API.
+ * Description: Make a class to be an resource controller class for HTTP protocol API.
  * </p>
  * <p>
  * <p>
@@ -18,12 +20,13 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface Jestful {
+@Controller
+public @interface HTTP {
 
     /**
-     * resource name
+     * resource path
      *
-     * @return
+     * @return HTTP resource path
      */
     String value();
 

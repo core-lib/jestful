@@ -4,12 +4,14 @@ import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Command;
-import org.qfox.jestful.core.annotation.Jestful;
+import org.qfox.jestful.core.annotation.Controller;
+import org.qfox.jestful.core.exception.AmbiguousResourceException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -45,32 +47,51 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
 
     public Resource(Object controller, Class<?> klass) throws IllegalConfigException {
         super(klass.getAnnotations());
-        this.controller = controller;
-        this.klass = klass;
-        Jestful jestful = this.getAnnotation(Jestful.class);
-        if (jestful == null) {
-            String message = String.format("%s is not a resource controller because it did not annotated @%s",
-                    klass.getName(),
-                    Jestful.class.getSimpleName());
-            throw new IllegalConfigException(message, controller);
-        }
-        String value = jestful.value();
-        if (!value.equals("/")) value = ("/" + value).replaceAll("/+", "/");
-        if (!value.equals("/")) value = value.replaceAll("/+$", "");
-        this.expression = value;
-        Method[] methods = klass.getMethods();
-        for (Method method : methods) {
-            if (method.isSynthetic()) {
-                continue;
+        try {
+            this.controller = controller;
+            this.klass = klass;
+            Annotation[] controllers = this.getAnnotationsWith(Controller.class);
+            if (controllers == null || controllers.length == 0) {
+                String message = String.format(
+                        "%s is not a resource controller because it haven't annotation which annotated with @%s",
+                        klass.getName(),
+                        Controller.class.getName()
+                );
+                throw new IllegalConfigException(message, controller);
             }
-            Method configuration;
-            if ((configuration = getRestfulMethodFromClasses(method, klass)) != null) {
-                this.mappings.put(method, new Mapping(this, controller, method, configuration));
-                continue;
+            if (controllers.length == 1) {
+                Annotation protocol = controllers[0];
+                String value = protocol.annotationType().getMethod("value").invoke(protocol).toString();
+                if (!value.equals("/")) value = ("/" + value).replaceAll("/+", "/");
+                if (!value.equals("/")) value = value.replaceAll("/+$", "");
+                this.expression = value;
+                Method[] methods = klass.getMethods();
+                for (Method method : methods) {
+                    if (method.isSynthetic()) {
+                        continue;
+                    }
+                    Method configuration;
+                    if ((configuration = getRestfulMethodFromClasses(method, klass)) != null) {
+                        this.mappings.put(method, new Mapping(this, controller, method, configuration));
+                        continue;
+                    }
+                    if ((configuration = getRestfulMethodFromInterfaces(method, klass)) != null) {
+                        this.mappings.put(method, new Mapping(this, controller, method, configuration));
+                    }
+                }
+            } else {
+                String message = String.format(
+                        "Ambiguous resource %s which has %d controller kind annotations %s",
+                        controller.getClass(),
+                        controllers.length,
+                        Arrays.toString(controllers)
+                );
+                throw new AmbiguousResourceException(message, controller, this);
             }
-            if ((configuration = getRestfulMethodFromInterfaces(method, klass)) != null) {
-                this.mappings.put(method, new Mapping(this, controller, method, configuration));
-            }
+        } catch (IllegalConfigException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
         }
     }
 

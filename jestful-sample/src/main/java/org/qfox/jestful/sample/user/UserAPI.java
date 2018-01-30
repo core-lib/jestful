@@ -4,13 +4,13 @@ import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.OnCompleted;
 import org.qfox.jestful.client.scheduler.OnFail;
 import org.qfox.jestful.client.scheduler.OnSuccess;
-import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.http.GET;
+import org.qfox.jestful.core.http.HTTP;
 
 /**
  * Created by yangchangpei on 17/9/27.
  */
-@Jestful("/")
+@HTTP("/")
 public interface UserAPI {
 
     @GET("/user")

@@ -72,7 +72,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
             this.result = new Result(this, method);
             Annotation[] commands = getAnnotationsWith(Command.class);
             if (commands.length == 1) {
-                Annotation restful = getAnnotationWith(Command.class);
+                Annotation restful = commands[0];
                 Command command = restful.annotationType().getAnnotation(Command.class);
                 this.restful = new Restful(command);
 
@@ -104,12 +104,16 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
                         : null;
                 this.version = version != null ? version.value() : null;
             } else {
-                String message = String.format("Ambiguous mapping %s which has %d http method kind annotations %s",
+                String message = String.format(
+                        "Ambiguous mapping %s which has %d command kind annotations %s",
                         configuration.toGenericString(),
                         commands.length,
-                        Arrays.toString(commands));
+                        Arrays.toString(commands)
+                );
                 throw new AmbiguousMappingException(message, controller, method, this);
             }
+        } catch (IllegalConfigException e) {
+            throw e;
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }

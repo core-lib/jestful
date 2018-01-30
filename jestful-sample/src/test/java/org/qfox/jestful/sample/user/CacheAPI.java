@@ -2,12 +2,12 @@ package org.qfox.jestful.sample.user;
 
 import org.qfox.jestful.client.cache.impl.http.annotation.OnlyIfCached;
 import org.qfox.jestful.client.scheduler.Callback;
-import org.qfox.jestful.core.annotation.Jestful;
 import org.qfox.jestful.core.http.Body;
 import org.qfox.jestful.core.http.GET;
+import org.qfox.jestful.core.http.HTTP;
 import org.qfox.jestful.core.http.POST;
 
-@Jestful("/cache")
+@HTTP("/cache")
 public interface CacheAPI {
 
     @GET("/get")

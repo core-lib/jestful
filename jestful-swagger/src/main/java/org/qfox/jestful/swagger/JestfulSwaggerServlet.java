@@ -88,7 +88,7 @@ public class JestfulSwaggerServlet implements Servlet {
 
     @Override
     public String getServletInfo() {
-        return "Jestful Swagger Integration";
+        return "Controller Swagger Integration";
     }
 
     @Override

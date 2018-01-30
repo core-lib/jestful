@@ -12,7 +12,7 @@ public class IndexAPITests {
 
     @Test
     public void index() throws Exception {
-        Authenticator authenticator = new Authenticator();
+        Authenticator authenticator = Authenticator.builder().build();
         authenticator.getCredenceProvider().setCredence(new Scope("api.github.com", Scope.ANY_PORT), new SimpleCredence("core-lib", "wan20100101"));
 
         IndexAPI indexAPI = NioClient.builder()
@@ -23,7 +23,7 @@ public class IndexAPITests {
                 .build()
                 .creator()
                 .setBackPlugins(authenticator)
-                .addBackPlugins(new Redirector())
+                .addBackPlugins(Redirector.builder().build())
                 .create(IndexAPI.class);
 
         for (int i = 0; i < 10; i++) {
