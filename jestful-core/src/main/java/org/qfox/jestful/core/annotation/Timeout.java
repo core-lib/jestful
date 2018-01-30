@@ -17,14 +17,14 @@ public @interface Timeout {
     /**
      * 超时时间值
      *
-     * @return
+     * @return 超时时间值
      */
     int value();
 
     /**
      * 超时时间单位, 默认为秒
      *
-     * @return
+     * @return 超时时间单位
      */
     TimeUnit unit() default TimeUnit.SECONDS;
 

@@ -20,4 +20,11 @@ import java.lang.annotation.*;
 @Target({ElementType.ANNOTATION_TYPE})
 public @interface Controller {
 
+    /**
+     * 资源控制器访问协议
+     *
+     * @return 协议
+     */
+    String[] value();
+
 }

@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-@Controller
+@Controller({"http", "https"})
 public @interface HTTP {
 
     /**
