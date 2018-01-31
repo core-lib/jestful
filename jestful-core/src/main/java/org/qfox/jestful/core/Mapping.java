@@ -3,7 +3,7 @@ package org.qfox.jestful.core;
 import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
-import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.annotation.Function;
 import org.qfox.jestful.core.annotation.Version;
 import org.qfox.jestful.core.exception.AmbiguousMappingException;
 import org.qfox.jestful.core.exception.DuplicateParameterException;
@@ -70,21 +70,21 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
             this.configuration = configuration;
             this.parameters = extract(method);
             this.result = new Result(this, method);
-            Annotation[] commands = getAnnotationsWith(Command.class);
-            if (commands.length == 1) {
-                Annotation restful = commands[0];
-                Command command = restful.annotationType().getAnnotation(Command.class);
-                this.restful = new Restful(command);
+            Annotation[] functions = getAnnotationsWith(Function.class);
+            if (functions.length == 1) {
+                Annotation restful = functions[0];
+                Function function = restful.annotationType().getAnnotation(Function.class);
+                this.restful = new Restful(function);
 
                 Set<MediaType> consumeMediaTypes = new TreeSet<MediaType>();
-                String[] consumes = command.acceptBody()
+                String[] consumes = function.acceptBody()
                         ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful)
                         : new String[0];
                 for (String consume : consumes) consumeMediaTypes.add(MediaType.valueOf(consume));
                 this.consumes = new Accepts(consumeMediaTypes);
 
                 Set<MediaType> produceMediaTypes = new TreeSet<MediaType>();
-                String[] produces = command.returnBody()
+                String[] produces = function.returnBody()
                         ? (String[]) restful.annotationType().getMethod("produces").invoke(restful)
                         : new String[0];
                 for (String produce : produces) produceMediaTypes.add(MediaType.valueOf(produce));
@@ -107,8 +107,8 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
                 String message = String.format(
                         "Ambiguous mapping %s which has %d command kind annotations %s",
                         configuration.toGenericString(),
-                        commands.length,
-                        Arrays.toString(commands)
+                        functions.length,
+                        Arrays.toString(functions)
                 );
                 throw new AmbiguousMappingException(message, controller, method, this);
             }

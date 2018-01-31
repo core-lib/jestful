@@ -18,7 +18,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE})
-public @interface Controller {
+public @interface Protocol {
 
     /**
      * 资源控制器访问协议

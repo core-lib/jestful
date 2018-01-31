@@ -1,6 +1,6 @@
 package org.qfox.jestful.core.http;
 
-import org.qfox.jestful.core.annotation.Controller;
+import org.qfox.jestful.core.annotation.Protocol;
 
 import java.lang.annotation.*;
 
@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-@Controller({"http", "https"})
+@Protocol({"http", "https"})
 public @interface HTTP {
 
     /**

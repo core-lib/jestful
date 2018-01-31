@@ -3,8 +3,8 @@ package org.qfox.jestful.core;
 import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
-import org.qfox.jestful.core.annotation.Command;
-import org.qfox.jestful.core.annotation.Controller;
+import org.qfox.jestful.core.annotation.Function;
+import org.qfox.jestful.core.annotation.Protocol;
 import org.qfox.jestful.core.exception.AmbiguousResourceException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 
@@ -50,17 +50,17 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
         try {
             this.controller = controller;
             this.klass = klass;
-            Annotation[] controllers = this.getAnnotationsWith(Controller.class);
-            if (controllers == null || controllers.length == 0) {
+            Annotation[] protocols = this.getAnnotationsWith(Protocol.class);
+            if (protocols == null || protocols.length == 0) {
                 String message = String.format(
                         "%s is not a resource controller because it haven't annotation which annotated with @%s",
                         klass.getName(),
-                        Controller.class.getName()
+                        Protocol.class.getName()
                 );
                 throw new IllegalConfigException(message, controller);
             }
-            if (controllers.length == 1) {
-                Annotation protocol = controllers[0];
+            if (protocols.length == 1) {
+                Annotation protocol = protocols[0];
                 String value = protocol.annotationType().getMethod("value").invoke(protocol).toString();
                 if (!value.equals("/")) value = ("/" + value).replaceAll("/+", "/");
                 if (!value.equals("/")) value = value.replaceAll("/+$", "");
@@ -71,11 +71,11 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                         continue;
                     }
                     Method configuration;
-                    if ((configuration = getRestfulMethodFromClasses(method, klass)) != null) {
+                    if ((configuration = getRestfulMethodFromClasses(protocol.annotationType(), method, klass)) != null) {
                         this.mappings.put(method, new Mapping(this, controller, method, configuration));
                         continue;
                     }
-                    if ((configuration = getRestfulMethodFromInterfaces(method, klass)) != null) {
+                    if ((configuration = getRestfulMethodFromInterfaces(protocol.annotationType(), method, klass)) != null) {
                         this.mappings.put(method, new Mapping(this, controller, method, configuration));
                     }
                 }
@@ -83,8 +83,8 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                 String message = String.format(
                         "Ambiguous resource %s which has %d controller kind annotations %s",
                         controller.getClass(),
-                        controllers.length,
-                        Arrays.toString(controllers)
+                        protocols.length,
+                        Arrays.toString(protocols)
                 );
                 throw new AmbiguousResourceException(message, controller, this);
             }
@@ -95,7 +95,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
         }
     }
 
-    private static Method getRestfulMethodFromClasses(Method method, Class<?> clazz) {
+    private static Method getRestfulMethodFromClasses(Class<? extends Annotation> protocol, Method method, Class<?> clazz) {
         Class<?> superclass = clazz;
 
         while (superclass != null) {
@@ -107,7 +107,10 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                 // 查找被重写的方法
                 for (int i = 0; i < m.getParameterTypes().length; i++) if (m.getParameterTypes()[i] != method.getParameterTypes()[i]) continue flag;
                 // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
-                for (Annotation annotation : m.getAnnotations()) if (annotation.annotationType().isAnnotationPresent(Command.class)) return m;
+                for (Annotation annotation : m.getAnnotations()) {
+                    Function function = annotation.annotationType().getAnnotation(Function.class);
+                    if (function != null && function.protocol() == protocol) return m;
+                }
             }
             superclass = superclass.getSuperclass();
         }
@@ -115,7 +118,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
         return null;
     }
 
-    private static Method getRestfulMethodFromInterfaces(Method method, Class<?> clazz) {
+    private static Method getRestfulMethodFromInterfaces(Class<? extends Annotation> protocol, Method method, Class<?> clazz) {
         Class<?> superclass = clazz;
 
         while (superclass != null) {
@@ -128,9 +131,12 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                     // 查找被重写的方法
                     for (int i = 0; i < m.getParameterTypes().length; i++) if (m.getParameterTypes()[i] != method.getParameterTypes()[i]) continue flag;
                     // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
-                    for (Annotation annotation : m.getAnnotations()) if (annotation.annotationType().isAnnotationPresent(Command.class)) return m;
+                    for (Annotation annotation : m.getAnnotations()) {
+                        Function function = annotation.annotationType().getAnnotation(Function.class);
+                        if (function != null && function.protocol() == protocol) return m;
+                    }
                     // 深度递归优先
-                    m = getRestfulMethodFromInterfaces(method, interfase);
+                    m = getRestfulMethodFromInterfaces(protocol, method, interfase);
                     // 如果找到了就返回
                     if (m != null) return m;
                 }

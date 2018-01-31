@@ -1,6 +1,6 @@
 package org.qfox.jestful.core;
 
-import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.annotation.Function;
 
 /**
  * <p>
@@ -21,11 +21,11 @@ public class Restful {
     private final boolean returnBody;
     private final boolean idempotent;
 
-    public Restful(Command command) {
-        this.method = command.name();
-        this.acceptBody = command.acceptBody();
-        this.returnBody = command.returnBody();
-        this.idempotent = command.idempotent();
+    public Restful(Function function) {
+        this.method = function.name();
+        this.acceptBody = function.acceptBody();
+        this.returnBody = function.returnBody();
+        this.idempotent = function.idempotent();
     }
 
     public Restful(String method, boolean acceptBody, boolean returnBody, boolean idempotent) {

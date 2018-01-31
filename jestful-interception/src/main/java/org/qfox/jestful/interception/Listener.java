@@ -4,9 +4,9 @@ import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Configurable;
 import org.qfox.jestful.core.Destroyable;
-import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.annotation.Function;
 import org.qfox.jestful.core.exception.BeanConfigException;
-import org.qfox.jestful.interception.annotation.Commands;
+import org.qfox.jestful.interception.annotation.Functions;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -25,19 +25,19 @@ class Listener implements Interceptor, Configurable, Destroyable, Sequential {
         try {
             Annotation[] annotations = interceptor.getClass().getMethod("intercept", Invocation.class).getAnnotations();
             for (Annotation annotation : annotations) {
-                if (annotation.annotationType().isAnnotationPresent(Command.class)) {
-                    Command command = annotation.annotationType().getAnnotation(Command.class);
+                if (annotation.annotationType().isAnnotationPresent(Function.class)) {
+                    Function function = annotation.annotationType().getAnnotation(Function.class);
                     String value = annotation.annotationType().getMethod("value").invoke(annotation).toString();
                     String regex = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
-                    PathExpression expression = new PathExpression(regex, command.name(), null);
+                    PathExpression expression = new PathExpression(regex, function.name(), null);
                     this.expressions.add(expression);
                 }
 
-                if (annotation.annotationType().isAnnotationPresent(Commands.class)) {
-                    Annotation[] commands = (Annotation[]) annotation.annotationType().getMethod("value").invoke(annotation);
-                    for (Annotation command : commands) {
-                        String value = (String) command.annotationType().getMethod("value").invoke(command);
-                        String method = command.annotationType().getAnnotation(Command.class).name();
+                if (annotation.annotationType().isAnnotationPresent(Functions.class)) {
+                    Annotation[] functions = (Annotation[]) annotation.annotationType().getMethod("value").invoke(annotation);
+                    for (Annotation function : functions) {
+                        String value = (String) function.annotationType().getMethod("value").invoke(function);
+                        String method = function.annotationType().getAnnotation(Function.class).name();
                         String regex = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
                         PathExpression expression = new PathExpression(regex, method, null);
                         this.expressions.add(expression);

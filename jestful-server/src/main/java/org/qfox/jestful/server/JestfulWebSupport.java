@@ -1,7 +1,7 @@
 package org.qfox.jestful.server;
 
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.annotation.Controller;
+import org.qfox.jestful.core.annotation.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -125,7 +125,7 @@ public class JestfulWebSupport implements Actor {
             if (!isSupported(this.headerEncodeCharset)) throw new UnsupportedCharsetException(this.headerEncodeCharset);
         }
         {
-            Collection<?> controllers = beanContainer.with(Controller.class).values();
+            Collection<?> controllers = beanContainer.with(Protocol.class).values();
             for (Object controller : controllers) mappingRegistry.register(controller);
             Map<String, MappingRegistryAware> map = beanContainer.find(MappingRegistryAware.class);
             for (MappingRegistryAware aware : map.values()) aware.setMappingRegistry(mappingRegistry);

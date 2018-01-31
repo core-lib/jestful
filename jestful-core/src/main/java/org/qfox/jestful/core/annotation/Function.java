@@ -18,7 +18,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE})
-public @interface Command {
+public @interface Function {
 
     /**
      * HTTP method name
@@ -47,5 +47,12 @@ public @interface Command {
      * @return
      */
     boolean idempotent();
+
+    /**
+     * transfer protocol
+     *
+     * @return transfer protocol
+     */
+    Class<? extends Annotation> protocol();
 
 }

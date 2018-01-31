@@ -1,6 +1,6 @@
 package org.qfox.jestful.core.http;
 
-import org.qfox.jestful.core.annotation.Command;
+import org.qfox.jestful.core.annotation.Function;
 
 import java.lang.annotation.*;
 
@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Command(name = "DELETE", acceptBody = false, returnBody = true, idempotent = true)
+@Function(name = "DELETE", acceptBody = false, returnBody = true, idempotent = true, protocol = HTTP.class)
 public @interface DELETE {
 
     /**
