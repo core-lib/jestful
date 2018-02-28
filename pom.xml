@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.qfox</groupId>
     <artifactId>jestful</artifactId>
-    <version>v1.1.6</version>
+    <version>v1.1.7</version>
     <packaging>pom</packaging>
     <name>Jestful</name>
     <description>A Powerful And Easy To Use RESTful Framework For Java</description>
