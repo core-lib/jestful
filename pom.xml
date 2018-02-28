@@ -34,7 +34,7 @@
         <module>jestful-velocity</module>
         <module>jestful-swagger</module>
         <module>jestful-form</module>
-        <module>jestful-sample</module>
+        <!--<module>jestful-sample</module>-->
     </modules>
 
     <distributionManagement>
