@@ -23,10 +23,11 @@ public class PathResolver implements Resolver, Initialable {
         int group = parameter.getGroup();
         if (group <= 0) return;
         String URI = action.getURI();
+        if (!URI.endsWith("/")) URI = URI.concat("/");
         String charset = action.getPathEncodeCharset();
         Pattern pattern = action.getPattern();
         Matcher matcher = pattern.matcher(URI);
-        matcher.find();
+        if (!matcher.find()) throw new IllegalStateException("uri " + URI + " is not match with " + pattern);
         String source = parameter.isCoding() && !parameter.isDecoded() ? URLDecoder.decode(matcher.group(group), charset) : matcher.group(group);
         stringConversion.convert(parameter, source);
     }
