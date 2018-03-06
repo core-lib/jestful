@@ -37,7 +37,7 @@ public class SessionResolver implements Resolver {
     private static class Updater implements SessionListener {
         private final Parameter parameter;
 
-        public Updater(Parameter parameter) {
+        Updater(Parameter parameter) {
             this.parameter = parameter;
         }
 
