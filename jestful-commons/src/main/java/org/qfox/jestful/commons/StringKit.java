@@ -3,6 +3,7 @@ package org.qfox.jestful.commons;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
 /**
  * Created by yangchangpei on 17/9/29.
@@ -91,6 +92,19 @@ public class StringKit {
         byte[] md5 = md5(text, charset);
         byte[] hex = Hex.encode(md5);
         return new String(hex);
+    }
+
+    public static String random(int length) {
+        if (length <= 0) throw new IllegalArgumentException("length must greater than zero");
+        String base = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder nonce = new StringBuilder();
+        Random random = new Random(System.currentTimeMillis());
+        for (int i = 0; i < length; i++) {
+            int bound = base.length();
+            int index = random.nextInt(bound);
+            nonce.append(base.charAt(index));
+        }
+        return nonce.toString();
     }
 
 }

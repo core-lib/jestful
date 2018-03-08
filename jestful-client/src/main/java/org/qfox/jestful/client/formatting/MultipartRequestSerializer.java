@@ -3,6 +3,7 @@ package org.qfox.jestful.client.formatting;
 import eu.medsea.mimeutil.MimeUtil;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestSerializer;
@@ -11,7 +12,10 @@ import org.qfox.jestful.core.io.MultipartOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -47,14 +51,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
     public void serialize(Action action, String charset, OutputStream out) throws IOException {
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
         Accepts consumes = action.getConsumes();
-        String base = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        StringBuilder nonce = new StringBuilder();
-        Random random = new Random(System.currentTimeMillis());
-        for (int i = 0; i < 16; i++) {
-            int bound = base.length();
-            int index = random.nextInt(bound);
-            nonce.append(base.charAt(index));
-        }
+        String nonce = StringKit.random(16);
         String boundary = "----JestfulFormBoundary" + nonce;
         action.getRequest().setContentType(contentType + ";boundary=" + boundary);
         MultipartOutputStream mos = null;
