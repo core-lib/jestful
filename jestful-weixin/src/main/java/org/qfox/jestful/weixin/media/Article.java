@@ -8,6 +8,8 @@ public class Article {
     private String content;
     private String digest;
     private int show_cover_pic;
+    private int need_open_comment;
+    private int only_fans_can_comment;
 
     public String getThumb_media_id() {
         return thumb_media_id;
@@ -65,6 +67,22 @@ public class Article {
         this.show_cover_pic = show_cover_pic;
     }
 
+    public int getNeed_open_comment() {
+        return need_open_comment;
+    }
+
+    public void setNeed_open_comment(int need_open_comment) {
+        this.need_open_comment = need_open_comment;
+    }
+
+    public int getOnly_fans_can_comment() {
+        return only_fans_can_comment;
+    }
+
+    public void setOnly_fans_can_comment(int only_fans_can_comment) {
+        this.only_fans_can_comment = only_fans_can_comment;
+    }
+
     @Override
     public String toString() {
         return "Article{" +
@@ -75,6 +93,8 @@ public class Article {
                 ", content='" + content + '\'' +
                 ", digest='" + digest + '\'' +
                 ", show_cover_pic=" + show_cover_pic +
+                ", need_open_comment=" + need_open_comment +
+                ", only_fans_can_comment=" + only_fans_can_comment +
                 '}';
     }
 }
