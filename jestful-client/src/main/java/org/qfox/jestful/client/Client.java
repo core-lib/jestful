@@ -380,6 +380,11 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 InputStreamReader reader = new InputStreamReader(in, charset);
                 String value = IOKit.toString(reader);
                 body.setValue(value);
+            } else if (body.getType() == File.class) {
+                InputStream in = response.getResponseInputStream();
+                File file = File.createTempFile("jestful", ".tmp");
+                IOKit.transfer(in, file);
+                body.setValue(file);
             } else if (produces.size() == 1) {
                 String charset = mediaType.getCharset();
                 mediaType = produces.iterator().next();
