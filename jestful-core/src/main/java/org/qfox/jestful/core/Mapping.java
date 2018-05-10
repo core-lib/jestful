@@ -135,7 +135,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
         while (matcher.find()) {
             String name = matcher.group(1);
             String regex = matcher.group(3);
-            regex = regex != null ? regex : ".*?";
+            regex = regex != null ? regex : "[^/]*?";
             if (map.containsKey(name)) {
                 Parameter parameter = map.remove(name);
                 parameter.setGroup(++group);
