@@ -91,10 +91,8 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
                 this.produces = new Accepts(produceMediaTypes);
 
                 String value = restful.annotationType().getMethod("value").invoke(restful).toString();
-                if (!value.equals("/")) value = ("/" + value).replaceAll("/+", "/");
-                if (!value.equals("/")) value = value.replaceAll("/+$", "");
-                this.expression = value;
-                this.regex = bind(resource.getExpression() + expression);
+                this.expression = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
+                this.regex = bind(resource.getExpression() + expression + "/");
                 this.pattern = Pattern.compile(regex);
 
                 Version version = this.isAnnotationPresent(Version.class)
@@ -130,12 +128,12 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
         for (Parameter parameter : parameters) {
             map.put(parameter.getName(), parameter);
         }
-        Matcher matcher = Pattern.compile("\\{([^{}]+?)(:([^{}]+?))?\\}").matcher(path);
+        Matcher matcher = Pattern.compile("\\{([^{}]+?)(:([^{}]+?))?}").matcher(path);
         int group = 0;
         while (matcher.find()) {
             String name = matcher.group(1);
             String regex = matcher.group(3);
-            regex = regex != null ? regex : "[^/]*?";
+            regex = regex != null ? regex : ".*?";
             if (map.containsKey(name)) {
                 Parameter parameter = map.remove(name);
                 parameter.setGroup(++group);

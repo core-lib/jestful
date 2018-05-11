@@ -62,9 +62,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
             if (protocols.length == 1) {
                 Annotation protocol = protocols[0];
                 String value = protocol.annotationType().getMethod("value").invoke(protocol).toString();
-                if (!value.equals("/")) value = ("/" + value).replaceAll("/+", "/");
-                if (!value.equals("/")) value = value.replaceAll("/+$", "");
-                this.expression = value;
+                this.expression = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
                 Method[] methods = klass.getMethods();
                 for (Method method : methods) {
                     if (method.isSynthetic()) {

@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * @since 1.0.0
  */
 public class JestfulURICombiner implements Actor, Initialable {
-    private final Pattern pattern = Pattern.compile("\\{[^{}]+?\\}");
+    private final Pattern pattern = Pattern.compile("\\{[^{}]+?}");
     private StringConversion pathStringConversion;
 
     public Object react(Action action) throws Exception {
