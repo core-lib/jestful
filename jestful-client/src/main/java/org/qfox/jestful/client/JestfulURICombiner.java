@@ -41,7 +41,7 @@ public class JestfulURICombiner implements Actor, Initialable {
             Matcher matcher = pattern.matcher(resource.getExpression() + mapping.getExpression());
             int group = parameter.getGroup();
             for (int i = 0; i < group; i++) {
-                matcher.find();
+                if (!matcher.find()) throw new IllegalStateException("expected " + group + " path variable placeholders but actually got " + i);
             }
             String variable = matcher.group();
             if (parameter.isCoding() && !parameter.isEncoded()) {
