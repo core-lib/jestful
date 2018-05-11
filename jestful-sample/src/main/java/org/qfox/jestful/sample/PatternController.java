@@ -9,12 +9,12 @@ import org.springframework.stereotype.Controller;
  * @author 杨昌沛 646742615@qq.com
  * @date 2018-05-11 9:55
  **/
-@HTTP("")
+@HTTP("a-{a}-b-{b:\\d+}")
 @Controller
 public class PatternController {
 
-    @GET("")
-    public String index(@Path("pattern") String pattern) {
+    @GET("c-{c:\\w+}-d-{d}")
+    public String index(@Path("c") String c, @Path("a") String a, @Path("d") String d, @Path("b") String b) {
 
         return "@:ok";
     }
