@@ -55,7 +55,10 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
                 || ReflectionKit.isSetType(type, File.class)
                 || ReflectionKit.isCollectionType(type, File.class)
                 || ReflectionKit.isMapType(type, String.class, File.class)
-                || ReflectionKit.isMapType(type, String.class, File[].class);
+                || ReflectionKit.isMapArrayType(type, String.class, File.class)
+                || ReflectionKit.isMapListType(type, String.class, File.class)
+                || ReflectionKit.isMapSetType(type, String.class, File.class)
+                || ReflectionKit.isMapCollectionType(type, String.class, File.class);
     }
 
     public void serialize(Action action, String charset, OutputStream out) throws IOException {
@@ -115,7 +118,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
             Map<?, ?> map = (Map<?, ?>) value;
             String prefix = name.trim().equals(String.valueOf(parameter.getIndex())) ? "" : name.trim() + ".";
             for (Entry<?, ?> entry : map.entrySet()) serialize(out, (File) entry.getValue(), prefix + String.valueOf(entry.getKey()));
-        } else if (ReflectionKit.isMapType(type, String.class, File[].class)) {
+        } else if (ReflectionKit.isMapArrayType(type, String.class, File.class)) {
             if (value == null) return;
             Map<?, ?> map = (Map<?, ?>) value;
             String prefix = name.trim().equals(String.valueOf(parameter.getIndex())) ? "" : name.trim() + ".";
@@ -123,6 +126,14 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
                 Object array = entry.getValue();
                 int length = Array.getLength(array);
                 for (int i = 0; i < length; i++) serialize(out, (File) Array.get(array, i), prefix + String.valueOf(entry.getKey()));
+            }
+        } else if (ReflectionKit.isMapListType(type, String.class, File.class) || ReflectionKit.isMapSetType(type, String.class, File.class) || ReflectionKit.isMapCollectionType(type, String.class, File.class)) {
+            if (value == null) return;
+            Map<?, ?> map = (Map<?, ?>) value;
+            String prefix = name.trim().equals(String.valueOf(parameter.getIndex())) ? "" : name.trim() + ".";
+            for (Entry<?, ?> entry : map.entrySet()) {
+                Iterable<?> iterable = (Iterable<?>) entry.getValue();
+                for (Object item : iterable) serialize(out, (File) item, prefix + String.valueOf(entry.getKey()));
             }
         }
     }

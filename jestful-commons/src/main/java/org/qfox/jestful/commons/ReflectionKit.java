@@ -20,8 +20,7 @@ public class ReflectionKit {
     }
 
     public static boolean isArrayType(Type type, Class<?> itemType) {
-        return isArrayType(type)
-                && ((Class<?>) type).getComponentType().isAssignableFrom(itemType);
+        return isArrayType(type) && ((Class<?>) type).getComponentType().isAssignableFrom(itemType);
     }
 
     public static boolean isListType(Type type) {
@@ -70,7 +69,44 @@ public class ReflectionKit {
                 && isMapType(((ParameterizedType) type).getRawType())
                 && ((ParameterizedType) type).getActualTypeArguments()[0] instanceof Class<?>
                 && ((Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0]).isAssignableFrom(keyType)
+                && ((ParameterizedType) type).getActualTypeArguments()[1] instanceof Class<?>
                 && ((Class<?>) ((ParameterizedType) type).getActualTypeArguments()[1]).isAssignableFrom(valueType);
+    }
+
+    public static boolean isMapArrayType(Type type, Class<?> keyType, Class<?> itemType) {
+        return type instanceof ParameterizedType
+                && isMapType(((ParameterizedType) type).getRawType())
+                && ((ParameterizedType) type).getActualTypeArguments()[0] instanceof Class<?>
+                && ((Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0]).isAssignableFrom(keyType)
+                && ((ParameterizedType) type).getActualTypeArguments()[1] instanceof Class<?>
+                && isArrayType(((ParameterizedType) type).getActualTypeArguments()[1], itemType);
+    }
+
+    public static boolean isMapListType(Type type, Class<?> keyType, Class<?> itemType) {
+        return type instanceof ParameterizedType
+                && isMapType(((ParameterizedType) type).getRawType())
+                && ((ParameterizedType) type).getActualTypeArguments()[0] instanceof Class<?>
+                && ((Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0]).isAssignableFrom(keyType)
+                && ((ParameterizedType) type).getActualTypeArguments()[1] instanceof ParameterizedType
+                && isListType(((ParameterizedType) type).getActualTypeArguments()[1], itemType);
+    }
+
+    public static boolean isMapSetType(Type type, Class<?> keyType, Class<?> itemType) {
+        return type instanceof ParameterizedType
+                && isMapType(((ParameterizedType) type).getRawType())
+                && ((ParameterizedType) type).getActualTypeArguments()[0] instanceof Class<?>
+                && ((Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0]).isAssignableFrom(keyType)
+                && ((ParameterizedType) type).getActualTypeArguments()[1] instanceof ParameterizedType
+                && isSetType(((ParameterizedType) type).getActualTypeArguments()[1], itemType);
+    }
+
+    public static boolean isMapCollectionType(Type type, Class<?> keyType, Class<?> itemType) {
+        return type instanceof ParameterizedType
+                && isMapType(((ParameterizedType) type).getRawType())
+                && ((ParameterizedType) type).getActualTypeArguments()[0] instanceof Class<?>
+                && ((Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0]).isAssignableFrom(keyType)
+                && ((ParameterizedType) type).getActualTypeArguments()[1] instanceof ParameterizedType
+                && isCollectionType(((ParameterizedType) type).getActualTypeArguments()[1], itemType);
     }
 
 }
