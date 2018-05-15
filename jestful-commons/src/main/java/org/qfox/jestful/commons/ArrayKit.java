@@ -53,4 +53,12 @@ public class ArrayKit {
         return joined;
     }
 
+    public static Object[] append(Object[] oldArray, Class<?> componentType, Object item) {
+        int length = oldArray != null ? Array.getLength(oldArray) : 0;
+        Object[] newArray = (Object[]) Array.newInstance(componentType, length + 1);
+        if (oldArray != null) System.arraycopy(oldArray, 0, newArray, 0, length);
+        Array.set(newArray, length, item);
+        return newArray;
+    }
+
 }

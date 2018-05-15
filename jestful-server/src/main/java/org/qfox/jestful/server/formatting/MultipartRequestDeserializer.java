@@ -1,6 +1,8 @@
 package org.qfox.jestful.server.formatting;
 
+import org.qfox.jestful.commons.ArrayKit;
 import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.commons.ReflectionKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
@@ -77,6 +79,60 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                     }
                     if (parameter.getKlass().isInstance(multipart)) {
                         parameter.setValue(multipart.clone());
+                        break;
+                    }
+                    // 数组
+                    if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multihead)) {
+                        Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multihead.clone());
+                        parameter.setValue(array);
+                        break;
+                    }
+                    if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multibody)) {
+                        Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multibody.clone());
+                        parameter.setValue(array);
+                        break;
+                    }
+                    if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multipart)) {
+                        Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multipart.clone());
+                        parameter.setValue(array);
+                        break;
+                    }
+                    // List Or Collection
+                    if (ReflectionKit.isListType(parameter.getType(), Multihead.class) || ReflectionKit.isCollectionType(parameter.getType(), Multihead.class)) {
+                        List value = (List) parameter.getValue();
+                        if (value == null) parameter.setValue(value = new ArrayList());
+                        value.add(multihead.clone());
+                        break;
+                    }
+                    if (ReflectionKit.isListType(parameter.getType(), Multibody.class) || ReflectionKit.isCollectionType(parameter.getType(), Multibody.class)) {
+                        List value = (List) parameter.getValue();
+                        if (value == null) parameter.setValue(value = new ArrayList());
+                        value.add(multibody.clone());
+                        break;
+                    }
+                    if (ReflectionKit.isListType(parameter.getType(), Multipart.class) || ReflectionKit.isCollectionType(parameter.getType(), Multipart.class)) {
+                        List value = (List) parameter.getValue();
+                        if (value == null) parameter.setValue(value = new ArrayList());
+                        value.add(multipart.clone());
+                        break;
+                    }
+                    // Set
+                    if (ReflectionKit.isSetType(parameter.getType(), Multihead.class)) {
+                        Set value = (Set) parameter.getValue();
+                        if (value == null) parameter.setValue(value = new LinkedHashSet());
+                        value.add(multihead.clone());
+                        break;
+                    }
+                    if (ReflectionKit.isSetType(parameter.getType(), Multibody.class)) {
+                        Set value = (Set) parameter.getValue();
+                        if (value == null) parameter.setValue(value = new LinkedHashSet());
+                        value.add(multibody.clone());
+                        break;
+                    }
+                    if (ReflectionKit.isSetType(parameter.getType(), Multipart.class)) {
+                        Set value = (Set) parameter.getValue();
+                        if (value == null) parameter.setValue(value = new LinkedHashSet());
+                        value.add(multipart.clone());
                         break;
                     }
                     break;
