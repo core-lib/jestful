@@ -20,9 +20,9 @@ import javax.servlet.http.HttpSession;
  * @date 2016年4月20日 下午6:42:30
  * @since 1.0.0
  */
-public class SessionParameterObtainer implements Obtainer {
+public class SessionParameterAcquirer implements Acquirer {
 
-    public Object obtain(Action action, Parameter parameter) {
+    public Object acquire(Action action, Parameter parameter) {
         Request request = action.getRequest();
         if (!(request instanceof HttpServletRequest)) {
             return null;

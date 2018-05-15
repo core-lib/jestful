@@ -16,9 +16,9 @@ import org.qfox.jestful.core.Parameter;
  * @date 2016年4月19日 下午3:58:56
  * @since 1.0.0
  */
-public class ResponseParameterObtainer implements Obtainer {
+public class ResponseParameterAcquirer implements Acquirer {
 
-    public Object obtain(Action action, Parameter parameter) {
+    public Object acquire(Action action, Parameter parameter) {
         if (parameter.getKlass().isInstance(action.getResponse())) {
             return action.getResponse();
         }

@@ -34,7 +34,8 @@
     </jestful:component>
 
     <jestful:component id="resolver">
-        <bean class="org.qfox.jestful.server.resolver.ParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.ClientParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.ServerParameterResolver"/>
     </jestful:component>
 
     <jestful:component id="handler">
@@ -50,7 +51,6 @@
     <bean class="org.qfox.jestful.server.resolver.QueryResolver"/>
     <bean class="org.qfox.jestful.server.resolver.HeaderResolver"/>
     <bean class="org.qfox.jestful.server.resolver.CookieResolver"/>
-    <bean class="org.qfox.jestful.server.resolver.ExtraResolver"/>
     <bean class="org.qfox.jestful.server.resolver.SessionResolver"/>
 
     <bean class="org.qfox.jestful.server.renderer.TextRenderer"/>

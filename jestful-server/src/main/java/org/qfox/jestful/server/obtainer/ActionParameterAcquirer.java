@@ -13,14 +13,14 @@ import org.qfox.jestful.core.Parameter;
  * </p>
  *
  * @author Payne 646742615@qq.com
- * @date 2016年4月19日 下午3:54:05
+ * @date 2016年4月19日 下午4:00:36
  * @since 1.0.0
  */
-public class RequestParameterObtainer implements Obtainer {
+public class ActionParameterAcquirer implements Acquirer {
 
-    public Object obtain(Action action, Parameter parameter) {
-        if (parameter.getKlass().isInstance(action.getRequest())) {
-            return action.getRequest();
+    public Object acquire(Action action, Parameter parameter) {
+        if (parameter.getKlass().isInstance(action)) {
+            return action;
         }
         return null;
     }
