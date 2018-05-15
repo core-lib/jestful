@@ -1,4 +1,4 @@
-package org.qfox.jestful.server.obtainer;
+package org.qfox.jestful.server.acquirer;
 
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.*;

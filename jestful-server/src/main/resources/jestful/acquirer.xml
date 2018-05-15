@@ -3,10 +3,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean class="org.qfox.jestful.server.obtainer.ActionParameterAcquirer"/>
-    <bean class="org.qfox.jestful.server.obtainer.RequestParameterAcquirer"/>
-    <bean class="org.qfox.jestful.server.obtainer.ResponseParameterAcquirer"/>
-    <bean class="org.qfox.jestful.server.obtainer.SessionParameterAcquirer"/>
+    <bean class="org.qfox.jestful.server.acquirer.ActionParameterAcquirer"/>
+    <bean class="org.qfox.jestful.server.acquirer.RequestParameterAcquirer"/>
+    <bean class="org.qfox.jestful.server.acquirer.ResponseParameterAcquirer"/>
+    <bean class="org.qfox.jestful.server.acquirer.SessionParameterAcquirer"/>
 
 </beans>
 

@@ -3,7 +3,7 @@ package org.qfox.jestful.server.resolver;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.annotation.Variable;
 import org.qfox.jestful.core.exception.BeanConfigException;
-import org.qfox.jestful.server.obtainer.Acquirer;
+import org.qfox.jestful.server.acquirer.Acquirer;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
