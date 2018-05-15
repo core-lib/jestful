@@ -3,6 +3,7 @@ package org.qfox.jestful.client.formatting;
 import eu.medsea.mimeutil.MimeUtil;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.commons.ReflectionKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.JestfulIOException;
@@ -12,6 +13,8 @@ import org.qfox.jestful.core.io.MultipartOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,7 +48,14 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
     }
 
     public boolean supports(Parameter parameter) {
-        return File.class.isAssignableFrom(parameter.getKlass());
+        Type type = parameter.getType();
+        return File.class == type
+                || ReflectionKit.isArrayType(type, File.class)
+                || ReflectionKit.isListType(type, File.class)
+                || ReflectionKit.isSetType(type, File.class)
+                || ReflectionKit.isCollectionType(type, File.class)
+                || ReflectionKit.isMapType(type, String.class, File.class)
+                || ReflectionKit.isMapType(type, String.class, File[].class);
     }
 
     public void serialize(Action action, String charset, OutputStream out) throws IOException {
@@ -86,22 +96,46 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
     }
 
     public void serialize(Action action, Parameter parameter, String charset, MultipartOutputStream out) throws IOException {
-        File file = (File) parameter.getValue();
+        Type type = parameter.getType();
+        Object value = parameter.getValue();
         String name = parameter.getName();
-        if (file == null) {
-            Disposition disposition = new Disposition("form-data", name);
-            Multihead multihead = new Multihead(disposition, null);
-            out.setNextMultihead(multihead);
-        } else {
-            String filename = file.getName();
-            Disposition disposition = new Disposition("form-data", name, filename);
-            Collection<?> mediaTypes = MimeUtil.getMimeTypes(file);
-            String mediaType = mediaTypes.isEmpty() ? "application/octet-stream" : mediaTypes.toArray()[0].toString();
-            MediaType type = MediaType.valueOf(mediaType);
-            Multihead multihead = new Multihead(disposition, type);
-            out.setNextMultihead(multihead);
-            IOKit.transfer(file, out);
+        if (File.class == type) {
+            if (value == null) return;
+            serialize(out, (File) value, name);
+        } else if (ReflectionKit.isArrayType(type, File.class)) {
+            if (value == null) return;
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) serialize(out, (File) Array.get(value, i), name);
+        } else if (ReflectionKit.isListType(type, File.class) || ReflectionKit.isSetType(type, File.class) || ReflectionKit.isCollectionType(type, File.class)) {
+            if (value == null) return;
+            Iterable<?> iterable = (Iterable<?>) value;
+            for (Object item : iterable) serialize(out, (File) item, name);
+        } else if (ReflectionKit.isMapType(type, String.class, File.class)) {
+            if (value == null) return;
+            Map<?, ?> map = (Map<?, ?>) value;
+            String prefix = name.trim().equals(String.valueOf(parameter.getIndex())) ? "" : name.trim() + ".";
+            for (Entry<?, ?> entry : map.entrySet()) serialize(out, (File) entry.getValue(), prefix + String.valueOf(entry.getKey()));
+        } else if (ReflectionKit.isMapType(type, String.class, File[].class)) {
+            if (value == null) return;
+            Map<?, ?> map = (Map<?, ?>) value;
+            String prefix = name.trim().equals(String.valueOf(parameter.getIndex())) ? "" : name.trim() + ".";
+            for (Entry<?, ?> entry : map.entrySet()) {
+                Object array = entry.getValue();
+                int length = Array.getLength(array);
+                for (int i = 0; i < length; i++) serialize(out, (File) Array.get(array, i), prefix + String.valueOf(entry.getKey()));
+            }
         }
+    }
+
+    private void serialize(MultipartOutputStream mos, File file, String name) throws IOException {
+        String filename = file.getName();
+        Disposition disposition = new Disposition("form-data", name, filename);
+        Collection<?> mediaTypes = MimeUtil.getMimeTypes(file);
+        String contentType = mediaTypes.isEmpty() ? "application/octet-stream" : mediaTypes.toArray()[0].toString();
+        MediaType mediaType = MediaType.valueOf(contentType);
+        Multihead multihead = new Multihead(disposition, mediaType);
+        mos.setNextMultihead(multihead);
+        IOKit.transfer(file, mos);
     }
 
     public void initialize(BeanContainer beanContainer) {
