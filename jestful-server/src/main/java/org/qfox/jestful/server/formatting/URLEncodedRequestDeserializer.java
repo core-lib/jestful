@@ -3,12 +3,9 @@ package org.qfox.jestful.server.formatting;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.MapKit;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.server.JestfulServletRequest;
-import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
-import org.qfox.jestful.server.converter.IncompatibleConversionException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,21 +43,9 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
             isr = new InputStreamReader(in);
             br = new BufferedReader(isr);
             String line;
-            while ((line = br.readLine()) != null) {
-                map.putAll(MapKit.valueOf(line, charset));
-            }
+            while ((line = br.readLine()) != null) map.putAll(MapKit.valueOf(line, charset));
             List<Parameter> parameters = action.getParameters().all(Position.BODY);
-            for (Parameter parameter : parameters) {
-                if (parameter.getValue() != null) continue;
-                try {
-                    boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
-                    Object value = conversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, map);
-                    parameter.setValue(value);
-                } catch (IncompatibleConversionException e) {
-                    throw new JestfulIOException(e);
-                } catch (ConversionException e) {
-                }
-            }
+            FormKit.assign(charset, map, parameters, conversionProvider);
             Request oldRequest = action.getRequest();
             Request newRequest = new URLEncodedServletRequest((JestfulServletRequest) oldRequest, map);
             action.setRequest(newRequest);

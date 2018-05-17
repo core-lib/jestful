@@ -267,4 +267,13 @@ public class IOKit {
         return charset != null ? baos.toString(charset) : baos.toString();
     }
 
+    public static String toString(File file) throws IOException {
+        return toString(file, null);
+    }
+
+    public static String toString(File file, String charset) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        transfer(file, baos);
+        return charset != null ? baos.toString(charset) : baos.toString();
+    }
 }

@@ -4,14 +4,14 @@ import org.qfox.jestful.commons.ArrayKit;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.ReflectionKit;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.exception.JestfulIOException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.core.io.MultipartInputStream;
 import org.qfox.jestful.server.JestfulServletRequest;
-import org.qfox.jestful.server.converter.ConversionException;
 import org.qfox.jestful.server.converter.ConversionProvider;
-import org.qfox.jestful.server.converter.IncompatibleConversionException;
+import org.qfox.jestful.server.exception.UnsupportedTypeException;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -47,149 +47,110 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
         while ((multihead = mis.getNextMultihead()) != null) {
             Disposition disposition = multihead.getDisposition();
             MediaType type = multihead.getType();
-            String enc = charset;
-            if (type != null && type.getCharset() != null) {
-                enc = type.getCharset();
-            }
-            String name = disposition.getName();
-            if (disposition.getFilename() != null) {
-                Multibody multibody = new Multibody(mis);
-                Multipart multipart = new Multipart(multihead, multibody);
-                multiparts.add(multipart);
-                for (Parameter parameter : parameters) {
-                    if (!parameter.getName().equals(name)) {
-                        continue;
-                    }
-                    if (type == null) {
-                        deserialize(action, parameter, multihead, enc, mis);
-                        break;
-                    }
-                    if (map.containsKey(type)) {
-                        RequestDeserializer deserializer = map.get(type);
-                        deserializer.deserialize(action, parameter, multihead, enc, mis);
-                        break;
-                    }
-                    if (parameter.getKlass().isInstance(multihead)) {
-                        parameter.setValue(multihead.clone());
-                        break;
-                    }
-                    if (parameter.getKlass().isInstance(multibody)) {
-                        parameter.setValue(multibody.clone());
-                        break;
-                    }
-                    if (parameter.getKlass().isInstance(multipart)) {
-                        parameter.setValue(multipart.clone());
-                        break;
-                    }
-                    // 数组
-                    if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multihead)) {
-                        Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multihead.clone());
-                        parameter.setValue(array);
-                        break;
-                    }
-                    if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multibody)) {
-                        Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multibody.clone());
-                        parameter.setValue(array);
-                        break;
-                    }
-                    if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multipart)) {
-                        Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multipart.clone());
-                        parameter.setValue(array);
-                        break;
-                    }
-                    // List Or Collection
-                    if (ReflectionKit.isListType(parameter.getType(), Multihead.class) || ReflectionKit.isCollectionType(parameter.getType(), Multihead.class)) {
-                        List value = (List) parameter.getValue();
-                        if (value == null) parameter.setValue(value = new ArrayList());
-                        value.add(multihead.clone());
-                        break;
-                    }
-                    if (ReflectionKit.isListType(parameter.getType(), Multibody.class) || ReflectionKit.isCollectionType(parameter.getType(), Multibody.class)) {
-                        List value = (List) parameter.getValue();
-                        if (value == null) parameter.setValue(value = new ArrayList());
-                        value.add(multibody.clone());
-                        break;
-                    }
-                    if (ReflectionKit.isListType(parameter.getType(), Multipart.class) || ReflectionKit.isCollectionType(parameter.getType(), Multipart.class)) {
-                        List value = (List) parameter.getValue();
-                        if (value == null) parameter.setValue(value = new ArrayList());
-                        value.add(multipart.clone());
-                        break;
-                    }
-                    // Set
-                    if (ReflectionKit.isSetType(parameter.getType(), Multihead.class)) {
-                        Set value = (Set) parameter.getValue();
-                        if (value == null) parameter.setValue(value = new LinkedHashSet());
-                        value.add(multihead.clone());
-                        break;
-                    }
-                    if (ReflectionKit.isSetType(parameter.getType(), Multibody.class)) {
-                        Set value = (Set) parameter.getValue();
-                        if (value == null) parameter.setValue(value = new LinkedHashSet());
-                        value.add(multibody.clone());
-                        break;
-                    }
-                    if (ReflectionKit.isSetType(parameter.getType(), Multipart.class)) {
-                        Set value = (Set) parameter.getValue();
-                        if (value == null) parameter.setValue(value = new LinkedHashSet());
-                        value.add(multipart.clone());
-                        break;
-                    }
+            String encoding = type != null && type.getCharset() != null ? type.getCharset() : charset;
+            String name = disposition != null ? disposition.getName() : null;
+            Multibody multibody = new Multibody(mis);
+            Multipart multipart = new Multipart(multihead, multibody);
+            multiparts.add(multipart);
+            for (Parameter parameter : parameters) {
+                if (!parameter.getName().equals(name)) continue;
+
+                if (parameter.getKlass().isInstance(multihead)) {
+                    parameter.setValue(multihead.clone());
                     break;
                 }
-            } else if (type != null) {
-                for (Parameter parameter : parameters) {
-                    if (!parameter.getName().equals(name)) {
-                        continue;
-                    }
-                    if (map.containsKey(type)) {
-                        RequestDeserializer deserializer = map.get(type);
-                        deserializer.deserialize(action, parameter, multihead, enc, mis);
-                        break;
-                    }
-                    if (parameter.getKlass().isInstance(multihead)) {
-                        parameter.setValue(multihead);
-                        break;
-                    }
-                    Multibody multibody = new Multibody(mis);
-                    if (parameter.getKlass().isInstance(multibody)) {
-                        parameter.setValue(multibody);
-                        break;
-                    }
-                    Multipart multipart = new Multipart(multihead, multibody);
-                    if (parameter.getKlass().isInstance(multipart)) {
-                        parameter.setValue(multipart);
-                        break;
-                    }
+                if (parameter.getKlass().isInstance(multibody)) {
+                    parameter.setValue(multibody.clone());
                     break;
                 }
-            } else {
-                String value = IOKit.toString(mis);
-                String[] values = fields.get(name);
-                if (values == null) {
-                    values = new String[]{value};
-                } else {
-                    String[] array = new String[values.length + 1];
-                    System.arraycopy(values, 0, array, 0, values.length);
-                    array[values.length] = value;
-                    values = array;
+                if (parameter.getKlass().isInstance(multipart)) {
+                    parameter.setValue(multipart.clone());
+                    break;
                 }
-                fields.put(name, values);
+                // 数组
+                if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multihead)) {
+                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multihead.clone());
+                    parameter.setValue(array);
+                    break;
+                }
+                if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multibody)) {
+                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multibody.clone());
+                    parameter.setValue(array);
+                    break;
+                }
+                if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multipart)) {
+                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multipart.clone());
+                    parameter.setValue(array);
+                    break;
+                }
+                // List Or Collection
+                if (ReflectionKit.isListType(parameter.getType(), Multihead.class) || ReflectionKit.isCollectionType(parameter.getType(), Multihead.class)) {
+                    List value = (List) parameter.getValue();
+                    if (value == null) parameter.setValue(value = new ArrayList());
+                    value.add(multihead.clone());
+                    break;
+                }
+                if (ReflectionKit.isListType(parameter.getType(), Multibody.class) || ReflectionKit.isCollectionType(parameter.getType(), Multibody.class)) {
+                    List value = (List) parameter.getValue();
+                    if (value == null) parameter.setValue(value = new ArrayList());
+                    value.add(multibody.clone());
+                    break;
+                }
+                if (ReflectionKit.isListType(parameter.getType(), Multipart.class) || ReflectionKit.isCollectionType(parameter.getType(), Multipart.class)) {
+                    List value = (List) parameter.getValue();
+                    if (value == null) parameter.setValue(value = new ArrayList());
+                    value.add(multipart.clone());
+                    break;
+                }
+                // Set
+                if (ReflectionKit.isSetType(parameter.getType(), Multihead.class)) {
+                    Set value = (Set) parameter.getValue();
+                    if (value == null) parameter.setValue(value = new LinkedHashSet());
+                    value.add(multihead.clone());
+                    break;
+                }
+                if (ReflectionKit.isSetType(parameter.getType(), Multibody.class)) {
+                    Set value = (Set) parameter.getValue();
+                    if (value == null) parameter.setValue(value = new LinkedHashSet());
+                    value.add(multibody.clone());
+                    break;
+                }
+                if (ReflectionKit.isSetType(parameter.getType(), Multipart.class)) {
+                    Set value = (Set) parameter.getValue();
+                    if (value == null) parameter.setValue(value = new LinkedHashSet());
+                    value.add(multipart.clone());
+                    break;
+                }
+                // 来到这里证明不是个文件可能是一个Raw Type 也可能是一个 Field Type
+                // Raw Type
+                if (type != null) {
+                    FileInputStream fis = null;
+                    try {
+                        File file = multibody.getFile();
+                        fis = new FileInputStream(file);
+                        deserialize(action, parameter, multihead, encoding, fis);
+                    } finally {
+                        IOKit.close(fis);
+                    }
+                }
+                // Field Type
+                else {
+                    File file = multibody.getFile();
+                    String value = IOKit.toString(file, encoding);
+                    String[] values = fields.get(name);
+                    if (values == null) {
+                        values = new String[]{value};
+                    } else {
+                        String[] array = new String[values.length + 1];
+                        System.arraycopy(values, 0, array, 0, values.length);
+                        array[values.length] = value;
+                        values = array;
+                    }
+                    fields.put(name, values);
+                }
             }
         }
-        for (Parameter parameter : parameters) {
-            if (parameter.getValue() != null) {
-                continue;
-            }
-            try {
-                boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
-                Object value = multipartConversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, fields);
-                parameter.setValue(value);
-            } catch (IncompatibleConversionException e) {
-                throw new JestfulIOException(e);
-            } catch (ConversionException e) {
-            }
-        }
+        FormKit.assign(charset, fields, parameters, multipartConversionProvider);
         Request oldRequest = action.getRequest();
         Request newRequest = new MultipartServletRequest((JestfulServletRequest) oldRequest, fields, multiparts);
         action.setRequest(newRequest);
@@ -197,7 +158,15 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
     }
 
     public void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException {
-
+        MediaType type = multihead.getType();
+        if (map.containsKey(type)) {
+            RequestDeserializer deserializer = map.get(type);
+            deserializer.deserialize(action, parameter, multihead, charset, in);
+        } else {
+            String URI = action.getURI();
+            String method = action.getRestful().getMethod();
+            throw new UnsupportedTypeException(URI, method, type, new Accepts(map.keySet()));
+        }
     }
 
     public void initialize(BeanContainer beanContainer) {
