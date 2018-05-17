@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.qfox</groupId>
         <artifactId>jestful</artifactId>
-        <version>v2.0.6</version>
+        <version>v2.0.7</version>
     </parent>
     <artifactId>jestful-multiview</artifactId>
     <name>jestful-multiview</name>
@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-server</artifactId>
-            <version>v2.0.6</version>
+            <version>v2.0.7</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
