@@ -43,15 +43,15 @@ public class Multipart implements MultipartFile, Part, Cloneable {
     }
 
     public String getName() {
-        return multihead.getDisposition().getName();
+        return multihead.getDisposition() != null ? multihead.getDisposition().getName() : null;
     }
 
     public String getOriginalFilename() {
-        return multihead.getDisposition().getFilename();
+        return multihead.getDisposition() != null ? multihead.getDisposition().getFilename() : null;
     }
 
     public String getContentType() {
-        return multihead.getType().getName();
+        return multihead.getType() != null ? multihead.getType().getName() : null;
     }
 
     public boolean isEmpty() {
@@ -94,7 +94,7 @@ public class Multipart implements MultipartFile, Part, Cloneable {
     }
 
     public void delete() throws IOException {
-        multibody.getFile().delete();
+        if (!multibody.getFile().delete()) throw new IOException("file delete fail");
     }
 
     public String getHeader(String name) {

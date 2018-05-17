@@ -45,11 +45,11 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
         MultipartInputStream mis = new MultipartInputStream(in, boundary);
         Multihead multihead;
         while ((multihead = mis.getNextMultihead()) != null) {
-            Disposition disposition = multihead.getDisposition();
-            String name = disposition != null ? disposition.getName() : null;
             Multibody multibody = new Multibody(mis);
             Multipart multipart = new Multipart(multihead, multibody);
             multiparts.add(multipart);
+            Disposition disposition = multihead.getDisposition();
+            String name = disposition != null ? disposition.getName() : null;
             for (Parameter parameter : parameters) {
                 if (!parameter.getName().equals(name)) continue;
 
