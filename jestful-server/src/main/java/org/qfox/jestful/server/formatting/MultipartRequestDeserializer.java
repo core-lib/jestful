@@ -30,7 +30,7 @@ import java.util.*;
  * @since 1.0.0
  */
 public class MultipartRequestDeserializer implements RequestDeserializer, Initialable {
-    private final Map<MediaType, RequestDeserializer> map = new LinkedHashMap<MediaType, RequestDeserializer>();
+    private final Map<MediaType, RequestDeserializer> deserializers = new LinkedHashMap<MediaType, RequestDeserializer>();
     private ConversionProvider multipartConversionProvider;
 
     public String getContentType() {
@@ -46,8 +46,6 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
         Multihead multihead;
         while ((multihead = mis.getNextMultihead()) != null) {
             Disposition disposition = multihead.getDisposition();
-            MediaType type = multihead.getType();
-            String encoding = type != null && type.getCharset() != null ? type.getCharset() : charset;
             String name = disposition != null ? disposition.getName() : null;
             Multibody multibody = new Multibody(mis);
             Multipart multipart = new Multipart(multihead, multibody);
@@ -123,12 +121,12 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 }
                 // 来到这里证明不是个文件可能是一个Raw Type 也可能是一个 Field Type
                 // Raw Type
-                if (type != null) {
+                if (multihead.getType() != null) {
                     FileInputStream fis = null;
                     try {
                         File file = multibody.getFile();
                         fis = new FileInputStream(file);
-                        deserialize(action, parameter, multihead, encoding, fis);
+                        deserialize(action, parameter, multihead, charset, fis);
                     } finally {
                         IOKit.close(fis);
                     }
@@ -136,7 +134,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 // Field Type
                 else {
                     File file = multibody.getFile();
-                    String value = IOKit.toString(file, encoding);
+                    String value = IOKit.toString(file, charset);
                     String[] values = fields.get(name);
                     if (values == null) {
                         values = new String[]{value};
@@ -158,14 +156,22 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
     }
 
     public void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException {
-        MediaType type = multihead.getType();
-        if (map.containsKey(type)) {
-            RequestDeserializer deserializer = map.get(type);
+        MediaType mediaType = multihead.getType();
+        Request request = action.getRequest();
+        Accepts consumes = action.getConsumes();
+        Accepts supports = new Accepts(deserializers.keySet());
+        if (supports.contains(mediaType) && (consumes.isEmpty() || consumes.contains(mediaType))) {
+            charset = mediaType.getCharset() != null ? mediaType.getCharset() : charset;
+            if (charset == null || charset.length() == 0) charset = request.getRequestHeader("Content-Charset");
+            if (charset == null || charset.length() == 0) charset = request.getCharacterEncoding();
+            if (charset == null || charset.length() == 0) charset = java.nio.charset.Charset.defaultCharset().name();
+            RequestDeserializer deserializer = deserializers.get(mediaType);
             deserializer.deserialize(action, parameter, multihead, charset, in);
         } else {
             String URI = action.getURI();
             String method = action.getRestful().getMethod();
-            throw new UnsupportedTypeException(URI, method, type, new Accepts(map.keySet()));
+            if (!consumes.isEmpty()) supports.retainAll(consumes);
+            throw new UnsupportedTypeException(URI, method, mediaType, supports);
         }
     }
 
@@ -174,7 +180,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
         for (RequestDeserializer deserializer : deserializers) {
             String contentType = deserializer.getContentType();
             MediaType mediaType = MediaType.valueOf(contentType);
-            map.put(mediaType, deserializer);
+            this.deserializers.put(mediaType, deserializer);
         }
         multipartConversionProvider = beanContainer.get(ConversionProvider.class);
     }
