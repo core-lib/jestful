@@ -45,22 +45,23 @@ public class ListenableFutureScheduler implements Scheduler {
     }
 
     public Object schedule(final Client client, final Action action) throws Exception {
-        ActionListenableFuture future = new ActionListenableFuture(action);
+        JestfulListenableFuture future = new JestfulListenableFuture();
         Promise promise = (Promise) action.execute();
         promise.accept(new ListenableFutureCallback(future));
         return future;
     }
 
     private static class ListenableFutureCallback extends CallbackAdapter<Object> {
-        private final ActionListenableFuture future;
+        private final JestfulListenableFuture future;
 
-        ListenableFutureCallback(ActionListenableFuture future) {
+        ListenableFutureCallback(JestfulListenableFuture future) {
             this.future = future;
         }
 
         @Override
         public void onCompleted(boolean success, Object result, Exception exception) {
-            future.done();
+            if (success) future.set(result);
+            else future.setException(exception);
         }
     }
 
