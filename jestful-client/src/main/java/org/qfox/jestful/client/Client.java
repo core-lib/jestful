@@ -324,14 +324,12 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         } else {
             String charset;
             Charsets options = action.getContentCharsets().clone();
-            if (!options.isEmpty()) {
-                options.retainAll(charsets);
-                if (options.isEmpty()) {
-                    throw new NoSuchCharsetException(action.getContentCharsets().clone(), charsets.clone());
-                }
-                charset = options.first().getName();
-            } else {
+            if (options.isEmpty()) {
                 charset = Charset.defaultCharset().name();
+            } else {
+                options.retainAll(charsets);
+                if (options.isEmpty()) throw new NoSuchCharsetException(action.getContentCharsets().clone(), charsets.clone());
+                charset = options.first().getName();
             }
             Accepts consumes = action.getConsumes();
             for (Entry<MediaType, RequestSerializer> entry : serializers.entrySet()) {
@@ -358,47 +356,46 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     public void deserialize(Action action) throws Exception {
         Response response = action.getResponse();
         Body body = action.getResult().getBody();
-        if (body.getType() != Void.TYPE) {
-            String contentType = response.getContentType();
-            Accepts produces = action.getProduces();
-            Accepts supports = new Accepts(deserializers.keySet());
-            MediaType mediaType = MediaType.valueOf(contentType);
-            if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
-                String charset = mediaType.getCharset();
-                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
-                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
-                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
-                ResponseDeserializer deserializer = deserializers.get(mediaType);
-                InputStream in = response.getResponseInputStream();
-                deserializer.deserialize(action, mediaType, charset, in);
-            } else if (body.getType() == String.class) {
-                String charset = mediaType.getCharset();
-                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
-                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
-                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
-                InputStream in = response.getResponseInputStream();
-                InputStreamReader reader = new InputStreamReader(in, charset);
-                String value = IOKit.toString(reader);
-                body.setValue(value);
-            } else if (body.getType() == File.class) {
-                InputStream in = response.getResponseInputStream();
-                File file = File.createTempFile("jestful", ".tmp");
-                IOKit.transfer(in, file);
-                body.setValue(file);
-            } else if (produces.size() == 1) {
-                String charset = mediaType.getCharset();
-                mediaType = produces.iterator().next();
-                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
-                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
-                if (StringKit.isBlank(charset)) charset = mediaType.getCharset();
-                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
-                ResponseDeserializer deserializer = deserializers.get(mediaType);
-                InputStream in = response.getResponseInputStream();
-                deserializer.deserialize(action, mediaType, charset, in);
-            } else {
-                if (!produces.isEmpty()) supports.retainAll(produces);
-                throw new UnexpectedTypeException(mediaType, supports);
-            }
+        if (body.getType() == Void.TYPE) return;
+        String contentType = response.getContentType();
+        Accepts produces = action.getProduces();
+        Accepts supports = new Accepts(deserializers.keySet());
+        MediaType mediaType = MediaType.valueOf(contentType);
+        if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
+            String charset = mediaType.getCharset();
+            if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+            if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+            if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
+            ResponseDeserializer deserializer = deserializers.get(mediaType);
+            InputStream in = response.getResponseInputStream();
+            deserializer.deserialize(action, mediaType, charset, in);
+        } else if (body.getType() == String.class) {
+            String charset = mediaType.getCharset();
+            if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+            if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+            if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
+            InputStream in = response.getResponseInputStream();
+            InputStreamReader reader = new InputStreamReader(in, charset);
+            String value = IOKit.toString(reader);
+            body.setValue(value);
+        } else if (body.getType() == File.class) {
+            InputStream in = response.getResponseInputStream();
+            File file = File.createTempFile("jestful", ".tmp");
+            IOKit.transfer(in, file);
+            body.setValue(file);
+        } else if (produces.size() == 1) {
+            String charset = mediaType.getCharset();
+            mediaType = produces.iterator().next();
+            if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+            if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+            if (StringKit.isBlank(charset)) charset = mediaType.getCharset();
+            if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
+            ResponseDeserializer deserializer = deserializers.get(mediaType);
+            InputStream in = response.getResponseInputStream();
+            deserializer.deserialize(action, mediaType, charset, in);
+        } else {
+            if (!produces.isEmpty()) supports.retainAll(produces);
+            throw new UnexpectedTypeException(mediaType, supports);
         }
     }
 
