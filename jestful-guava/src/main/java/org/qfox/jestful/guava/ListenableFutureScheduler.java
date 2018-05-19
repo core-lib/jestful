@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
 
 /**
  * <p>
- * Description:
+ * Description: Listenable Future 调度器
  * </p>
  * <p>
  * <p>
