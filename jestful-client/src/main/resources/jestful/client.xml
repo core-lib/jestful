@@ -47,6 +47,5 @@
     <bean class="org.qfox.jestful.client.scheduler.LambdaScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.FutureScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.CompletableFutureScheduler"/>
-    <bean class="org.qfox.jestful.client.scheduler.MessageScheduler"/>
 
 </beans>

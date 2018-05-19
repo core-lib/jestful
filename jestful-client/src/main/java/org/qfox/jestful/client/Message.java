@@ -1,46 +1,34 @@
 package org.qfox.jestful.client;
 
-import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * Created by yangchangpei on 17/3/13.
  */
-public final class Message<T> implements Serializable {
+public final class Message implements Serializable, Closeable {
     private static final long serialVersionUID = -2348643625659731238L;
 
     private final boolean success;
     private final Status status;
-    private final Map<String, String> header = new CaseInsensitiveMap<String, String>();
-    private final T entity;
+    private final Header header;
+    private final Entity entity;
     private final Exception exception;
 
-    public Message(Response response, T entity) throws IOException {
-        this.success = true;
-        this.status = response != null ? response.getResponseStatus() : null;
-        for (String key : response != null && response.getHeaderKeys() != null ? response.getHeaderKeys() : new String[0]) {
-            String name = key != null ? key : "";
-            String value = response != null ? response.getResponseHeader(key) : null;
-            this.header.put(name, value);
-        }
-        this.entity = entity;
-        this.exception = null;
+    Message(Response response) throws IOException {
+        this(response, null);
     }
 
-    public Message(Response response, Exception exception) throws IOException {
-        this.success = false;
-        this.status = response != null ? response.getResponseStatus() : null;
-        for (String key : response != null && response.getHeaderKeys() != null ? response.getHeaderKeys() : new String[0]) {
-            String name = key != null ? key : "";
-            String value = response != null ? response.getResponseHeader(key) : null;
-            this.header.put(name, value);
-        }
-        this.entity = null;
+    Message(Response response, Exception exception) throws IOException {
+        this.success = exception == null;
+        this.status = response.getResponseStatus();
+        this.header = new Header(response);
+        this.entity = new Entity(response);
         this.exception = exception;
     }
 
@@ -52,11 +40,11 @@ public final class Message<T> implements Serializable {
         return status;
     }
 
-    public Map<String, String> getHeader() {
+    public Header getHeader() {
         return header;
     }
 
-    public T getEntity() {
+    public Entity getEntity() {
         return entity;
     }
 
@@ -64,4 +52,8 @@ public final class Message<T> implements Serializable {
         return exception;
     }
 
+    @Override
+    public void close() {
+        IOKit.close(entity);
+    }
 }

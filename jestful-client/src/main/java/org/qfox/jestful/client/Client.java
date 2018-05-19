@@ -361,7 +361,16 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         Accepts produces = action.getProduces();
         Accepts supports = new Accepts(deserializers.keySet());
         MediaType mediaType = MediaType.valueOf(contentType);
-        if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
+        if (body.getType() == Message.class) {
+            Message message = new Message(response);
+            body.setValue(message);
+        } else if (body.getType() == Entity.class) {
+            Entity entity = new Entity(response);
+            body.setValue(entity);
+        } else if (body.getType() == Header.class) {
+            Header header = new Header(response);
+            body.setValue(header);
+        } else if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
             String charset = mediaType.getCharset();
             if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
             if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
@@ -446,7 +455,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return new BioPromise(action);
     }
 
-    protected Object doSchedule(Action action) throws Exception {
+    protected Object schedule(Action action) throws Exception {
         Result result = action.getResult();
         Body body = result.getBody();
 
@@ -460,13 +469,20 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             }
         }
 
-        Type type = result.getType();
-        body.setType(type);
-        Promise promise = (Promise) action.execute();
-        Object value = promise.acquire();
-        result.setValue(value);
-
-        return value;
+        try {
+            Type type = result.getType();
+            body.setType(type);
+            Promise promise = (Promise) action.execute();
+            Object value = promise.acquire();
+            result.setValue(value);
+            return value;
+        } catch (Exception e) {
+            if (body.getType() != Message.class) throw e;
+            Response response = action.getResponse();
+            Message message = new Message(response, e);
+            body.setValue(message);
+            return message;
+        }
     }
 
     protected Request newRequest(Action action) throws Exception {
@@ -1309,7 +1325,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
         public Object invoke(Object... args) throws Exception {
             Action action = draft(args);
-            return doSchedule(action);
+            return schedule(action);
         }
 
         public Promise promise(Object... args) throws Exception {
