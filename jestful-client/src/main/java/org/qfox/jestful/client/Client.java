@@ -361,16 +361,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         Accepts produces = action.getProduces();
         Accepts supports = new Accepts(deserializers.keySet());
         MediaType mediaType = MediaType.valueOf(contentType);
-        if (body.getType() == Message.class) {
-            Message message = new Message(response);
-            body.setValue(message);
-        } else if (body.getType() == Entity.class) {
-            Entity entity = new Entity(response);
-            body.setValue(entity);
-        } else if (body.getType() == Header.class) {
-            Header header = new Header(response);
-            body.setValue(header);
-        } else if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
+        if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
             String charset = mediaType.getCharset();
             if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
             if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
@@ -408,47 +399,81 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
     }
 
+
     protected Object call(Action action) throws Exception {
         Request request = action.getRequest();
         Response response = action.getResponse();
+        Result result = action.getResult();
+        Body body = result != null ? result.getBody() : null;
+        Type type = body != null ? body.getType() : null;
         try {
             Restful restful = action.getRestful();
 
             if (restful.isAcceptBody()) serialize(action);
             else request.connect();
 
-            if (!response.isResponseSuccess()) {
-                String contentType = response.getContentType();
-                MediaType mediaType = MediaType.valueOf(contentType);
-                String charset = mediaType.getCharset();
-                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
-                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
-                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
-                Status status = response.getResponseStatus();
-                Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
-                String[] keys = response.getHeaderKeys();
-                for (String key : keys) header.put(key == null ? "" : key, response.getResponseHeaders(key));
-                InputStream in = response.getResponseInputStream();
-                InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
-                String body = reader != null ? IOKit.toString(reader) : "";
-                throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, header, body);
-            }
+            validate(action);
 
             if (restful.isReturnBody()) {
-                deserialize(action);
-                return action.getResult().getBody().getValue();
+                if (type == null) {
+                    return null;
+                } else if (type == Message.class) {
+                    Message message = new Message(response);
+                    body.setValue(message);
+                    response = null;
+                    return message;
+                } else if (type == Entity.class) {
+                    Entity entity = new Entity(response);
+                    body.setValue(entity);
+                    response = null;
+                    return entity;
+                } else if (type == Header.class) {
+                    Header header = new Header(response);
+                    body.setValue(header);
+                    return header;
+                } else {
+                    deserialize(action);
+                    return action.getResult().getBody().getValue();
+                }
             } else {
-                Map<String, String> header = new CaseInsensitiveMap<String, String>();
-                for (String key : response.getHeaderKeys()) header.put(key != null ? key : "", response.getResponseHeader(key));
-                return header;
+                return null;
             }
-        } catch (StatusException se) {
-            for (Catcher catcher : catchers.values()) if (catcher.catchable(se)) return catcher.caught(Client.this, action, se);
-            throw se;
+        } catch (StatusException e) {
+            for (Catcher catcher : catchers.values()) if (catcher.catchable(e)) return catcher.caught(Client.this, action, e);
+            if (type != Message.class) throw e;
+            Message message = new Message(response, e);
+            response = null;
+            body.setValue(message);
+            return message;
+        } catch (Exception e) {
+            if (type != Message.class) throw e;
+            Message message = new Message(response, e);
+            response = null;
+            body.setValue(message);
+            return message;
         } finally {
             IOKit.close(request);
             IOKit.close(response);
         }
+    }
+
+    protected void validate(Action action) throws IOException {
+        Response response = action.getResponse();
+        if (response.isResponseSuccess()) return;
+        String contentType = response.getContentType();
+        MediaType mediaType = MediaType.valueOf(contentType);
+        String charset = mediaType.getCharset();
+        if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+        if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+        if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
+        Status status = response.getResponseStatus();
+        Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
+        String[] keys = response.getHeaderKeys();
+        for (String key : keys) header.put(key == null ? "" : key, response.getResponseHeaders(key));
+        InputStream in = response.getResponseInputStream();
+        InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
+        String body = reader != null ? IOKit.toString(reader) : "";
+        throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, header, body);
     }
 
     public Object react(Action action) throws Exception {
@@ -469,20 +494,12 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             }
         }
 
-        try {
-            Type type = result.getType();
-            body.setType(type);
-            Promise promise = (Promise) action.execute();
-            Object value = promise.acquire();
-            result.setValue(value);
-            return value;
-        } catch (Exception e) {
-            if (body.getType() != Message.class) throw e;
-            Response response = action.getResponse();
-            Message message = new Message(response, e);
-            body.setValue(message);
-            return message;
-        }
+        Type type = result.getType();
+        body.setType(type);
+        Promise promise = (Promise) action.execute();
+        Object value = promise.acquire();
+        result.setValue(value);
+        return value;
     }
 
     protected Request newRequest(Action action) throws Exception {

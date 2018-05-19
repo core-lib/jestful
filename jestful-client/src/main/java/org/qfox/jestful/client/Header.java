@@ -2,9 +2,11 @@ package org.qfox.jestful.client;
 
 import org.qfox.jestful.core.Response;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 
-public final class Header implements Serializable {
+public final class Header implements Serializable, Closeable {
     private static final long serialVersionUID = -2109010455698947217L;
     private final Response response;
 
@@ -24,4 +26,8 @@ public final class Header implements Serializable {
         return response.getResponseHeaders(name);
     }
 
+    @Override
+    public void close() throws IOException {
+        response.close();
+    }
 }

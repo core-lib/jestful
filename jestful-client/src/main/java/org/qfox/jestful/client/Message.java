@@ -28,7 +28,7 @@ public final class Message implements Serializable, Closeable {
         this.success = exception == null;
         this.status = response.getResponseStatus();
         this.header = new Header(response);
-        this.entity = new Entity(response);
+        this.entity = exception == null ? new Entity(response) : null;
         this.exception = exception;
     }
 
@@ -50,6 +50,12 @@ public final class Message implements Serializable, Closeable {
 
     public Exception getException() {
         return exception;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        this.close();
     }
 
     @Override

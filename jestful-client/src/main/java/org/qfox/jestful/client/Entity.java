@@ -47,6 +47,12 @@ public final class Entity implements Serializable, Closeable {
     }
 
     @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        this.close();
+    }
+
+    @Override
     public void close() {
         IOKit.close(stream);
     }
