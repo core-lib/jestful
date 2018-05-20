@@ -22,7 +22,7 @@ public final class Entity implements Serializable {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         IOKit.transfer(in, out);
         this.stream = new ByteArrayInputStream(out.toByteArray());
-        this.length = out.size();
+        this.length = stream.available();
     }
 
     public MediaType getType() {
