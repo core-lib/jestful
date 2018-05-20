@@ -417,22 +417,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             if (restful.isAcceptBody()) serialize(action);
             else request.connect();
 
-            if (!response.isResponseSuccess()) {
-                String contentType = response.getContentType();
-                MediaType mediaType = MediaType.valueOf(contentType);
-                String charset = mediaType.getCharset();
-                if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
-                if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
-                if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
-                Status status = response.getResponseStatus();
-                Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
-                String[] keys = response.getHeaderKeys();
-                for (String key : keys) header.put(key == null ? "" : key, response.getResponseHeaders(key));
-                InputStream in = response.getResponseInputStream();
-                InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
-                String body = reader != null ? IOKit.toString(reader) : "";
-                throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, header, body);
-            }
+            validate(action);
 
             if (restful.isReturnBody()) {
                 deserialize(action);
@@ -448,6 +433,26 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         } finally {
             IOKit.close(request);
             IOKit.close(response);
+        }
+    }
+
+    private void validate(Action action) throws IOException {
+        Response response = action.getResponse();
+        if (!response.isResponseSuccess()) {
+            String contentType = response.getContentType();
+            MediaType mediaType = MediaType.valueOf(contentType);
+            String charset = mediaType.getCharset();
+            if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
+            if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
+            if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
+            Status status = response.getResponseStatus();
+            Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
+            String[] keys = response.getHeaderKeys();
+            for (String key : keys) header.put(key == null ? "" : key, response.getResponseHeaders(key));
+            InputStream in = response.getResponseInputStream();
+            InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
+            String body = reader != null ? IOKit.toString(reader) : "";
+            throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), status, header, body);
         }
     }
 

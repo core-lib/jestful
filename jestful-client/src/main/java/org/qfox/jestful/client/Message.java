@@ -1,17 +1,15 @@
 package org.qfox.jestful.client;
 
-import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
 
 /**
  * Created by yangchangpei on 17/3/13.
  */
-public final class Message implements Serializable, Closeable {
+public final class Message implements Serializable {
     private static final long serialVersionUID = -2348643625659731238L;
 
     private final boolean success;
@@ -52,8 +50,4 @@ public final class Message implements Serializable, Closeable {
         return exception;
     }
 
-    @Override
-    public void close() {
-        IOKit.close(entity);
-    }
 }

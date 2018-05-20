@@ -4,38 +4,29 @@ import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Response;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
+import java.nio.charset.Charset;
 
-public final class Entity implements Serializable, Closeable {
+public final class Entity implements Serializable {
     private static final long serialVersionUID = -4968262615254281012L;
 
     private final MediaType type;
-    private final String encoding;
-    private final int length;
     private final String charset;
     private final InputStream stream;
+    private final int length;
 
     Entity(Response response) throws IOException {
         this.type = response.getContentType() != null ? MediaType.valueOf(response.getContentType()) : null;
-        this.encoding = response.getResponseHeader("Transfer-Encoding");
-        this.length = response.getResponseHeader("Content-Length") != null ? Integer.valueOf(response.getResponseHeader("Content-Length")) : -1;
-        this.charset = type != null && type.getCharset() != null ? type.getCharset() : response.getCharacterEncoding();
-        this.stream = response.getResponseInputStream();
+        this.charset = type != null && type.getCharset() != null ? type.getCharset() : response.getCharacterEncoding() != null ? response.getCharacterEncoding() : Charset.defaultCharset().name();
+        InputStream in = response.getResponseInputStream();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        IOKit.transfer(in, out);
+        this.stream = new ByteArrayInputStream(out.toByteArray());
+        this.length = out.size();
     }
 
     public MediaType getType() {
         return type;
-    }
-
-    public String getEncoding() {
-        return encoding;
-    }
-
-    public int getLength() {
-        return length;
     }
 
     public String getCharset() {
@@ -46,9 +37,7 @@ public final class Entity implements Serializable, Closeable {
         return stream;
     }
 
-    @Override
-    public void close() {
-        IOKit.close(stream);
+    public int getLength() {
+        return length;
     }
-
 }
