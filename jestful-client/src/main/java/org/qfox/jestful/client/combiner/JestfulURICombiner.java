@@ -1,4 +1,4 @@
-package org.qfox.jestful.client;
+package org.qfox.jestful.client.combiner;
 
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.converter.StringConversion;

@@ -8,10 +8,10 @@
             <list>
                 <bean class="org.qfox.jestful.client.handler.QueriesAnnotationHandler"/>
                 <bean class="org.qfox.jestful.client.processor.QueryParameterProcessor"/>
-                <bean class="org.qfox.jestful.client.JestfulURICombiner"/>
-                <bean class="org.qfox.jestful.client.JestfulURLCombiner"/>
-                <bean class="org.qfox.jestful.client.ResourceTimeoutController"/>
-                <bean class="org.qfox.jestful.client.MappingTimeoutController"/>
+                <bean class="org.qfox.jestful.client.combiner.JestfulURICombiner"/>
+                <bean class="org.qfox.jestful.client.combiner.JestfulURLCombiner"/>
+                <bean class="org.qfox.jestful.client.controller.ResourceTimeoutController"/>
+                <bean class="org.qfox.jestful.client.controller.MappingTimeoutController"/>
                 <bean class="org.qfox.jestful.client.accept.AcceptContentCharsetDecider"/>
                 <bean class="org.qfox.jestful.client.accept.AcceptContentEncodingDecider"/>
                 <bean class="org.qfox.jestful.client.accept.AcceptContentLanguageDecider"/>
