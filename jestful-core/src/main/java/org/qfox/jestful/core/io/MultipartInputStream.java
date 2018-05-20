@@ -85,7 +85,7 @@ public class MultipartInputStream extends InputStream implements IOConstants {
             b = buffer[0] & 0xff;
             length--;
             // 前移
-            for (int i = 0; i < length; i++) buffer[i] = buffer[i + 1];
+            System.arraycopy(buffer, 1, buffer, 0, length);
         } else {
             b = inputStream.read();
             if (b == EOF) end = true;
