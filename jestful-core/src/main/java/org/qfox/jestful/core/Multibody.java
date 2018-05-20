@@ -31,7 +31,7 @@ public class Multibody implements Cloneable {
 		super();
 		this.file = file;
 		Collection<?> types = MimeUtil.getMimeTypes(file);
-		this.contentType = types == null || types.isEmpty() ? "application/octet-stream" : types.toArray()[0].toString();
+		this.contentType = types.isEmpty() ? "application/octet-stream" : types.toArray()[0].toString();
 		this.size = file.length();
 	}
 
@@ -40,7 +40,7 @@ public class Multibody implements Cloneable {
 		this.file = File.createTempFile("jestful", ".tmp");
 		IOKit.transfer(inputStream, file);
 		Collection<?> types = MimeUtil.getMimeTypes(file);
-		this.contentType = types == null || types.isEmpty() ? "application/octet-stream" : types.toArray()[0].toString();
+		this.contentType = types.isEmpty() ? "application/octet-stream" : types.toArray()[0].toString();
 		this.size = file.length();
 	}
 

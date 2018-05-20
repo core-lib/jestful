@@ -247,6 +247,18 @@ public class IOKit {
         }
     }
 
+    public static InputStream transfer(InputStream in) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        transfer(in, out);
+        return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    public static Reader transfer(Reader reader) throws IOException {
+        StringWriter writer = new StringWriter();
+        transfer(reader, writer);
+        return new StringReader(writer.toString());
+    }
+
     public static String toString(InputStream in) throws IOException {
         return toString(in, null);
     }

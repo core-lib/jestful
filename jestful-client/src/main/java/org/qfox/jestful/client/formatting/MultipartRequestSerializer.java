@@ -1,6 +1,7 @@
 package org.qfox.jestful.client.formatting;
 
 import eu.medsea.mimeutil.MimeUtil;
+import org.qfox.jestful.client.Part;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.ReflectionKit;
@@ -58,7 +59,16 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
                 || ReflectionKit.isMapArrayType(type, String.class, File.class)
                 || ReflectionKit.isMapListType(type, String.class, File.class)
                 || ReflectionKit.isMapSetType(type, String.class, File.class)
-                || ReflectionKit.isMapCollectionType(type, String.class, File.class);
+                || ReflectionKit.isMapCollectionType(type, String.class, File.class)
+                || ReflectionKit.isArrayType(type, Part.class)
+                || ReflectionKit.isListType(type, Part.class)
+                || ReflectionKit.isSetType(type, Part.class)
+                || ReflectionKit.isCollectionType(type, Part.class)
+                || ReflectionKit.isMapType(type, String.class, Part.class)
+                || ReflectionKit.isMapArrayType(type, String.class, Part.class)
+                || ReflectionKit.isMapListType(type, String.class, Part.class)
+                || ReflectionKit.isMapSetType(type, String.class, Part.class)
+                || ReflectionKit.isMapCollectionType(type, String.class, Part.class);
     }
 
     public void serialize(Action action, String charset, OutputStream out) throws IOException {
@@ -102,7 +112,9 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
         Type type = parameter.getType();
         Object value = parameter.getValue();
         String name = parameter.getName();
-        if (File.class == type) {
+        if (type == null) {
+            throw new IOException();
+        } else if (File.class == type) {
             if (value == null) return;
             serialize(out, (File) value, name);
         } else if (ReflectionKit.isArrayType(type, File.class)) {
@@ -135,6 +147,39 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
                 Iterable<?> iterable = (Iterable<?>) entry.getValue();
                 for (Object item : iterable) serialize(out, (File) item, prefix + String.valueOf(entry.getKey()));
             }
+        } else if (Part.class == type) {
+            if (value == null) return;
+            serialize(out, (Part) value, name);
+        } else if (ReflectionKit.isArrayType(type, Part.class)) {
+            if (value == null) return;
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) serialize(out, (Part) Array.get(value, i), name);
+        } else if (ReflectionKit.isListType(type, Part.class) || ReflectionKit.isSetType(type, Part.class) || ReflectionKit.isCollectionType(type, Part.class)) {
+            if (value == null) return;
+            Iterable<?> iterable = (Iterable<?>) value;
+            for (Object item : iterable) serialize(out, (Part) item, name);
+        } else if (ReflectionKit.isMapType(type, String.class, Part.class)) {
+            if (value == null) return;
+            Map<?, ?> map = (Map<?, ?>) value;
+            String prefix = name.trim().equals(String.valueOf(parameter.getIndex())) ? "" : name.trim() + ".";
+            for (Entry<?, ?> entry : map.entrySet()) serialize(out, (Part) entry.getValue(), prefix + String.valueOf(entry.getKey()));
+        } else if (ReflectionKit.isMapArrayType(type, String.class, Part.class)) {
+            if (value == null) return;
+            Map<?, ?> map = (Map<?, ?>) value;
+            String prefix = name.trim().equals(String.valueOf(parameter.getIndex())) ? "" : name.trim() + ".";
+            for (Entry<?, ?> entry : map.entrySet()) {
+                Object array = entry.getValue();
+                int length = Array.getLength(array);
+                for (int i = 0; i < length; i++) serialize(out, (Part) Array.get(array, i), prefix + String.valueOf(entry.getKey()));
+            }
+        } else if (ReflectionKit.isMapListType(type, String.class, Part.class) || ReflectionKit.isMapSetType(type, String.class, Part.class) || ReflectionKit.isMapCollectionType(type, String.class, Part.class)) {
+            if (value == null) return;
+            Map<?, ?> map = (Map<?, ?>) value;
+            String prefix = name.trim().equals(String.valueOf(parameter.getIndex())) ? "" : name.trim() + ".";
+            for (Entry<?, ?> entry : map.entrySet()) {
+                Iterable<?> iterable = (Iterable<?>) entry.getValue();
+                for (Object item : iterable) serialize(out, (Part) item, prefix + String.valueOf(entry.getKey()));
+            }
         }
     }
 
@@ -147,6 +192,15 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
         Multihead multihead = new Multihead(disposition, mediaType);
         mos.setNextMultihead(multihead);
         IOKit.transfer(file, mos);
+    }
+
+    private void serialize(MultipartOutputStream mos, Part part, String name) throws IOException {
+        Disposition disposition = new Disposition("form-data", name);
+        String contentType = part.getContentType();
+        MediaType mediaType = contentType != null ? MediaType.valueOf(contentType) : MediaType.valueOf("application/octet-stream");
+        Multihead multihead = new Multihead(disposition, mediaType);
+        mos.setNextMultihead(multihead);
+        part.writeTo(mos);
     }
 
     public void initialize(BeanContainer beanContainer) {

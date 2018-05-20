@@ -4,7 +4,9 @@ import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.MediaType;
 import org.qfox.jestful.core.Response;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.charset.Charset;
 
 public final class Entity implements Serializable {
@@ -18,11 +20,8 @@ public final class Entity implements Serializable {
     Entity(Response response) throws IOException {
         this.type = response.getContentType() != null ? MediaType.valueOf(response.getContentType()) : null;
         this.charset = type != null && type.getCharset() != null ? type.getCharset() : response.getCharacterEncoding() != null ? response.getCharacterEncoding() : Charset.defaultCharset().name();
-        InputStream in = response.getResponseInputStream();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        IOKit.transfer(in, out);
-        this.stream = new ByteArrayInputStream(out.toByteArray());
-        this.length = stream.available();
+        this.stream = response.getResponseInputStream() != null ? IOKit.transfer(response.getResponseInputStream()) : null;
+        this.length = stream != null ? stream.available() : -1;
     }
 
     public MediaType getType() {
