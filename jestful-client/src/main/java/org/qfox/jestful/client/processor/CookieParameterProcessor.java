@@ -5,6 +5,7 @@ import org.qfox.jestful.core.converter.StringConversion;
 
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -27,29 +28,22 @@ public class CookieParameterProcessor implements Actor, Initialable {
         String cookie = request.getRequestHeader("Cookie");
         cookie = cookie != null ? cookie : "";
         String charset = action.getHeaderEncodeCharset();
+        StringBuilder builder = new StringBuilder(cookie);
         List<Parameter> parameters = action.getParameters().all(Position.COOKIE);
         for (Parameter parameter : parameters) {
-            String[] values = cookieStringConversion.convert(parameter);
-            for (int i = 0; values != null && i < values.length; i++) {
-                String value = values[i];
-                if (value == null) {
-                    continue;
-                }
-                String regex = parameter.getRegex();
-                if (regex != null && !value.matches(regex)) {
-                    throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
-                }
-                String name = parameter.getName();
+            Map<String, List<String>> map = cookieStringConversion.convert(parameter);
+            if (map == null || map.isEmpty()) continue;
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                String name = entry.getKey();
                 name = URLEncoder.encode(name, charset);
-                if (parameter.isCoding() && !parameter.isEncoded()) {
-                    value = URLEncoder.encode(value, charset);
+                List<String> values = entry.getValue();
+                for (String value : values) {
+                    if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
+                    builder.append(builder.length() == 0 ? "" : "; ").append(name).append("=").append(value);
                 }
-                cookie += (cookie.length() == 0 ? "" : "; ") + name + "=" + value;
             }
         }
-        if (cookie.length() > 0) {
-            request.setRequestHeader("Cookie", cookie.length() == 0 ? null : cookie);
-        }
+        if (builder.length() > 0) request.setRequestHeader("Cookie", builder.toString());
         return action.execute();
     }
 

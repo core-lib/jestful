@@ -1,9 +1,9 @@
 package org.qfox.jestful.client.processor;
 
+import org.qfox.jestful.client.formatting.URLEncodes;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.converter.StringConversion;
 
-import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -27,28 +27,8 @@ public class QueryParameterProcessor implements Actor, Initialable {
         query = query != null ? query : "";
         String charset = action.getQueryEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.QUERY);
-        StringBuilder sb = new StringBuilder(query);
-        for (Parameter parameter : parameters) {
-            String[] values = queryStringConversion.convert(parameter);
-            for (int i = 0; values != null && i < values.length; i++) {
-                String value = values[i];
-                if (value == null) {
-                    continue;
-                }
-                String regex = parameter.getRegex();
-                if (regex != null && !value.matches(regex)) {
-                    throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
-                }
-                String name = parameter.getName();
-                name = URLEncoder.encode(name, charset);
-                if (parameter.isCoding() && !parameter.isEncoded()) {
-                    value = URLEncoder.encode(value, charset);
-                }
-                sb.append(sb.length() == 0 ? "" : "&").append(name).append("=").append(value);
-            }
-        }
-        query = sb.toString();
-        action.setQuery(query.length() == 0 ? null : query);
+        String encode = URLEncodes.encode(charset, parameters, queryStringConversion);
+        if (!encode.isEmpty()) action.setQuery(query.isEmpty() ? encode : query + "&" + encode);
         return action.execute();
     }
 

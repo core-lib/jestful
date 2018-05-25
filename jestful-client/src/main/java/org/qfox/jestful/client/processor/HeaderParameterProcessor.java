@@ -4,8 +4,8 @@ import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.converter.StringConversion;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -28,27 +28,19 @@ public class HeaderParameterProcessor implements Actor, Initialable {
         String charset = action.getHeaderEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.HEADER);
         for (Parameter parameter : parameters) {
-            String name = parameter.getName();
-            String[] values = headerStringConversion.convert(parameter);
-            if (values == null) {
-                continue;
-            }
-            List<String> list = new ArrayList<String>();
-            for (String value : values) {
-                if (value == null) {
-                    continue;
+            Map<String, List<String>> map = headerStringConversion.convert(parameter);
+            if (map == null || map.isEmpty()) continue;
+            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+                String name = entry.getKey();
+                name = URLEncoder.encode(name, charset);
+                List<String> values = entry.getValue();
+                String[] headers = new String[values.size()];
+                for (int i = 0; i < headers.length; i++) {
+                    String value = values.get(i);
+                    if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
+                    headers[i] = value;
                 }
-                String regex = parameter.getRegex();
-                if (regex != null && !value.matches(regex)) {
-                    throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
-                }
-                if (parameter.isCoding() && !parameter.isEncoded()) {
-                    value = URLEncoder.encode(value, charset);
-                }
-                list.add(value);
-            }
-            if (!list.isEmpty()) {
-                request.setRequestHeaders(URLEncoder.encode(name, charset), list.toArray(new String[list.size()]));
+                if (headers.length > 0) request.setRequestHeaders(name, headers);
             }
         }
         return action.execute();

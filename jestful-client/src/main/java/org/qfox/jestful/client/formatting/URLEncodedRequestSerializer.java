@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -38,44 +39,27 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
     }
 
     public boolean supports(Parameter parameter) {
-        return urlStringConversion.serializable(parameter);
+        return urlStringConversion.supports(parameter);
     }
 
     public void serialize(Action action, String charset, OutputStream out) throws IOException {
-        List<Parameter> bodies = action.getParameters().all(Position.BODY);
-        StringBuilder builder = new StringBuilder();
-        for (Parameter body : bodies) {
-            if (body.getValue() == null) {
-                continue;
-            }
-            String name = body.getName();
-            String[] values = urlStringConversion.convert(body);
-            for (int i = 0; values != null && i < values.length; i++) {
-                String value = values[i];
-                if (builder.length() > 0) {
-                    builder.append("&");
-                }
-                builder.append(URLEncoder.encode(name, charset));
-                builder.append("=");
-                builder.append(body.isCoding() && !body.isEncoded() ? URLEncoder.encode(value, charset) : value);
-            }
-        }
-        if (builder.length() > 0) {
+        List<Parameter> parameters = action.getParameters().all(Position.BODY);
+        String encode = URLEncodes.encode(charset, parameters, urlStringConversion);
+        if (!encode.isEmpty()) {
             action.getRequest().setContentType(contentType);
-            out.write(builder.toString().getBytes());
+            out.write(encode.getBytes());
         }
     }
 
     public void serialize(Action action, Parameter parameter, String charset, MultipartOutputStream out) throws IOException {
-        if (parameter.getValue() == null) {
-            return;
-        }
+        if (parameter.getValue() == null) return;
         String name = parameter.getName();
-        String[] values = urlStringConversion.convert(parameter);
-        for (int i = 0; values != null && i < values.length; i++) {
-            String value = values[i];
+        Map<String, List<String>> map = urlStringConversion.convert(parameter);
+        if (map == null || map.isEmpty()) return;
+        List<String> values = map.get(name);
+        for (String value : values) {
             Disposition disposition = new Disposition("form-data", name);
-            Multihead multihead = new Multihead(disposition, null);
+            Multihead multihead = new Multihead(disposition, MediaType.valueOf(contentType + "; charset=" + charset));
             out.setNextMultihead(multihead);
             out.write(URLEncoder.encode(value, charset).getBytes());
         }

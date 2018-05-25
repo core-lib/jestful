@@ -5,6 +5,7 @@ import org.qfox.jestful.core.converter.StringConversion;
 
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,22 +33,19 @@ public class JestfulURICombiner implements Actor, Initialable {
         String charset = action.getPathEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.PATH);
         for (Parameter parameter : parameters) {
-            String[] values = pathStringConversion.convert(parameter);
-            String value = values != null && values.length > 0 && values[0] != null ? values[0] : "null";
+            Map<String, List<String>> map = pathStringConversion.convert(parameter);
+            String name = parameter.getName();
+            List<String> values = map.get(name);
+            if (values == null || values.isEmpty()) throw new IllegalArgumentException("path variable " + name + " can not be null");
+            String value = values.iterator().next();
             String regex = parameter.getRegex();
-            if (regex != null && !value.matches(regex)) {
-                throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
-            }
+            if (regex != null && !value.matches(regex)) throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
             Matcher matcher = pattern.matcher(resource.getExpression() + mapping.getExpression());
             int group = parameter.getGroup();
-            for (int i = 0; i < group; i++) {
-                if (!matcher.find()) throw new IllegalStateException("expected " + group + " path variable placeholders but actually got " + i);
-            }
-            String variable = matcher.group();
-            if (parameter.isCoding() && !parameter.isEncoded()) {
-                value = URLEncoder.encode(value, charset);
-            }
-            uri = uri.replace(variable, value);
+            for (int i = 0; i < group; i++) if (!matcher.find()) throw new IllegalStateException("expected " + group + " path variable placeholders but actually got " + i);
+            String placeholder = matcher.group();
+            if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
+            uri = uri.replace(placeholder, value);
         }
         action.setURI(uri.replaceAll("/+", "/"));
         return action.execute();

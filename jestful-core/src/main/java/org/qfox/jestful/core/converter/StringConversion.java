@@ -3,6 +3,9 @@ package org.qfox.jestful.core.converter;
 import org.qfox.jestful.core.Parameter;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>
  * Description:
@@ -18,12 +21,10 @@ import org.qfox.jestful.core.exception.NoSuchConverterException;
  */
 public interface StringConversion {
 
-    boolean serializable(Parameter parameter);
+    boolean supports(Parameter parameter);
 
-    boolean deserializable(Parameter parameter);
+    void convert(Parameter parameter, Map<String, List<String>> map) throws NoSuchConverterException;
 
-    void convert(Parameter parameter, String source) throws NoSuchConverterException;
-
-    String[] convert(Parameter parameter) throws NoSuchConverterException;
+    Map<String, List<String>> convert(Parameter parameter) throws NoSuchConverterException;
 
 }

@@ -24,8 +24,8 @@ public class PathResolver implements Resolver, Initialable {
         if (group <= 0) return;
         String URI = action.getURI();
         Pattern pattern = action.getPattern();
-        String regexp = pattern.pattern();
-        if (!URI.endsWith("/") && regexp.endsWith("/")) URI = URI.concat("/");
+        String regex = pattern.pattern();
+        if (!URI.endsWith("/") && regex.endsWith("/")) URI = URI.concat("/");
         String charset = action.getPathEncodeCharset();
         Matcher matcher = pattern.matcher(URI);
         if (!matcher.find()) throw new IllegalStateException("uri " + URI + " is not match with " + pattern);

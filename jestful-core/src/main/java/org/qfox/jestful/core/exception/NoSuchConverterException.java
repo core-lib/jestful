@@ -21,7 +21,7 @@ public class NoSuchConverterException extends JestfulRuntimeException {
     private final Parameter parameter;
 
     public NoSuchConverterException(Parameter parameter) {
-        super("there is no suitable converter to convert parameter " + parameter);
+        super(parameter != null ? "there is no suitable converter to convert parameter " + parameter : null);
         this.parameter = parameter;
     }
 
