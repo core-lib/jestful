@@ -62,7 +62,37 @@ public class StandardStringConversion implements StringConversion, Initialable {
 
     @Override
     public void convert(Parameter parameter, Map<String, List<String>> map) throws NoSuchConverterException {
+        String name = parameter.getName();
+        name = name != null ? name.trim() : "";
+        Type type = parameter.getType();
+        if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            Type rawType = parameterizedType.getRawType();
+            if (!(rawType instanceof Class<?>)) throw new NoSuchConverterException(parameter);
+            Method method = ValueConversion.getDeserializeMethod((Class<?>) rawType);
+            if (method != null) {
+                Map<String, List<String>> m = extract(name, map);
+                try {
+                    Object value = method.invoke(null, m);
+                    parameter.setValue(value);
+                } catch (Exception e) {
+                    throw new JestfulRuntimeException(e);
+                }
+            }
 
+        } else if (type instanceof Class<?>) {
+            Class<?> clazz = (Class<?>) type;
+        }
+    }
+
+    private Map<String, List<String>> extract(String prefix, Map<String, List<String>> map) {
+        if (prefix.isEmpty()) return Collections.unmodifiableMap(map);
+        Map<String, List<String>> m = new LinkedHashMap<String, List<String>>();
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith(prefix + ".")) m.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
+        }
+        return Collections.unmodifiableMap(m);
     }
 
     public Map<String, List<String>> convert(Parameter parameter) throws NoSuchConverterException {
