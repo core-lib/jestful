@@ -1,5 +1,6 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.commons.MethodKit;
 import org.qfox.jestful.core.annotation.Variable;
 import org.qfox.jestful.core.exception.AmbiguousParameterException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
@@ -8,6 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
@@ -52,7 +54,10 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
             if (variables.length == 1) {
                 Annotation annotation = getAnnotationWith(Variable.class);
                 String name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
-                this.name = name.length() == 0 ? String.valueOf(index) : name;
+                List<String> names = MethodKit.parameters(method);
+                name = name.trim().length() > 0 ? name : names != null && names.size() > index ? names.get(index) : null;
+                if (name == null) throw new IllegalConfigException("unknown parameter name of index " + index + " in method " + method, mapping.getController(), method);
+                this.name = name;
                 Variable variable = annotation.annotationType().getAnnotation(Variable.class);
                 this.position = variable.position();
                 this.coding = variable.coding();
