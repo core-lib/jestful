@@ -2,11 +2,14 @@ package org.qfox.jestful.server;
 
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
-import org.qfox.jestful.core.converter.ValueConverter;
-import org.qfox.jestful.server.converter.*;
+import org.qfox.jestful.server.converter.ConversionException;
+import org.qfox.jestful.server.converter.ConversionProvider;
+import org.qfox.jestful.server.converter.Converter;
+import org.qfox.jestful.server.converter.UnsupportedConversionException;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.*;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,38 +44,6 @@ public class JestfulConversionProvider implements ConversionProvider, Initialabl
     public Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map) throws ConversionException, UnsupportedEncodingException {
         for (Converter converter : converters) if (converter.supports(type)) return converter.convert(name, type, decoded, charset, map, this);
         throw new UnsupportedConversionException("unsupported parameterized type " + type, name, type, map, this);
-    }
-
-    public Object extend(String name, Class<?> clazz, boolean decoded, String charset, Map<String, String[]> map) throws ConversionException, UnsupportedEncodingException {
-        Method[] methods = clazz.getMethods();
-        for (Method method : methods) {
-            if (!method.isAnnotationPresent(ValueConverter.class)) continue;
-            if (!Modifier.isStatic(method.getModifiers())) continue;
-            if (method.getReturnType() != clazz) continue;
-            if (method.getGenericParameterTypes().length != 1) continue;
-            Type type = method.getGenericParameterTypes()[0];
-            Object value = this.convert(name, type, decoded, charset, map);
-            try {
-                return method.invoke(null, value);
-            } catch (Exception e) {
-                throw new IncompatibleConversionException(e, name, clazz, map, this);
-            }
-        }
-
-        Constructor<?>[] constructors = clazz.getConstructors();
-        for (Constructor<?> constructor : constructors) {
-            if (!constructor.isAnnotationPresent(ValueConverter.class)) continue;
-            if (constructor.getParameterTypes().length != 1) continue;
-            Type type = constructor.getGenericParameterTypes()[0];
-            Object value = this.convert(name, type, decoded, charset, map);
-            try {
-                return constructor.newInstance(value);
-            } catch (Exception e) {
-                throw new IncompatibleConversionException(e, name, clazz, map, this);
-            }
-        }
-
-        return null;
     }
 
     public void initialize(BeanContainer beanContainer) {

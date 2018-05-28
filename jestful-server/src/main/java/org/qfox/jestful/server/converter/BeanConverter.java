@@ -19,9 +19,6 @@ public class BeanConverter implements Converter {
     }
 
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
-        Object result = provider.extend(name, clazz, decoded, charset, map);
-        if (result != null) return clazz.cast(result);
-
         T bean;
         try {
             bean = clazz.newInstance();
@@ -84,9 +81,6 @@ public class BeanConverter implements Converter {
 
     public Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         Class<?> clazz = (Class<?>) type.getRawType();
-        Object result = provider.extend(name, clazz, decoded, charset, map);
-        if (result != null) return clazz.cast(result);
-
         Object bean;
         try {
             bean = clazz.newInstance();

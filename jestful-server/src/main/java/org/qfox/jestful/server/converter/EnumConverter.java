@@ -12,9 +12,6 @@ public class EnumConverter implements Converter {
     }
 
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
-        Object result = provider.extend(name, clazz, decoded, charset, map);
-        if (result != null) return clazz.cast(result);
-
         String[] values = map.get(name) != null ? map.get(name).clone() : null;
         String value = values != null && values.length > 0 ? values[0] : null;
         if (value == null) {
@@ -24,7 +21,7 @@ public class EnumConverter implements Converter {
             value = URLDecoder.decode(value, charset);
         }
         try {
-            result = clazz.getMethod("valueOf", String.class).invoke(null, value);
+            Object result = clazz.getMethod("valueOf", String.class).invoke(null, value);
             return clazz.cast(result);
         } catch (Exception e) {
             throw new IncompatibleConversionException(e, name, clazz, map, provider);

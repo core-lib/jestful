@@ -3,11 +3,9 @@ package org.qfox.jestful.core.converter;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.exception.JestfulRuntimeException;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -47,14 +45,12 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Type rawType = parameterizedType.getRawType();
             if (!(rawType instanceof Class<?>)) return false;
-            else if (ValueConversion.getSerializeMethod((Class<?>) rawType) != null) return true;
             else if (Collection.class.isAssignableFrom((Class<?>) rawType)) return supports(parameterizedType.getActualTypeArguments()[0]);
             else if (Map.class.isAssignableFrom((Class<?>) rawType)) return supports(parameterizedType.getActualTypeArguments()[1]);
             return false;
         } else if (type instanceof Class<?>) {
             Class<?> clazz = (Class<?>) type;
             if (clazz.isArray()) return supports(clazz.getComponentType());
-            else if (ValueConversion.getSerializeMethod(clazz) != null) return true;
             for (StringConverter<?> converter : converters) if (converter.support(clazz)) return true;
             return false;
         } else return false;
@@ -100,24 +96,6 @@ public class DefaultStringConversion implements StringConversion, Initialable {
             if (converter.support(value.getClass())) {
                 List<String> values = Collections.singletonList(converter.convert(value.getClass(), value));
                 return Collections.singletonMap(name, values);
-            }
-        }
-
-        Method method = ValueConversion.getSerializeMethod(value.getClass());
-        if (method != null) {
-            try {
-                Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
-                Map<?, ?> m = (Map<?, ?>) method.invoke(value);
-                for (Map.Entry<?, ?> entry : m.entrySet()) {
-                    String key = name + (name.isEmpty() || entry.getKey().toString().isEmpty() ? "" : ".") + entry.getKey();
-                    List<?> list = (List<?>) entry.getValue();
-                    List<String> values = new ArrayList<String>(list.size());
-                    for (Object element : list) values.add((String) element);
-                    map.put(key, values);
-                }
-                return map;
-            } catch (Exception e) {
-                throw new JestfulRuntimeException(e);
             }
         }
 
