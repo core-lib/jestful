@@ -3,14 +3,14 @@ package org.qfox.jestful.core.converter;
 import org.qfox.jestful.core.BeanContainer;
 import org.qfox.jestful.core.Initialable;
 import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.exception.JestfulRuntimeException;
 import org.qfox.jestful.core.exception.NoSuchConverterException;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * <p>
@@ -36,199 +36,92 @@ public class DefaultStringConversion implements StringConversion, Initialable {
         }
     }
 
-    public boolean serializable(Parameter parameter) {
-        Class<?> klass = parameter.getKlass();
-        // 兼容一维数组
-        if (klass.isArray()) {
-            klass = klass.getComponentType();
-        }
-        // 支持简单类型
-        for (StringConverter<?> converter : converters) {
-            if (converter.support(klass)) {
-                return true;
-            }
-        }
-        // 支持复合类型 当他有对应的转换器方法
-        return ValueConversion.getSerializeMethod(klass) != null;
+    @Override
+    public boolean supports(Parameter parameter) {
+        return supports(parameter.getType());
     }
 
-    public boolean deserializable(Parameter parameter) {
-        Class<?> klass = parameter.getKlass();
-        // 兼容一维数组
-        if (klass.isArray()) {
-            klass = klass.getComponentType();
-        }
-        // 支持简单类型
-        for (StringConverter<?> converter : converters) {
-            if (converter.support(klass)) {
-                return true;
-            }
-        }
-        // 支持复合类型 当他有对应的转换器方法
-        return ValueConversion.getDeserializeMethod(klass) != null || ValueConversion.getDeserializeConstructor(klass) != null;
+    private boolean supports(Type type) {
+        if (type == null) return false;
+        else if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            Type rawType = parameterizedType.getRawType();
+            if (!(rawType instanceof Class<?>)) return false;
+            else if (ValueConversion.getSerializeMethod((Class<?>) rawType) != null) return true;
+            else if (Collection.class.isAssignableFrom((Class<?>) rawType)) return supports(parameterizedType.getActualTypeArguments()[0]);
+            else if (Map.class.isAssignableFrom((Class<?>) rawType)) return supports(parameterizedType.getActualTypeArguments()[1]);
+            return false;
+        } else if (type instanceof Class<?>) {
+            Class<?> clazz = (Class<?>) type;
+            if (clazz.isArray()) return supports(clazz.getComponentType());
+            else if (ValueConversion.getSerializeMethod(clazz) != null) return true;
+            for (StringConverter<?> converter : converters) if (converter.support(clazz)) return true;
+            return false;
+        } else return false;
     }
 
-    public void convert(Parameter parameter, String source) throws NoSuchConverterException {
-        Class<?> klass = parameter.getKlass();
-        if (klass.isArray()) {
-            // 匹配基本转换
-            klass = klass.getComponentType();
-            for (StringConverter<?> converter : converters) {
-                if (converter.support(klass)) {
-                    Object value = converter.convert(klass, source);
-                    push(parameter, klass, value);
-                    return;
-                }
-            }
-
-            // 匹配转换方法
-            Method method = ValueConversion.getDeserializeMethod(klass);
-            if (method != null) {
-                try {
-                    Object value = method.invoke(null, source);
-                    push(parameter, klass, value);
-                    return;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            // 匹配转换构造器
-            Constructor<?> constructor = ValueConversion.getDeserializeConstructor(klass);
-            if (constructor != null) {
-                try {
-                    Object value = constructor.newInstance(source);
-                    push(parameter, klass, value);
-                    return;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            throw new NoSuchConverterException(parameter);
-        } else {
-            for (StringConverter<?> converter : converters) {
-                if (converter.support(klass)) {
-                    Object value = converter.convert(klass, source);
-                    parameter.setValue(value);
-                    return;
-                }
-            }
-
-            // 匹配转换方法
-            Method method = ValueConversion.getDeserializeMethod(klass);
-            if (method != null) {
-                try {
-                    Object value = method.invoke(null, source);
-                    parameter.setValue(value);
-                    return;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            // 匹配转换构造器
-            Constructor<?> constructor = ValueConversion.getDeserializeConstructor(klass);
-            if (constructor != null) {
-                try {
-                    Object value = constructor.newInstance(source);
-                    parameter.setValue(value);
-                    return;
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
+    @Override
+    public Map<String, List<String>> convert(Parameter parameter) throws NoSuchConverterException {
+        try {
+            String name = parameter.getName();
+            name = name != null ? name.trim() : "";
+            Object value = parameter.getValue();
+            return convert(name, value);
+        } catch (NoSuchConverterException e) {
             throw new NoSuchConverterException(parameter);
         }
     }
 
-    protected void push(Parameter parameter, Class<?> klass, Object value) {
-        Object array = parameter.getValue();
-        if (array == null) {
-            array = Array.newInstance(klass, 1);
-            Array.set(array, 0, value);
-            parameter.setValue(array);
-        } else if (array.getClass().isArray()) {
-            int length = Array.getLength(array);
-            Object _array = Array.newInstance(klass, length + 1);
-            System.arraycopy(array, 0, _array, 0, length);
-            Array.set(_array, length, value);
-            parameter.setValue(_array);
-        } else {
-            throw new IllegalStateException("expecting parameter value is type of array but got " + array.getClass());
+    private Map<String, List<String>> convert(String name, Object value) throws NoSuchConverterException {
+        if (value == null) {
+            return Collections.emptyMap();
+        } else if (value instanceof Collection<?>) {
+            Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
+            Collection<?> collection = (Collection<?>) value;
+            int index = 0;
+            for (Object element : collection) map.putAll(convert(name + "[" + (index++) + "]", element));
+            return map;
+        } else if (value.getClass().isArray()) {
+            Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) map.putAll(convert(name + "[" + i + "]", Array.get(value, i)));
+            return map;
+        } else if (value instanceof Map<?, ?>) {
+            Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
+            Map<?, ?> m = (Map<?, ?>) value;
+            for (Map.Entry<?, ?> entry : m.entrySet()) {
+                String key = name + (name.isEmpty() || entry.getKey().toString().isEmpty() ? "" : ".") + entry.getKey();
+                map.putAll(convert(key, entry.getValue()));
+            }
+            return map;
         }
+
+        for (StringConverter<Object> converter : converters) {
+            if (converter.support(value.getClass())) {
+                List<String> values = Collections.singletonList(converter.convert(value.getClass(), value));
+                return Collections.singletonMap(name, values);
+            }
+        }
+
+        Method method = ValueConversion.getSerializeMethod(value.getClass());
+        if (method != null) {
+            try {
+                Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
+                Map<?, ?> m = (Map<?, ?>) method.invoke(value);
+                for (Map.Entry<?, ?> entry : m.entrySet()) {
+                    String key = name + (name.isEmpty() || entry.getKey().toString().isEmpty() ? "" : ".") + entry.getKey();
+                    List<?> list = (List<?>) entry.getValue();
+                    List<String> values = new ArrayList<String>(list.size());
+                    for (Object element : list) values.add((String) element);
+                    map.put(key, values);
+                }
+                return map;
+            } catch (Exception e) {
+                throw new JestfulRuntimeException(e);
+            }
+        }
+
+        throw new NoSuchConverterException(null);
     }
 
-    public String[] convert(Parameter parameter) throws NoSuchConverterException {
-        Class<?> klass = parameter.getKlass();
-        if (klass.isArray()) {
-            klass = klass.getComponentType();
-            Object array = parameter.getValue();
-            if (array == null) {
-                return null;
-            } else if (array.getClass().isArray()) {
-                StringConverter<Object> converter = null;
-                for (StringConverter<Object> c : converters) {
-                    if (c.support(klass)) {
-                        converter = c;
-                        break;
-                    }
-                }
-                if (converter != null) {
-                    int length = Array.getLength(array);
-                    String[] targets = new String[length];
-                    for (int index = 0; index < length; index++) {
-                        Object element = Array.get(array, index);
-                        String target = converter.convert(klass, element);
-                        targets[index] = target;
-                    }
-                    return targets;
-                }
-
-                // 匹配转换方法
-                Method method = ValueConversion.getSerializeMethod(klass);
-                if (method != null) {
-                    try {
-                        int length = Array.getLength(array);
-                        String[] targets = new String[length];
-                        for (int index = 0; index < length; index++) {
-                            Object element = Array.get(array, index);
-                            String target = (String) method.invoke(element);
-                            targets[index] = target;
-                        }
-                        return targets;
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                throw new NoSuchConverterException(parameter);
-            } else {
-                throw new IllegalStateException("expecting parameter value is type of array but got " + array.getClass());
-            }
-        } else {
-            for (StringConverter<Object> converter : converters) {
-                if (converter.support(klass)) {
-                    Object source = parameter.getValue();
-                    String target = converter.convert(klass, source);
-                    return new String[]{target};
-                }
-            }
-
-            // 匹配转换方法
-            Method method = ValueConversion.getSerializeMethod(klass);
-            if (method != null) {
-                try {
-                    Object source = parameter.getValue();
-                    String target = (String) method.invoke(source);
-                    return new String[]{target};
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            throw new NoSuchConverterException(parameter);
-        }
-    }
 }

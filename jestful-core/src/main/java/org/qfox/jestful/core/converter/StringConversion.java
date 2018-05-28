@@ -23,8 +23,6 @@ public interface StringConversion {
 
     boolean supports(Parameter parameter);
 
-    void convert(Parameter parameter, Map<String, List<String>> map) throws NoSuchConverterException;
-
     Map<String, List<String>> convert(Parameter parameter) throws NoSuchConverterException;
 
 }

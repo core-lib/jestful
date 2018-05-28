@@ -1,9 +1,11 @@
 package org.qfox.jestful.server.resolver;
 
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.converter.StringConversion;
+import org.qfox.jestful.server.converter.ConversionProvider;
 
-import java.net.URLDecoder;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,7 +13,7 @@ import java.util.regex.Pattern;
  * Created by yangchangpei on 17/5/2.
  */
 public class PathResolver implements Resolver, Initialable {
-    private StringConversion stringConversion;
+    private ConversionProvider conversionProvider;
 
     @Override
     public boolean supports(Action action, Parameter parameter) {
@@ -20,8 +22,10 @@ public class PathResolver implements Resolver, Initialable {
 
     @Override
     public void resolve(Action action, Parameter parameter) throws Exception {
-        int group = parameter.getGroup();
-        if (group <= 0) return;
+        String name = parameter.getName();
+        Type type = parameter.getType();
+        int index = parameter.getGroup();
+        if (index <= 0) return;
         String URI = action.getURI();
         Pattern pattern = action.getPattern();
         String regex = pattern.pattern();
@@ -29,11 +33,14 @@ public class PathResolver implements Resolver, Initialable {
         String charset = action.getPathEncodeCharset();
         Matcher matcher = pattern.matcher(URI);
         if (!matcher.find()) throw new IllegalStateException("uri " + URI + " is not match with " + pattern);
-        String source = parameter.isCoding() && !parameter.isDecoded() ? URLDecoder.decode(matcher.group(group), charset) : matcher.group(group);
-        stringConversion.convert(parameter, source);
+        boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
+        String group = matcher.group(index);
+        Map<String, String[]> map = Collections.singletonMap(name, new String[]{group});
+        Object value = conversionProvider.convert(name, type, decoded, charset, map);
+        parameter.setValue(value);
     }
 
     public void initialize(BeanContainer beanContainer) {
-        this.stringConversion = beanContainer.get(StringConversion.class);
+        this.conversionProvider = beanContainer.get(ConversionProvider.class);
     }
 }
