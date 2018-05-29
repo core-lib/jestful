@@ -95,7 +95,7 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
         Accepts accepts = accept == null || accept.length() == 0 ? new Accepts(serializers.keySet()) : Accepts.valueOf(accept);
         Accepts produces = action.getProduces();
         Accepts supports = new Accepts(serializers.keySet());
-        String URI = action.getURI();
+        String URI = action.getRequestURI();
         String method = action.getRestful().getMethod();
         throw new NotAcceptableStatusException(URI, method, accepts, produces.isEmpty() ? supports : produces);
     }

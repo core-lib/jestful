@@ -56,7 +56,7 @@ class Listener implements Interceptor, Configurable, Destroyable, Sequential {
     }
 
     boolean matches(Action action) {
-        String URI = action.getURI();
+        String URI = action.getRequestURI();
         String method = action.getRestful().getMethod();
         for (PathExpression e : expressions) if (e.getMethod().equalsIgnoreCase(method) && e.match(URI)) return true;
         return false;

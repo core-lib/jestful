@@ -65,7 +65,7 @@ public class ClientParameterResolver implements Actor, Initialable, Destroyable,
             RequestDeserializer deserializer = deserializers.get(mediaType);
             deserializer.deserialize(action, mediaType, charset, request.getRequestInputStream());
         } else {
-            String URI = action.getURI();
+            String URI = action.getRequestURI();
             String method = action.getRestful().getMethod();
             if (!consumes.isEmpty()) supports.retainAll(consumes);
             throw new UnsupportedTypeException(URI, method, mediaType, supports);

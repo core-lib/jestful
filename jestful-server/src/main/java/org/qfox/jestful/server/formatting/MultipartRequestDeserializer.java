@@ -168,7 +168,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
             RequestDeserializer deserializer = deserializers.get(mediaType);
             deserializer.deserialize(action, parameter, multihead, charset, in);
         } else {
-            String URI = action.getURI();
+            String URI = action.getRequestURI();
             String method = action.getRestful().getMethod();
             if (!consumes.isEmpty()) supports.retainAll(consumes);
             throw new UnsupportedTypeException(URI, method, mediaType, supports);

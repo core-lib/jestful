@@ -98,7 +98,7 @@ public class DigestScheme extends RFC2617Scheme implements Scheme {
         Restful restful = action.getRestful();
         String method = restful.getMethod();
         String route = action.getRoute();
-        String path = action.getURI();
+        String path = action.getRequestURI();
         String query = action.getQuery();
         String uri = StringKit.concat(
                 route != null ? route : "",

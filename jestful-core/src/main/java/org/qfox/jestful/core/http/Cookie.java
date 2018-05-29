@@ -30,7 +30,7 @@ public @interface Cookie {
      *
      * @return
      */
-    String value();
+    String value() default "";
 
     boolean encoded() default false;
 

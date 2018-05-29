@@ -11,7 +11,6 @@ import org.qfox.jestful.server.exception.BadMethodStatusException;
 import org.qfox.jestful.server.exception.ConflictStatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
 
-import javax.servlet.ServletContext;
 import java.util.*;
 
 /**
@@ -28,18 +27,14 @@ import java.util.*;
  * @since 1.0.0
  */
 public class JestfulMappingRegistry implements MappingRegistry, Initialable, Comparator<Mapping> {
-    private String context = "";
     private Node<PathExpression, Mapping> tree;
 
     public void initialize(BeanContainer beanContainer) {
-        ServletContext servletContext = beanContainer.get(ServletContext.class);
-        this.context = servletContext.getContextPath() != null ? servletContext.getContextPath() : "";
         this.tree = new Node<PathExpression, Mapping>(new PathExpression(null));
     }
 
     public Collection<Mapping> lookup(String URI) throws NotFoundStatusException {
-        String path = URI.substring(context.length());
-        Collection<Mapping> mappings = tree.match(path);
+        Collection<Mapping> mappings = tree.match(URI);
         if (mappings.isEmpty()) {
             throw new NotFoundStatusException(URI, null, null);
         } else {

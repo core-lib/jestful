@@ -30,7 +30,7 @@ public class CollectionConverter implements Converter {
             _class = implementations.get(_class);
         }
         try {
-            Object collection = _class.getConstructor(Collection.class).newInstance(Arrays.asList(values));
+            Object collection = _class.getConstructor(Collection.class).newInstance(values != null ? Arrays.asList(values) : Collections.emptyList());
             return clazz.cast(collection);
         } catch (Exception e) {
             throw new UnsupportedConversionException(e, name, clazz, map, provider);

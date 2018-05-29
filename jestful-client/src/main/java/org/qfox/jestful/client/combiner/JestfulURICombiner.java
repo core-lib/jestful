@@ -47,7 +47,7 @@ public class JestfulURICombiner implements Actor, Initialable {
             if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
             uri = uri.replace(placeholder, value);
         }
-        action.setURI(uri.replaceAll("/+", "/"));
+        action.setRequestURI(uri.replaceAll("/+", "/"));
         return action.execute();
     }
 

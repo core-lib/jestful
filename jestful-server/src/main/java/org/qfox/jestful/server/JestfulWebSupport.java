@@ -157,11 +157,12 @@ public class JestfulWebSupport implements Actor {
             RequestDescription description = new RequestDescription(httpServletRequest);
             String protocol = description.getProtocol();
             String method = description.getMethod();
-            String URI = description.getRequestURI();
+            String requestURI = description.getRequestURI();
+            String servletURI = description.getServletURI();
             String query = description.getQuery();
             String accept = httpServletRequest.getHeader("Accept");
 
-            Mapping mapping = mappingRegistry.lookup(method, URI, accept, versionComparator).clone();
+            Mapping mapping = mappingRegistry.lookup(method, servletURI, accept, versionComparator).clone();
             Collection<Actor> actors = new ArrayList<Actor>(Arrays.asList(plugins));
             actors.add(this);
             Action action = new Action(beanContainer, actors);
@@ -173,7 +174,8 @@ public class JestfulWebSupport implements Actor {
             action.setPattern(mapping.getPattern());
 
             action.setRestful(mapping.getRestful());
-            action.setURI(URI);
+            action.setRequestURI(requestURI);
+            action.setServletURI(servletURI);
             action.setQuery(query);
             action.setProtocol(protocol);
             action.setDispatcher(Dispatcher.valueOf(description.getDispatcherType().name()));

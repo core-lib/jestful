@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -53,10 +54,12 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
             Annotation[] variables = getAnnotationsWith(Variable.class);
             if (variables.length == 1) {
                 Annotation annotation = getAnnotationWith(Variable.class);
-                String name = annotation.annotationType().getMethod("value").invoke(annotation).toString();
-                List<String> names = MethodKit.parameters(method);
-                name = name.trim().length() > 0 ? name : names != null && names.size() > index ? names.get(index) : null;
-                if (name == null) throw new IllegalConfigException("unknown parameter name of index " + index + " in method " + method, mapping.getController(), method);
+                String name = annotation.annotationType().getMethod("value").invoke(annotation).toString().trim();
+                if (name.isEmpty() && klass != Map.class) {
+                    List<String> names = MethodKit.parameters(method);
+                    if (names != null && names.size() > index) name = names.get(index);
+                    else throw new IllegalConfigException("unknown parameter name of index " + index + " in method " + method, mapping.getController(), method);
+                }
                 this.name = name;
                 Variable variable = annotation.annotationType().getAnnotation(Variable.class);
                 this.position = variable.position();

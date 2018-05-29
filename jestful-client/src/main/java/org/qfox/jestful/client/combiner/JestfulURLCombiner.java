@@ -10,7 +10,7 @@ public class JestfulURLCombiner implements Actor {
         String host = action.getHostname();
         Integer port = action.getPort();
         String route = action.getRoute();
-        String uri = action.getURI();
+        String uri = action.getRequestURI();
         String query = action.getQuery();
         String url = protocol + "://" + host + (port != null ? ":" + port : "") + (route != null ? route : "") + (uri != null ? uri : "") + (query != null ? "?" + query : "");
         action.setURL(url);

@@ -29,7 +29,7 @@ public @interface Header {
      *
      * @return
      */
-    String value();
+    String value() default "";
 
     boolean encoded() default false;
 

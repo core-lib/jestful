@@ -26,7 +26,7 @@ public class PathResolver implements Resolver, Initialable {
         Type type = parameter.getType();
         int index = parameter.getGroup();
         if (index <= 0) return;
-        String URI = action.getURI();
+        String URI = action.getServletURI();
         Pattern pattern = action.getPattern();
         String regex = pattern.pattern();
         if (!URI.endsWith("/") && regex.endsWith("/")) URI = URI.concat("/");

@@ -32,7 +32,7 @@ public class HttpCacheManager extends DefaultCacheStatistics implements CacheMan
         // 没有缓存
         if (data == null) {
             // 如果用户强制回应必须来自缓存而不关心缓存是否过期并且在没有缓存的情况下返回 504 Gateway Timeout 回应
-            if (reqCacheControl.isOnlyIfCached()) throw new UnexpectedStatusException(action.getURI(), action.getRestful().getMethod(), HttpStatus.GATEWAY_TIMEOUT, Collections.<String, String[]>emptyMap(), "");
+            if (reqCacheControl.isOnlyIfCached()) throw new UnexpectedStatusException(action.getRequestURI(), action.getRestful().getMethod(), HttpStatus.GATEWAY_TIMEOUT, Collections.<String, String[]>emptyMap(), "");
             else return null;
         }
         // 有缓存

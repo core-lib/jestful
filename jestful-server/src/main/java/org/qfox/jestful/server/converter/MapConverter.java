@@ -25,7 +25,7 @@ public class MapConverter implements Converter {
                 String _key = key.substring(index + 1);
                 String[] values = map.get(key).clone();
                 if (!decoded) {
-                    _key = _key == null ? null : URLDecoder.decode(_key, charset);
+                    _key = URLDecoder.decode(_key, charset);
                     for (int i = 0; values != null && i < values.length; i++) {
                         values[i] = values[i] == null ? null : URLDecoder.decode(values[i], charset);
                     }

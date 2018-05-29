@@ -112,11 +112,11 @@ public class Invocation {
     }
 
     public String getURI() {
-        return action.getURI();
+        return action.getRequestURI();
     }
 
     public void setURI(String URI) {
-        action.setURI(URI);
+        action.setRequestURI(URI);
     }
 
     public String getQuery() {

@@ -28,6 +28,6 @@ public @interface HTTP {
      *
      * @return HTTP resource path
      */
-    String value();
+    String value() default "";
 
 }

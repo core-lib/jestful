@@ -27,7 +27,7 @@ public class ExtensionResolver implements Resolver, Initialable {
     public void resolve(Action action, Parameter parameter) throws Exception {
         String name = parameter.getName();
         Type type = parameter.getType();
-        String URI = action.getURI();
+        String URI = action.getRequestURI();
         String charset = action.getPathEncodeCharset();
         Extension extension = parameter.getAnnotation(Extension.class);
         String suffix = URI.contains(".") ? URI.substring(URI.lastIndexOf('.')) : extension.value();

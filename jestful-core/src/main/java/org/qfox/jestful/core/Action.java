@@ -32,7 +32,8 @@ public class Action {
 
     private Restful restful;
     private String URL;
-    private String URI;
+    private String requestURI;
+    private String servletURI;
     private String query;
     private String protocol;
     private String hostname;
@@ -177,12 +178,20 @@ public class Action {
         this.URL = URL;
     }
 
-    public String getURI() {
-        return URI;
+    public String getRequestURI() {
+        return requestURI;
     }
 
-    public void setURI(String URI) {
-        this.URI = URI;
+    public void setRequestURI(String requestURI) {
+        this.requestURI = requestURI;
+    }
+
+    public String getServletURI() {
+        return servletURI;
+    }
+
+    public void setServletURI(String servletURI) {
+        this.servletURI = servletURI;
     }
 
     public String getQuery() {

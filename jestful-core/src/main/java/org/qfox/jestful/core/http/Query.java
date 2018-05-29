@@ -24,7 +24,7 @@ import java.lang.annotation.*;
 @Variable(position = Position.QUERY, coding = true)
 public @interface Query {
 
-    String value();
+    String value() default "";
 
     boolean encoded() default false;
 
