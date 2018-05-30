@@ -20,8 +20,8 @@ public class MapConverter implements Converter {
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
         for (String key : map.keySet()) {
-            if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
-                int index = key.indexOf('.');
+            if (name.isEmpty() || (key.startsWith(name + ".") && key.length() > name.length() + 1)) {
+                int index = name.isEmpty() ? -1 : key.indexOf('.');
                 String _key = key.substring(index + 1);
                 String[] values = map.get(key).clone();
                 if (!decoded) {
@@ -52,19 +52,17 @@ public class MapConverter implements Converter {
     public Object convert(String name, ParameterizedType type, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         Map<Object, Object> _map = new LinkedHashMap<Object, Object>();
         for (String key : map.keySet()) {
-            if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
-                int index = key.indexOf('.');
+            if (name.isEmpty() || (key.startsWith(name + ".") && key.length() > name.length() + 1)) {
+                int index = name.isEmpty() ? -1 : key.indexOf('.');
                 String _key = key.substring(index + 1);
                 String[] values = map.get(key).clone();
 
-                String __key = _key.split("\\.")[0];
-
                 Map<String, String[]> km = new LinkedHashMap<String, String[]>();
-                km.put("key", new String[]{__key});
+                km.put("key", new String[]{_key});
                 Map<String, String[]> vm = new LinkedHashMap<String, String[]>();
                 vm.put(_key, values);
 
-                _map.put(provider.convert("key", type.getActualTypeArguments()[0], decoded, charset, km), provider.convert(__key, type.getActualTypeArguments()[1], decoded, charset, vm));
+                _map.put(provider.convert("key", type.getActualTypeArguments()[0], decoded, charset, km), provider.convert(_key, type.getActualTypeArguments()[1], decoded, charset, vm));
             }
         }
         Class<?> _class = (Class<?>) type.getRawType();
