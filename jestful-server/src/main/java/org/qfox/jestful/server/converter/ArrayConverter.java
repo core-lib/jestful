@@ -17,11 +17,11 @@ public class ArrayConverter implements Converter {
     public <T> T convert(String name, Class<T> clazz, boolean decoded, String charset, Map<String, String[]> map, ConversionProvider provider) throws ConversionException, UnsupportedEncodingException {
         Object array = Array.newInstance(clazz.getComponentType(), 0);
         for (String key : map.keySet()) {
-            if (key.equals(name) || key.startsWith(name + ".")) {
+            if (key.equals(name) || (key.startsWith(name + ".") && key.length() > name.length() + 1)) {
                 String[] values = map.get(key) != null ? map.get(key).clone() : new String[0];
                 for (int i = 0; i < values.length; i++) {
                     Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
-                    _map.put(name, ArrayKit.copyOfRange(values, i, i + 1));
+                    _map.put(key, ArrayKit.copyOfRange(values, i, i + 1));
                     Object object = provider.convert(name, clazz.getComponentType(), decoded, charset, _map);
                     int index = Array.getLength(array);
                     Object _array = Array.newInstance(clazz.getComponentType(), index + 1);
