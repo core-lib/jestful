@@ -48,18 +48,7 @@ public class CollectionConverter implements Converter {
         }
         Collection<Object> collection = new ArrayList<Object>();
         for (String key : map.keySet()) {
-            if (key.equals(name)) {
-                String[] values = map.get(key).clone();
-                Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
-                String[] _values = new String[1];
-                for (String value : values) {
-                    _values[0] = value;
-                    _map.put(name, _values);
-                    collection.add(provider.convert(name, type.getActualTypeArguments()[0], decoded, charset, _map));
-                    _map.clear();
-                }
-            }
-            if (key.startsWith(name + ".") && key.length() > name.length() + 1) {
+            if (key.equals(name) || (key.startsWith(name + ".") && key.length() > name.length() + 1)) {
                 String[] values = map.get(key).clone();
                 Map<String, String[]> _map = new LinkedHashMap<String, String[]>();
                 String[] _values = new String[1];
