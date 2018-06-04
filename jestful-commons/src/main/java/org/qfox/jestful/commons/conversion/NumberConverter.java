@@ -19,7 +19,8 @@ public class NumberConverter implements Converter<Number> {
         return conversion.type == BigInteger.class
                 || conversion.type == BigDecimal.class
                 || conversion.type == AtomicInteger.class
-                || conversion.type == AtomicLong.class;
+                || conversion.type == AtomicLong.class
+                || conversion.type == Number.class;
     }
 
     @Override
@@ -29,6 +30,7 @@ public class NumberConverter implements Converter<Number> {
         else if (conversion.type == BigDecimal.class) return new BigDecimal(conversion.decoded ? conversion.values[0] : URLDecoder.decode(conversion.values[0], conversion.charset));
         else if (conversion.type == AtomicInteger.class) return new AtomicInteger(Integer.valueOf(conversion.decoded ? conversion.values[0] : URLDecoder.decode(conversion.values[0], conversion.charset)));
         else if (conversion.type == AtomicLong.class) return new AtomicLong(Long.valueOf(conversion.decoded ? conversion.values[0] : URLDecoder.decode(conversion.values[0], conversion.charset)));
+        else if (conversion.type == Number.class) return new BigDecimal(conversion.decoded ? conversion.values[0] : URLDecoder.decode(conversion.values[0], conversion.charset));
         else return (Number) conversion.value;
     }
 

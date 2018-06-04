@@ -24,6 +24,7 @@ public class StringConverter implements Converter<CharSequence> {
         else if (conversion.type == String.class) return conversion.decoded ? conversion.values[0] : URLDecoder.decode(conversion.values[0], conversion.charset);
         else if (conversion.type == StringBuilder.class) return new StringBuilder(conversion.decoded ? conversion.values[0] : URLDecoder.decode(conversion.values[0], conversion.charset));
         else if (conversion.type == StringBuffer.class) return new StringBuffer(conversion.decoded ? conversion.values[0] : URLDecoder.decode(conversion.values[0], conversion.charset));
+        else if (conversion.type == CharSequence.class) return conversion.decoded ? conversion.values[0] : URLDecoder.decode(conversion.values[0], conversion.charset);
         else return (CharSequence) conversion.value;
     }
 
