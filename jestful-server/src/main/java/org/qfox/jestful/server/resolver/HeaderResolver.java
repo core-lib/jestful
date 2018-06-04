@@ -1,8 +1,10 @@
 package org.qfox.jestful.server.resolver;
 
+import org.qfox.jestful.commons.conversion.Conversion;
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.server.converter.ConversionProvider;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -21,9 +23,14 @@ public class HeaderResolver implements Resolver, Initialable {
         String charset = action.getHeaderEncodeCharset();
         Map<String, String[]> headers = action.getHeaders();
 
+        String name = parameter.getName();
+        Type type = parameter.getType();
         boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
-        Object value = conversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, headers);
-        parameter.setValue(value);
+        for (Map.Entry<String, String[]> entry : headers.entrySet()) {
+            Conversion conversion = new Conversion(name, parameter.getValue(), type, decoded, charset, entry.getKey(), entry.getValue());
+            Object value = conversionProvider.convert(conversion);
+            parameter.setValue(value);
+        }
     }
 
     @Override

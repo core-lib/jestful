@@ -2,10 +2,10 @@ package org.qfox.jestful.server.formatting;
 
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.MapKit;
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.server.JestfulServletRequest;
-import org.qfox.jestful.server.converter.ConversionProvider;
 
 import java.io.BufferedReader;
 import java.io.IOException;

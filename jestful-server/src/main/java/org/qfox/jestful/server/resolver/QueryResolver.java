@@ -1,10 +1,10 @@
 package org.qfox.jestful.server.resolver;
 
+import org.qfox.jestful.commons.conversion.Conversion;
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.server.JestfulServletRequest;
-import org.qfox.jestful.server.converter.ConversionProvider;
-import org.qfox.jestful.server.formatting.URLEncodedServletRequest;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -23,13 +23,14 @@ public class QueryResolver implements Resolver, Initialable {
         String charset = action.getQueryEncodeCharset();
         Map<String, String[]> map = action.getQueries();
 
+        String name = parameter.getName();
+        Type type = parameter.getType();
         boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
-        Object value = conversionProvider.convert(parameter.getName(), parameter.getType(), decoded, charset, map);
-        parameter.setValue(value);
-
-        Request oldRequest = action.getRequest();
-        Request newRequest = new URLEncodedServletRequest((JestfulServletRequest) oldRequest, map);
-        action.setRequest(newRequest);
+        for (Map.Entry<String, String[]> entry : map.entrySet()) {
+            Conversion conversion = new Conversion(name, parameter.getValue(), type, decoded, charset, entry.getKey(), entry.getValue());
+            Object value = conversionProvider.convert(conversion);
+            parameter.setValue(value);
+        }
     }
 
     public void initialize(BeanContainer beanContainer) {

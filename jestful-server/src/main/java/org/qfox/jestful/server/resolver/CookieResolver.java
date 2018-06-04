@@ -1,10 +1,10 @@
 package org.qfox.jestful.server.resolver;
 
+import org.qfox.jestful.commons.conversion.Conversion;
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.server.converter.ConversionProvider;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -20,16 +20,17 @@ public class CookieResolver implements Resolver, Initialable {
 
     @Override
     public void resolve(Action action, Parameter parameter) throws Exception {
-        String name = parameter.getName();
-        Type type = parameter.getType();
         String charset = action.getHeaderEncodeCharset();
         Map<String, String[]> cookies = action.getCookies();
-        String[] values = cookies.get(name);
-        if (values == null || values.length == 0 || values[0] == null) return;
+
+        String name = parameter.getName();
+        Type type = parameter.getType();
         boolean decoded = !parameter.isCoding() || (parameter.isCoding() && parameter.isDecoded());
-        Map<String, String[]> map = Collections.singletonMap(name, values);
-        Object value = conversionProvider.convert(name, type, decoded, charset, map);
-        parameter.setValue(value);
+        for (Map.Entry<String, String[]> entry : cookies.entrySet()) {
+            Conversion conversion = new Conversion(name, parameter.getValue(), type, decoded, charset, entry.getKey(), entry.getValue());
+            Object value = conversionProvider.convert(conversion);
+            parameter.setValue(value);
+        }
     }
 
     @Override
