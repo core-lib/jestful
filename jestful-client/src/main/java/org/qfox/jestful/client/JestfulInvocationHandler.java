@@ -80,7 +80,8 @@ public class JestfulInvocationHandler<T> implements InvocationHandler {
             throw new IllegalStateException("Client has been destroyed");
         }
 
-        Mapping mapping = resource.getMappings().get(method).clone();
+        List<Mapping> mappings = resource.getMappings().get(method);
+        Mapping mapping = mappings.iterator().next().clone();
 
         return client.invoker()
                 .setProtocol(protocol)

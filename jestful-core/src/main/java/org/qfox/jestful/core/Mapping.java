@@ -4,8 +4,8 @@ import org.qfox.jestful.commons.tree.Hierarchical;
 import org.qfox.jestful.commons.tree.Node;
 import org.qfox.jestful.commons.tree.PathExpression;
 import org.qfox.jestful.core.annotation.Function;
+import org.qfox.jestful.core.annotation.URI;
 import org.qfox.jestful.core.annotation.Version;
-import org.qfox.jestful.core.exception.AmbiguousMappingException;
 import org.qfox.jestful.core.exception.DuplicateParameterException;
 import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.core.exception.UndefinedParameterException;
@@ -33,6 +33,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
     private final Resource resource;
     private final Object controller;
     private final Method method;
+    private final Annotation annotation;
     private final Method configuration;
     private final Parameters parameters;
     private final Result result;
@@ -49,6 +50,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
         this.resource = resource;
         this.controller = resource.getController();
         this.method = null;
+        this.annotation = null;
         this.configuration = null;
         this.parameters = parameters;
         this.result = result;
@@ -61,55 +63,45 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
         this.version = null;
     }
 
-    public Mapping(Resource resource, Object controller, Method method, Method configuration) throws IllegalConfigException {
+    public Mapping(Resource resource, Object controller, Method method, Annotation annotation, Method configuration) throws IllegalConfigException {
         super(configuration.getAnnotations());
         try {
             this.resource = resource;
             this.controller = controller;
             this.method = method;
+            this.annotation = annotation;
             this.configuration = configuration;
             this.parameters = extract(method);
             this.result = new Result(this, method);
-            Annotation[] functions = getAnnotationsWith(Function.class);
-            if (functions.length == 1) {
-                Annotation restful = functions[0];
-                Function function = restful.annotationType().getAnnotation(Function.class);
-                this.restful = new Restful(function);
+            Function function = annotation.annotationType().getAnnotation(Function.class);
+            this.restful = new Restful(function);
 
-                Set<MediaType> consumeMediaTypes = new TreeSet<MediaType>();
-                String[] consumes = function.acceptBody()
-                        ? (String[]) restful.annotationType().getMethod("consumes").invoke(restful)
-                        : new String[0];
-                for (String consume : consumes) consumeMediaTypes.add(MediaType.valueOf(consume));
-                this.consumes = new Accepts(consumeMediaTypes);
+            Set<MediaType> consumeMediaTypes = new TreeSet<MediaType>();
+            String[] consumes = function.acceptBody()
+                    ? (String[]) annotation.annotationType().getMethod("consumes").invoke(annotation)
+                    : new String[0];
+            for (String consume : consumes) consumeMediaTypes.add(MediaType.valueOf(consume));
+            this.consumes = new Accepts(consumeMediaTypes);
 
-                Set<MediaType> produceMediaTypes = new TreeSet<MediaType>();
-                String[] produces = function.returnBody()
-                        ? (String[]) restful.annotationType().getMethod("produces").invoke(restful)
-                        : new String[0];
-                for (String produce : produces) produceMediaTypes.add(MediaType.valueOf(produce));
-                this.produces = new Accepts(produceMediaTypes);
+            Set<MediaType> produceMediaTypes = new TreeSet<MediaType>();
+            String[] produces = function.returnBody()
+                    ? (String[]) annotation.annotationType().getMethod("produces").invoke(annotation)
+                    : new String[0];
+            for (String produce : produces) produceMediaTypes.add(MediaType.valueOf(produce));
+            this.produces = new Accepts(produceMediaTypes);
 
-                String value = restful.annotationType().getMethod("value").invoke(restful).toString().trim();
-                this.expression = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
-                this.regex = bind(resource.getExpression() + expression + "/");
-                this.pattern = Pattern.compile(regex);
+            String value = annotation.annotationType().getMethod("value").invoke(annotation).toString().trim();
+            if (value.isEmpty() && this.isAnnotationPresent(URI.class)) value = this.getAnnotation(URI.class).value();
+            this.expression = ("/" + value).replaceAll("/+", "/").replaceAll("/+$", "");
+            this.regex = bind(resource.getExpression() + expression + "/");
+            this.pattern = Pattern.compile(regex);
 
-                Version version = this.isAnnotationPresent(Version.class)
-                        ? this.getAnnotation(Version.class)
-                        : resource.isAnnotationPresent(Version.class)
-                        ? resource.getAnnotation(Version.class)
-                        : null;
-                this.version = version != null ? version.value() : null;
-            } else {
-                String message = String.format(
-                        "Ambiguous mapping %s which has %d command kind annotations %s",
-                        configuration.toGenericString(),
-                        functions.length,
-                        Arrays.toString(functions)
-                );
-                throw new AmbiguousMappingException(message, controller, method, this);
-            }
+            Version version = this.isAnnotationPresent(Version.class)
+                    ? this.getAnnotation(Version.class)
+                    : resource.isAnnotationPresent(Version.class)
+                    ? resource.getAnnotation(Version.class)
+                    : null;
+            this.version = version != null ? version.value() : null;
         } catch (IllegalConfigException e) {
             throw e;
         } catch (Exception e) {
@@ -210,7 +202,7 @@ public class Mapping extends Configuration implements Hierarchical<PathExpressio
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @Override
     public Mapping clone() {
-        return new Mapping(resource, controller, method, configuration);
+        return new Mapping(resource, controller, method, annotation, configuration);
     }
 
     public Resource getResource() {

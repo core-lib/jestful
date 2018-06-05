@@ -11,9 +11,7 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -32,7 +30,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
     private final Object controller;
     private final Class<?> klass;
     private final String expression;
-    private final Map<Method, Mapping> mappings = new LinkedHashMap<Method, Mapping>();
+    private final Map<Method, List<Mapping>> mappings = new LinkedHashMap<Method, List<Mapping>>();
 
     public Resource() {
         super(new Annotation[0]);
@@ -68,13 +66,24 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                     if (method.isSynthetic()) {
                         continue;
                     }
-                    Method configuration;
-                    if ((configuration = getRestfulMethodFromClasses(protocol.annotationType(), method, klass)) != null) {
-                        this.mappings.put(method, new Mapping(this, controller, method, configuration));
+                    Map<Annotation, Method> map = getRestfulMethodFromClasses(protocol.annotationType(), method, klass);
+                    if (!map.isEmpty()) {
+                        for (Map.Entry<Annotation, Method> entry : map.entrySet()) {
+                            Mapping mapping = new Mapping(this, controller, method, entry.getKey(), entry.getValue());
+                            List<Mapping> mappings = this.mappings.get(method);
+                            if (mappings == null) this.mappings.put(method, mappings = new ArrayList<Mapping>());
+                            mappings.add(mapping);
+                        }
                         continue;
                     }
-                    if ((configuration = getRestfulMethodFromInterfaces(protocol.annotationType(), method, klass)) != null) {
-                        this.mappings.put(method, new Mapping(this, controller, method, configuration));
+                    map = getRestfulMethodFromInterfaces(protocol.annotationType(), method, klass);
+                    if (!map.isEmpty()) {
+                        for (Map.Entry<Annotation, Method> entry : map.entrySet()) {
+                            Mapping mapping = new Mapping(this, controller, method, entry.getKey(), entry.getValue());
+                            List<Mapping> mappings = this.mappings.get(method);
+                            if (mappings == null) this.mappings.put(method, mappings = new ArrayList<Mapping>());
+                            mappings.add(mapping);
+                        }
                     }
                 }
             } else {
@@ -93,7 +102,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
         }
     }
 
-    private static Method getRestfulMethodFromClasses(Class<? extends Annotation> protocol, Method method, Class<?> clazz) {
+    private static Map<Annotation, Method> getRestfulMethodFromClasses(Class<? extends Annotation> protocol, Method method, Class<?> clazz) {
         Class<?> superclass = clazz;
 
         while (superclass != null) {
@@ -105,18 +114,20 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                 // 查找被重写的方法
                 for (int i = 0; i < m.getParameterTypes().length; i++) if (m.getParameterTypes()[i] != method.getParameterTypes()[i]) continue flag;
                 // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
+                Map<Annotation, Method> map = new LinkedHashMap<Annotation, Method>();
                 for (Annotation annotation : m.getAnnotations()) {
                     Function function = annotation.annotationType().getAnnotation(Function.class);
-                    if (function != null && function.protocol() == protocol) return m;
+                    if (function != null && function.protocol() == protocol) map.put(annotation, m);
                 }
+                if (!map.isEmpty()) return map;
             }
             superclass = superclass.getSuperclass();
         }
 
-        return null;
+        return Collections.emptyMap();
     }
 
-    private static Method getRestfulMethodFromInterfaces(Class<? extends Annotation> protocol, Method method, Class<?> clazz) {
+    private static Map<Annotation, Method> getRestfulMethodFromInterfaces(Class<? extends Annotation> protocol, Method method, Class<?> clazz) {
         Class<?> superclass = clazz;
 
         while (superclass != null) {
@@ -129,27 +140,31 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
                     // 查找被重写的方法
                     for (int i = 0; i < m.getParameterTypes().length; i++) if (m.getParameterTypes()[i] != method.getParameterTypes()[i]) continue flag;
                     // 在父类中找到了对应的被重写的方法, 判断是否有Command的注解
+                    Map<Annotation, Method> map = new LinkedHashMap<Annotation, Method>();
                     for (Annotation annotation : m.getAnnotations()) {
                         Function function = annotation.annotationType().getAnnotation(Function.class);
-                        if (function != null && function.protocol() == protocol) return m;
+                        if (function != null && function.protocol() == protocol) map.put(annotation, m);
                     }
+                    if (!map.isEmpty()) return map;
                     // 深度递归优先
-                    m = getRestfulMethodFromInterfaces(protocol, method, interfase);
+                    map = getRestfulMethodFromInterfaces(protocol, method, interfase);
                     // 如果找到了就返回
-                    if (m != null) return m;
+                    if (!map.isEmpty()) return map;
                 }
             }
             superclass = superclass.getSuperclass();
         }
 
-        return null;
+        return Collections.emptyMap();
     }
 
     public Node<PathExpression, Mapping> toNode() {
         Node<PathExpression, Mapping> branch = new Node<PathExpression, Mapping>(new PathExpression());
-        for (Mapping mapping : mappings.values()) {
-            Node<PathExpression, Mapping> leave = mapping.toNode();
-            branch.merge(leave);
+        for (List<Mapping> list : mappings.values()) {
+            for (Mapping mapping : list) {
+                Node<PathExpression, Mapping> leave = mapping.toNode();
+                branch.merge(leave);
+            }
         }
         return branch;
     }
@@ -162,7 +177,7 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
         return expression;
     }
 
-    public Map<Method, Mapping> getMappings() {
+    public Map<Method, List<Mapping>> getMappings() {
         return mappings;
     }
 
