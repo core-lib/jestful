@@ -1,5 +1,6 @@
 package org.qfox.jestful.commons.conversion;
 
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -91,6 +92,8 @@ public class StandardConversionProvider implements ConversionProvider {
             } else {
                 return conversion.value;
             }
+        } catch (IntrospectionException e) {
+            return conversion.value;
         } catch (Exception e) {
             throw new ConvertingException(conversion);
         }
