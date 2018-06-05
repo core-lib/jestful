@@ -32,7 +32,6 @@
         <module>jestful-async</module>
         <module>jestful-multiview</module>
         <module>jestful-velocity</module>
-        <module>jestful-swagger</module>
         <module>jestful-form</module>
         <module>jestful-weixin</module>
         <module>jestful-guava</module>
