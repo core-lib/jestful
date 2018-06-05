@@ -14,7 +14,7 @@ import java.lang.reflect.Type;
 /**
  * Created by yangchangpei on 17/5/2.
  */
-public class ExtensionParameterResolver implements Resolver, Initialable {
+public class ExtensionResolver implements Resolver, Initialable {
     private ConversionProvider conversionProvider;
 
     @Override
