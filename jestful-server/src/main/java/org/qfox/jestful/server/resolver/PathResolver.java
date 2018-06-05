@@ -16,7 +16,7 @@ public class PathResolver implements Resolver, Initialable {
 
     @Override
     public boolean supports(Action action, Parameter parameter) {
-        return parameter.getPosition() == Position.PATH && parameter.getValue() == null;
+        return parameter.between(Position.PATH) && parameter.getValue() == null;
     }
 
     @Override

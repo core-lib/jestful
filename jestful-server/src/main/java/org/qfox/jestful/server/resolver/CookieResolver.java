@@ -15,7 +15,7 @@ public class CookieResolver implements Resolver, Initialable {
 
     @Override
     public boolean supports(Action action, Parameter parameter) {
-        return parameter.getPosition() == Position.COOKIE && parameter.getValue() == null;
+        return parameter.between(Position.COOKIE) && parameter.getValue() == null;
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
 import org.qfox.jestful.core.io.MultipartInputStream;
 import org.qfox.jestful.server.JestfulServletRequest;
+import org.qfox.jestful.server.annotation.Field;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
 
 import java.io.File;
@@ -40,8 +41,8 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
         String boundary = mediaType.getParameters().get("boundary");
         List<Multipart> multiparts = new ArrayList<Multipart>();
-        Map<String, String[]> fields = new LinkedHashMap<String, String[]>();
-        List<Parameter> parameters = action.getParameters().all(Position.BODY);
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+        List<Parameter> bodies = action.getParameters().all(Position.BODY, true);
         MultipartInputStream mis = new MultipartInputStream(in, boundary);
         Multihead multihead;
         while ((multihead = mis.getNextMultihead()) != null) {
@@ -50,7 +51,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
             multiparts.add(multipart);
             Disposition disposition = multihead.getDisposition();
             String name = disposition != null ? disposition.getName() : null;
-            for (Parameter parameter : parameters) {
+            for (Parameter parameter : bodies) {
                 if (!parameter.getName().equals(name)) continue;
 
                 if (parameter.getKlass().isInstance(multihead)) {
@@ -135,7 +136,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 else {
                     File file = multibody.getFile();
                     String value = IOKit.toString(file, charset);
-                    String[] values = fields.get(name);
+                    String[] values = map.get(name);
                     if (values == null) {
                         values = new String[]{value};
                     } else {
@@ -144,13 +145,14 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                         array[values.length] = value;
                         values = array;
                     }
-                    fields.put(name, values);
+                    map.put(name, values);
                 }
             }
         }
-        FormKit.assign(charset, fields, parameters, multipartConversionProvider);
+        List<Parameter> fields = action.getParameters().all(Field.POSITION, true);
+        FormKit.assign(charset, map, fields, multipartConversionProvider);
         Request oldRequest = action.getRequest();
-        Request newRequest = new MultipartServletRequest((JestfulServletRequest) oldRequest, fields, multiparts);
+        Request newRequest = new MultipartServletRequest((JestfulServletRequest) oldRequest, map, multiparts);
         action.setRequest(newRequest);
         mis.close();
     }

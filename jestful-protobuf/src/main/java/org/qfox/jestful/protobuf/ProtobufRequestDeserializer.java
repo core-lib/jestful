@@ -28,7 +28,7 @@ public class ProtobufRequestDeserializer implements RequestDeserializer {
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
-        List<Parameter> parameters = action.getParameters().all(Position.BODY);
+        List<Parameter> parameters = action.getParameters().all(Position.BODY, true);
         for (Parameter parameter : parameters) {
             try {
                 Method method = parameter.getKlass().getMethod("parseFrom", InputStream.class);

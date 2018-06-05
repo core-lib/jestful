@@ -19,7 +19,7 @@ public class ExtensionResolver implements Resolver, Initialable {
 
     @Override
     public boolean supports(Action action, Parameter parameter) {
-        return parameter.getPosition() == Extension.POSITION && parameter.getValue() == null;
+        return parameter.between(Extension.POSITION) && parameter.getValue() == null;
     }
 
     @Override

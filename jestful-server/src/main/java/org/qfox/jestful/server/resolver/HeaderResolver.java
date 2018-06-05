@@ -15,7 +15,7 @@ public class HeaderResolver implements Resolver, Initialable {
 
     @Override
     public boolean supports(Action action, Parameter parameter) {
-        return parameter.getPosition() == Position.HEADER && parameter.getValue() == null;
+        return parameter.between(Position.HEADER) && parameter.getValue() == null;
     }
 
     @Override

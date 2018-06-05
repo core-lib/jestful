@@ -18,30 +18,30 @@ public interface Position {
     /**
      * 未知位置
      */
-    int UNKNOWN = -1;
+    int UNKNOWN = 1;
     /**
      * 请求头
      */
-    int HEADER = 0;
+    int HEADER = 1 << 1;
     /**
      * 请求路径
      */
-    int PATH = 1;
+    int PATH = 1 << 2;
     /**
      * 查询字符串
      */
-    int QUERY = 2;
+    int QUERY = 1 << 3;
     /**
      * 请求体
      */
-    int BODY = 3;
+    int BODY = 1 << 4;
     /**
      * Cookie
      */
-    int COOKIE = 4;
+    int COOKIE = 1 << 5;
     /**
      * 会话
      */
-    int SESSION = 5;
+    int SESSION = 1 << 6;
 
 }

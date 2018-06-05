@@ -26,75 +26,53 @@ public class Parameters implements List<Parameter> {
         this.parameters = new ArrayList<Parameter>(parameters);
     }
 
-    public List<Parameter> all(int position) {
+    public List<Parameter> all(int pos) {
+        return all(pos, false);
+    }
+
+    public List<Parameter> all(int pos, boolean strict) {
         List<Parameter> all = new ArrayList<Parameter>();
-        for (Parameter parameter : parameters) {
-            if (parameter.getPosition() == position) {
-                all.add(parameter);
-            }
-        }
+        for (Parameter parameter : parameters) if (strict ? parameter.getPosition() == pos : parameter.between(pos)) all.add(parameter);
         return all;
     }
 
-    public int count(int position) {
+    public int count(int pos) {
+        return count(pos, false);
+    }
+
+    public int count(int pos, boolean strict) {
         int total = 0;
-        for (Parameter parameter : parameters) {
-            if (parameter.getPosition() == position) {
-                total++;
-            }
-        }
+        for (Parameter parameter : parameters) if (strict ? parameter.getPosition() == pos : parameter.between(pos)) total++;
         return total;
     }
 
     public List<Parameter> all(Class<?> klass) {
         List<Parameter> all = new ArrayList<Parameter>();
-        for (Parameter parameter : parameters) {
-            if (klass.isAssignableFrom(parameter.getKlass())) {
-                all.add(parameter);
-            }
-        }
+        for (Parameter parameter : parameters) if (klass.isAssignableFrom(parameter.getKlass())) all.add(parameter);
         return all;
     }
 
     public int count(Class<?> klass) {
         int total = 0;
-        for (Parameter parameter : parameters) {
-            if (klass.isAssignableFrom(parameter.getKlass())) {
-                total++;
-            }
-        }
+        for (Parameter parameter : parameters) if (klass.isAssignableFrom(parameter.getKlass())) total++;
         return total;
     }
 
     public Parameter unique(Class<?> klass) throws NoSuchParameterException, NoOnlyParameterException {
         List<Parameter> all = all(klass);
-        if (all.isEmpty()) {
-            throw new NoSuchParameterException(this, klass);
-        } else if (all.size() > 1) {
-            throw new NoOnlyParameterException(this, klass);
-        } else {
-            return all.get(0);
-        }
+        if (all.isEmpty()) throw new NoSuchParameterException(this, klass);
+        else if (all.size() > 1) throw new NoOnlyParameterException(this, klass);
+        else return all.get(0);
     }
 
     public Parameter first(Class<?> klass) {
-        Parameter first = null;
-        for (Parameter parameter : parameters) {
-            if (klass.isAssignableFrom(parameter.getKlass())) {
-                first = parameter;
-                break;
-            }
-        }
-        return first;
+        for (Parameter parameter : parameters) if (klass.isAssignableFrom(parameter.getKlass())) return parameter;
+        return null;
     }
 
     public Parameter last(Class<?> klass) {
         Parameter last = null;
-        for (Parameter parameter : parameters) {
-            if (klass.isAssignableFrom(parameter.getKlass())) {
-                last = parameter;
-            }
-        }
+        for (Parameter parameter : parameters) if (klass.isAssignableFrom(parameter.getKlass())) last = parameter;
         return last;
     }
 

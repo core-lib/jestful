@@ -44,7 +44,7 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
-        List<Parameter> parameters = action.getParameters().all(Position.BODY);
+        List<Parameter> parameters = action.getParameters().all(Position.BODY, true);
         for (Parameter parameter : parameters) {
             InputStreamReader isr = null;
             try {

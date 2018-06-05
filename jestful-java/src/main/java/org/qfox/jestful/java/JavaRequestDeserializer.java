@@ -30,7 +30,7 @@ public class JavaRequestDeserializer implements RequestDeserializer {
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
-        List<Parameter> parameters = action.getParameters().all(Position.BODY);
+        List<Parameter> parameters = action.getParameters().all(Position.BODY, true);
         for (Parameter parameter : parameters) {
             ObjectInputStream ois = null;
             try {

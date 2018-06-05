@@ -88,6 +88,10 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
         return index > o.index ? 1 : index < o.index ? -1 : 0;
     }
 
+    public boolean between(int pos) {
+        return (position & pos) != 0;
+    }
+
     public Object getValue() {
         return value;
     }

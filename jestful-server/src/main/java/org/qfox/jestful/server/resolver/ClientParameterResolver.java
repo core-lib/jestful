@@ -30,7 +30,7 @@ public class ClientParameterResolver implements Actor, Initialable, Destroyable,
     public Object react(Action action) throws Exception {
         Parameters parameters = action.getParameters();
 
-        for (Parameter p : parameters) for (Resolver r : resolvers) if (r.supports(action, p)) r.resolve(action, p);
+        for (Parameter parameter : parameters) for (Resolver r : resolvers) if (r.supports(action, parameter)) r.resolve(action, parameter);
 
         Restful restful = action.getRestful();
         if (!restful.isAcceptBody()) return action.execute();

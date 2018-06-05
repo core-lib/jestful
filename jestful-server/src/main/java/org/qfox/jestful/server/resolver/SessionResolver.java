@@ -16,7 +16,7 @@ import javax.servlet.http.HttpSession;
 public class SessionResolver implements Resolver {
     @Override
     public boolean supports(Action action, Parameter parameter) {
-        return parameter.getPosition() == Position.SESSION && parameter.getValue() == null;
+        return parameter.between(Position.SESSION) && parameter.getValue() == null;
     }
 
     @Override

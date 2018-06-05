@@ -13,7 +13,8 @@ import java.lang.annotation.*;
 @Target({ElementType.PARAMETER})
 @Variable(position = Extension.POSITION, coding = true)
 public @interface Extension {
-    int POSITION = 10;
+
+    int POSITION = 1 << 7;
 
     /**
      * 缺省值

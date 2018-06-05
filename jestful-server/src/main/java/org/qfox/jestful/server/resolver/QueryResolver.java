@@ -15,7 +15,7 @@ public class QueryResolver implements Resolver, Initialable {
 
     @Override
     public boolean supports(Action action, Parameter parameter) {
-        return parameter.getPosition() == Position.QUERY && parameter.getValue() == null;
+        return parameter.between(Position.QUERY) && parameter.getValue() == null;
     }
 
     @Override
