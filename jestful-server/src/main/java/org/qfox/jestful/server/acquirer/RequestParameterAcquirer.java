@@ -1,14 +1,14 @@
 package org.qfox.jestful.server.acquirer;
 
-import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.JestfulRuntimeException;
-import org.qfox.jestful.core.io.MultipartInputStream;
 import org.qfox.jestful.server.JestfulServletRequest;
+import org.qfox.jestful.server.formatting.FormKit;
 import org.qfox.jestful.server.formatting.Multipart;
 import org.qfox.jestful.server.formatting.MultipartServletRequest;
 import org.springframework.web.multipart.MultipartRequest;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +33,6 @@ public class RequestParameterAcquirer implements Acquirer {
         if (parameter.getKlass().isInstance(action.getRequest())) {
             return action.getRequest();
         }
-        MultipartInputStream mis = null;
         try {
             if (!MultipartRequest.class.isAssignableFrom(parameter.getKlass())) return null;
 
@@ -44,40 +43,16 @@ public class RequestParameterAcquirer implements Acquirer {
             MediaType mediaType = MediaType.valueOf(contentType);
             if (!MediaType.valueOf("multipart/form-data").matches(mediaType)) return null;
 
+            InputStream in = request.getRequestInputStream();
             String boundary = mediaType.getParameters().get("boundary");
             List<Multipart> multiparts = new ArrayList<Multipart>();
-            Map<String, String[]> fields = new LinkedHashMap<String, String[]>();
-            mis = new MultipartInputStream(request.getRequestInputStream(), boundary);
-            Multihead multihead;
-            while ((multihead = mis.getNextMultihead()) != null) {
-                Disposition disposition = multihead.getDisposition();
-                MediaType type = multihead.getType();
-                String name = disposition.getName();
-                if (type != null) {
-                    Multibody multibody = new Multibody(mis);
-                    Multipart multipart = new Multipart(multihead, multibody);
-                    multiparts.add(multipart);
-                } else {
-                    String value = IOKit.toString(mis);
-                    String[] values = fields.get(name);
-                    if (values == null) {
-                        values = new String[]{value};
-                    } else {
-                        String[] array = new String[values.length + 1];
-                        System.arraycopy(values, 0, array, 0, values.length);
-                        array[values.length] = value;
-                        values = array;
-                    }
-                    fields.put(name, values);
-                }
-            }
-            Request newRequest = new MultipartServletRequest((JestfulServletRequest) request, fields, multiparts);
+            Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+            FormKit.extract(in, boundary, multiparts, map);
+            Request newRequest = new MultipartServletRequest((JestfulServletRequest) request, map, multiparts);
             action.setRequest(newRequest);
             return newRequest;
         } catch (Exception e) {
             throw new JestfulRuntimeException(e);
-        } finally {
-            IOKit.close(mis);
         }
     }
 

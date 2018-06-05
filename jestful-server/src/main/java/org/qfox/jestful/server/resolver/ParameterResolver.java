@@ -1,8 +1,10 @@
 package org.qfox.jestful.server.resolver;
 
 import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.annotation.Variable;
 import org.qfox.jestful.core.exception.BeanConfigException;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
+import org.qfox.jestful.server.acquirer.Acquirer;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
 
 import java.util.*;
@@ -10,9 +12,10 @@ import java.util.*;
 /**
  * Created by yangchangpei on 17/5/3.
  */
-public class ClientParameterResolver implements Actor, Initialable, Destroyable, Configurable {
+public class ParameterResolver implements Actor, Initialable, Destroyable, Configurable {
     private final Map<MediaType, RequestDeserializer> deserializers = new LinkedHashMap<MediaType, RequestDeserializer>();
     private final Set<Resolver> resolvers = new LinkedHashSet<Resolver>();
+    private final Set<Acquirer> acquirers = new LinkedHashSet<Acquirer>();
     private final Map<Class<?>, Object> defaults = new LinkedHashMap<Class<?>, Object>();
 
     {
@@ -30,19 +33,19 @@ public class ClientParameterResolver implements Actor, Initialable, Destroyable,
     public Object react(Action action) throws Exception {
         Parameters parameters = action.getParameters();
 
-        for (Parameter parameter : parameters) for (Resolver r : resolvers) if (r.supports(action, parameter)) r.resolve(action, parameter);
+        for (Parameter param : parameters) for (Resolver resolver : resolvers) if (resolver.supports(action, param)) resolver.resolve(action, param);
 
         Restful restful = action.getRestful();
-        if (!restful.isAcceptBody()) return action.execute();
+        if (!restful.isAcceptBody()) return next(action);
 
-        if (parameters.count(Position.BODY) == 0) return action.execute();
+        if (parameters.count(Position.BODY) == 0) return next(action);
 
         Request request = action.getRequest();
         String contentType = request.getContentType();
         if (contentType == null || contentType.length() == 0) {
             Accepts consumes = action.getConsumes();
             if (consumes.size() == 1) contentType = consumes.iterator().next().getName();
-            else return action.execute();
+            else return next(action);
         }
         MediaType mediaType = MediaType.valueOf(contentType);
 
@@ -71,6 +74,20 @@ public class ClientParameterResolver implements Actor, Initialable, Destroyable,
             throw new UnsupportedTypeException(URI, method, mediaType, supports);
         }
 
+        return next(action);
+    }
+
+    private Object next(Action action) throws Exception {
+        Parameters parameters = action.getParameters();
+
+        for (Parameter parameter : parameters) {
+            if (parameter.getAnnotationWith(Variable.class) != null || parameter.getValue() != null) continue;
+            Object value = null;
+            Iterator<Acquirer> iterator = acquirers.iterator();
+            while (value == null && iterator.hasNext()) value = iterator.next().acquire(action, parameter);
+            parameter.setValue(value);
+        }
+
         for (Parameter parameter : parameters) {
             Class<?> klass = parameter.getKlass();
             if (!defaults.containsKey(klass) || parameter.isResolved() || parameter.getValue() != null) continue;
@@ -89,17 +106,19 @@ public class ClientParameterResolver implements Actor, Initialable, Destroyable,
             MediaType mediaType = MediaType.valueOf(contentType);
             this.deserializers.put(mediaType, deserializer);
         }
-
         this.resolvers.addAll(beanContainer.find(Resolver.class).values());
+        this.acquirers.addAll(beanContainer.find(Acquirer.class).values());
     }
 
     @Override
     public void destroy() {
         for (Resolver r : resolvers) if (r instanceof Destroyable) ((Destroyable) r).destroy();
+        for (Acquirer o : acquirers) if (o instanceof Destroyable) ((Destroyable) o).destroy();
     }
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
         for (Resolver r : resolvers) if (r instanceof Configurable) ((Configurable) r).config(arguments);
+        for (Acquirer o : acquirers) if (o instanceof Configurable) ((Configurable) o).config(arguments);
     }
 }

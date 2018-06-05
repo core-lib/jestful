@@ -6,7 +6,6 @@ import org.qfox.jestful.commons.ReflectionKit;
 import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.RequestDeserializer;
-import org.qfox.jestful.core.io.MultipartInputStream;
 import org.qfox.jestful.server.JestfulServletRequest;
 import org.qfox.jestful.server.annotation.Field;
 import org.qfox.jestful.server.exception.UnsupportedTypeException;
@@ -42,27 +41,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
         String boundary = mediaType.getParameters().get("boundary");
         List<Multipart> multiparts = new ArrayList<Multipart>();
         Map<String, String[]> map = new LinkedHashMap<String, String[]>();
-        // 读取
-        MultipartInputStream mis = new MultipartInputStream(in, boundary);
-        try {
-            Multihead multihead;
-            while ((multihead = mis.getNextMultihead()) != null) {
-                MediaType type = multihead.getType();
-                Disposition disposition = multihead.getDisposition();
-                if (type != null) {
-                    Multibody multibody = new Multibody(mis);
-                    Multipart multipart = new Multipart(multihead, multibody);
-                    multiparts.add(multipart);
-                } else if (disposition != null) {
-                    String name = disposition.getName();
-                    String value = IOKit.toString(mis);
-                    String[] values = map.get(name);
-                    map.put(name, ArrayKit.append(values != null ? values : new String[0], value));
-                }
-            }
-        } finally {
-            IOKit.close(mis);
-        }
+        FormKit.extract(in, boundary, multiparts, map);
 
         List<Parameter> bodies = action.getParameters().all(Position.BODY, true);
         for (Parameter parameter : bodies) {
@@ -157,6 +136,7 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
         Request newRequest = new MultipartServletRequest((JestfulServletRequest) oldRequest, map, multiparts);
         action.setRequest(newRequest);
     }
+
 
     public void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException {
         MediaType mediaType = multihead.getType();

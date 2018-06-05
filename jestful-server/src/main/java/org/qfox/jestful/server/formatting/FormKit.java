@@ -1,11 +1,15 @@
 package org.qfox.jestful.server.formatting;
 
+import org.qfox.jestful.commons.ArrayKit;
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.conversion.Conversion;
 import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.commons.conversion.ConvertingException;
-import org.qfox.jestful.core.Parameter;
+import org.qfox.jestful.core.*;
+import org.qfox.jestful.core.io.MultipartInputStream;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +39,30 @@ public class FormKit {
             }
         } catch (ConvertingException e) {
             throw new IOException(e);
+        }
+    }
+
+    public static void extract(InputStream in, String boundary, List<Multipart> multiparts, Map<String, String[]> map) throws IOException {
+        MultipartInputStream mis = null;
+        try {
+            mis = new MultipartInputStream(in, boundary);
+            Multihead multihead;
+            while ((multihead = mis.getNextMultihead()) != null) {
+                MediaType type = multihead.getType();
+                Disposition disposition = multihead.getDisposition();
+                if (type != null) {
+                    Multibody multibody = new Multibody(mis);
+                    Multipart multipart = new Multipart(multihead, multibody);
+                    multiparts.add(multipart);
+                } else if (disposition != null) {
+                    String name = disposition.getName();
+                    String value = IOKit.toString(mis);
+                    String[] values = map.get(name);
+                    map.put(name, ArrayKit.append(values != null ? values : new String[0], value));
+                }
+            }
+        } finally {
+            IOKit.close(mis);
         }
     }
 

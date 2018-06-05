@@ -34,8 +34,7 @@
     </jestful:component>
 
     <jestful:component id="resolver">
-        <bean class="org.qfox.jestful.server.resolver.ClientParameterResolver"/>
-        <bean class="org.qfox.jestful.server.resolver.ServerParameterResolver"/>
+        <bean class="org.qfox.jestful.server.resolver.ParameterResolver"/>
     </jestful:component>
 
     <jestful:component id="handler">

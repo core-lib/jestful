@@ -27,7 +27,7 @@ public class ResultRenderer implements Actor, Initialable, Destroyable, Configur
 
     @Override
     public void config(Map<String, String> arguments) throws BeanConfigException {
-        for (Renderer r : renderers) if (r instanceof Configurable) ((Configurable) r).config(arguments);
+        for (Renderer renderer : renderers) if (renderer instanceof Configurable) ((Configurable) renderer).config(arguments);
     }
 
     public Object react(Action action) throws Exception {
