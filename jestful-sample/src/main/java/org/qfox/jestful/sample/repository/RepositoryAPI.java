@@ -24,7 +24,7 @@ public interface RepositoryAPI {
     List<Repository> getAllPublicRepositories(@Query("since") Integer since);
 
     @POST(value = "/user/repos", consumes = "application/json")
-    Repository create(@Body Repository repository);
+    Repository create(@Body("*") Repository repository);
 
     @GET("/repos/{owner:.+}/{repo:.+}")
     Repository getUserRepository(@Path("owner") String owner, @Path("repo") String repository);

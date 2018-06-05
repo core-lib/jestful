@@ -29,7 +29,7 @@ public @interface Body {
      *
      * @return
      */
-    String value() default "";
+    String value() default "*";
 
     boolean encoded() default false;
 
