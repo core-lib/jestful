@@ -27,9 +27,7 @@ public class MultipartServletRequest extends URLEncodedServletRequest implements
 
     public Iterator<String> getFileNames() {
         Set<String> names = new LinkedHashSet<String>();
-        for (Multipart multipart : multiparts) {
-            names.add(multipart.getName());
-        }
+        for (Multipart multipart : multiparts) names.add(multipart.getName());
         return names.iterator();
     }
 
@@ -40,11 +38,7 @@ public class MultipartServletRequest extends URLEncodedServletRequest implements
 
     public List<MultipartFile> getFiles(String name) {
         List<MultipartFile> files = new ArrayList<MultipartFile>();
-        for (Multipart multipart : multiparts) {
-            if (multipart.getName().equals(name)) {
-                files.add(multipart);
-            }
-        }
+        for (Multipart part : multiparts) if (name == null ? part.getName() == null : name.equals(part.getName())) files.add(part);
         return files;
     }
 
@@ -93,14 +87,10 @@ public class MultipartServletRequest extends URLEncodedServletRequest implements
 
     public HttpHeaders getMultipartHeaders(String name) {
         Multipart multipart = (Multipart) getFile(name);
-        if (multipart == null) {
-            return null;
-        }
+        if (multipart == null) return null;
         HttpHeaders headers = new HttpHeaders();
         Map<String, String> header = multipart.getMultihead().getHeader();
-        for (Map.Entry<String, String> entry : header.entrySet()) {
-            headers.add(entry.getKey(), entry.getValue());
-        }
+        for (Map.Entry<String, String> entry : header.entrySet()) headers.add(entry.getKey(), entry.getValue());
         return headers;
     }
 
@@ -111,11 +101,7 @@ public class MultipartServletRequest extends URLEncodedServletRequest implements
 
     @Override
     public Part getPart(String name) throws IOException, ServletException {
-        for (Part part : multiparts) {
-            if (name == null ? part.getName() == null : name.equals(part.getName())) {
-                return part;
-            }
-        }
+        for (Part part : multiparts) if (name == null ? part.getName() == null : name.equals(part.getName())) return part;
         return null;
     }
 }

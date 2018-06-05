@@ -42,16 +42,34 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
         String boundary = mediaType.getParameters().get("boundary");
         List<Multipart> multiparts = new ArrayList<Multipart>();
         Map<String, String[]> map = new LinkedHashMap<String, String[]>();
-        List<Parameter> bodies = action.getParameters().all(Position.BODY, true);
+        // 读取
         MultipartInputStream mis = new MultipartInputStream(in, boundary);
-        Multihead multihead;
-        while ((multihead = mis.getNextMultihead()) != null) {
-            Multibody multibody = new Multibody(mis);
-            Multipart multipart = new Multipart(multihead, multibody);
-            multiparts.add(multipart);
-            Disposition disposition = multihead.getDisposition();
-            String name = disposition != null ? disposition.getName() : null;
-            for (Parameter parameter : bodies) {
+        try {
+            Multihead multihead;
+            while ((multihead = mis.getNextMultihead()) != null) {
+                MediaType type = multihead.getType();
+                Disposition disposition = multihead.getDisposition();
+                if (type != null) {
+                    Multibody multibody = new Multibody(mis);
+                    Multipart multipart = new Multipart(multihead, multibody);
+                    multiparts.add(multipart);
+                } else if (disposition != null) {
+                    String name = disposition.getName();
+                    String value = IOKit.toString(mis);
+                    String[] values = map.get(name);
+                    map.put(name, ArrayKit.append(values != null ? values : new String[0], value));
+                }
+            }
+        } finally {
+            IOKit.close(mis);
+        }
+
+        List<Parameter> bodies = action.getParameters().all(Position.BODY, true);
+        for (Parameter parameter : bodies) {
+            for (Multipart multipart : multiparts) {
+                Multihead multihead = multipart.getMultihead();
+                Multibody multibody = multipart.getMultibody();
+                String name = multipart.getName();
                 if (!parameter.getName().equals(name)) continue;
 
                 if (parameter.getKlass().isInstance(multihead)) {
@@ -68,17 +86,17 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 }
                 // 数组
                 if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multihead)) {
-                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multihead.clone());
+                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), (Class) parameter.getKlass().getComponentType(), multihead.clone());
                     parameter.setValue(array);
                     break;
                 }
                 if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multibody)) {
-                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multibody.clone());
+                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), (Class) parameter.getKlass().getComponentType(), multibody.clone());
                     parameter.setValue(array);
                     break;
                 }
                 if (parameter.getKlass().isArray() && parameter.getKlass().getComponentType().isInstance(multipart)) {
-                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), parameter.getKlass().getComponentType(), multipart.clone());
+                    Object[] array = ArrayKit.append((Object[]) parameter.getValue(), (Class) parameter.getKlass().getComponentType(), multipart.clone());
                     parameter.setValue(array);
                     break;
                 }
@@ -122,43 +140,27 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
                 }
                 // 来到这里证明不是个文件可能是一个Raw Type 也可能是一个 Field Type
                 // Raw Type
-                if (multihead.getType() != null) {
-                    FileInputStream fis = null;
-                    try {
-                        File file = multibody.getFile();
-                        fis = new FileInputStream(file);
-                        deserialize(action, parameter, multihead, charset, fis);
-                    } finally {
-                        IOKit.close(fis);
-                    }
-                }
-                // Field Type
-                else {
+                FileInputStream fis = null;
+                try {
                     File file = multibody.getFile();
-                    String value = IOKit.toString(file, charset);
-                    String[] values = map.get(name);
-                    if (values == null) {
-                        values = new String[]{value};
-                    } else {
-                        String[] array = new String[values.length + 1];
-                        System.arraycopy(values, 0, array, 0, values.length);
-                        array[values.length] = value;
-                        values = array;
-                    }
-                    map.put(name, values);
+                    fis = new FileInputStream(file);
+                    deserialize(action, parameter, multihead, charset, fis);
+                } finally {
+                    IOKit.close(fis);
                 }
             }
         }
+
         List<Parameter> fields = action.getParameters().all(Field.POSITION, true);
         FormKit.assign(charset, map, fields, multipartConversionProvider);
         Request oldRequest = action.getRequest();
         Request newRequest = new MultipartServletRequest((JestfulServletRequest) oldRequest, map, multiparts);
         action.setRequest(newRequest);
-        mis.close();
     }
 
     public void deserialize(Action action, Parameter parameter, Multihead multihead, String charset, InputStream in) throws IOException {
         MediaType mediaType = multihead.getType();
+        if (mediaType == null) return;
         Request request = action.getRequest();
         Accepts consumes = action.getConsumes();
         Accepts supports = new Accepts(deserializers.keySet());
