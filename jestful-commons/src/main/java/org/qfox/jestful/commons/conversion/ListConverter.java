@@ -46,7 +46,7 @@ public class ListConverter implements Converter<List<?>> {
             Object element = list.size() > index ? list.get(index) : null;
             Conversion cvs = new Conversion(expression.substring(0, i + 1), element, elementType, conversion.decoded, conversion.charset, expression, conversion.values);
             element = provider.convert(cvs);
-            list.add(index, element);
+            list.set(index, element); // 替换
             return list;
         } else {
             return (List<?>) conversion.value;

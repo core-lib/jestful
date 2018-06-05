@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -55,10 +54,15 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
             if (variables.length == 1) {
                 Annotation annotation = getAnnotationWith(Variable.class);
                 String name = annotation.annotationType().getMethod("value").invoke(annotation).toString().trim();
-                if (name.isEmpty() && klass != Map.class) {
+                // 如果是默认值则采用变量名作为参数名
+                if (name.isEmpty()) {
                     List<String> names = MethodKit.parameters(method);
                     if (names != null && names.size() > index) name = names.get(index);
                     else throw new IllegalConfigException("unknown parameter name of index " + index + " in method " + method, mapping.getController(), method);
+                }
+                // 如果是 * 则表示没有变量名
+                else if (name.matches("\\*+")) {
+                    name = "";
                 }
                 this.name = name;
                 Variable variable = annotation.annotationType().getAnnotation(Variable.class);

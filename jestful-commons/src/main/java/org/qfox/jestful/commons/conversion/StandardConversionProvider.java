@@ -95,7 +95,7 @@ public class StandardConversionProvider implements ConversionProvider {
         } catch (IntrospectionException e) {
             return conversion.value;
         } catch (Exception e) {
-            throw new ConvertingException(conversion);
+            throw new ConvertingException(e, conversion);
         }
     }
 
