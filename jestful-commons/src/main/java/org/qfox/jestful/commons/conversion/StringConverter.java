@@ -1,6 +1,8 @@
 package org.qfox.jestful.commons.conversion;
 
 import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * 字符串类型转换器
@@ -9,6 +11,20 @@ import java.net.URLDecoder;
  * @date 2018-06-04 11:06
  **/
 public class StringConverter implements Converter<CharSequence> {
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return CharSequence.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, CharSequence value, ConversionProvider provider) throws Exception {
+        char[] chars = new char[value.length()];
+        for (int i = 0; i < chars.length; i++) {
+            chars[i] = value.charAt(i);
+        }
+        return Collections.singletonMap(name, new String[]{new String(chars)});
+    }
 
     @Override
     public boolean supports(Conversion conversion) {

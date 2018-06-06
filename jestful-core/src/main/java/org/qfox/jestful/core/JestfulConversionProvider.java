@@ -1,8 +1,6 @@
-package org.qfox.jestful.server;
+package org.qfox.jestful.core;
 
 import org.qfox.jestful.commons.conversion.*;
-import org.qfox.jestful.core.BeanContainer;
-import org.qfox.jestful.core.Initialable;
 
 import java.util.Map;
 
@@ -21,6 +19,21 @@ import java.util.Map;
  */
 public class JestfulConversionProvider implements ConversionProvider, Initialable {
     private ConversionProvider delegate;
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return delegate.supports(type);
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Object value) throws ConvertingException {
+        return delegate.convert(name, value);
+    }
+
+    @Override
+    public boolean supports(Conversion conversion) {
+        return delegate.supports(conversion);
+    }
 
     @Override
     public Object convert(Conversion conversion) throws ConvertingException {

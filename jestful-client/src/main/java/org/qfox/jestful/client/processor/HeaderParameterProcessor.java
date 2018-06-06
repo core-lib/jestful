@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.processor;
 
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.converter.StringConversion;
 
 import java.net.URLEncoder;
 import java.util.List;
@@ -21,22 +21,22 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class HeaderParameterProcessor implements Actor, Initialable {
-    private StringConversion headerStringConversion;
+    private ConversionProvider headerConversionProvider;
 
     public Object react(Action action) throws Exception {
         Request request = action.getRequest();
         String charset = action.getHeaderEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.HEADER);
         for (Parameter parameter : parameters) {
-            Map<String, List<String>> map = headerStringConversion.convert(parameter);
+            Map<String, String[]> map = headerConversionProvider.convert(parameter.getName(), parameter.getValue());
             if (map == null || map.isEmpty()) continue;
-            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            for (Map.Entry<String, String[]> entry : map.entrySet()) {
                 String name = entry.getKey();
                 name = URLEncoder.encode(name, charset);
-                List<String> values = entry.getValue();
-                String[] headers = new String[values.size()];
+                String[] values = entry.getValue();
+                String[] headers = new String[values.length];
                 for (int i = 0; i < headers.length; i++) {
-                    String value = values.get(i);
+                    String value = values[i];
                     if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
                     headers[i] = value;
                 }
@@ -47,15 +47,15 @@ public class HeaderParameterProcessor implements Actor, Initialable {
     }
 
     public void initialize(BeanContainer beanContainer) {
-        this.headerStringConversion = beanContainer.get(StringConversion.class);
+        this.headerConversionProvider = beanContainer.get(ConversionProvider.class);
     }
 
-    public StringConversion getHeaderStringConversion() {
-        return headerStringConversion;
+    public ConversionProvider getHeaderConversionProvider() {
+        return headerConversionProvider;
     }
 
-    public void setHeaderStringConversion(StringConversion headerStringConversion) {
-        this.headerStringConversion = headerStringConversion;
+    public void setHeaderConversionProvider(ConversionProvider headerConversionProvider) {
+        this.headerConversionProvider = headerConversionProvider;
     }
 
 }

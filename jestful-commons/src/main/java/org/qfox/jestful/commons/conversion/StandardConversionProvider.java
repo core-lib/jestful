@@ -1,13 +1,12 @@
 package org.qfox.jestful.commons.conversion;
 
 import java.beans.IntrospectionException;
+import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * 标准的转换提供器
@@ -21,6 +20,42 @@ public class StandardConversionProvider implements ConversionProvider {
     public StandardConversionProvider(Collection<Converter> converters) {
         if (converters == null) throw new NullPointerException();
         this.converters = new ArrayList<Converter>(converters);
+    }
+
+    @Override
+    public boolean supports(Class<?> type) {
+        for (Converter converter : converters) if (converter.supports(type)) return true;
+        return false;
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Object value) throws ConvertingException {
+        if (value == null) return Collections.emptyMap();
+        try {
+            name = name != null ? name.trim() : "";
+            Class<?> type = value.getClass();
+            for (Converter converter : converters) if (converter.supports(type)) return converter.convert(name, value, this);
+            Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+            PropertyDescriptor[] descriptors = Introspector.getBeanInfo(type).getPropertyDescriptors();
+            for (PropertyDescriptor descriptor : descriptors) {
+                String attrName = descriptor.getName();
+                if (attrName.equals("class")) continue;
+                Method getter = descriptor.getReadMethod();
+                Object attrValue = getter.invoke(value);
+                if (attrValue == null) continue;
+                Map<String, String[]> m = this.convert(name.isEmpty() ? attrName : name + "." + attrName, attrValue);
+                map.putAll(m);
+            }
+            return map;
+        } catch (Exception e) {
+            throw new ConvertingException(e);
+        }
+    }
+
+    @Override
+    public boolean supports(Conversion conversion) {
+        for (Converter<?> converter : converters) if (converter.supports(conversion)) return true;
+        return false;
     }
 
     @Override

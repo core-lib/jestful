@@ -3,6 +3,7 @@ package org.qfox.jestful.commons.conversion;
 import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -28,6 +29,16 @@ public class DateConverter implements Converter<Date> {
         formats.put(Pattern.compile("\\d{4,}\\/\\d{1,2}\\/\\d{1,2}\\s\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}"), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"));
         formats.put(Pattern.compile("\\d{4,}\\s\\d{1,2}\\s\\d{1,2}\\s\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}"), new SimpleDateFormat("yyyy MM dd HH:mm:ss"));
         formats.put(Pattern.compile("\\d{4,}\\.\\d{1,2}\\.\\d{1,2}\\s\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}"), new SimpleDateFormat("yyyy.MM.dd HH:mm:ss"));
+    }
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return Date.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Date value, ConversionProvider provider) throws Exception {
+        return Collections.singletonMap(name, new String[]{String.valueOf(value.getTime())});
     }
 
     @Override

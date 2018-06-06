@@ -4,7 +4,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * List转换器
@@ -13,6 +15,22 @@ import java.util.List;
  * @date 2018-06-04 11:21
  **/
 public class ListConverter implements Converter<List<?>> {
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return List.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, List<?> value, ConversionProvider provider) throws Exception {
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+        for (int i = 0; i < value.size(); i++) {
+            Object item = value.get(i);
+            Map<String, String[]> m = provider.convert(name + "[" + i + "]", item);
+            map.putAll(m);
+        }
+        return map;
+    }
 
     @Override
     public boolean supports(Conversion conversion) {

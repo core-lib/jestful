@@ -1,5 +1,7 @@
 package org.qfox.jestful.commons.conversion;
 
+import java.util.Map;
+
 /**
  * 转换器
  *
@@ -7,6 +9,10 @@ package org.qfox.jestful.commons.conversion;
  * @date 2018-06-04 10:21
  **/
 public interface Converter<T> {
+
+    boolean supports(Class<?> type);
+
+    Map<String, String[]> convert(String name, T value, ConversionProvider provider) throws Exception;
 
     /**
      * 为了递归的缺省键

@@ -14,6 +14,21 @@ import java.util.Map;
 public class MapConverter implements Converter<Map<?, ?>> {
 
     @Override
+    public boolean supports(Class<?> type) {
+        return Map.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Map<?, ?> value, ConversionProvider provider) throws Exception {
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+        for (Map.Entry<?, ?> entry : value.entrySet()) {
+            Map<String, String[]> m = provider.convert(name + "['" + entry.getValue() + "']", entry.getValue());
+            map.putAll(m);
+        }
+        return map;
+    }
+
+    @Override
     public boolean supports(Conversion conversion) {
         return conversion.type instanceof ParameterizedType
                 && ((ParameterizedType) conversion.type).getRawType() == Map.class;

@@ -1,6 +1,8 @@
 package org.qfox.jestful.commons.conversion;
 
 import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * 枚举转换器
@@ -9,6 +11,16 @@ import java.net.URLDecoder;
  * @date 2018-06-04 11:23
  **/
 public class EnumConverter implements Converter<Enum<?>> {
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return type.isEnum();
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Enum<?> value, ConversionProvider provider) throws Exception {
+        return Collections.singletonMap(name, new String[]{value.name()});
+    }
 
     @Override
     public boolean supports(Conversion conversion) {

@@ -1,7 +1,10 @@
 package org.qfox.jestful.commons.conversion;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.net.URLDecoder;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * 数组转换器
@@ -10,6 +13,23 @@ import java.net.URLDecoder;
  * @date 2018-06-04 11:21
  **/
 public class ArrayConverter implements Converter<Object> {
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return type.isArray();
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Object value, ConversionProvider provider) throws Exception {
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+        int length = Array.getLength(value);
+        for (int i = 0; i < length; i++) {
+            Object item = Array.get(value, i);
+            Map<String, String[]> m = provider.convert(name + "[" + i + "]", item);
+            map.putAll(m);
+        }
+        return map;
+    }
 
     @Override
     public boolean supports(Conversion conversion) {

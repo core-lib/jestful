@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.processor;
 
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.converter.StringConversion;
 
 import java.net.URLEncoder;
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 public class CookieParameterProcessor implements Actor, Initialable {
-    private StringConversion cookieStringConversion;
+    private ConversionProvider cookieConversionProvider;
 
     public Object react(Action action) throws Exception {
         Request request = action.getRequest();
@@ -31,12 +31,12 @@ public class CookieParameterProcessor implements Actor, Initialable {
         StringBuilder builder = new StringBuilder(cookie);
         List<Parameter> parameters = action.getParameters().all(Position.COOKIE);
         for (Parameter parameter : parameters) {
-            Map<String, List<String>> map = cookieStringConversion.convert(parameter);
+            Map<String, String[]> map = cookieConversionProvider.convert(parameter.getName(), parameter.getValue());
             if (map == null || map.isEmpty()) continue;
-            for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            for (Map.Entry<String, String[]> entry : map.entrySet()) {
                 String name = entry.getKey();
                 name = URLEncoder.encode(name, charset);
-                List<String> values = entry.getValue();
+                String[] values = entry.getValue();
                 for (String value : values) {
                     if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
                     builder.append(builder.length() == 0 ? "" : "; ").append(name).append("=").append(value);
@@ -48,15 +48,15 @@ public class CookieParameterProcessor implements Actor, Initialable {
     }
 
     public void initialize(BeanContainer beanContainer) {
-        this.cookieStringConversion = beanContainer.get(StringConversion.class);
+        this.cookieConversionProvider = beanContainer.get(ConversionProvider.class);
     }
 
-    public StringConversion getCookieStringConversion() {
-        return cookieStringConversion;
+    public ConversionProvider getCookieConversionProvider() {
+        return cookieConversionProvider;
     }
 
-    public void setCookieStringConversion(StringConversion cookieStringConversion) {
-        this.cookieStringConversion = cookieStringConversion;
+    public void setCookieConversionProvider(ConversionProvider cookieConversionProvider) {
+        this.cookieConversionProvider = cookieConversionProvider;
     }
 
 }

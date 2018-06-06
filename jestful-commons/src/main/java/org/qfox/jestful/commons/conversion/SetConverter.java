@@ -2,7 +2,9 @@ package org.qfox.jestful.commons.conversion;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -12,6 +14,22 @@ import java.util.Set;
  * @date 2018-06-04 11:21
  **/
 public class SetConverter implements Converter<Set<?>> {
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return Set.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Set<?> value, ConversionProvider provider) throws Exception {
+        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+        int index = 0;
+        for (Object item : value) {
+            Map<String, String[]> m = provider.convert(name + "[" + index++ + "]", item);
+            map.putAll(m);
+        }
+        return map;
+    }
 
     @Override
     public boolean supports(Conversion conversion) {

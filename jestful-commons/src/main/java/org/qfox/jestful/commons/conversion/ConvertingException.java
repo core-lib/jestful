@@ -11,6 +11,25 @@ public class ConvertingException extends Exception {
 
     private final Conversion conversion;
 
+    public ConvertingException() {
+        this.conversion = null;
+    }
+
+    public ConvertingException(String message) {
+        super(message);
+        this.conversion = null;
+    }
+
+    public ConvertingException(String message, Throwable cause) {
+        super(message, cause);
+        this.conversion = null;
+    }
+
+    public ConvertingException(Throwable cause) {
+        super(cause);
+        this.conversion = null;
+    }
+
     public ConvertingException(Conversion conversion) {
         this.conversion = conversion;
     }
@@ -30,7 +49,9 @@ public class ConvertingException extends Exception {
         this.conversion = conversion;
     }
 
+
     public Conversion getConversion() {
         return conversion;
     }
+
 }

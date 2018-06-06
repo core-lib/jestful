@@ -1,6 +1,8 @@
 package org.qfox.jestful.commons.conversion;
 
 import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * 基本类型的封装类型转换器
@@ -9,6 +11,23 @@ import java.net.URLDecoder;
  * @date 2018-06-04 10:43
  **/
 public class WrapperConverter implements Converter<Object> {
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return type == Boolean.class
+                || type == Byte.class
+                || type == Short.class
+                || type == Character.class
+                || type == Integer.class
+                || type == Float.class
+                || type == Long.class
+                || type == Double.class;
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Object value, ConversionProvider provider) throws Exception {
+        return Collections.singletonMap(name, new String[]{String.valueOf(value)});
+    }
 
     @Override
     public boolean supports(Conversion conversion) {

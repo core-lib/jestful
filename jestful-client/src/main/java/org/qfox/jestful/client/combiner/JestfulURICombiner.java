@@ -1,7 +1,7 @@
 package org.qfox.jestful.client.combiner;
 
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.converter.StringConversion;
 
 import java.net.URLEncoder;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class JestfulURICombiner implements Actor, Initialable {
     private final Pattern pattern = Pattern.compile("\\{[^{}]+?}");
-    private StringConversion pathStringConversion;
+    private ConversionProvider pathConversionProvider;
 
     public Object react(Action action) throws Exception {
         Resource resource = action.getResource();
@@ -33,11 +33,11 @@ public class JestfulURICombiner implements Actor, Initialable {
         String charset = action.getPathEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.PATH);
         for (Parameter parameter : parameters) {
-            Map<String, List<String>> map = pathStringConversion.convert(parameter);
+            Map<String, String[]> map = pathConversionProvider.convert(parameter.getName(), parameter.getValue());
             String name = parameter.getName();
-            List<String> values = map.get(name);
-            if (values == null || values.isEmpty()) throw new IllegalArgumentException("path variable " + name + " can not be null");
-            String value = values.iterator().next();
+            String[] values = map.get(name);
+            if (values == null || values.length == 0) throw new IllegalArgumentException("path variable " + name + " can not be null");
+            String value = values[0];
             String regex = parameter.getRegex();
             if (regex != null && !value.matches(regex)) throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
             Matcher matcher = pattern.matcher(resource.getExpression() + mapping.getExpression());
@@ -52,15 +52,15 @@ public class JestfulURICombiner implements Actor, Initialable {
     }
 
     public void initialize(BeanContainer beanContainer) {
-        this.pathStringConversion = beanContainer.get(StringConversion.class);
+        this.pathConversionProvider = beanContainer.get(ConversionProvider.class);
     }
 
-    public StringConversion getPathStringConversion() {
-        return pathStringConversion;
+    public ConversionProvider getPathConversionProvider() {
+        return pathConversionProvider;
     }
 
-    public void setPathStringConversion(StringConversion pathStringConversion) {
-        this.pathStringConversion = pathStringConversion;
+    public void setPathConversionProvider(ConversionProvider pathConversionProvider) {
+        this.pathConversionProvider = pathConversionProvider;
     }
 
 }

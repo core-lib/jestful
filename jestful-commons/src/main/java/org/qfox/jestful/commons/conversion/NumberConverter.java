@@ -3,6 +3,8 @@ package org.qfox.jestful.commons.conversion;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,6 +15,16 @@ import java.util.concurrent.atomic.AtomicLong;
  * @date 2018-06-04 11:05
  **/
 public class NumberConverter implements Converter<Number> {
+
+    @Override
+    public boolean supports(Class<?> type) {
+        return Number.class.isAssignableFrom(type);
+    }
+
+    @Override
+    public Map<String, String[]> convert(String name, Number value, ConversionProvider provider) throws Exception {
+        return Collections.singletonMap(name, new String[]{String.valueOf(value)});
+    }
 
     @Override
     public boolean supports(Conversion conversion) {

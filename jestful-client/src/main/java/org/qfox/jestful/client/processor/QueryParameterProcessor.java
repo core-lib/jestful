@@ -1,8 +1,8 @@
 package org.qfox.jestful.client.processor;
 
 import org.qfox.jestful.client.formatting.URLEncodes;
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
-import org.qfox.jestful.core.converter.StringConversion;
 
 import java.util.List;
 
@@ -20,28 +20,28 @@ import java.util.List;
  * @since 1.0.0
  */
 public class QueryParameterProcessor implements Actor, Initialable {
-    private StringConversion queryStringConversion;
+    private ConversionProvider queryConversionProvider;
 
     public Object react(Action action) throws Exception {
         String query = action.getQuery();
         query = query != null ? query : "";
         String charset = action.getQueryEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.QUERY);
-        String encode = URLEncodes.encode(charset, parameters, queryStringConversion);
+        String encode = URLEncodes.encode(charset, parameters, queryConversionProvider);
         if (!encode.isEmpty()) action.setQuery(query.isEmpty() ? encode : query + "&" + encode);
         return action.execute();
     }
 
     public void initialize(BeanContainer beanContainer) {
-        this.queryStringConversion = beanContainer.get(StringConversion.class);
+        this.queryConversionProvider = beanContainer.get(ConversionProvider.class);
     }
 
-    public StringConversion getQueryStringConversion() {
-        return queryStringConversion;
+    public ConversionProvider getQueryConversionProvider() {
+        return queryConversionProvider;
     }
 
-    public void setQueryStringConversion(StringConversion queryStringConversion) {
-        this.queryStringConversion = queryStringConversion;
+    public void setQueryConversionProvider(ConversionProvider queryConversionProvider) {
+        this.queryConversionProvider = queryConversionProvider;
     }
 
 }
