@@ -11,6 +11,7 @@ import org.qfox.jestful.sample.repository.Repository;
 import org.qfox.jestful.sample.repository.RepositoryAPI;
 import org.qfox.jestful.sample.repository.Topics;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -73,6 +74,7 @@ public class RepositoryAPITest {
         repository.setHas_issues(true);
         repository.setHas_projects(true);
         repository.setHas_wiki(false);
+        repository.setTopics(Arrays.asList("123", "3333"));
         Repository created = repositoryAPI.create(repository);
         System.out.println(created);
     }

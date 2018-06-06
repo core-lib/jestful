@@ -12,6 +12,6 @@
 </head>
 <body>
 Hello Jestful
-<a href="/cache/get">测试</a>
+<a href="/jestful-sample/cache/get">测试</a>
 </body>
 </html>
