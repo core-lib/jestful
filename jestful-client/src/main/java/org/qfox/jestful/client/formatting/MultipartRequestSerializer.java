@@ -45,12 +45,13 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 
     public boolean supports(Action action) {
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
-        return bodies.size() == 0 || (bodies.size() != 1 || supports(bodies.get(0)));
+        return bodies.size() == 0 || bodies.size() > 1 || supports(bodies.get(0));
     }
 
     public boolean supports(Parameter parameter) {
         Type type = parameter.getType();
         return File.class == type
+                || Part.class == type
                 || ReflectionKit.isArrayType(type, File.class)
                 || ReflectionKit.isListType(type, File.class)
                 || ReflectionKit.isSetType(type, File.class)
@@ -76,7 +77,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
         Accepts consumes = action.getConsumes();
         String nonce = StringKit.random(16);
         String boundary = "----JestfulFormBoundary" + nonce;
-        action.getRequest().setContentType(contentType + ";boundary=" + boundary);
+        action.getRequest().setContentType(contentType + "; boundary=" + boundary);
         MultipartOutputStream mos = null;
         try {
             mos = new MultipartOutputStream(out, boundary);
