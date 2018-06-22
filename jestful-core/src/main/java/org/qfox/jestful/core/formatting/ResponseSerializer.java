@@ -6,6 +6,7 @@ import org.qfox.jestful.core.MediaType;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.text.DateFormat;
 
 /**
  * <p>
@@ -21,6 +22,8 @@ import java.io.Writer;
  * @since 1.0.0
  */
 public interface ResponseSerializer extends Formatting {
+
+    void setSerializationDateFormat(DateFormat dateFormat);
 
     void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException;
 

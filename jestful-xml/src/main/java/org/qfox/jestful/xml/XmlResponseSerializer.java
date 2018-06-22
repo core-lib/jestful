@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.text.DateFormat;
 
 /**
  * <p>
@@ -30,6 +31,10 @@ public class XmlResponseSerializer extends XmlMapper implements ResponseSerializ
 
     public String getContentType() {
         return contentType;
+    }
+
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+        _serializationConfig.with(dateFormat);
     }
 
     public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {

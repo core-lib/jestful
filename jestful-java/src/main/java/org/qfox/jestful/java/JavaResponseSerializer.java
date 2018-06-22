@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.text.DateFormat;
 
 /**
  * <p>
@@ -27,6 +28,10 @@ public class JavaResponseSerializer implements ResponseSerializer {
 
     public String getContentType() {
         return "application/x-java-serialized-object";
+    }
+
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {

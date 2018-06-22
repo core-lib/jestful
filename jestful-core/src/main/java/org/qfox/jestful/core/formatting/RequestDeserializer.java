@@ -7,6 +7,7 @@ import org.qfox.jestful.core.Parameter;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 
 /**
  * <p>
@@ -22,6 +23,8 @@ import java.io.InputStream;
  * @since 1.0.0
  */
 public interface RequestDeserializer extends Formatting {
+
+    void setDeserializationDateFormat(DateFormat dateFormat);
 
     void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException;
 

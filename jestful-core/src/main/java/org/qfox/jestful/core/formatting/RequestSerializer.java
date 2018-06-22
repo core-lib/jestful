@@ -6,6 +6,7 @@ import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DateFormat;
 
 /**
  * <p>
@@ -21,6 +22,8 @@ import java.io.OutputStream;
  * @since 1.0.0
  */
 public interface RequestSerializer extends Formatting {
+
+    void setSerializationDateFormat(DateFormat dateFormat);
 
     boolean supports(Action action);
 

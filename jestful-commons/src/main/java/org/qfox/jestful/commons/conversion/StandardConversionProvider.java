@@ -6,6 +6,7 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLDecoder;
+import java.text.DateFormat;
 import java.util.*;
 
 /**
@@ -16,10 +17,32 @@ import java.util.*;
  **/
 public class StandardConversionProvider implements ConversionProvider {
     private final List<Converter> converters;
+    private volatile DateFormat serializationDateFormat = DateFormat.getDateTimeInstance();
+    private volatile DateFormat deserializationDateFormat = DateFormat.getDateTimeInstance();
 
     public StandardConversionProvider(Collection<Converter> converters) {
         if (converters == null) throw new NullPointerException();
         this.converters = new ArrayList<Converter>(converters);
+    }
+
+    @Override
+    public DateFormat getSerializationDateFormat() {
+        return serializationDateFormat;
+    }
+
+    @Override
+    public void setSerializationDateFormat(DateFormat serializationDateFormat) {
+        this.serializationDateFormat = serializationDateFormat;
+    }
+
+    @Override
+    public DateFormat getDeserializationDateFormat() {
+        return deserializationDateFormat;
+    }
+
+    @Override
+    public void setDeserializationDateFormat(DateFormat deserializationDateFormat) {
+        this.deserializationDateFormat = deserializationDateFormat;
     }
 
     @Override

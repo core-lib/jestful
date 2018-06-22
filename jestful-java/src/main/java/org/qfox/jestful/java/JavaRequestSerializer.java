@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.util.List;
 
 /**
@@ -29,6 +30,10 @@ public class JavaRequestSerializer implements RequestSerializer {
 
     public String getContentType() {
         return contentType;
+    }
+
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public boolean supports(Action action) {

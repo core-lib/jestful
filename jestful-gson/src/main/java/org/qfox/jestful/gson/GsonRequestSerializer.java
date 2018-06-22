@@ -1,6 +1,7 @@
 package org.qfox.jestful.gson;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.formatting.RequestSerializer;
@@ -9,14 +10,20 @@ import org.qfox.jestful.core.io.MultipartOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class GsonRequestSerializer implements RequestSerializer {
     private final String contentType = "application/json";
-    private final Gson gson = new Gson();
+    private volatile Gson gson = new Gson();
 
     public String getContentType() {
         return contentType;
+    }
+
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+        if (dateFormat instanceof SimpleDateFormat) gson = new GsonBuilder().setDateFormat(((SimpleDateFormat) dateFormat).toPattern()).create();
     }
 
     public boolean supports(Action action) {

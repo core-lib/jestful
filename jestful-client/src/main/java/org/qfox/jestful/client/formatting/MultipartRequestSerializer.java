@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,6 +42,11 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
 
     public String getContentType() {
         return contentType;
+    }
+
+    @Override
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public boolean supports(Action action) {

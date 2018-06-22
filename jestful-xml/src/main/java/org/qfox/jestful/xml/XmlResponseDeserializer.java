@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.DateFormat;
 
 /**
  * <p>
@@ -42,6 +43,10 @@ public class XmlResponseDeserializer extends XmlMapper implements ResponseDeseri
 
     public String getContentType() {
         return "application/xml";
+    }
+
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+        _deserializationConfig.with(dateFormat);
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

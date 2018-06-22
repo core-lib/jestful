@@ -34,6 +34,8 @@ import java.net.SocketAddress;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
@@ -94,6 +96,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final SSLSocketFactory SSLSocketFactory;
     protected final String userAgent;
     protected final boolean configValidated;
+    protected final DateFormat serializationDateFormat;
+    protected final DateFormat deserializationDateFormat;
     protected boolean destroyed = false;
 
     protected Client(Builder<?> builder) throws IOException {
@@ -140,6 +144,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         this.hostnameVerifier = builder.hostnameVerifier;
         this.SSLSocketFactory = builder.SSLSocketFactory;
         this.userAgent = builder.userAgent;
+        this.serializationDateFormat = builder.serializationDateFormat;
+        this.deserializationDateFormat = builder.deserializationDateFormat;
 
         this.initialize(this.beanContainer);
     }
@@ -238,6 +244,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             String contentType = serializer.getContentType();
             MediaType mediaType = MediaType.valueOf(contentType);
             this.serializers.put(mediaType, serializer);
+            serializer.setSerializationDateFormat(serializationDateFormat);
         }
 
         Collection<ResponseDeserializer> deserializers = beanContainer.find(ResponseDeserializer.class).values();
@@ -245,6 +252,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
             String contentType = deserializer.getContentType();
             MediaType mediaType = MediaType.valueOf(contentType);
             this.deserializers.put(mediaType, deserializer);
+            deserializer.setDeserializationDateFormat(deserializationDateFormat);
         }
 
         Map<String, Connector> connectors = beanContainer.find(Connector.class);
@@ -676,6 +684,14 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         return configValidated;
     }
 
+    public DateFormat getSerializationDateFormat() {
+        return serializationDateFormat;
+    }
+
+    public DateFormat getDeserializationDateFormat() {
+        return deserializationDateFormat;
+    }
+
     @Override
     public String toString() {
         return protocol + "://" + hostname + (port != null ? ":" + port : "") + (route != null ? route : "");
@@ -719,6 +735,9 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         protected String userAgent = null;
 
         protected boolean configValidating = false;
+
+        protected DateFormat serializationDateFormat = DateFormat.getDateTimeInstance();
+        protected DateFormat deserializationDateFormat = DateFormat.getDateTimeInstance();
 
         protected Builder() {
             this.userAgent = "Mozilla/5.0"
@@ -1023,6 +1042,49 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
         public B setConfigValidating(boolean configValidating) {
             this.configValidating = configValidating;
+            return (B) this;
+        }
+
+        public B setSerializationDatePattern(String datePattern) {
+            if (datePattern == null) {
+                throw new IllegalArgumentException("can not set null datePattern");
+            }
+            return setSerializationDateFormat(new SimpleDateFormat(datePattern));
+        }
+
+        public B setSerializationDateFormat(DateFormat dateFormat) {
+            if (dateFormat == null) {
+                throw new IllegalArgumentException("can not set null dateFormat");
+            }
+            this.serializationDateFormat = dateFormat;
+            return (B) this;
+        }
+
+        public B setDeserializationDatePattern(String datePattern) {
+            if (datePattern == null) {
+                throw new IllegalArgumentException("can not set null datePattern");
+            }
+            return setDeserializationDateFormat(new SimpleDateFormat(datePattern));
+        }
+
+        public B setDeserializationDateFormat(DateFormat dateFormat) {
+            if (dateFormat == null) {
+                throw new IllegalArgumentException("can not set null dateFormat");
+            }
+            this.deserializationDateFormat = dateFormat;
+            return (B) this;
+        }
+
+        public B setDatePattern(String datePattern) {
+            if (datePattern == null) {
+                throw new IllegalArgumentException("can not set null datePattern");
+            }
+            return setDateFormat(new SimpleDateFormat(datePattern));
+        }
+
+        public B setDateFormat(DateFormat dateFormat) {
+            setSerializationDateFormat(dateFormat);
+            setDeserializationDateFormat(dateFormat);
             return (B) this;
         }
     }
