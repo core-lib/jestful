@@ -52,7 +52,6 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
     public boolean supports(Action action) {
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
         return bodies.size() == 0 || bodies.size() != 1 || supports(bodies.get(0));
-        return bodies.size() == 0 || bodies.size() > 1 || supports(bodies.get(0));
     }
 
     public boolean supports(Parameter parameter) {
