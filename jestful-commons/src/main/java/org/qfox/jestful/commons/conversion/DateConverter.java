@@ -1,13 +1,9 @@
 package org.qfox.jestful.commons.conversion;
 
 import java.net.URLDecoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * 日期转换器
@@ -16,20 +12,6 @@ import java.util.regex.Pattern;
  * @date 2018-06-04 10:58
  **/
 public class DateConverter implements Converter<Date> {
-    private final Map<Pattern, DateFormat> formats = new LinkedHashMap<Pattern, DateFormat>();
-
-    {
-        formats.put(Pattern.compile("\\d{1,2}\\/\\d{1,2}\\/\\d{4,}"), new SimpleDateFormat("MM/dd/yyyy"));
-        formats.put(Pattern.compile("\\d{4,}\\-\\d{1,2}\\-\\d{1,2}"), new SimpleDateFormat("yyyy-MM-dd"));
-        formats.put(Pattern.compile("\\d{4,}\\/\\d{1,2}\\/\\d{1,2}"), new SimpleDateFormat("yyyy/MM/dd"));
-        formats.put(Pattern.compile("\\d{4,}\\s\\d{1,2}\\s\\d{1,2}"), new SimpleDateFormat("yyyy MM dd"));
-        formats.put(Pattern.compile("\\d{4,}\\.\\d{1,2}\\.\\d{1,2}"), new SimpleDateFormat("yyyy.MM.dd"));
-        formats.put(Pattern.compile("\\d{1,2}\\/\\d{1,2}\\/\\d{4,}\\s\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}"), new SimpleDateFormat("MM/dd/yyyy HH:mm:ss"));
-        formats.put(Pattern.compile("\\d{4,}\\-\\d{1,2}\\-\\d{1,2}\\s\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-        formats.put(Pattern.compile("\\d{4,}\\/\\d{1,2}\\/\\d{1,2}\\s\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}"), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss"));
-        formats.put(Pattern.compile("\\d{4,}\\s\\d{1,2}\\s\\d{1,2}\\s\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}"), new SimpleDateFormat("yyyy MM dd HH:mm:ss"));
-        formats.put(Pattern.compile("\\d{4,}\\.\\d{1,2}\\.\\d{1,2}\\s\\d{1,2}\\:\\d{1,2}\\:\\d{1,2}"), new SimpleDateFormat("yyyy.MM.dd HH:mm:ss"));
-    }
 
     @Override
     public boolean supports(Class<?> type) {
@@ -38,7 +20,7 @@ public class DateConverter implements Converter<Date> {
 
     @Override
     public Map<String, String[]> convert(String name, Date value, ConversionProvider provider) throws Exception {
-        return Collections.singletonMap(name, new String[]{String.valueOf(value.getTime())});
+        return Collections.singletonMap(name, new String[]{provider.getSerializationDateFormat().format(value)});
     }
 
     @Override
@@ -53,10 +35,8 @@ public class DateConverter implements Converter<Date> {
         boolean decoded = conversion.decoded;
         String charset = conversion.charset;
         String value = values != null && values.length > 0 ? values[0] : null;
-        if (value == null) return null;
+        if (value == null) return (Date) conversion.value;
         if (!decoded) value = URLDecoder.decode(value, charset);
-        if (value.matches("\\d+")) return new Date(Long.valueOf(value));
-        for (Map.Entry<Pattern, DateFormat> entry : formats.entrySet()) if (entry.getKey().matcher(value).matches()) return entry.getValue().parse(value);
-        return (Date) conversion.value;
+        return provider.getDeserializationDateFormat().parse(value);
     }
 }

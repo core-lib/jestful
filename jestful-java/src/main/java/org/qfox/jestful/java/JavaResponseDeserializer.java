@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.Reader;
+import java.text.DateFormat;
 
 /**
  * <p>
@@ -29,6 +30,10 @@ public class JavaResponseDeserializer implements ResponseDeserializer {
 
     public String getContentType() {
         return "application/x-java-serialized-object";
+    }
+
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

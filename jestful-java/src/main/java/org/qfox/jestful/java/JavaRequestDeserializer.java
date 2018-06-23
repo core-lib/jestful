@@ -8,6 +8,7 @@ import org.qfox.jestful.core.formatting.RequestDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.text.DateFormat;
 import java.util.List;
 
 /**
@@ -27,6 +28,10 @@ public class JavaRequestDeserializer implements RequestDeserializer {
 
     public String getContentType() {
         return "application/x-java-serialized-object";
+    }
+
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

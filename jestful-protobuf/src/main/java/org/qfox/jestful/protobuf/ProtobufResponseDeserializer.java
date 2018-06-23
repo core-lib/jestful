@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
 
 /**
  * <p>
@@ -28,6 +29,10 @@ public class ProtobufResponseDeserializer implements ResponseDeserializer {
 
     public String getContentType() {
         return "application/protobuf";
+    }
+
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

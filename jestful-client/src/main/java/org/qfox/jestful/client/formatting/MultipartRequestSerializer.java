@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,9 +44,15 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
         return contentType;
     }
 
+    @Override
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+
+    }
+
     public boolean supports(Action action) {
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
         return bodies.size() == 0 || bodies.size() != 1 || supports(bodies.get(0));
+        return bodies.size() == 0 || bodies.size() > 1 || supports(bodies.get(0));
     }
 
     public boolean supports(Parameter parameter) {
@@ -77,7 +84,7 @@ public class MultipartRequestSerializer implements RequestSerializer, Initialabl
         Accepts consumes = action.getConsumes();
         String nonce = StringKit.random(16);
         String boundary = "----JestfulFormBoundary" + nonce;
-        action.getRequest().setContentType(contentType + ";boundary=" + boundary);
+        action.getRequest().setContentType(contentType + "; boundary=" + boundary);
         MultipartOutputStream mos = null;
         try {
             mos = new MultipartOutputStream(out, boundary);

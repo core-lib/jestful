@@ -2,6 +2,7 @@ package org.qfox.jestful.core;
 
 import org.qfox.jestful.commons.conversion.*;
 
+import java.text.DateFormat;
 import java.util.Map;
 
 /**
@@ -19,6 +20,26 @@ import java.util.Map;
  */
 public class JestfulConversionProvider implements ConversionProvider, Initialable {
     private ConversionProvider delegate;
+
+    @Override
+    public DateFormat getSerializationDateFormat() {
+        return delegate.getSerializationDateFormat();
+    }
+
+    @Override
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+        delegate.setSerializationDateFormat(dateFormat);
+    }
+
+    @Override
+    public DateFormat getDeserializationDateFormat() {
+        return delegate.getDeserializationDateFormat();
+    }
+
+    @Override
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+        delegate.setDeserializationDateFormat(dateFormat);
+    }
 
     @Override
     public boolean supports(Class<?> type) {

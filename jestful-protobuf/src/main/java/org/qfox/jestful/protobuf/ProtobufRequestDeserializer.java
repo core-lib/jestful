@@ -6,6 +6,7 @@ import org.qfox.jestful.core.formatting.RequestDeserializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
 import java.util.List;
 
 /**
@@ -25,6 +26,10 @@ public class ProtobufRequestDeserializer implements RequestDeserializer {
 
     public String getContentType() {
         return "application/protobuf";
+    }
+
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

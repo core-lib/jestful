@@ -7,6 +7,7 @@ import org.qfox.jestful.core.io.MultipartOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DateFormat;
 import java.util.List;
 
 /**
@@ -27,6 +28,10 @@ public class ProtobufRequestSerializer implements RequestSerializer {
 
     public String getContentType() {
         return contentType;
+    }
+
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public boolean supports(Action action) {

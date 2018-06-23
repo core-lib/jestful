@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,10 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
 
     public String getContentType() {
         return "application/x-www-form-urlencoded";
+    }
+
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+        conversionProvider.setDeserializationDateFormat(dateFormat);
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

@@ -1,5 +1,6 @@
 package org.qfox.jestful.commons.conversion;
 
+import java.text.DateFormat;
 import java.util.Map;
 
 /**
@@ -9,6 +10,14 @@ import java.util.Map;
  * @date 2018-06-04 10:10
  **/
 public interface ConversionProvider {
+
+    DateFormat getSerializationDateFormat();
+
+    void setSerializationDateFormat(DateFormat dateFormat);
+
+    DateFormat getDeserializationDateFormat();
+
+    void setDeserializationDateFormat(DateFormat dateFormat);
 
     /**
      * 是否支持该类型的转换

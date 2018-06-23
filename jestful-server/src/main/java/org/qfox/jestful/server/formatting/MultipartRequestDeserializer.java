@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.util.*;
 
 /**
@@ -35,6 +36,10 @@ public class MultipartRequestDeserializer implements RequestDeserializer, Initia
 
     public String getContentType() {
         return "multipart/form-data";
+    }
+
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

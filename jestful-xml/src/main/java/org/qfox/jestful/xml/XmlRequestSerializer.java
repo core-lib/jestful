@@ -9,6 +9,7 @@ import org.qfox.jestful.core.io.MultipartOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.DateFormat;
 import java.util.List;
 
 /**
@@ -30,6 +31,10 @@ public class XmlRequestSerializer extends XmlMapper implements RequestSerializer
 
     public String getContentType() {
         return contentType;
+    }
+
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+        _serializationConfig.with(dateFormat);
     }
 
     public boolean supports(Action action) {

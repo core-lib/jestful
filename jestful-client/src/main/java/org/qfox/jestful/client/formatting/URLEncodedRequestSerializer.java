@@ -9,6 +9,7 @@ import org.qfox.jestful.core.io.MultipartOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,10 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
 
     public String getContentType() {
         return contentType;
+    }
+
+    public void setSerializationDateFormat(DateFormat dateFormat) {
+        urlConversionProvider.setSerializationDateFormat(dateFormat);
     }
 
     public boolean supports(Action action) {

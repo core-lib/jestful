@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.List;
 
 /**
@@ -41,6 +42,11 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
 
     public String getContentType() {
         return "application/json";
+    }
+
+    @Override
+    public void setDeserializationDateFormat(DateFormat dateFormat) {
+        _deserializationConfig.with(dateFormat);
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
