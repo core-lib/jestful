@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.qfox</groupId>
     <artifactId>jestful</artifactId>
-    <version>v2.2.5</version>
+    <version>v2.2.6</version>
     <packaging>pom</packaging>
     <name>Jestful</name>
     <description>A Powerful And Easy To Use RESTful Framework For Java</description>
@@ -35,7 +35,7 @@
         <module>jestful-form</module>
         <module>jestful-weixin</module>
         <module>jestful-guava</module>
-        <module>jestful-sample</module>
+        <!--<module>jestful-sample</module>-->
     </modules>
 
     <build>
