@@ -100,7 +100,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final DateFormat deserializationDateFormat;
     protected boolean destroyed = false;
 
-    protected Client(Builder<?> builder) throws IOException {
+    public Client(Builder<?> builder) throws IOException {
         super();
         this.protocol = builder.protocol;
         this.hostname = builder.hostname;
@@ -739,7 +739,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         protected DateFormat serializationDateFormat = DateFormat.getDateTimeInstance();
         protected DateFormat deserializationDateFormat = DateFormat.getDateTimeInstance();
 
-        protected Builder() {
+        public Builder() {
             this.userAgent = "Mozilla/5.0"
                     + " "
                     + "("

@@ -58,7 +58,7 @@ public class NioClient extends Client implements NioConnector {
     private final NioOptions options;
     private final NioConnectionPool connectionPool;
 
-    private NioClient(NioBuilder<?> builder) throws IOException {
+    public NioClient(NioBuilder<?> builder) throws IOException {
         super(builder);
         this.selectTimeout = builder.selectTimeout;
         this.bufferSize = builder.bufferSize;
@@ -214,7 +214,7 @@ public class NioClient extends Client implements NioConnector {
         private NioOptions options = NioOptions.DEFAULT;
         private NioConnectionPool connectionPool = new ConcurrentNioConnectionPool();
 
-        NioBuilder() {
+        public NioBuilder() {
             this.connTimeout = 20 * 1000;
             this.readTimeout = Integer.MAX_VALUE;
             this.writeTimeout = Integer.MAX_VALUE;

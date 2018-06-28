@@ -10,6 +10,7 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
 import org.qfox.jestful.server.exception.BadMethodStatusException;
 import org.qfox.jestful.server.exception.ConflictStatusException;
 import org.qfox.jestful.server.exception.NotFoundStatusException;
+import org.springframework.cglib.proxy.Enhancer;
 
 import java.util.*;
 
@@ -92,7 +93,9 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable, Com
 
     public Resource register(Object controller) throws IllegalConfigException {
         try {
-            Resource resource = new Resource(controller);
+            Resource resource = Enhancer.isEnhanced(controller.getClass())
+                    ? new Resource(controller, controller.getClass().getSuperclass())
+                    : new Resource(controller);
             Node<PathExpression, Mapping> branch = resource.toNode();
             tree.merge(branch);
             return resource;

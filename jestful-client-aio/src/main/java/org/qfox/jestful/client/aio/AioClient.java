@@ -42,7 +42,7 @@ public class AioClient extends Client implements AioConnector {
     private final AioOptions options;
     private final AioConnectionPool connectionPool;
 
-    private AioClient(AioBuilder<?> builder) throws IOException {
+    public AioClient(AioBuilder<?> builder) throws IOException {
         super(builder);
         this.concurrency = builder.concurrency;
         this.bufferSize = builder.bufferSize;
@@ -173,7 +173,7 @@ public class AioClient extends Client implements AioConnector {
         private AioOptions options = AioOptions.DEFAULT;
         private AioConnectionPool connectionPool = new ConcurrentAioConnectionPool();
 
-        AioBuilder() {
+        public AioBuilder() {
             this.connTimeout = 20 * 1000;
             this.readTimeout = Integer.MAX_VALUE;
             this.writeTimeout = Integer.MAX_VALUE;

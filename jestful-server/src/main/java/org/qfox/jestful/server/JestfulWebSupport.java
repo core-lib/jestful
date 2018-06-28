@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 
@@ -126,7 +127,7 @@ public class JestfulWebSupport implements Actor {
         }
         {
             Collection<?> controllers = beanContainer.with(Protocol.class).values();
-            for (Object controller : controllers) mappingRegistry.register(controller);
+            for (Object controller : controllers) if (!Proxy.isProxyClass(controller.getClass())) mappingRegistry.register(controller);
             Map<String, MappingRegistryAware> map = beanContainer.find(MappingRegistryAware.class);
             for (MappingRegistryAware aware : map.values()) aware.setMappingRegistry(mappingRegistry);
         }
