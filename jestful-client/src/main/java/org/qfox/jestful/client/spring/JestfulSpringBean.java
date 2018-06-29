@@ -10,12 +10,14 @@ import org.springframework.beans.factory.FactoryBean;
  * @date 2018-06-28 12:13
  **/
 public class JestfulSpringBean<T> implements FactoryBean<T> {
-    private Client client;
     private Class<T> interfase;
+    private Client client;
+    private boolean singleton;
+    private volatile T object;
 
     @Override
     public T getObject() throws Exception {
-        return client.create(interfase);
+        return singleton ? (object != null ? object : (object = client.create(interfase))) : client.create(interfase);
     }
 
     @Override
@@ -25,15 +27,7 @@ public class JestfulSpringBean<T> implements FactoryBean<T> {
 
     @Override
     public boolean isSingleton() {
-        return false;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
+        return singleton;
     }
 
     public Class<T> getInterfase() {
@@ -42,5 +36,17 @@ public class JestfulSpringBean<T> implements FactoryBean<T> {
 
     public void setInterfase(Class<T> interfase) {
         this.interfase = interfase;
+    }
+
+    public void setSingleton(boolean singleton) {
+        this.singleton = singleton;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 }
