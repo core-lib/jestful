@@ -46,7 +46,7 @@ public class JsonRequestDeserializer extends ObjectMapper implements RequestDese
 
     @Override
     public void setDeserializationDateFormat(DateFormat dateFormat) {
-        _deserializationConfig.with(dateFormat);
+        this.setDateFormat(dateFormat);
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

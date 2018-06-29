@@ -34,7 +34,7 @@ public class JsonRequestSerializer extends ObjectMapper implements RequestSerial
     }
 
     public void setSerializationDateFormat(DateFormat dateFormat) {
-        _serializationConfig.with(dateFormat);
+        this.setDateFormat(dateFormat);
     }
 
     public boolean supports(Action action) {

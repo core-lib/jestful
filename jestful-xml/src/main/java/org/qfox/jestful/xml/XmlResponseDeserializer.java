@@ -46,7 +46,7 @@ public class XmlResponseDeserializer extends XmlMapper implements ResponseDeseri
     }
 
     public void setDeserializationDateFormat(DateFormat dateFormat) {
-        _deserializationConfig.with(dateFormat);
+        this.setDateFormat(dateFormat);
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {

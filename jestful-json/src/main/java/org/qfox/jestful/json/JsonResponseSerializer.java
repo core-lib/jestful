@@ -34,7 +34,7 @@ public class JsonResponseSerializer extends ObjectMapper implements ResponseSeri
     }
 
     public void setSerializationDateFormat(DateFormat dateFormat) {
-        _serializationConfig.with(dateFormat);
+        this.setDateFormat(dateFormat);
     }
 
     public void serialize(Action action, MediaType mediaType, String charset, OutputStream out) throws IOException {
