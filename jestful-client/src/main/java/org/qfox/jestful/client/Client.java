@@ -14,6 +14,7 @@ import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.commons.collection.Enumerator;
+import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
 import org.qfox.jestful.core.exception.StatusException;
@@ -239,6 +240,12 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     }
 
     public void initialize(BeanContainer beanContainer) {
+        Collection<ConversionProvider> providers = beanContainer.find(ConversionProvider.class).values();
+        for (ConversionProvider provider : providers) {
+            provider.setSerializationDateFormat(serializationDateFormat);
+            provider.setDeserializationDateFormat(deserializationDateFormat);
+        }
+
         Collection<RequestSerializer> serializers = beanContainer.find(RequestSerializer.class).values();
         for (RequestSerializer serializer : serializers) {
             String contentType = serializer.getContentType();

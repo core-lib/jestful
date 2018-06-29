@@ -35,7 +35,7 @@ public class URLEncodedRequestSerializer implements RequestSerializer, Initialab
     }
 
     public void setSerializationDateFormat(DateFormat dateFormat) {
-        urlConversionProvider.setSerializationDateFormat(dateFormat);
+
     }
 
     public boolean supports(Action action) {

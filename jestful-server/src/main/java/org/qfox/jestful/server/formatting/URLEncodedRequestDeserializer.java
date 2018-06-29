@@ -37,7 +37,6 @@ public class URLEncodedRequestDeserializer implements RequestDeserializer, Initi
     }
 
     public void setDeserializationDateFormat(DateFormat dateFormat) {
-        conversionProvider.setDeserializationDateFormat(dateFormat);
     }
 
     public void deserialize(Action action, MediaType mediaType, String charset, InputStream in) throws IOException {
