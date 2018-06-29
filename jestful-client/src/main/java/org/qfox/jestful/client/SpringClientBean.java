@@ -1,6 +1,5 @@
-package org.qfox.jestful.client.spring;
+package org.qfox.jestful.client;
 
-import org.qfox.jestful.client.Client;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
@@ -9,20 +8,20 @@ import org.springframework.beans.factory.FactoryBean;
  * @author 杨昌沛 646742615@qq.com
  * @date 2018-06-28 12:13
  **/
-public class JestfulSpringBean<T> implements FactoryBean<T> {
-    private Class<T> interfase;
+public class SpringClientBean<T> implements FactoryBean<T> {
+    private Class<T> type;
     private Client client;
     private boolean singleton;
     private volatile T object;
 
     @Override
     public T getObject() throws Exception {
-        return singleton ? (object != null ? object : (object = client.create(interfase))) : client.create(interfase);
+        return singleton ? (object != null ? object : (object = client.create(type))) : client.create(type);
     }
 
     @Override
     public Class<?> getObjectType() {
-        return interfase;
+        return type;
     }
 
     @Override
@@ -30,12 +29,12 @@ public class JestfulSpringBean<T> implements FactoryBean<T> {
         return singleton;
     }
 
-    public Class<T> getInterfase() {
-        return interfase;
+    public Class<T> getType() {
+        return type;
     }
 
-    public void setInterfase(Class<T> interfase) {
-        this.interfase = interfase;
+    public void setType(Class<T> type) {
+        this.type = type;
     }
 
     public void setSingleton(boolean singleton) {

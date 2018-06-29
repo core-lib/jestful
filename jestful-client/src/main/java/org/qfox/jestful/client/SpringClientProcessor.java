@@ -1,6 +1,5 @@
-package org.qfox.jestful.client.spring;
+package org.qfox.jestful.client;
 
-import org.qfox.jestful.client.Client;
 import org.qfox.jestful.core.annotation.Protocol;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
@@ -31,7 +30,7 @@ import java.util.Set;
  * @author 杨昌沛 646742615@qq.com
  * @date 2018-06-28 9:58
  **/
-public class JestfulSpringBeanProcessor implements BeanDefinitionRegistryPostProcessor, ResourceLoaderAware, InitializingBean {
+public class SpringClientProcessor implements BeanDefinitionRegistryPostProcessor, ResourceLoaderAware, InitializingBean {
     private ResourcePatternResolver resourcePatternResolver;
     private MetadataReaderFactory metadataReaderFactory;
     private BeanNameGenerator beanNameGenerator = new AnnotationBeanNameGenerator();
@@ -68,10 +67,10 @@ public class JestfulSpringBeanProcessor implements BeanDefinitionRegistryPostPro
             String name = beanNameGenerator.generateBeanName(definition, registry);
             ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(definition);
             definition.setScope(scopeMetadata.getScopeName());
-            definition.setBeanClass(JestfulSpringBean.class);
+            definition.setBeanClass(SpringClientBean.class);
             String className = reader.getClassMetadata().getClassName();
-            Class<?> interfase = classLoader.loadClass(className);
-            definition.getPropertyValues().add("interfase", interfase);
+            Class<?> type = classLoader.loadClass(className);
+            definition.getPropertyValues().add("type", type);
             definition.getPropertyValues().add("client", client);
             definition.getPropertyValues().add("singleton", singleton);
             registry.registerBeanDefinition(name, definition);
