@@ -3,7 +3,7 @@
     <parent>
         <artifactId>jestful</artifactId>
         <groupId>org.qfox</groupId>
-        <version>v2.3.0</version>
+        <version>v2.3.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -37,42 +37,42 @@
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-client</artifactId>
-            <version>v2.3.0</version>
+            <version>v2.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-json</artifactId>
-            <version>v2.3.0</version>
+            <version>v2.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-client-nio</artifactId>
-            <version>v2.3.0</version>
+            <version>v2.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-client-aio</artifactId>
-            <version>v2.3.0</version>
+            <version>v2.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-RxJava</artifactId>
-            <version>v2.3.0</version>
+            <version>v2.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-server</artifactId>
-            <version>v2.3.0</version>
+            <version>v2.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-interception</artifactId>
-            <version>v2.3.0</version>
+            <version>v2.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-multiview</artifactId>
-            <version>v2.3.0</version>
+            <version>v2.3.1</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
