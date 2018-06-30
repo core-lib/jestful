@@ -8,11 +8,14 @@ import org.springframework.beans.factory.FactoryBean;
  * @author 杨昌沛 646742615@qq.com
  * @date 2018-06-28 12:13
  **/
-public class SpringClientBean<T> implements FactoryBean<T> {
+class SpringClientBean<T> implements FactoryBean<T> {
     private Class<T> type;
     private Client client;
     private boolean singleton;
     private volatile T object;
+
+    SpringClientBean() {
+    }
 
     @Override
     public T getObject() throws Exception {
