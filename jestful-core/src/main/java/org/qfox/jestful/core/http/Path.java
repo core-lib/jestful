@@ -35,6 +35,6 @@ public @interface Path {
 
     boolean decoded() default false;
 
-    boolean matrixed() default false;
+    boolean matrix() default false;
 
 }

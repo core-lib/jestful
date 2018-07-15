@@ -46,6 +46,7 @@
     </jestful:component>
 
     <bean class="org.qfox.jestful.server.resolver.PathResolver"/>
+    <bean class="org.qfox.jestful.server.resolver.MatrixResolver"/>
     <bean class="org.qfox.jestful.server.resolver.QueryResolver"/>
     <bean class="org.qfox.jestful.server.resolver.HeaderResolver"/>
     <bean class="org.qfox.jestful.server.resolver.CookieResolver"/>
