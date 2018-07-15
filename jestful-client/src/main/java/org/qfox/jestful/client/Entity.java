@@ -20,7 +20,7 @@ public final class Entity implements Serializable {
     Entity(Response response) throws IOException {
         this.type = response.getContentType() != null ? MediaType.valueOf(response.getContentType()) : null;
         this.charset = type != null && type.getCharset() != null ? type.getCharset() : response.getCharacterEncoding() != null ? response.getCharacterEncoding() : Charset.defaultCharset().name();
-        this.stream = response.getResponseInputStream() != null ? IOKit.transfer(response.getResponseInputStream()) : null;
+        this.stream = response.isResponseSuccess() && response.getResponseInputStream() != null ? IOKit.transfer(response.getResponseInputStream()) : null;
         this.length = stream != null ? stream.available() : -1;
     }
 
