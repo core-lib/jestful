@@ -3,7 +3,6 @@ package org.qfox.jestful.client;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.Status;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -18,16 +17,32 @@ public final class Message implements Serializable {
     private final Entity entity;
     private final Exception exception;
 
-    Message(Response response) throws IOException {
+    Message(Response response) {
         this(response, null);
     }
 
-    Message(Response response, Exception exception) throws IOException {
-        this.success = exception == null;
-        this.status = response.getResponseStatus();
-        this.header = new Header(response);
-        this.entity = new Entity(response);
-        this.exception = exception;
+    Message(Response response, Exception ex) {
+        boolean success = false;
+        Status status = null;
+        Header header = null;
+        Entity entity = null;
+        Exception exception = null;
+        try {
+            success = ex == null;
+            status = response.getResponseStatus();
+            header = new Header(response);
+            entity = new Entity(response);
+            exception = ex;
+        } catch (Exception e) {
+            success = false;
+            exception = ex != null ? ex : e;
+        } finally {
+            this.success = success;
+            this.status = status;
+            this.header = header;
+            this.entity = entity;
+            this.exception = exception;
+        }
     }
 
     public boolean isSuccess() {
