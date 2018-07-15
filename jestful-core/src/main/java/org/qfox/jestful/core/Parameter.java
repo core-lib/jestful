@@ -8,8 +8,7 @@ import org.qfox.jestful.core.exception.IllegalConfigException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>
@@ -36,6 +35,7 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
     private final boolean coding;
     private final boolean encoded;
     private final boolean decoded;
+    private final Map<String, Object> properties;
     private Object value;
     private int group;
     private String regex;
@@ -70,12 +70,17 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
                 this.coding = variable.coding();
                 this.encoded = variable.coding() ? (Boolean) annotation.annotationType().getMethod("encoded").invoke(annotation) : false;
                 this.decoded = variable.coding() ? (Boolean) annotation.annotationType().getMethod("decoded").invoke(annotation) : false;
+                Map<String, Object> properties = new LinkedHashMap<String, Object>();
+                Method[] methods = annotation.annotationType().getDeclaredMethods();
+                for (Method property : methods) properties.put(property.getName(), property.invoke(annotation));
+                this.properties = Collections.unmodifiableMap(properties);
             } else if (variables.length == 0) {
                 this.name = String.valueOf(index);
                 this.position = Position.UNKNOWN;
                 this.coding = false;
                 this.encoded = false;
                 this.decoded = false;
+                this.properties = Collections.emptyMap();
             } else {
                 throw new AmbiguousParameterException("Ambiguous parameter at index " + index + " in " + method + " which has more than one variable kind annotations " + Arrays.toString(variables), controller, method, this);
             }
@@ -90,6 +95,10 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 
     public boolean between(int pos) {
         return (position & pos) != 0;
+    }
+
+    public <T> T property(String name) {
+        return (T) properties.get(name);
     }
 
     public Object getValue() {
@@ -134,6 +143,10 @@ public class Parameter extends Configuration implements Comparable<Parameter> {
 
     public boolean isDecoded() {
         return decoded;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 
     public Mapping getMapping() {

@@ -1,6 +1,5 @@
 package org.qfox.jestful.server.annotation;
 
-import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.annotation.Variable;
 
 import java.lang.annotation.*;
@@ -21,8 +20,10 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@Variable(position = Position.SESSION, coding = false)
+@Variable(position = Session.POSITION, coding = false)
 public @interface Session {
+
+    int POSITION = 1 << 11;
 
     /**
      * 会话键值对的key

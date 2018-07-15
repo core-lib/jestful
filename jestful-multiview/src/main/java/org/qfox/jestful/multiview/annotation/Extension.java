@@ -14,12 +14,12 @@ import java.lang.annotation.*;
 @Variable(position = Extension.POSITION, coding = true)
 public @interface Extension {
 
-    int POSITION = 1 << 7;
+    int POSITION = 1 << 12;
 
     /**
      * 缺省值
      *
-     * @return
+     * @return 缺省值
      */
     String value() default "";
 

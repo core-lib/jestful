@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 
 /**
  * <p>
- * Description: 请求体参数注解
+ * Description: 请求路径参数注解
  * </p>
  * <p>
  * <p>
@@ -15,21 +15,28 @@ import java.lang.annotation.*;
  * </p>
  *
  * @author Payne 646742615@qq.com
- * @date 2016年4月12日 上午10:28:06
+ * @date 2016年4月12日 上午10:27:45
  * @since 1.0.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.PARAMETER})
-@Variable(position = Position.BODY, coding = true)
-public @interface Body {
+@Variable(position = Position.MATRIX, coding = true)
+public @interface Matrix {
 
     /**
-     * 参数名称, 如果只有一个请求体则不需要给名称
+     * 参数名称
      *
-     * @return 参数名称
+     * @return 矩阵变量名称
      */
-    String value() default "*";
+    String value() default "";
+
+    /**
+     * 明确指定是哪个路径变量， 缺省情况下通过所有的路径变量里面取值。
+     *
+     * @return 路径变量名称
+     */
+    String path() default "";
 
     boolean encoded() default false;
 

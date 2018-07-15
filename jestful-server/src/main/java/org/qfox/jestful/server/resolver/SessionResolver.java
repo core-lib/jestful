@@ -2,10 +2,10 @@ package org.qfox.jestful.server.resolver;
 
 import org.qfox.jestful.core.Action;
 import org.qfox.jestful.core.Parameter;
-import org.qfox.jestful.core.Position;
 import org.qfox.jestful.core.Request;
 import org.qfox.jestful.server.SessionListener;
 import org.qfox.jestful.server.SessionSubject;
+import org.qfox.jestful.server.annotation.Session;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -16,7 +16,7 @@ import javax.servlet.http.HttpSession;
 public class SessionResolver implements Resolver {
     @Override
     public boolean supports(Action action, Parameter parameter) {
-        return parameter.between(Position.SESSION) && parameter.getValue() == null;
+        return parameter.between(Session.POSITION) && parameter.getValue() == null;
     }
 
     @Override

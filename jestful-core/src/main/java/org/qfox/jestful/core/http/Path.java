@@ -27,12 +27,14 @@ public @interface Path {
     /**
      * 参数名称
      *
-     * @return
+     * @return 路径变量参数名称
      */
     String value() default "";
 
     boolean encoded() default false;
 
     boolean decoded() default false;
+
+    boolean matrixed() default false;
 
 }

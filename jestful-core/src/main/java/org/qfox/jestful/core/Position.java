@@ -2,7 +2,11 @@ package org.qfox.jestful.core;
 
 /**
  * <p>
- * Description: 定义参数序列化后的所在位置
+ * Description: 定义参数序列化后的所在位置,
+ * 由于采用了位运算来提升可组合的可能性，
+ * 框架规定[0, 10]二进制位作为通用的参数绑定域所在位置，
+ * 而且（10， 20] 作为服务端保留的二进制位，
+ * 剩下的（20， 31] 作为第三方拓展插件的使用二进制位。
  * </p>
  * <p>
  * <p>
@@ -40,8 +44,8 @@ public interface Position {
      */
     int COOKIE = 1 << 5;
     /**
-     * 会话
+     * 路径矩阵变量
      */
-    int SESSION = 1 << 6;
+    int MATRIX = 1 << 6;
 
 }

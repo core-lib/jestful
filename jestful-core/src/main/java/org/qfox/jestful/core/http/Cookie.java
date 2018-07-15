@@ -28,7 +28,7 @@ public @interface Cookie {
     /**
      * cookie 名称, 通常情况下不区分大小写!
      *
-     * @return
+     * @return 参数名称
      */
     String value() default "";
 
