@@ -45,7 +45,7 @@ public class IndexAPITests {
                 .creator()
                 .addBackPlugins(Redirector.builder().build())
                 .create(IndexAPI.class);
-        indexAPI.matrix("中文路径", "中文矩阵", "中文查询", "中文请求头", "中文饼干");
+        indexAPI.matrix("中文路径", "中文矩阵", new String[]{"姓名1", "姓名2"}, "中文查询", "中文请求头", "中文饼干");
     }
 
 }

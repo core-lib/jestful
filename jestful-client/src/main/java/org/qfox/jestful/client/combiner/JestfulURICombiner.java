@@ -43,6 +43,7 @@ public class JestfulURICombiner implements Actor, Initialable {
             String value = values[0];
             String regex = parameter.getRegex();
             if (regex != null && !value.matches(regex)) throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
+            if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
 
             // 处理矩阵变量
             StringBuilder mixed = new StringBuilder(value);
@@ -70,7 +71,6 @@ public class JestfulURICombiner implements Actor, Initialable {
             int group = parameter.getGroup();
             for (int idx = 0; idx < group; idx++) if (!matcher.find()) throw new IllegalStateException("expected " + group + " path variable placeholders but actually got " + idx);
             String placeholder = matcher.group();
-            if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
             uri = uri.replace(placeholder, value);
         }
         action.setRequestURI(uri.replaceAll("/+", "/"));
