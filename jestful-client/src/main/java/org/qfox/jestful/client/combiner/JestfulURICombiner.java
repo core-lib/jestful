@@ -83,7 +83,7 @@ public class JestfulURICombiner implements Actor, Initialable {
                     String[] val = entry.getValue();
                     boolean encoding = matrix.isCoding() && !matrix.isEncoded();
                     if (encoding) for (int i = 0; i < val.length; i++) val[i] = URLEncoder.encode(val[i], charset);
-                    builder.append(";");
+                    if (builder.length() > 0) builder.append(";");
                     builder.append(URLEncoder.encode(key, charset));
                     builder.append("=");
                     builder.append(ArrayKit.concat(",", val));
