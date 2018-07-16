@@ -35,7 +35,7 @@
         <module>jestful-form</module>
         <module>jestful-weixin</module>
         <module>jestful-guava</module>
-        <module>jestful-sample</module>
+        <!--<module>jestful-sample</module>-->
     </modules>
 
     <build>
