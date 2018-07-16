@@ -3,8 +3,10 @@ package org.qfox.jestful.client.combiner;
 import org.qfox.jestful.commons.ArrayKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.conversion.ConversionProvider;
+import org.qfox.jestful.commons.conversion.ConvertingException;
 import org.qfox.jestful.core.*;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +36,7 @@ public class JestfulURICombiner implements Actor, Initialable {
         String uri = resource.getExpression() + mapping.getExpression();
         String charset = action.getPathEncodeCharset();
         List<Parameter> parameters = action.getParameters().all(Position.PATH);
-        for (int index = 0; index < parameters.size(); index++) {
-            Parameter parameter = parameters.get(index);
+        for (Parameter parameter : parameters) {
             Map<String, String[]> map = pathConversionProvider.convert(parameter.getName(), parameter.getValue());
             String name = parameter.getName();
             String[] values = map.get(name);
@@ -44,28 +45,8 @@ public class JestfulURICombiner implements Actor, Initialable {
             String regex = parameter.getRegex();
             if (regex != null && !value.matches(regex)) throw new IllegalArgumentException("converted value " + value + " does not matches regex " + regex);
             if (parameter.isCoding() && !parameter.isEncoded()) value = URLEncoder.encode(value, charset);
-
-            // 处理矩阵变量
-            StringBuilder mixed = new StringBuilder(value);
-            List<Parameter> matrices = action.getParameters().all(Position.MATRIX);
-            for (Parameter matrix : matrices) {
-                // 如果矩阵变量的指定 path 域是该域 或者 矩阵变量没有指定某一个域而且该域是第一个域, 则放在该域
-                String path = matrix.property("path");
-                if (name.equals(path) || (StringKit.isEmpty(path) && index == 0)) {
-                    Map<String, String[]> m = pathConversionProvider.convert(matrix.getName(), matrix.getValue());
-                    for (Map.Entry<String, String[]> entry : m.entrySet()) {
-                        String key = entry.getKey();
-                        String[] val = entry.getValue();
-                        boolean encoding = matrix.isCoding() && !matrix.isEncoded();
-                        if (encoding) for (int i = 0; i < val.length; i++) val[i] = URLEncoder.encode(val[i], charset);
-                        mixed.append(";");
-                        mixed.append(URLEncoder.encode(key, charset));
-                        mixed.append("=");
-                        mixed.append(ArrayKit.concat(",", val));
-                    }
-                }
-            }
-            value = mixed.toString();
+            String matrices = matrices(action, parameter);
+            value = StringKit.isEmpty(matrices) ? value : value + ";" + matrices;
 
             Matcher matcher = pattern.matcher(resource.getExpression() + mapping.getExpression());
             int group = parameter.getGroup();
@@ -75,6 +56,41 @@ public class JestfulURICombiner implements Actor, Initialable {
         }
         action.setRequestURI(uri.replaceAll("/+", "/"));
         return action.execute();
+    }
+
+    /**
+     * 获取路径参数的矩阵参数
+     *
+     * @param action    请求动作
+     * @param parameter 路径参数
+     * @return 路径参数的矩阵参数
+     * @throws ConvertingException          转换异常
+     * @throws UnsupportedEncodingException 不支持的字符集异常
+     */
+    private String matrices(Action action, Parameter parameter) throws ConvertingException, UnsupportedEncodingException {
+        String charset = action.getPathEncodeCharset();
+        String name = parameter.getName();
+        StringBuilder builder = new StringBuilder();
+        int index = action.getParameters().all(Position.PATH).indexOf(parameter);
+        List<Parameter> matrices = action.getParameters().all(Position.MATRIX);
+        for (Parameter matrix : matrices) {
+            // 如果矩阵变量的指定 path 域是该域 或者 矩阵变量没有指定某一个域而且该域是第一个域, 则放在该域
+            String path = matrix.property("path");
+            if (name.equals(path) || (StringKit.isEmpty(path) && index == 0)) {
+                Map<String, String[]> map = pathConversionProvider.convert(matrix.getName(), matrix.getValue());
+                for (Map.Entry<String, String[]> entry : map.entrySet()) {
+                    String key = entry.getKey();
+                    String[] val = entry.getValue();
+                    boolean encoding = matrix.isCoding() && !matrix.isEncoded();
+                    if (encoding) for (int i = 0; i < val.length; i++) val[i] = URLEncoder.encode(val[i], charset);
+                    builder.append(";");
+                    builder.append(URLEncoder.encode(key, charset));
+                    builder.append("=");
+                    builder.append(ArrayKit.concat(",", val));
+                }
+            }
+        }
+        return builder.toString();
     }
 
     public void initialize(BeanContainer beanContainer) {
