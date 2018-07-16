@@ -19,6 +19,7 @@ public class IndexAPITests {
                 .setProtocol("http")
                 .setHostname("localhost")
                 .setPort(8080)
+                .setRoute("/jestful-sample")
                 .setKeepAlive(true)
                 .build()
                 .creator()
@@ -30,6 +31,21 @@ public class IndexAPITests {
             String index = indexAPI.index();
             System.out.println(index);
         }
+    }
+
+    @Test
+    public void test() throws Exception {
+        IndexAPI indexAPI = NioClient.builder()
+                .setProtocol("http")
+                .setHostname("localhost")
+                .setPort(8080)
+                .setRoute("/jestful-sample")
+                .setKeepAlive(true)
+                .build()
+                .creator()
+                .addBackPlugins(Redirector.builder().build())
+                .create(IndexAPI.class);
+        indexAPI.matrix("中文路径", "中文矩阵", "中文查询", "中文请求头", "中文饼干");
     }
 
 }
