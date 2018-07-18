@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.qfox</groupId>
         <artifactId>jestful</artifactId>
-        <version>v2.3.5</version>
+        <version>v2.3.6</version>
     </parent>
     <artifactId>jestful-velocity</artifactId>
     <name>jestful-velocity</name>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-server</artifactId>
-            <version>v2.3.5</version>
+            <version>v2.3.6</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
