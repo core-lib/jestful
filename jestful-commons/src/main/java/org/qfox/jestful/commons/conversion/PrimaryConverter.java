@@ -13,6 +13,11 @@ import java.util.Map;
 public class PrimaryConverter implements Converter<Object> {
 
     @Override
+    public boolean atomic() {
+        return true;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return type == boolean.class
                 || type == byte.class

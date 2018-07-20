@@ -8,7 +8,7 @@ public interface IndexAPI {
     @GET("/")
     String index();
 
-    @GET("/{路径}/{矩阵}")
+    @POST("/{路径}/{矩阵}")
     String matrix(
             @Path("路径") String path,
             @Path("矩阵") String matrix,

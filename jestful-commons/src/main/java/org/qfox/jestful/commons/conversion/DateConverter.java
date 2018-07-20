@@ -14,6 +14,11 @@ import java.util.Map;
 public class DateConverter implements Converter<Date> {
 
     @Override
+    public boolean atomic() {
+        return true;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return Date.class.isAssignableFrom(type);
     }

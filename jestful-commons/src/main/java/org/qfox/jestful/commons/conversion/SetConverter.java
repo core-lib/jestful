@@ -16,6 +16,11 @@ import java.util.Set;
 public class SetConverter implements Converter<Set<?>> {
 
     @Override
+    public boolean atomic() {
+        return false;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return Set.class.isAssignableFrom(type);
     }

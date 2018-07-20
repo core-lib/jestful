@@ -1,10 +1,8 @@
 package org.qfox.jestful.commons.conversion;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Type;
 import java.net.URLDecoder;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 数组转换器
@@ -15,20 +13,39 @@ import java.util.Map;
 public class ArrayConverter implements Converter<Object> {
 
     @Override
+    public boolean atomic() {
+        return false;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return type.isArray();
     }
 
     @Override
     public Map<String, String[]> convert(String name, Object value, ConversionProvider provider) throws Exception {
-        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
-        int length = Array.getLength(value);
-        for (int i = 0; i < length; i++) {
-            Object item = Array.get(value, i);
-            Map<String, String[]> m = provider.convert(name + "[" + i + "]", item);
-            map.putAll(m);
+        Class<?> componentType = value.getClass().getComponentType();
+        boolean atomic = provider.atomic(componentType);
+        if (atomic) {
+            List<String> list = new ArrayList<String>();
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) {
+                Object item = Array.get(value, i);
+                Map<String, String[]> map = provider.convert(name, item);
+                String[] array = map.get(name);
+                list.addAll(Arrays.asList(array));
+            }
+            return Collections.singletonMap(name, list.toArray(new String[0]));
+        } else {
+            Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+            int length = Array.getLength(value);
+            for (int i = 0; i < length; i++) {
+                Object item = Array.get(value, i);
+                Map<String, String[]> m = provider.convert(name + "[" + i + "]", item);
+                map.putAll(m);
+            }
+            return map;
         }
-        return map;
     }
 
     @Override

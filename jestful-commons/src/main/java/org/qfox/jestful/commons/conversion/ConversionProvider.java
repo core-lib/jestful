@@ -19,6 +19,8 @@ public interface ConversionProvider {
 
     void setDeserializationDateFormat(DateFormat dateFormat);
 
+    boolean atomic(Class<?> type);
+
     /**
      * 是否支持该类型的转换
      *

@@ -14,6 +14,11 @@ import java.util.Map;
 public class MapConverter implements Converter<Map<?, ?>> {
 
     @Override
+    public boolean atomic() {
+        return false;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return Map.class.isAssignableFrom(type);
     }

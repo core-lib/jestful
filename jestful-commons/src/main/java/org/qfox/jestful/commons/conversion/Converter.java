@@ -10,6 +10,8 @@ import java.util.Map;
  **/
 public interface Converter<T> {
 
+    boolean atomic();
+
     boolean supports(Class<?> type);
 
     Map<String, String[]> convert(String name, T value, ConversionProvider provider) throws Exception;

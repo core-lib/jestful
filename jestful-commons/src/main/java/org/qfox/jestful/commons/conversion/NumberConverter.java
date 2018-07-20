@@ -17,6 +17,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class NumberConverter implements Converter<Number> {
 
     @Override
+    public boolean atomic() {
+        return true;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return Number.class.isAssignableFrom(type);
     }

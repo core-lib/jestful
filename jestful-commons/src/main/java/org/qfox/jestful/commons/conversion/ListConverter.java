@@ -17,6 +17,11 @@ import java.util.Map;
 public class ListConverter implements Converter<List<?>> {
 
     @Override
+    public boolean atomic() {
+        return false;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return List.class.isAssignableFrom(type);
     }

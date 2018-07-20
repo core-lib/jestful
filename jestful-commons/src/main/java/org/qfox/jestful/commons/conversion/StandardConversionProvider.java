@@ -46,6 +46,12 @@ public class StandardConversionProvider implements ConversionProvider {
     }
 
     @Override
+    public boolean atomic(Class<?> type) {
+        for (Converter converter : converters) if (converter.supports(type)) return converter.atomic();
+        return false;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         for (Converter converter : converters) if (converter.supports(type)) return true;
         return false;

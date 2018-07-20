@@ -13,6 +13,11 @@ import java.util.Map;
 public class EnumConverter implements Converter<Enum<?>> {
 
     @Override
+    public boolean atomic() {
+        return true;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return type.isEnum();
     }

@@ -42,6 +42,11 @@ public class JestfulConversionProvider implements ConversionProvider, Initialabl
     }
 
     @Override
+    public boolean atomic(Class<?> type) {
+        return delegate.atomic(type);
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return delegate.supports(type);
     }

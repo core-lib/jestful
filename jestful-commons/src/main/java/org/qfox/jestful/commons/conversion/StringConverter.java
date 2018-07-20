@@ -13,6 +13,11 @@ import java.util.Map;
 public class StringConverter implements Converter<CharSequence> {
 
     @Override
+    public boolean atomic() {
+        return true;
+    }
+
+    @Override
     public boolean supports(Class<?> type) {
         return CharSequence.class.isAssignableFrom(type);
     }
