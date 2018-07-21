@@ -3,10 +3,7 @@ package org.qfox.jestful.commons.conversion;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * List转换器
@@ -28,13 +25,25 @@ public class ListConverter implements Converter<List<?>> {
 
     @Override
     public Map<String, String[]> convert(String name, List<?> value, ConversionProvider provider) throws Exception {
-        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
-        for (int i = 0; i < value.size(); i++) {
-            Object item = value.get(i);
-            Map<String, String[]> m = provider.convert(name + "[" + i + "]", item);
-            map.putAll(m);
+        boolean atomic = true;
+        for (Object item : value) atomic = atomic && provider.atomic(item.getClass());
+        if (atomic) {
+            List<String> list = new ArrayList<String>();
+            for (Object item : value) {
+                Map<String, String[]> map = provider.convert(name, item);
+                String[] array = map.get(name);
+                list.addAll(Arrays.asList(array));
+            }
+            return Collections.singletonMap(name, list.toArray(new String[0]));
+        } else {
+            Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+            for (int i = 0; i < value.size(); i++) {
+                Object item = value.get(i);
+                Map<String, String[]> m = provider.convert(name + "[" + i + "]", item);
+                map.putAll(m);
+            }
+            return map;
         }
-        return map;
     }
 
     @Override

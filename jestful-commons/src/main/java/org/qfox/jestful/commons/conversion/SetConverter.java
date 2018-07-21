@@ -2,10 +2,7 @@ package org.qfox.jestful.commons.conversion;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Set转换器
@@ -27,13 +24,25 @@ public class SetConverter implements Converter<Set<?>> {
 
     @Override
     public Map<String, String[]> convert(String name, Set<?> value, ConversionProvider provider) throws Exception {
-        Map<String, String[]> map = new LinkedHashMap<String, String[]>();
-        int index = 0;
-        for (Object item : value) {
-            Map<String, String[]> m = provider.convert(name + "[" + index++ + "]", item);
-            map.putAll(m);
+        boolean atomic = true;
+        for (Object item : value) atomic = atomic && provider.atomic(item.getClass());
+        if (atomic) {
+            List<String> list = new ArrayList<String>();
+            for (Object item : value) {
+                Map<String, String[]> map = provider.convert(name, item);
+                String[] array = map.get(name);
+                list.addAll(Arrays.asList(array));
+            }
+            return Collections.singletonMap(name, list.toArray(new String[0]));
+        } else {
+            Map<String, String[]> map = new LinkedHashMap<String, String[]>();
+            int index = 0;
+            for (Object item : value) {
+                Map<String, String[]> m = provider.convert(name + "[" + index++ + "]", item);
+                map.putAll(m);
+            }
+            return map;
         }
-        return map;
     }
 
     @Override
