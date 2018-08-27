@@ -191,17 +191,53 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 }
             } else if (url.getProtocol().equalsIgnoreCase("jar")) {
                 String file = url.getFile();
-                String path = file.substring(file.indexOf(":") + 1, file.lastIndexOf("!"));
-                JarFile jarFile = new JarFile(path);
-                Enumeration<JarEntry> entries = jarFile.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry jarEntry = entries.nextElement();
-                    if (jarEntry.isDirectory()) {
-                        continue;
+                String[] paths = file.split("!");
+                if (paths.length > 2) {
+                    File jar = null;
+                    InputStream in = null;
+                    OutputStream out = null;
+                    try {
+                        StringBuilder path = new StringBuilder();
+                        for (int i = 0; i < paths.length - 1; i++) {
+                            if (i == 0) path.append("jar:");
+                            else path.append("!");
+                            path.append(paths[i]);
+                        }
+                        jar = File.createTempFile("jestful-", ".jar");
+                        in = new URL(path.toString()).openStream();
+                        out = new FileOutputStream(jar);
+                        IOKit.transfer(in, out);
+                        out.flush();
+                        JarFile jarFile = new JarFile(jar);
+                        Enumeration<JarEntry> entries = jarFile.entries();
+                        while (entries.hasMoreElements()) {
+                            JarEntry jarEntry = entries.nextElement();
+                            if (jarEntry.isDirectory()) {
+                                continue;
+                            }
+                            String name = jarEntry.getName();
+                            if (name.startsWith("jestful/") && name.endsWith(".xml")) {
+                                urls.add(new URL(path + "!/" + jarEntry.getName()));
+                            }
+                        }
+                    } finally {
+                        IOKit.delete(jar);
+                        IOKit.close(in);
+                        IOKit.close(out);
                     }
-                    String name = jarEntry.getName();
-                    if (name.startsWith("jestful/") && name.endsWith(".xml")) {
-                        urls.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
+                } else {
+                    String path = file.substring(file.indexOf(":") + 1, file.lastIndexOf("!"));
+                    JarFile jarFile = new JarFile(path);
+                    Enumeration<JarEntry> entries = jarFile.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry jarEntry = entries.nextElement();
+                        if (jarEntry.isDirectory()) {
+                            continue;
+                        }
+                        String name = jarEntry.getName();
+                        if (name.startsWith("jestful/") && name.endsWith(".xml")) {
+                            urls.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
+                        }
                     }
                 }
             } else {

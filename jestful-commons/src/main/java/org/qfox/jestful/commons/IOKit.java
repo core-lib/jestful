@@ -288,4 +288,8 @@ public class IOKit {
         transfer(file, baos);
         return charset != null ? baos.toString(charset) : baos.toString();
     }
+
+    public static boolean delete(File file) {
+        return file != null && file.delete();
+    }
 }
