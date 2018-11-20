@@ -1,5 +1,7 @@
 package org.qfox.jestful.client;
 
+import io.detector.SimpleDetector;
+import io.detector.SuffixFilter;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connection;
 import org.qfox.jestful.client.connection.Connector;
@@ -13,7 +15,6 @@ import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
-import org.qfox.jestful.commons.collection.Enumerator;
 import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
@@ -42,8 +43,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 
 /**
  * <p>
@@ -168,81 +167,26 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     }
 
     protected Set<URL> integrate(ClassLoader classLoader) throws IOException {
+        Collection<io.detector.Resource> resources = SimpleDetector.Builder
+                .scan("jestful")
+                .by(classLoader)
+                .includeJar()
+                .recursively()
+                .build()
+                .detect(new SuffixFilter(".xml"));
+        // 适配Android
+        if (resources.isEmpty()) {
+            resources = SimpleDetector.Builder
+                    .scan("jestful/client.xml")
+                    .by(classLoader)
+                    .includeJar()
+                    .recursively()
+                    .build()
+                    .detect();
+        }
         Set<URL> urls = new LinkedHashSet<URL>();
-        Enumeration<URL> enumeration = classLoader.getResources("jestful");
-        enumeration = enumeration != null && enumeration.hasMoreElements() ? enumeration : new Enumerator<URL>(classLoader.getResource("jestful/client.xml"));
-        while (enumeration.hasMoreElements()) {
-            URL url = enumeration.nextElement();
-            if (url == null) {
-                throw new NullPointerException();
-            } else if (url.getProtocol().equalsIgnoreCase("file")) {
-                File file = new File(url.getFile());
-                if (file.isDirectory()) {
-                    File[] files = file.listFiles();
-                    for (int i = 0; files != null && i < files.length; i++) {
-                        File f = files[i];
-                        if (f.isDirectory()) {
-                            continue;
-                        }
-                        if (f.isFile() && f.getName().endsWith(".xml")) {
-                            urls.add(f.toURI().toURL());
-                        }
-                    }
-                }
-            } else if (url.getProtocol().equalsIgnoreCase("jar")) {
-                String file = url.getFile();
-                String[] paths = file.split("!");
-                if (paths.length > 2) {
-                    File jar = null;
-                    InputStream in = null;
-                    OutputStream out = null;
-                    try {
-                        StringBuilder path = new StringBuilder();
-                        for (int i = 0; i < paths.length - 1; i++) {
-                            if (i == 0) path.append("jar:");
-                            else path.append("!");
-                            path.append(paths[i]);
-                        }
-                        jar = File.createTempFile("jestful-", ".jar");
-                        in = new URL(path.toString()).openStream();
-                        out = new FileOutputStream(jar);
-                        IOKit.transfer(in, out);
-                        out.flush();
-                        JarFile jarFile = new JarFile(jar);
-                        Enumeration<JarEntry> entries = jarFile.entries();
-                        while (entries.hasMoreElements()) {
-                            JarEntry jarEntry = entries.nextElement();
-                            if (jarEntry.isDirectory()) {
-                                continue;
-                            }
-                            String name = jarEntry.getName();
-                            if (name.startsWith("jestful/") && name.endsWith(".xml")) {
-                                urls.add(new URL(path + "!/" + jarEntry.getName()));
-                            }
-                        }
-                    } finally {
-                        IOKit.delete(jar);
-                        IOKit.close(in);
-                        IOKit.close(out);
-                    }
-                } else {
-                    String path = file.substring(file.indexOf(":") + 1, file.lastIndexOf("!"));
-                    JarFile jarFile = new JarFile(path);
-                    Enumeration<JarEntry> entries = jarFile.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry jarEntry = entries.nextElement();
-                        if (jarEntry.isDirectory()) {
-                            continue;
-                        }
-                        String name = jarEntry.getName();
-                        if (name.startsWith("jestful/") && name.endsWith(".xml")) {
-                            urls.add(new URL("jar:file:" + jarFile.getName() + "!/" + jarEntry.getName()));
-                        }
-                    }
-                }
-            } else {
-                throw new IOException("unknown protocol " + url.getProtocol());
-            }
+        for (io.detector.Resource resource : resources) {
+            urls.add(resource.getUrl());
         }
         return urls;
     }
