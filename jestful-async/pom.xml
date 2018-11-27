@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.qfox</groupId>
         <artifactId>jestful</artifactId>
-        <version>v2.3.9</version>
+        <version>v2.4.0</version>
     </parent>
     <artifactId>jestful-async</artifactId>
     <name>jestful-async</name>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.qfox</groupId>
             <artifactId>jestful-server</artifactId>
-            <version>v2.3.9</version>
+            <version>v2.4.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
