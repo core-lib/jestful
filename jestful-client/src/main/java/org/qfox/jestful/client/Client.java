@@ -1,7 +1,6 @@
 package org.qfox.jestful.client;
 
-import io.detector.SimpleDetector;
-import io.detector.SuffixFilter;
+import io.loadkit.Loaders;
 import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connection;
 import org.qfox.jestful.client.connection.Connector;
@@ -167,25 +166,10 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     }
 
     protected Set<URL> integrate(ClassLoader classLoader) throws IOException {
-        Collection<io.detector.Resource> resources = SimpleDetector.Builder
-                .scan("jestful")
-                .by(classLoader)
-                .includeJar()
-                .recursively()
-                .build()
-                .detect(new SuffixFilter(".xml"));
-        // 适配Android
-        if (resources.isEmpty()) {
-            resources = SimpleDetector.Builder
-                    .scan("jestful/client.xml")
-                    .by(classLoader)
-                    .includeJar()
-                    .recursively()
-                    .build()
-                    .detect();
-        }
         Set<URL> urls = new LinkedHashSet<URL>();
-        for (io.detector.Resource resource : resources) {
+        Enumeration<io.loadkit.Resource> resources = Loaders.ant(classLoader).load("jestful/**.xml");
+        while (resources.hasMoreElements()) {
+            io.loadkit.Resource resource = resources.nextElement();
             urls.add(resource.getUrl());
         }
         return urls;

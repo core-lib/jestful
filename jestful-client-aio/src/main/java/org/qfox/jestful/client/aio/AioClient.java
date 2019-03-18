@@ -57,7 +57,7 @@ public class AioClient extends Client implements AioConnector {
         if (defaultClient != null) {
             return defaultClient;
         }
-        synchronized (Client.class) {
+        synchronized (AioClient.class) {
             if (defaultClient != null) {
                 return defaultClient;
             }

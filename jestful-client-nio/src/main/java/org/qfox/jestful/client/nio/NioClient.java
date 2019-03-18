@@ -76,7 +76,7 @@ public class NioClient extends Client implements NioConnector {
         if (defaultClient != null) {
             return defaultClient;
         }
-        synchronized (Client.class) {
+        synchronized (NioClient.class) {
             if (defaultClient != null) {
                 return defaultClient;
             }
