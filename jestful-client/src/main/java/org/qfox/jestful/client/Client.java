@@ -760,7 +760,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
 
         public B setHostname(String hostname) {
-            if (protocol == null) {
+            if (hostname == null) {
                 throw new IllegalArgumentException("hostname == null");
             }
             this.hostname = hostname;
