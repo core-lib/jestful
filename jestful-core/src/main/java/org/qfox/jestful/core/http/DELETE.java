@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Function(name = "DELETE", acceptBody = false, returnBody = true, idempotent = true, protocol = HTTP.class)
+@Function(name = "DELETE", acceptBody = true, returnBody = true, idempotent = true, protocol = HTTP.class)
 public @interface DELETE {
 
     /**
@@ -29,6 +29,13 @@ public @interface DELETE {
      * @return
      */
     String value() default "";
+
+    /**
+     * indicated some content types to accept, by default, all of the content types is accepted;
+     *
+     * @return
+     */
+    String[] consumes() default {};
 
     /**
      * indicated some content types will return, by default, any content type can resolve the request
