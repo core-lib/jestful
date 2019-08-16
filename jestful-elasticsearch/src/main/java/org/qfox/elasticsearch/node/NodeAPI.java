@@ -13,6 +13,9 @@ import org.qfox.jestful.core.http.HTTP;
 public interface NodeAPI {
 
     @GET
-    NodeStatusResult getNodeStatus();
+    NodeStatusResult status();
+
+    @GET("/_count")
+    NodeCountResult count();
 
 }

@@ -15,14 +15,25 @@ import java.net.URL;
 public class NodeAPITests {
 
     @Test
-    public void testGetNodeStatus() throws Exception {
+    public void testStatus() throws Exception {
         NodeAPI nodeAPI = Client.builder()
                 .setEndpoint(new URL("http://localhost:9200"))
                 .build()
                 .create(NodeAPI.class);
-        NodeStatusResult status = nodeAPI.getNodeStatus();
+        NodeStatusResult result = nodeAPI.status();
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(System.out, status);
+        mapper.writeValue(System.out, result);
+    }
+
+    @Test
+    public void testCount() throws Exception {
+        NodeAPI nodeAPI = Client.builder()
+                .setEndpoint(new URL("http://localhost:9200"))
+                .build()
+                .create(NodeAPI.class);
+        NodeCountResult result = nodeAPI.count();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(System.out, result);
     }
 
 }
