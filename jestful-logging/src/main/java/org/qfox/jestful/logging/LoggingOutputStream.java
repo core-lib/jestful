@@ -48,26 +48,27 @@ public class LoggingOutputStream extends FilterOutputStream {
         } else {
             closed = true;
         }
+        try {
+            String method = request.getMethod();
+            String url = request.getURL();
+            System.out.println(method + " " + url);
 
-        String method = request.getMethod();
-        String url = request.getURL();
-        System.out.println(method + " " + url);
-
-        String[] headerKeys = request.getHeaderKeys();
-        for (String headerKey : headerKeys) {
-            if (headerKey == null) {
-                continue;
+            String[] headerKeys = request.getHeaderKeys();
+            for (String headerKey : headerKeys) {
+                if (headerKey == null) {
+                    continue;
+                }
+                String[] headerValues = request.getRequestHeaders(headerKey);
+                for (String headerValue : headerValues) {
+                    System.out.println(headerKey + ": " + headerValue);
+                }
             }
-            String[] headerValues = request.getRequestHeaders(headerKey);
-            for (String headerValue : headerValues) {
-                System.out.println(headerKey + ": " + headerValue);
-            }
+            System.out.println();
+            System.out.write(buf.toByteArray());
+            System.out.println();
+            System.out.println();
+        } finally {
+            super.close();
         }
-        System.out.println();
-        System.out.write(buf.toByteArray());
-        System.out.println();
-        System.out.println();
-
-        super.close();
     }
 }

@@ -25,6 +25,7 @@ public abstract class BasicAPITest {
     public void setup() throws Exception {
         Client client = Client.builder()
                 .setEndpoint(new URL("http://localhost:9200"))
+                .setKeepAlive(false)
                 .build();
         LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
 

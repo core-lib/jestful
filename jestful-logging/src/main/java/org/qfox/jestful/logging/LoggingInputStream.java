@@ -52,24 +52,25 @@ public class LoggingInputStream extends FilterInputStream {
         } else {
             closed = true;
         }
-
-        super.close();
-
-        Status status = response.getResponseStatus();
-        String[] headerKeys = response.getHeaderKeys();
-        System.out.println(status);
-        for (String headerKey : headerKeys) {
-            if (headerKey == null) {
-                continue;
+        try {
+            Status status = response.getResponseStatus();
+            String[] headerKeys = response.getHeaderKeys();
+            System.out.println(status);
+            for (String headerKey : headerKeys) {
+                if (headerKey == null) {
+                    continue;
+                }
+                String[] headerValues = response.getResponseHeaders(headerKey);
+                for (String headerValue : headerValues) {
+                    System.out.println(headerKey + ": " + headerValue);
+                }
             }
-            String[] headerValues = response.getResponseHeaders(headerKey);
-            for (String headerValue : headerValues) {
-                System.out.println(headerKey + ": " + headerValue);
-            }
+            System.out.println();
+            System.out.write(buf.toByteArray());
+            System.out.println();
+            System.out.println();
+        } finally {
+            super.close();
         }
-        System.out.println();
-        System.out.write(buf.toByteArray());
-        System.out.println();
-        System.out.println();
     }
 }
