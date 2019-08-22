@@ -32,6 +32,11 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
         this.request = request;
     }
 
+    @Override
+    public String getURL() {
+        return request.getRequestURL().toString();
+    }
+
     public String[] getHeaderKeys() {
         Enumeration<String> enumeration = request.getHeaderNames();
         if (enumeration == null) {
@@ -41,7 +46,7 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
         while (enumeration.hasMoreElements()) {
             keys.add(enumeration.nextElement());
         }
-        return keys.toArray(new String[keys.size()]);
+        return keys.toArray(new String[0]);
     }
 
     public String getRequestHeader(String name) {
@@ -61,7 +66,7 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
         while (enumeration.hasMoreElements()) {
             values.add(enumeration.nextElement());
         }
-        return values.toArray(new String[values.size()]);
+        return values.toArray(new String[0]);
     }
 
     public void setRequestHeaders(String name, String[] values) {
@@ -100,11 +105,11 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
 
     }
 
-    public void connect() throws IOException {
+    public void connect() {
         throw new UnsupportedOperationException();
     }
 
-    public void close() throws IOException {
+    public void close() {
 
     }
 
@@ -136,11 +141,11 @@ public class JestfulServletRequest extends HttpServletRequestWrapper implements 
     }
 
     @Override
-    public Writer getRequestWriter() throws IOException {
+    public Writer getRequestWriter() {
         throw new UnsupportedOperationException();
     }
 
-    public void connect(int timeout) throws IOException {
+    public void connect(int timeout) {
         throw new UnsupportedOperationException();
     }
 

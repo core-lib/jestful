@@ -51,7 +51,7 @@ public class JestfulServletResponse extends HttpServletResponseWrapper implement
 
     public String[] getHeaderKeys() {
         Collection<String> names = response.getHeaderNames();
-        return names != null ? names.toArray(new String[names.size()]) : null;
+        return names != null ? names.toArray(new String[0]) : null;
     }
 
     public String getResponseHeader(String name) {
@@ -64,7 +64,7 @@ public class JestfulServletResponse extends HttpServletResponseWrapper implement
 
     public String[] getResponseHeaders(String name) {
         Collection<String> values = response.getHeaders(name);
-        return values != null ? values.toArray(new String[values.size()]) : null;
+        return values != null ? values.toArray(new String[0]) : null;
     }
 
     public void setResponseHeaders(String name, String[] values) {
@@ -95,7 +95,7 @@ public class JestfulServletResponse extends HttpServletResponseWrapper implement
         return response.getWriter();
     }
 
-    public void close() throws IOException {
+    public void close() {
 
     }
 

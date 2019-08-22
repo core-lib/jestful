@@ -17,7 +17,7 @@ public class DocumentAPITest extends BasicAPITest {
 
     @Test
     public void testIndex() throws Exception {
-        DocumentIndexResult result = documentAPI.index("basic", "product", "2", new Product("iPhone XR", new BigDecimal(5099)));
+        DocumentIndexResult result = documentAPI.index("basic", "product", "3", new Product("iPhone XR", new BigDecimal(5099)));
         print(result);
     }
 

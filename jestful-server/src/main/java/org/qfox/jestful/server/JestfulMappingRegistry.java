@@ -68,7 +68,7 @@ public class JestfulMappingRegistry implements MappingRegistry, Initialable, Com
         if (versions.size() > 1) {
             throw new ConflictStatusException(URI, method, versions);
         }
-        String version = versions.isEmpty() ? null : versions.toArray(new String[1])[0];
+        String version = versions.isEmpty() ? null : versions.toArray(new String[0])[0];
 
         Collection<Mapping> mappings = lookup(method, URI);
         if (version == null) {

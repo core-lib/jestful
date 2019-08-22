@@ -5,9 +5,20 @@ import java.io.*;
 public class RequestWrapper implements Request {
     private final Request request;
 
+
     public RequestWrapper(Request request) {
         super();
         this.request = request;
+    }
+
+    @Override
+    public String getURL() {
+        return request.getURL();
+    }
+
+    @Override
+    public String getMethod() {
+        return request.getMethod();
     }
 
     public String[] getHeaderKeys() {

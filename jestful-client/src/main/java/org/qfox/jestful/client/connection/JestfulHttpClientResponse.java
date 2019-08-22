@@ -47,7 +47,7 @@ public class JestfulHttpClientResponse implements Response {
 
     public String[] getResponseHeaders(String name) {
         List<String> values = httpURLConnection.getHeaderFields().get(name);
-        return values != null ? values.toArray(new String[values.size()]) : null;
+        return values != null ? values.toArray(new String[0]) : null;
     }
 
     public void setResponseHeaders(String name, String[] values) {
@@ -65,7 +65,7 @@ public class JestfulHttpClientResponse implements Response {
         }
     }
 
-    public OutputStream getResponseOutputStream() throws IOException {
+    public OutputStream getResponseOutputStream() {
         throw new UnsupportedOperationException();
     }
 
@@ -79,7 +79,7 @@ public class JestfulHttpClientResponse implements Response {
     }
 
     @Override
-    public Writer getResponseWriter() throws IOException {
+    public Writer getResponseWriter() {
         throw new UnsupportedOperationException();
     }
 
@@ -89,7 +89,7 @@ public class JestfulHttpClientResponse implements Response {
         return new HttpStatus(code, reason);
     }
 
-    public void setResponseStatus(Status status) throws IOException {
+    public void setResponseStatus(Status status) {
         throw new UnsupportedOperationException();
     }
 

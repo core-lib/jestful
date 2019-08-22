@@ -34,7 +34,7 @@ public class CookieManagedRequest extends RequestWrapper {
         }
         Map<String, List<String>> map = cookieHandler.get(uri, header);
         for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-            setRequestHeaders(entry.getKey(), entry.getValue().toArray(new String[entry.getValue().size()]));
+            setRequestHeaders(entry.getKey(), entry.getValue().toArray(new String[0]));
         }
         super.connect();
     }

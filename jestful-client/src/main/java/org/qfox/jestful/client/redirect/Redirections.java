@@ -27,7 +27,7 @@ public class Redirections implements Enumerable<Redirection>, Serializable {
     }
 
     public Redirection[] toArray() {
-        return redirections.toArray(new Redirection[count()]);
+        return redirections.toArray(new Redirection[0]);
     }
 
     @Override

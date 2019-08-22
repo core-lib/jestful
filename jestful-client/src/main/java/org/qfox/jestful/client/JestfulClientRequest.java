@@ -70,6 +70,22 @@ public class JestfulClientRequest implements Request, ReusableRequest {
         this.writeTimeout = writeTimeout;
     }
 
+    @Override
+    public String getURL() {
+        if (request != null) {
+            return request.getURL();
+        }
+        return action.getURL();
+    }
+
+    @Override
+    public String getMethod() {
+        if (request != null) {
+            return request.getMethod();
+        }
+        return action.getRestful().getMethod();
+    }
+
     public String[] getHeaderKeys() {
         if (request != null) {
             return request.getHeaderKeys();

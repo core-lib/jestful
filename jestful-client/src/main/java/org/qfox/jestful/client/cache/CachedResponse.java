@@ -24,7 +24,7 @@ class CachedResponse extends ResponseWrapper {
     }
 
     @Override
-    public Status getResponseStatus() throws IOException {
+    public Status getResponseStatus() {
         return status;
     }
 
@@ -35,7 +35,7 @@ class CachedResponse extends ResponseWrapper {
 
     @Override
     public String[] getHeaderKeys() {
-        return header.keySet().toArray(new String[header.size()]);
+        return header.keySet().toArray(new String[0]);
     }
 
     @Override
@@ -69,7 +69,7 @@ class CachedResponse extends ResponseWrapper {
     }
 
     @Override
-    public InputStream getResponseInputStream() throws IOException {
+    public InputStream getResponseInputStream() {
         return body;
     }
 

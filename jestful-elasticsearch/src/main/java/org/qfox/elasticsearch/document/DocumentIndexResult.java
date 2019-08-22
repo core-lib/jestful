@@ -1,5 +1,7 @@
 package org.qfox.elasticsearch.document;
 
+import org.qfox.elasticsearch.Shards;
+
 /**
  * 文档索引结果
  *
@@ -11,7 +13,8 @@ public class DocumentIndexResult {
     private String _type;
     private String _id;
     private Integer _version;
-    private boolean created;
+    private String result;
+    private Shards shards;
 
     public String get_index() {
         return _index;
@@ -45,11 +48,19 @@ public class DocumentIndexResult {
         this._version = _version;
     }
 
-    public boolean isCreated() {
-        return created;
+    public String getResult() {
+        return result;
     }
 
-    public void setCreated(boolean created) {
-        this.created = created;
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public Shards getShards() {
+        return shards;
+    }
+
+    public void setShards(Shards shards) {
+        this.shards = shards;
     }
 }

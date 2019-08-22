@@ -5,6 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.qfox.jestful.client.Client;
 import org.qfox.jestful.core.http.HTTP;
+import org.qfox.jestful.logging.LoggingInterceptor;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -25,13 +26,14 @@ public abstract class BasicAPITest {
         Client client = Client.builder()
                 .setEndpoint(new URL("http://localhost:9200"))
                 .build();
+        LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
 
         Class<? extends BasicAPITest> clazz = this.getClass();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             Class<?> type = field.getType();
             if (type.isInterface() && type.isAnnotationPresent(HTTP.class)) {
-                Object value = client.create(type);
+                Object value = client.creator().addBackPlugins(loggingInterceptor).create(type);
                 field.setAccessible(true);
                 field.set(this, value);
             }

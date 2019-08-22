@@ -19,6 +19,10 @@ import java.io.*;
  */
 public interface Request extends Closeable, IOConstants {
 
+    String getURL();
+
+    String getMethod();
+
     String[] getHeaderKeys();
 
     String getRequestHeader(String name);

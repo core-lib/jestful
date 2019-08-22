@@ -42,7 +42,7 @@ public abstract class Configuration implements AnnotatedElement {
                 list.add(annotation);
             }
         }
-        return list.toArray(new Annotation[list.size()]);
+        return list.toArray(new Annotation[0]);
     }
 
     public boolean isAnnotationPresent(Class<? extends Annotation> annotationType) {

@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -25,17 +26,36 @@ public class JestfulHttpClientRequest implements Request {
     private String characterEncoding;
     private OutputStream outputStream;
     private Writer writer;
+    private boolean connected;
+    private Map<String, List<String>> headers;
 
     public JestfulHttpClientRequest(HttpURLConnection httpURLConnection) {
         super();
         this.httpURLConnection = httpURLConnection;
     }
 
+    @Override
+    public String getURL() {
+        return httpURLConnection.getURL().toString();
+    }
+
+    @Override
+    public String getMethod() {
+        return httpURLConnection.getRequestMethod();
+    }
+
     public String[] getHeaderKeys() {
+        if (connected) {
+            return headers.keySet().toArray(new String[0]);
+        }
         return httpURLConnection.getRequestProperties().keySet().toArray(new String[0]);
     }
 
     public String getRequestHeader(String name) {
+        if (connected) {
+            List<String> values = headers.get(name);
+            return values == null || values.isEmpty() ? null : values.iterator().next();
+        }
         return httpURLConnection.getRequestProperty(name);
     }
 
@@ -44,8 +64,12 @@ public class JestfulHttpClientRequest implements Request {
     }
 
     public String[] getRequestHeaders(String name) {
+        if (connected) {
+            List<String> values = headers.get(name);
+            return values != null ? values.toArray(new String[0]) : null;
+        }
         List<String> values = httpURLConnection.getRequestProperties().get(name);
-        return values != null ? values.toArray(new String[values.size()]) : null;
+        return values != null ? values.toArray(new String[0]) : null;
     }
 
     public void setRequestHeaders(String name, String[] values) {
@@ -103,6 +127,10 @@ public class JestfulHttpClientRequest implements Request {
     }
 
     public void connect() throws IOException {
+        if (!connected) {
+            connected = true;
+            headers = httpURLConnection.getRequestProperties();
+        }
         httpURLConnection.connect();
     }
 
@@ -110,7 +138,7 @@ public class JestfulHttpClientRequest implements Request {
         httpURLConnection.disconnect();
     }
 
-    public InputStream getRequestInputStream() throws IOException {
+    public InputStream getRequestInputStream() {
         throw new UnsupportedOperationException();
     }
 
@@ -118,11 +146,15 @@ public class JestfulHttpClientRequest implements Request {
         if (outputStream != null) {
             return outputStream;
         }
+        if (!connected) {
+            connected = true;
+            headers = httpURLConnection.getRequestProperties();
+        }
         return outputStream = httpURLConnection.getOutputStream();
     }
 
     @Override
-    public Reader getRequestReader() throws IOException {
+    public Reader getRequestReader() {
         throw new UnsupportedOperationException();
     }
 
