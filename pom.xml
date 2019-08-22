@@ -36,8 +36,24 @@
         <module>jestful-weixin</module>
         <module>jestful-guava</module>
         <module>jestful-elasticsearch</module>
+        <module>jestful-logging</module>
         <!--<module>jestful-sample</module>-->
     </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <source.compile.version>1.8</source.compile.version>
+        <target.compile.version>1.8</target.compile.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <resources>
@@ -52,8 +68,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${source.compile.version}</source>
+                    <target>${target.compile.version}</target>
                     <fork>true</fork>
                     <verbose>true</verbose>
                     <encoding>UTF-8</encoding>

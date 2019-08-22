@@ -1,10 +1,7 @@
 package org.qfox.elasticsearch.node;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.qfox.jestful.client.Client;
-
-import java.net.URL;
+import org.qfox.elasticsearch.BasicAPITest;
 
 /**
  * 节点API测试类
@@ -12,28 +9,20 @@ import java.net.URL;
  * @author Payne 646742615@qq.com
  * 2019/8/16 17:46
  */
-public class NodeAPITests {
+public class NodeAPITests extends BasicAPITest {
+
+    private NodeAPI nodeAPI;
 
     @Test
     public void testStatus() throws Exception {
-        NodeAPI nodeAPI = Client.builder()
-                .setEndpoint(new URL("http://localhost:9200"))
-                .build()
-                .create(NodeAPI.class);
         NodeStatusResult result = nodeAPI.status();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(System.out, result);
+        print(result);
     }
 
     @Test
     public void testCount() throws Exception {
-        NodeAPI nodeAPI = Client.builder()
-                .setEndpoint(new URL("http://localhost:9200"))
-                .build()
-                .create(NodeAPI.class);
         NodeCountResult result = nodeAPI.count();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(System.out, result);
+        print(result);
     }
 
 }
