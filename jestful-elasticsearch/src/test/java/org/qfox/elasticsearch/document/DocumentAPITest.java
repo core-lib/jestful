@@ -2,6 +2,8 @@ package org.qfox.elasticsearch.document;
 
 import org.junit.Test;
 import org.qfox.elasticsearch.BasicAPITest;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 import java.math.BigDecimal;
 
@@ -16,14 +18,25 @@ public class DocumentAPITest extends BasicAPITest {
     private DocumentAPI documentAPI;
 
     @Test
-    public void testIndex() throws Exception {
-        DocumentIndexResult result = documentAPI.index("basic", "product", "3", new Product("iPhone XR", new BigDecimal(5099)));
-        print(result);
+    public void testIndex() {
+        documentAPI.index("basic", "product", "3", new Product("iPhone XR", new BigDecimal(5099)))
+                .subscribeOn(Schedulers.immediate())
+                .subscribe(new Action1<DocumentIndexResult>() {
+                    @Override
+                    public void call(DocumentIndexResult documentIndexResults) {
+                        System.out.println(documentIndexResults);
+                    }
+                });
     }
 
     @Test
-    public void testCreate() throws Exception {
-        DocumentIndexResult result = documentAPI.create("basic", "product", new Product("iPhone XR", new BigDecimal(5099)));
-        print(result);
+    public void testCreate() {
+        documentAPI.create("basic", "product", new Product("iPhone XR", new BigDecimal(5099))).doOnNext(new Action1<DocumentIndexResult>() {
+            @Override
+            public void call(DocumentIndexResult documentIndexResult) {
+                print(documentIndexResult);
+            }
+        });
+
     }
 }

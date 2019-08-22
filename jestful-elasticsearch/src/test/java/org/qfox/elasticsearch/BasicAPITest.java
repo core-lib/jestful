@@ -7,7 +7,6 @@ import org.qfox.jestful.client.Client;
 import org.qfox.jestful.core.http.HTTP;
 import org.qfox.jestful.logging.LoggingInterceptor;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
 
@@ -41,9 +40,13 @@ public abstract class BasicAPITest {
         }
     }
 
-    protected void print(Object obj) throws IOException {
-        mapper.writeValue(System.out, obj);
-        System.out.println();
+    protected void print(Object obj) {
+        try {
+            mapper.writeValue(System.out, obj);
+            System.out.println();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @After

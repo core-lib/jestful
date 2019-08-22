@@ -2,6 +2,7 @@ package org.qfox.elasticsearch.node;
 
 import org.qfox.jestful.core.http.GET;
 import org.qfox.jestful.core.http.HTTP;
+import rx.Observable;
 
 /**
  * 节点API
@@ -13,9 +14,9 @@ import org.qfox.jestful.core.http.HTTP;
 public interface NodeAPI {
 
     @GET
-    NodeStatusResult status();
+    Observable<NodeStatusResult> status();
 
     @GET("/_count")
-    NodeCountResult count();
+    Observable<NodeCountResult> count();
 
 }

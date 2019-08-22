@@ -14,7 +14,9 @@ public class DocumentIndexResult {
     private String _id;
     private Integer _version;
     private String result;
-    private Shards shards;
+    private Shards _shards;
+    private Integer _seq_no;
+    private Integer _primary_term;
 
     public String get_index() {
         return _index;
@@ -56,11 +58,27 @@ public class DocumentIndexResult {
         this.result = result;
     }
 
-    public Shards getShards() {
-        return shards;
+    public Shards get_shards() {
+        return _shards;
     }
 
-    public void setShards(Shards shards) {
-        this.shards = shards;
+    public void set_shards(Shards _shards) {
+        this._shards = _shards;
+    }
+
+    public Integer get_seq_no() {
+        return _seq_no;
+    }
+
+    public void set_seq_no(Integer _seq_no) {
+        this._seq_no = _seq_no;
+    }
+
+    public Integer get_primary_term() {
+        return _primary_term;
+    }
+
+    public void set_primary_term(Integer _primary_term) {
+        this._primary_term = _primary_term;
     }
 }

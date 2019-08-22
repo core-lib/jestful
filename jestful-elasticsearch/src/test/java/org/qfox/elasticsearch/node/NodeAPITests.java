@@ -14,15 +14,13 @@ public class NodeAPITests extends BasicAPITest {
     private NodeAPI nodeAPI;
 
     @Test
-    public void testStatus() throws Exception {
-        NodeStatusResult result = nodeAPI.status();
-        print(result);
+    public void testStatus() {
+        nodeAPI.status();
     }
 
     @Test
-    public void testCount() throws Exception {
-        NodeCountResult result = nodeAPI.count();
-        print(result);
+    public void testCount() {
+        nodeAPI.count();
     }
 
 }
