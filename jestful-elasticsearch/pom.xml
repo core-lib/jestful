@@ -23,6 +23,12 @@
         </dependency>
         <dependency>
             <groupId>org.qfox</groupId>
+            <artifactId>jestful-RxJava</artifactId>
+            <version>v2.4.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.qfox</groupId>
             <artifactId>jestful-json</artifactId>
             <version>v2.4.4</version>
             <scope>test</scope>
@@ -49,21 +55,25 @@
             <groupId>org.qfox</groupId>
             <artifactId>jestful-logging</artifactId>
             <version>v2.4.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.qfox</groupId>
-            <artifactId>jestful-RxJava</artifactId>
-            <version>v2.4.4</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
             <version>6.2.4</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <version>6.2.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.25</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

@@ -2,6 +2,7 @@ package org.qfox.elasticsearch.node;
 
 import org.junit.Test;
 import org.qfox.elasticsearch.BasicAPITest;
+import rx.functions.Action1;
 
 /**
  * 节点API测试类
@@ -15,12 +16,22 @@ public class NodeAPITests extends BasicAPITest {
 
     @Test
     public void testStatus() {
-        nodeAPI.status();
+        nodeAPI.status().subscribe(new Action1<NodeStatusResult>() {
+            @Override
+            public void call(NodeStatusResult nodeStatusResult) {
+                print(nodeStatusResult);
+            }
+        });
     }
 
     @Test
     public void testCount() {
-        nodeAPI.count();
+        nodeAPI.count().subscribe(new Action1<NodeCountResult>() {
+            @Override
+            public void call(NodeCountResult nodeCountResult) {
+                print(nodeCountResult);
+            }
+        });
     }
 
 }

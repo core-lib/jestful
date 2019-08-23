@@ -27,7 +27,6 @@ public abstract class BasicAPITest {
                 .setKeepAlive(false)
                 .build();
         LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
-
         Class<? extends BasicAPITest> clazz = this.getClass();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
