@@ -1,5 +1,6 @@
 package org.qfox.jestful.logging;
 
+import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.core.Response;
 import org.qfox.jestful.core.ResponseWrapper;
 import org.qfox.jestful.core.Status;
@@ -58,6 +59,12 @@ public class LoggingResponse extends ResponseWrapper {
                 }
                 if (lis != null) {
                     logger.debug("{}", lis.toString());
+                }
+            }
+            if (logger.isWarnEnabled()) {
+                String warning = this.getResponseHeader("Warning");
+                if (!StringKit.isEmpty(warning)) {
+                    logger.warn(warning);
                 }
             }
         } finally {

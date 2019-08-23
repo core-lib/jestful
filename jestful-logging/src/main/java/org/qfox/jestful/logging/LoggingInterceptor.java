@@ -29,8 +29,7 @@ public class LoggingInterceptor implements BackPlugin {
         Response oldResponse = action.getResponse();
         action.setRequest(new LoggingRequest(oldRequest, logger));
         action.setResponse(new LoggingResponse(oldResponse, logger));
-        Object execute = action.execute();
-        return execute;
+        return action.execute();
     }
 
     public ILogger getLogger() {
