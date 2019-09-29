@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.handler;
+package org.qfox.jestful.client.processor;
 
 import org.qfox.jestful.client.annotation.Cookies;
 import org.qfox.jestful.client.exception.IllegalCookieException;
@@ -19,7 +19,7 @@ import java.net.URLEncoder;
  * @date 2016年4月28日 下午9:41:34
  * @since 1.0.0
  */
-public class CookiesAnnotationHandler implements Actor {
+public class CookiesAnnotationProcessor implements Actor {
 
     public Object react(Action action) throws Exception {
         Request request = action.getRequest();
@@ -64,7 +64,7 @@ public class CookiesAnnotationHandler implements Actor {
             }
         }
         if (cookie.length() > 0) {
-            request.setRequestHeader("Cookie", cookie.length() == 0 ? null : cookie);
+            request.setRequestHeader("Cookie", cookie);
         }
         return action.execute();
     }

@@ -28,7 +28,7 @@ public abstract class HTTPGetRedirect implements Redirect {
                 .setProduces(action.getProduces())
                 .setConsumes(action.getConsumes())
                 .setParameters(new Parameters(parameters))
-                .setRestful(new Restful("GET", false, true, true))
+                .setRestful(Restful.GET)
                 .setResult(new Result(type));
     }
 }

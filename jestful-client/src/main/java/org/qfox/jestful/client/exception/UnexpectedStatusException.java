@@ -25,7 +25,7 @@ public class UnexpectedStatusException extends StatusException {
     private final String body;
 
     public UnexpectedStatusException(String uri, String method, Status status, Map<String, String[]> header, String body) {
-        super(uri, method, status.getCode(), status.getReason());
+        super(uri, method, status.getCode(), status.getReason() + (body != null ? " - " + body : ""));
         this.header = header;
         this.body = body;
     }

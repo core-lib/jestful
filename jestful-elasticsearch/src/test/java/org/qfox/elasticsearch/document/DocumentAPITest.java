@@ -44,7 +44,7 @@ public class DocumentAPITest extends BasicAPITest {
 
     @Test
     public void testExists() {
-        documentAPI.exists("basic", "product", "34")
+        documentAPI.exists("basic", "product", "3")
                 .subscribeOn(Schedulers.immediate())
                 .subscribe(new Action1<Status>() {
                     @Override

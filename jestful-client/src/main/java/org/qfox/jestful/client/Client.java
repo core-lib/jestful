@@ -5,15 +5,14 @@ import org.qfox.jestful.client.catcher.Catcher;
 import org.qfox.jestful.client.connection.Connection;
 import org.qfox.jestful.client.connection.Connector;
 import org.qfox.jestful.client.exception.NoSuchSerializerException;
-import org.qfox.jestful.client.exception.UnexpectedStatusException;
 import org.qfox.jestful.client.exception.UnexpectedTypeException;
 import org.qfox.jestful.client.exception.UnsupportedProtocolException;
 import org.qfox.jestful.client.gateway.Gateway;
+import org.qfox.jestful.client.handler.Handler;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.commons.StringKit;
-import org.qfox.jestful.commons.collection.CaseInsensitiveMap;
 import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
 import org.qfox.jestful.core.exception.NoSuchCharsetException;
@@ -38,7 +37,6 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,6 +62,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     protected final Map<MediaType, ResponseDeserializer> deserializers = new LinkedHashMap<MediaType, ResponseDeserializer>();
     protected final Map<String, Scheduler> schedulers = new LinkedHashMap<String, Scheduler>();
     protected final Map<String, Connector> connectors = new LinkedHashMap<String, Connector>();
+    protected final Map<String, Handler> handlers = new LinkedHashMap<String, Handler>();
     protected final Map<String, Catcher> catchers = new LinkedHashMap<String, Catcher>();
     protected final String protocol;
     protected final String hostname;
@@ -232,6 +231,9 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         Map<String, Scheduler> schedulers = beanContainer.find(Scheduler.class);
         this.schedulers.putAll(schedulers);
 
+        Map<String, Handler> handlers = beanContainer.find(Handler.class);
+        this.handlers.putAll(handlers);
+
         Map<String, Catcher> catchers = beanContainer.find(Catcher.class);
         this.catchers.putAll(catchers);
     }
@@ -295,6 +297,30 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         throw new UnsupportedProtocolException(action.getProtocol());
     }
 
+    protected Object call(Action action) throws Exception {
+        Request request = action.getRequest();
+        Response response = action.getResponse();
+        try {
+            Restful restful = action.getRestful();
+            String name = restful.getHandler();
+            Handler handler = handlers.get(name);
+            if (handler == null) {
+                throw new IllegalStateException("unknown handler named: " + name);
+            }
+            handler.doActionWriting(this, action);
+            handler.doActionReading(this, action);
+            return action.getResult().getBody().getValue();
+        } catch (StatusException se) {
+            for (Catcher catcher : catchers.values()) if (catcher.catchable(se)) return catcher.caught(Client.this, action, se);
+            throw se;
+        } finally {
+            IOKit.close(request);
+            IOKit.close(response);
+        }
+    }
+
+
+
     public void serialize(Action action) throws Exception {
         Request request = action.getRequest();
         List<Parameter> bodies = action.getParameters().all(Position.BODY);
@@ -311,7 +337,7 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                 charset = options.first().getName();
             }
             Accepts consumes = action.getConsumes();
-            for (Entry<MediaType, RequestSerializer> entry : serializers.entrySet()) {
+            for (Map.Entry<MediaType, RequestSerializer> entry : serializers.entrySet()) {
                 MediaType mediaType = entry.getKey();
                 RequestSerializer serializer = entry.getValue();
                 if ((consumes.isEmpty() || consumes.contains(mediaType)) && serializer.supports(action)) {
@@ -321,8 +347,6 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
                         serializer.serialize(action, charset, out);
                         out.flush();
                         return;
-                    } catch (Exception e) {
-                        throw e;
                     } finally {
                         IOKit.close(out);
                     }
@@ -387,48 +411,6 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         } else {
             if (!produces.isEmpty()) supports.retainAll(produces);
             throw new UnexpectedTypeException(mediaType, supports);
-        }
-    }
-
-    protected Object call(Action action) throws Exception {
-        Request request = action.getRequest();
-        Response response = action.getResponse();
-        try {
-            Restful restful = action.getRestful();
-
-            if (restful.isAcceptBody()) serialize(action);
-            else request.connect();
-
-            validate(action);
-
-            deserialize(action);
-            return action.getResult().getBody().getValue();
-        } catch (StatusException se) {
-            for (Catcher catcher : catchers.values()) if (catcher.catchable(se)) return catcher.caught(Client.this, action, se);
-            throw se;
-        } finally {
-            IOKit.close(request);
-            IOKit.close(response);
-        }
-    }
-
-    private void validate(Action action) throws IOException {
-        Response response = action.getResponse();
-        if (!response.isResponseSuccess()) {
-            String contentType = response.getContentType();
-            MediaType mediaType = MediaType.valueOf(contentType);
-            String charset = mediaType.getCharset();
-            if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
-            if (StringKit.isBlank(charset)) charset = response.getCharacterEncoding();
-            if (StringKit.isBlank(charset)) charset = Charset.defaultCharset().name();
-            Status status = response.getResponseStatus();
-            Map<String, String[]> header = new CaseInsensitiveMap<String, String[]>();
-            String[] keys = response.getHeaderKeys();
-            for (String key : keys) header.put(key == null ? "" : key, response.getResponseHeaders(key));
-            InputStream in = response.getResponseInputStream();
-            InputStreamReader reader = in == null ? null : new InputStreamReader(in, charset);
-            String body = reader != null ? IOKit.toString(reader) : "";
-            throw new UnexpectedStatusException(action.getRequestURI(), action.getRestful().getMethod(), status, header, body);
         }
     }
 

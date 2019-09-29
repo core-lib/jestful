@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.handler;
+package org.qfox.jestful.client.processor;
 
 import org.qfox.jestful.client.annotation.Queries;
 import org.qfox.jestful.client.exception.IllegalQueryException;
@@ -22,7 +22,7 @@ import java.net.URLEncoder;
  * @date 2016年4月28日 下午6:57:09
  * @since 1.0.0
  */
-public class QueriesAnnotationHandler implements Actor {
+public class QueriesAnnotationProcessor implements Actor {
 
     public Object react(Action action) throws Exception {
         String query = action.getQuery();
@@ -67,7 +67,7 @@ public class QueriesAnnotationHandler implements Actor {
             }
         }
 
-        action.setQuery(query == null || query.length() == 0 ? null : query);
+        action.setQuery(query.length() == 0 ? null : query);
         return action.execute();
     }
 

@@ -1,4 +1,4 @@
-package org.qfox.jestful.client.handler;
+package org.qfox.jestful.client.processor;
 
 import org.qfox.jestful.client.annotation.Headers;
 import org.qfox.jestful.client.exception.IllegalHeaderException;
@@ -19,7 +19,7 @@ import java.net.URLEncoder;
  * @date 2016年4月28日 下午8:08:09
  * @since 1.0.0
  */
-public class HeadersAnnotationHandler implements Actor {
+public class HeadersAnnotationProcessor implements Actor {
 
 	public Object react(Action action) throws Exception {
 		Request request = action.getRequest();

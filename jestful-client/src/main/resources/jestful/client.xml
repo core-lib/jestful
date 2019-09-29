@@ -6,7 +6,7 @@
     <bean id="client" class="org.qfox.jestful.core.Group">
         <constructor-arg index="0">
             <list>
-                <bean class="org.qfox.jestful.client.handler.QueriesAnnotationHandler"/>
+                <bean class="org.qfox.jestful.client.processor.QueriesAnnotationProcessor"/>
                 <bean class="org.qfox.jestful.client.processor.QueryParameterProcessor"/>
                 <bean class="org.qfox.jestful.client.combiner.JestfulURICombiner"/>
                 <bean class="org.qfox.jestful.client.combiner.JestfulURLCombiner"/>
@@ -16,9 +16,9 @@
                 <bean class="org.qfox.jestful.client.accept.AcceptContentEncodingDecider"/>
                 <bean class="org.qfox.jestful.client.accept.AcceptContentLanguageDecider"/>
                 <bean class="org.qfox.jestful.client.accept.AcceptContentTypeDecider"/>
-                <bean class="org.qfox.jestful.client.handler.HeadersAnnotationHandler"/>
+                <bean class="org.qfox.jestful.client.processor.HeadersAnnotationProcessor"/>
                 <bean class="org.qfox.jestful.client.processor.HeaderParameterProcessor"/>
-                <bean class="org.qfox.jestful.client.handler.CookiesAnnotationHandler"/>
+                <bean class="org.qfox.jestful.client.processor.CookiesAnnotationProcessor"/>
                 <bean class="org.qfox.jestful.client.processor.CookieParameterProcessor"/>
                 <bean class="org.qfox.jestful.client.wrapper.RequestEncodeWrapper"/>
                 <bean class="org.qfox.jestful.client.wrapper.ResponseDecodeWrapper"/>
@@ -47,5 +47,7 @@
     <bean class="org.qfox.jestful.client.scheduler.LambdaScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.FutureScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.CompletableFutureScheduler"/>
+
+    <bean id="default-handler" class="org.qfox.jestful.client.handler.DefaultHandler"/>
 
 </beans>

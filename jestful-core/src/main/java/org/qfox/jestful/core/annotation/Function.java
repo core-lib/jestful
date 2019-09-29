@@ -55,4 +55,11 @@ public @interface Function {
      */
     Class<? extends Annotation> protocol();
 
+    /**
+     * function handler name
+     *
+     * @return function handler name
+     */
+    String handler() default "default-handler";
+
 }
