@@ -2,6 +2,7 @@ package org.qfox.elasticsearch.document;
 
 import org.junit.Test;
 import org.qfox.elasticsearch.BasicAPITest;
+import org.qfox.jestful.core.Status;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
@@ -31,12 +32,25 @@ public class DocumentAPITest extends BasicAPITest {
 
     @Test
     public void testCreate() {
-        documentAPI.create("basic", "product", new Product("iPhone XR", new BigDecimal(5099))).doOnNext(new Action1<DocumentIndexResult>() {
-            @Override
-            public void call(DocumentIndexResult documentIndexResult) {
-                print(documentIndexResult);
-            }
-        });
+        documentAPI.create("basic", "product", new Product("iPhone XR", new BigDecimal(5099)))
+                .doOnNext(new Action1<DocumentIndexResult>() {
+                    @Override
+                    public void call(DocumentIndexResult documentIndexResult) {
+                        print(documentIndexResult);
+                    }
+                })
+                .subscribe();
+    }
 
+    @Test
+    public void testExists() {
+        documentAPI.exists("basic", "product", "34")
+                .subscribeOn(Schedulers.immediate())
+                .subscribe(new Action1<Status>() {
+                    @Override
+                    public void call(Status status) {
+                        System.out.println(status);
+                    }
+                });
     }
 }

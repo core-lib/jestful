@@ -243,7 +243,7 @@ public class IOKit {
         } catch (IOException e) {
             throw e;
         } finally {
-            writer.close();
+            close(writer);
         }
     }
 

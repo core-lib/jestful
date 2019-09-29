@@ -28,7 +28,7 @@ public class HttpConnector implements Connector {
             Restful restful = action.getRestful();
             httpURLConnection.setRequestMethod(restful.getMethod());
             httpURLConnection.setDoOutput(restful.isAcceptBody());
-            httpURLConnection.setDoInput(restful.isReturnBody());
+            httpURLConnection.setDoInput(true);
             httpURLConnection.setInstanceFollowRedirects(false);
             SocketAddress address = address(action, gateway, client);
             Request request = new JestfulHttpClientRequest(httpURLConnection);

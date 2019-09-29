@@ -21,22 +21,28 @@ public class LoggingInputStream extends FilterInputStream {
     @Override
     public int read() throws IOException {
         int b = super.read();
-        buf.write(b);
+        if (b != -1) {
+            buf.write(b);
+        }
         return b;
     }
 
     @Override
     public int read(byte[] b) throws IOException {
         int len = super.read(b);
-        buf.write(b, 0, len);
+        if (len != -1) {
+            buf.write(b, 0, len);
+        }
         return len;
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        int l = super.read(b, off, len);
-        buf.write(b, 0, l);
-        return len;
+        int _len = super.read(b, off, len);
+        if (_len != -1) {
+            buf.write(b, 0, _len);
+        }
+        return _len;
     }
 
     @Override

@@ -25,7 +25,7 @@ public class LoggingRequest extends RequestWrapper {
     @Override
     public OutputStream getRequestOutputStream() throws IOException {
         OutputStream out = super.getRequestOutputStream();
-        return los = new LoggingOutputStream(out);
+        return los = out != null ? new LoggingOutputStream(out) : null;
     }
 
     @Override

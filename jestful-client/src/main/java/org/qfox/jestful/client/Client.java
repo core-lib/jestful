@@ -349,6 +349,9 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         } else if (body.getType() == Header.class) {
             Header header = new Header(response);
             body.setValue(header);
+        } else if (body.getType() == Status.class) {
+            Status status = response.getResponseStatus();
+            body.setValue(status);
         } else if ((produces.isEmpty() || produces.contains(mediaType)) && supports.contains(mediaType)) {
             String charset = mediaType.getCharset();
             if (StringKit.isBlank(charset)) charset = response.getResponseHeader("Content-Charset");
@@ -398,14 +401,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
             validate(action);
 
-            if (restful.isReturnBody()) {
-                deserialize(action);
-                return action.getResult().getBody().getValue();
-            } else {
-                Map<String, String> header = new CaseInsensitiveMap<String, String>();
-                for (String key : response.getHeaderKeys()) header.put(key != null ? key : "", response.getResponseHeader(key));
-                return header;
-            }
+            deserialize(action);
+            return action.getResult().getBody().getValue();
         } catch (StatusException se) {
             for (Catcher catcher : catchers.values()) if (catcher.catchable(se)) return catcher.caught(Client.this, action, se);
             throw se;

@@ -27,7 +27,7 @@ public class LoggingResponse extends ResponseWrapper {
     @Override
     public InputStream getResponseInputStream() throws IOException {
         InputStream in = super.getResponseInputStream();
-        return lis = new LoggingInputStream(in);
+        return lis = in != null ? new LoggingInputStream(in) : null;
     }
 
     @Override
