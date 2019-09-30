@@ -19,7 +19,7 @@ public class NioEventAdapter implements NioEventListener {
     }
 
     @Override
-    public void onCompleted(Action action) throws Exception {
+    public void onResponsed(Action action) throws Exception {
 
     }
 

@@ -18,10 +18,10 @@ import java.util.Map;
  * @author Payne 646742615@qq.com
  * 2019/9/29 16:22
  */
-public class DefaultHandler implements Handler {
+public abstract class AbstractHandler implements Handler {
 
     @Override
-    public void doActionWriting(Client client, Action action) throws Exception {
+    public void send(Client client, Action action) throws Exception {
         Request request = action.getRequest();
         Restful restful = action.getRestful();
         if (restful.isAcceptBody()) {
@@ -32,7 +32,7 @@ public class DefaultHandler implements Handler {
     }
 
     @Override
-    public void doActionReading(Client client, Action action) throws Exception {
+    public void receive(Client client, Action action) throws Exception {
         Response response = action.getResponse();
         if (!response.isResponseSuccess()) {
             String contentType = response.getContentType();

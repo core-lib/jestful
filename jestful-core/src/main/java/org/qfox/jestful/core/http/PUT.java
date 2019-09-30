@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Function(name = "PUT", acceptBody = true, returnBody = true, idempotent = true, protocol = HTTP.class)
+@Function(name = "PUT", acceptBody = true, returnBody = true, idempotent = true, protocol = HTTP.class, handler = "put-handler")
 public @interface PUT {
 
     /**

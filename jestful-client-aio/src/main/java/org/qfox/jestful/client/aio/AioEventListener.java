@@ -11,7 +11,7 @@ public interface AioEventListener {
 
     void onRequested(Action action) throws Exception;
 
-    void onCompleted(Action action) throws Exception;
+    void onResponsed(Action action) throws Exception;
 
     void onException(Action action, Exception exception);
 

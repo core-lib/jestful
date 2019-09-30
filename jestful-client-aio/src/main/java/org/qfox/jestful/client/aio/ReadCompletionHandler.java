@@ -23,7 +23,7 @@ public class ReadCompletionHandler extends AioCompletionHandler<Integer> {
         buffer.flip();
         if (connection.load(buffer)) {
             AioEventListener listener = (AioEventListener) action.getExtra().get(AioEventListener.class);
-            listener.onCompleted(action);
+            listener.onResponsed(action);
             this.release();
         } else {
             long timeAvailable = toTimeAvailable();

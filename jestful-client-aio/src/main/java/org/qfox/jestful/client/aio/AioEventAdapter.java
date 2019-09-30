@@ -17,7 +17,7 @@ public class AioEventAdapter implements AioEventListener {
     }
 
     @Override
-    public void onCompleted(Action action) throws Exception {
+    public void onResponsed(Action action) throws Exception {
 
     }
 

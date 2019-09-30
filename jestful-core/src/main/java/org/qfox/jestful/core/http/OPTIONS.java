@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Function(name = "OPTIONS", acceptBody = false, returnBody = false, idempotent = true, protocol = HTTP.class)
+@Function(name = "OPTIONS", acceptBody = false, returnBody = false, idempotent = true, protocol = HTTP.class, handler = "options-handler")
 public @interface OPTIONS {
 
     /**

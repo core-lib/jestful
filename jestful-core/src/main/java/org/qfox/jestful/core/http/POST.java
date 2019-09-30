@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Function(name = "POST", acceptBody = true, returnBody = true, idempotent = false, protocol = HTTP.class)
+@Function(name = "POST", acceptBody = true, returnBody = true, idempotent = false, protocol = HTTP.class, handler = "post-handler")
 public @interface POST {
 
     /**

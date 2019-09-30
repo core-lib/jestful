@@ -1,8 +1,12 @@
 package org.qfox.jestful.core;
 
+import org.qfox.jestful.commons.IOKit;
 import org.qfox.jestful.core.exception.DuplicateExecuteException;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 /**
@@ -15,15 +19,15 @@ import java.util.regex.Pattern;
  * </p>
  *
  * @author Payne 646742615@qq.com
- * @time 2016年1月15日 下午8:50:44
+ * @date 2016年1月15日 下午8:50:44
  * @since 1.0.0
  */
-public class Action {
+public class Action implements Closeable {
     private final BeanContainer beanContainer;
     private final List<Actor> actors;
     private final List<ForePlugin> forePlugins;
     private final List<BackPlugin> backPlugins;
-    private volatile int index = 0;
+    private final AtomicInteger index = new AtomicInteger();
     private Resource resource;
     private Mapping mapping;
     private Parameters parameters;
@@ -86,10 +90,10 @@ public class Action {
      * @throws Exception all type exception may be thrown
      */
     public Object execute() throws Exception {
-        if (index >= actors.size()) {
+        if (index.get() >= actors.size()) {
             throw new DuplicateExecuteException(this);
         }
-        return actors.get(index++).react(this);
+        return actors.get(index.getAndIncrement()).react(this);
     }
 
     /**
@@ -98,7 +102,7 @@ public class Action {
      * @param intruders the first actors will execute this action
      */
     public void intrude(Actor... intruders) {
-        actors.addAll(index, Arrays.asList(intruders));
+        actors.addAll(index.get(), Arrays.asList(intruders));
     }
 
     /**
@@ -107,7 +111,7 @@ public class Action {
      * @param intruders the first actors will execute this action
      */
     public void intrude(List<Actor> intruders) {
-        actors.addAll(index, intruders);
+        actors.addAll(index.get(), intruders);
     }
 
     public BeanContainer getBeanContainer() {
@@ -394,4 +398,9 @@ public class Action {
         this.extra = extra;
     }
 
+    @Override
+    public void close() throws IOException {
+        IOKit.close(request);
+        IOKit.close(response);
+    }
 }

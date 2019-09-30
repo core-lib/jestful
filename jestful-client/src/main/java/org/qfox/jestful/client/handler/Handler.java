@@ -12,21 +12,21 @@ import org.qfox.jestful.core.Action;
 public interface Handler {
 
     /**
-     * 写
+     * 发
      *
      * @param client 客户端
      * @param action 请求
      * @throws Exception 异常
      */
-    void doActionWriting(Client client, Action action) throws Exception;
+    void send(Client client, Action action) throws Exception;
 
     /**
-     * 读
+     * 收
      *
      * @param client 客户端
      * @param action 请求
      * @throws Exception 异常
      */
-    void doActionReading(Client client, Action action) throws Exception;
+    void receive(Client client, Action action) throws Exception;
 
 }

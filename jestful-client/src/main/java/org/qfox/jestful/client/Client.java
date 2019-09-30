@@ -301,14 +301,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         Request request = action.getRequest();
         Response response = action.getResponse();
         try {
-            Restful restful = action.getRestful();
-            String name = restful.getHandler();
-            Handler handler = handlers.get(name);
-            if (handler == null) {
-                throw new IllegalStateException("unknown handler named: " + name);
-            }
-            handler.doActionWriting(this, action);
-            handler.doActionReading(this, action);
+            send(action);
+            receive(action);
             return action.getResult().getBody().getValue();
         } catch (StatusException se) {
             for (Catcher catcher : catchers.values()) if (catcher.catchable(se)) return catcher.caught(Client.this, action, se);
@@ -319,7 +313,25 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
         }
     }
 
+    protected void send(Action action) throws Exception {
+        Restful restful = action.getRestful();
+        String name = restful.getHandler();
+        Handler handler = handlers.get(name);
+        if (handler == null) {
+            throw new IllegalStateException("unknown handler named: " + name);
+        }
+        handler.send(this, action);
+    }
 
+    protected void receive(Action action) throws Exception {
+        Restful restful = action.getRestful();
+        String name = restful.getHandler();
+        Handler handler = handlers.get(name);
+        if (handler == null) {
+            throw new IllegalStateException("unknown handler named: " + name);
+        }
+        handler.receive(this, action);
+    }
 
     public void serialize(Action action) throws Exception {
         Request request = action.getRequest();

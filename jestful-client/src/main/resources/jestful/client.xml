@@ -48,6 +48,11 @@
     <bean class="org.qfox.jestful.client.scheduler.FutureScheduler"/>
     <bean class="org.qfox.jestful.client.scheduler.CompletableFutureScheduler"/>
 
-    <bean id="default-handler" class="org.qfox.jestful.client.handler.DefaultHandler"/>
+    <bean id="get-handler" class="org.qfox.jestful.client.handler.GetHandler"/>
+    <bean id="post-handler" class="org.qfox.jestful.client.handler.PostHandler"/>
+    <bean id="put-handler" class="org.qfox.jestful.client.handler.PutHandler"/>
+    <bean id="delete-handler" class="org.qfox.jestful.client.handler.DeleteHandler"/>
+    <bean id="head-handler" class="org.qfox.jestful.client.handler.HeadHandler"/>
+    <bean id="options-handler" class="org.qfox.jestful.client.handler.OptionsHandler"/>
 
 </beans>

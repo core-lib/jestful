@@ -20,7 +20,7 @@ import java.lang.annotation.*;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
-@Function(name = "DELETE", acceptBody = true, returnBody = true, idempotent = true, protocol = HTTP.class)
+@Function(name = "DELETE", acceptBody = true, returnBody = true, idempotent = true, protocol = HTTP.class, handler = "delete-handler")
 public @interface DELETE {
 
     /**

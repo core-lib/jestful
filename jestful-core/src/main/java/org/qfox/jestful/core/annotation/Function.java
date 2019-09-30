@@ -60,6 +60,6 @@ public @interface Function {
      *
      * @return function handler name
      */
-    String handler() default "default-handler";
+    String handler();
 
 }
