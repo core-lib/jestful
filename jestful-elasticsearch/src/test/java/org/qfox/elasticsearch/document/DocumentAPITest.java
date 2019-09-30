@@ -2,7 +2,6 @@ package org.qfox.elasticsearch.document;
 
 import org.junit.Test;
 import org.qfox.elasticsearch.BasicAPITest;
-import org.qfox.jestful.core.Status;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
@@ -46,9 +45,9 @@ public class DocumentAPITest extends BasicAPITest {
     public void testExists() {
         documentAPI.exists("basic", "product", "3")
                 .subscribeOn(Schedulers.immediate())
-                .subscribe(new Action1<Status>() {
+                .subscribe(new Action1<Integer>() {
                     @Override
-                    public void call(Status status) {
+                    public void call(Integer status) {
                         System.out.println(status);
                     }
                 });

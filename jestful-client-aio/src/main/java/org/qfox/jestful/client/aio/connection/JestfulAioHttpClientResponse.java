@@ -122,7 +122,7 @@ public class JestfulAioHttpClientResponse extends JestfulClientResponse implemen
                         if (++crlfs == 2) {
                             doReadHeader();
                             crlfs = 0;
-                            return doLoad(buffer);
+                            return !action.getRestful().isReturnBody() || doLoad(buffer);
                         }
                         break;
                     case '\r':
@@ -204,7 +204,7 @@ public class JestfulAioHttpClientResponse extends JestfulClientResponse implemen
     }
 
     @Override
-    public InputStream getResponseInputStream() throws IOException {
+    public InputStream getResponseInputStream() {
         if (in != null) {
             return in;
         }
@@ -217,7 +217,7 @@ public class JestfulAioHttpClientResponse extends JestfulClientResponse implemen
     }
 
     @Override
-    public OutputStream getResponseOutputStream() throws IOException {
+    public OutputStream getResponseOutputStream() {
         throw new UnsupportedOperationException();
     }
 
@@ -235,22 +235,22 @@ public class JestfulAioHttpClientResponse extends JestfulClientResponse implemen
     }
 
     @Override
-    public Writer getResponseWriter() throws IOException {
+    public Writer getResponseWriter() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Status getResponseStatus() throws IOException {
+    public Status getResponseStatus() {
         return status;
     }
 
     @Override
-    public void setResponseStatus(Status status) throws IOException {
+    public void setResponseStatus(Status status) {
         this.status = status;
     }
 
     @Override
-    public boolean isResponseSuccess() throws IOException {
+    public boolean isResponseSuccess() {
         return status != null && status.isSuccess();
     }
 

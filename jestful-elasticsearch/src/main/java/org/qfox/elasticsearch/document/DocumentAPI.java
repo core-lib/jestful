@@ -1,6 +1,5 @@
 package org.qfox.elasticsearch.document;
 
-import org.qfox.jestful.core.Status;
 import org.qfox.jestful.core.http.*;
 import rx.Observable;
 
@@ -20,5 +19,5 @@ public interface DocumentAPI {
     Observable<DocumentIndexResult> create(@Path("index") String index, @Path("type") String type, @Body Object document);
 
     @HEAD("/{index}/{type}/{id}")
-    Observable<Status> exists(@Path("index") String index, @Path("type") String type, @Path("id") String id);
+    Observable<Integer> exists(@Path("index") String index, @Path("type") String type, @Path("id") String id);
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.qfox.jestful.client.Client;
+import org.qfox.jestful.client.aio.AioClient;
 import org.qfox.jestful.core.http.HTTP;
 import org.qfox.jestful.logging.LoggingInterceptor;
 
@@ -22,7 +23,7 @@ public abstract class BasicAPITest {
 
     @Before
     public void setup() throws Exception {
-        Client client = Client.builder()
+        Client client = AioClient.builder()
                 .setEndpoint(new URL("http://localhost:9200"))
                 .setKeepAlive(false)
                 .build();
