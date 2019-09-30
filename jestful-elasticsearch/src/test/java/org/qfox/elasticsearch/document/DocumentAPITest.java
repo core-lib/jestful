@@ -43,11 +43,23 @@ public class DocumentAPITest extends BasicAPITest {
 
     @Test
     public void testExists() {
-        documentAPI.exists("basic", "product", "3")
+        documentAPI.exists("basic", "product", "4")
                 .subscribeOn(Schedulers.immediate())
-                .subscribe(new Action1<Integer>() {
+                .subscribe(new Action1<Boolean>() {
                     @Override
-                    public void call(Integer status) {
+                    public void call(Boolean status) {
+                        System.out.println(status);
+                    }
+                });
+    }
+
+    @Test
+    public void testDelete() {
+        documentAPI.delete("basic", "product", "3")
+                .subscribeOn(Schedulers.immediate())
+                .subscribe(new Action1<DocumentIndexResult>() {
+                    @Override
+                    public void call(DocumentIndexResult status) {
                         System.out.println(status);
                     }
                 });

@@ -49,7 +49,7 @@ public class LoggingRequest extends RequestWrapper {
             if (logger.isDebugEnabled()) {
                 String[] headerKeys = this.getHeaderKeys();
                 for (String headerKey : headerKeys) {
-                    if (headerKey == null) {
+                    if (headerKey == null || headerKey.isEmpty()) {
                         continue;
                     }
                     String[] headerValues = this.getRequestHeaders(headerKey);
