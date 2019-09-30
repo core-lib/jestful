@@ -27,4 +27,12 @@ public interface DocumentAPI<T> {
     @GET("/{index}/{type}/{id}")
     Observable<DocumentQueryResult<T>> query(@Path("index") String index, @Path("type") String type, @Path("id") String id);
 
+    @GET("/{index}/{type}/{id}")
+    Observable<DocumentQueryResult<T>> query(@Path("index") String index, @Path("type") String type, @Path("id") String id, @Query("_source") String sources);
+
+    @GET("/{index}/{type}/{id}/_source")
+    Observable<T> source(@Path("index") String index, @Path("type") String type, @Path("id") String id);
+
+    @GET("/{index}/{type}/{id}/_source")
+    Observable<T> source(@Path("index") String index, @Path("type") String type, @Path("id") String id, @Query("_source") String sources);
 }

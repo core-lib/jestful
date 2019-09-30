@@ -69,9 +69,45 @@ public class DocumentAPITest extends BasicAPITest {
     public void testQuery() {
         productAPI.query("basic", "product", "3")
                 .subscribeOn(Schedulers.immediate())
-                .subscribe(new Action1<DocumentQueryResult>() {
+                .subscribe(new Action1<DocumentQueryResult<Product>>() {
                     @Override
-                    public void call(DocumentQueryResult result) {
+                    public void call(DocumentQueryResult<Product> result) {
+                        print(result);
+                    }
+                });
+    }
+
+    @Test
+    public void testQueryWithSource() {
+        productAPI.query("basic", "product", "3", "name,price")
+                .subscribeOn(Schedulers.immediate())
+                .subscribe(new Action1<DocumentQueryResult<Product>>() {
+                    @Override
+                    public void call(DocumentQueryResult<Product> result) {
+                        print(result);
+                    }
+                });
+    }
+
+    @Test
+    public void testSource() {
+        productAPI.source("basic", "product", "3")
+                .subscribeOn(Schedulers.immediate())
+                .subscribe(new Action1<Product>() {
+                    @Override
+                    public void call(Product result) {
+                        print(result);
+                    }
+                });
+    }
+
+    @Test
+    public void testSourceWithSource() {
+        productAPI.source("basic", "product", "3", "name")
+                .subscribeOn(Schedulers.immediate())
+                .subscribe(new Action1<Product>() {
+                    @Override
+                    public void call(Product result) {
                         print(result);
                     }
                 });
