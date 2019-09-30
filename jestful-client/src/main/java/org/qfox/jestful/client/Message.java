@@ -17,11 +17,11 @@ public final class Message implements Serializable {
     private final Entity entity;
     private final Exception exception;
 
-    Message(Response response) {
+    public Message(Response response) {
         this(response, null);
     }
 
-    Message(Response response, Exception ex) {
+    public Message(Response response, Exception ex) {
         boolean success = false;
         Status status = null;
         Header header = null;

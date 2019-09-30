@@ -8,7 +8,7 @@ public final class Header implements Serializable {
     private static final long serialVersionUID = -2109010455698947217L;
     private final Response response;
 
-    Header(Response response) {
+    public Header(Response response) {
         this.response = response;
     }
 
