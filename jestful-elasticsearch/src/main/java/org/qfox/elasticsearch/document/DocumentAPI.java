@@ -10,18 +10,21 @@ import rx.Observable;
  * 2019/8/19 9:47
  */
 @HTTP
-public interface DocumentAPI {
+public interface DocumentAPI<T> {
 
     @PUT("/{index}/{type}/{id}")
-    Observable<DocumentIndexResult> index(@Path("index") String index, @Path("type") String type, @Path("id") String id, @Body Object document);
+    Observable<DocumentIndexResult> index(@Path("index") String index, @Path("type") String type, @Path("id") String id, @Body T document);
 
     @POST("/{index}/{type}")
-    Observable<DocumentIndexResult> create(@Path("index") String index, @Path("type") String type, @Body Object document);
+    Observable<DocumentIndexResult> create(@Path("index") String index, @Path("type") String type, @Body T document);
 
     @HEAD("/{index}/{type}/{id}")
     Observable<Boolean> exists(@Path("index") String index, @Path("type") String type, @Path("id") String id);
 
     @DELETE("/{index}/{type}/{id}")
-    Observable<DocumentIndexResult> delete(@Path("index") String index, @Path("type") String type, @Path("id") String id);
+    Observable<DocumentDeleteResult> delete(@Path("index") String index, @Path("type") String type, @Path("id") String id);
+
+    @GET("/{index}/{type}/{id}")
+    Observable<DocumentQueryResult<T>> query(@Path("index") String index, @Path("type") String type, @Path("id") String id);
 
 }

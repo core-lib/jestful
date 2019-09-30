@@ -12,6 +12,7 @@ import org.qfox.jestful.client.handler.Handler;
 import org.qfox.jestful.client.scheduler.Callback;
 import org.qfox.jestful.client.scheduler.Scheduler;
 import org.qfox.jestful.commons.IOKit;
+import org.qfox.jestful.commons.ReflectionKit;
 import org.qfox.jestful.commons.StringKit;
 import org.qfox.jestful.commons.conversion.ConversionProvider;
 import org.qfox.jestful.core.*;
@@ -431,13 +432,15 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
     }
 
     protected Object schedule(Action action) throws Exception {
+        Class<?> root = action.getResource().getKlass();
         Result result = action.getResult();
         Body body = result.getBody();
 
         for (Scheduler scheduler : schedulers.values()) {
             if (scheduler.supports(action)) {
                 Type type = scheduler.getBodyType(this, action);
-                body.setType(type);
+                Type derivedType = ReflectionKit.derive(root, type);
+                body.setType(derivedType);
                 Object value = scheduler.schedule(this, action);
                 result.setValue(value);
                 return value;
@@ -446,7 +449,8 @@ public class Client implements Actor, Connector, Executor, Initialable, Destroya
 
         try {
             Type type = result.getType();
-            body.setType(type);
+            Type derivedType = ReflectionKit.derive(root, type);
+            body.setType(derivedType);
             Promise promise = (Promise) action.execute();
             Object value = promise.acquire();
             result.setValue(value);

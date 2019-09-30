@@ -173,6 +173,10 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
         return controller;
     }
 
+    public Class<?> getKlass() {
+        return klass;
+    }
+
     public String getExpression() {
         return expression;
     }
@@ -199,11 +203,8 @@ public class Resource extends Configuration implements Hierarchical<PathExpressi
             return false;
         Resource other = (Resource) obj;
         if (expression == null) {
-            if (other.expression != null)
-                return false;
-        } else if (!expression.equals(other.expression))
-            return false;
-        return true;
+            return other.expression == null;
+        } else return expression.equals(other.expression);
     }
 
     @Override

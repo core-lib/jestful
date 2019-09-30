@@ -15,11 +15,11 @@ import java.math.BigDecimal;
  */
 public class DocumentAPITest extends BasicAPITest {
 
-    private DocumentAPI documentAPI;
+    private ProductAPI productAPI;
 
     @Test
     public void testIndex() {
-        documentAPI.index("basic", "product", "3", new Product("iPhone XR", new BigDecimal(5099)))
+        productAPI.index("basic", "product", "3", new Product("iPhone XR", new BigDecimal(5099)))
                 .subscribeOn(Schedulers.immediate())
                 .subscribe(new Action1<DocumentIndexResult>() {
                     @Override
@@ -31,7 +31,7 @@ public class DocumentAPITest extends BasicAPITest {
 
     @Test
     public void testCreate() {
-        documentAPI.create("basic", "product", new Product("iPhone XR", new BigDecimal(5099)))
+        productAPI.create("basic", "product", new Product("iPhone XR", new BigDecimal(5099)))
                 .doOnNext(new Action1<DocumentIndexResult>() {
                     @Override
                     public void call(DocumentIndexResult documentIndexResult) {
@@ -43,24 +43,36 @@ public class DocumentAPITest extends BasicAPITest {
 
     @Test
     public void testExists() {
-        documentAPI.exists("basic", "product", "4")
+        productAPI.exists("basic", "product", "4")
                 .subscribeOn(Schedulers.immediate())
                 .subscribe(new Action1<Boolean>() {
                     @Override
-                    public void call(Boolean status) {
-                        System.out.println(status);
+                    public void call(Boolean existed) {
+                        print(existed);
                     }
                 });
     }
 
     @Test
     public void testDelete() {
-        documentAPI.delete("basic", "product", "3")
+        productAPI.delete("basic", "product", "3")
                 .subscribeOn(Schedulers.immediate())
-                .subscribe(new Action1<DocumentIndexResult>() {
+                .subscribe(new Action1<DocumentDeleteResult>() {
                     @Override
-                    public void call(DocumentIndexResult status) {
-                        System.out.println(status);
+                    public void call(DocumentDeleteResult result) {
+                        print(result);
+                    }
+                });
+    }
+
+    @Test
+    public void testQuery() {
+        productAPI.query("basic", "product", "3")
+                .subscribeOn(Schedulers.immediate())
+                .subscribe(new Action1<DocumentQueryResult>() {
+                    @Override
+                    public void call(DocumentQueryResult result) {
+                        print(result);
                     }
                 });
     }
