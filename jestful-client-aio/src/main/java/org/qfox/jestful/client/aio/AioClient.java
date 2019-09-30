@@ -359,20 +359,19 @@ public class AioClient extends Client implements AioConnector {
 
         @Override
         public void onResponsed(Action action) throws Exception {
-            IOKit.close(action);
-
             receive(action);
-
+            IOKit.close(action);
             promise.fulfill();
         }
 
         @Override
         public void onException(Action action, Exception exception) {
-            IOKit.close(action);
-
-            action.getResult().setException(exception);
-
-            promise.fulfill();
+            try {
+                action.getResult().setException(exception);
+            } finally {
+                IOKit.close(action);
+                promise.fulfill();
+            }
         }
     }
 }
